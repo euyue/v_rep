@@ -314,6 +314,21 @@ std::string CLuaScriptObject::getSystemCallbackString(int calltype,bool callTips
     return("");
 }
 
+std::string CLuaScriptObject::getSystemCallbackExString(int calltype)
+{
+    if (calltype==sim_syscb_cleanup)
+        return("sysCallEx_cleanup");
+    if (calltype==sim_syscb_beforeinstanceswitch)
+        return("sysCallEx_beforeInstanceSwitch");
+    if (calltype==sim_syscb_afterinstanceswitch)
+        return("sysCallEx_afterInstanceSwitch");
+    if (calltype==sim_syscb_aos_suspend)
+        return("sysCallEx_addOnScriptSuspend");
+    if (calltype==sim_syscb_aos_resume)
+        return("sysCallEx_addOnScriptResume");
+    return("");
+}
+
 bool CLuaScriptObject::canCallSystemCallback(int scriptType,bool threaded,int callType)
 {
     if (scriptType==-1)
@@ -1632,6 +1647,7 @@ void CLuaScriptObject::_launchThreadedChildScriptNow()
                 }
                 else
                     luaWrap_lua_pop(L,1); // pop the function name
+                _handleSimpleSysExCalls(calls[callIndex]);
             }
             if (CThreadPool::isThreadInFreeMode())
                 CThreadPool::setThreadFreeMode(false);
@@ -1712,6 +1728,16 @@ int CLuaScriptObject::_runCustomizationScript(int callType,const CInterfaceStack
     return(retVal);
 }
 
+void CLuaScriptObject::_handleSimpleSysExCalls(int callType)
+{
+    std::string cbEx(getSystemCallbackExString(callType));
+    if (cbEx.size()>0)
+    {
+        std::string tmp("if "+cbEx+" then "+cbEx+"() end");
+        luaWrap_luaL_dostring(L,tmp.c_str());
+    }
+}
+
 int CLuaScriptObject::_runScriptOrCallScriptFunction(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack,std::string* errorMsg,bool* hasJointCallbackFunc,bool* hasContactCallbackFunc,bool* hasDynCallbackFunc)
 { // retval: -2: compil error, -1: runtimeError, 0: function not there, 1: ok
     int retVal;
@@ -1784,6 +1810,7 @@ int CLuaScriptObject::_runScriptOrCallScriptFunction(int callType,const CInterfa
                 }
                 else
                 { // for backward compatibility:
+                    _handleSimpleSysExCalls(callType);
                     int currentTop=luaWrap_lua_gettop(L);
                     int numberOfArgs=currentTop-oldTop-1; // the first arg is linked to the debug mechanism
                     if (outStack!=NULL)
@@ -1868,10 +1895,18 @@ int CLuaScriptObject::_runScriptOrCallScriptFunction(int callType,const CInterfa
             luaWrap_lua_pop(L,1); // pop the function name
             retVal=0;
         }
+        _handleSimpleSysExCalls(callType);
     }
     luaWrap_lua_settop(L,oldTop);       // We restore lua's stack
     CApiErrors::popLocation(); // for correct error handling (i.e. assignement to the correct script and output)
     return(retVal);
+}
+
+int CLuaScriptObject::runSandboxScript(int callType)
+{
+    if (L!=NULL)
+        return(_runScriptOrCallScriptFunction(callType,NULL,NULL,NULL,NULL,NULL,NULL));
+    return(-1);
 }
 
 int CLuaScriptObject::runAddOn(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack)

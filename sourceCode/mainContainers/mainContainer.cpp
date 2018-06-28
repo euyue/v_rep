@@ -26,7 +26,6 @@ CMainContainer::CMainContainer()
     undoBufferContainer=NULL;
 #ifdef SIM_WITH_GUI
     globalGuiTextureCont=NULL;
-    genericDialogContainer=NULL;
 #endif
 #ifdef SIM_WITH_SERIAL
     serialPortContainer=NULL;
@@ -112,11 +111,7 @@ void CMainContainer::simulationAboutToStart()
     if (!CPluginContainer::isMeshPluginAvailable())
     {
 #ifdef SIM_WITH_GUI
-        float cols[6]={0.8f,0.0f,0.0f,1.0f,1.0f,1.0f};
-        float cols2[6]={0.5f,0.0f,0.0f,0.8f,0.8f,0.8f};
-        CGenericDialog* it=new CGenericDialog("ERROR","The 'MeshCalc' plugin could not be initialized. Collision detection, distance calculation,&&nproximity sensor simulation and cutting simulation will not work.",sim_dlgstyle_ok,false,NULL,cols,cols2);
-        it->setPauseActive(true);
-        genericDialogContainer->addDialog(it);
+        simDisplayDialog_internal("ERROR","The 'MeshCalc' plugin could not be initialized. Collision detection, distance calculation,\nproximity sensor simulation and cutting simulation will not work.",sim_dlgstyle_ok,"",NULL,NULL,NULL);
 #endif
         printf("ERROR: The 'MeshCalc' plugin could not be initialized. Collision detection,\n       distance calculation, proximity sensor simulation and cutting\n       simulation will not work.\n");
     }
@@ -132,9 +127,6 @@ void CMainContainer::simulationAboutToStart()
     dynamicsContainer->simulationAboutToStart();
     signalContainer->simulationAboutToStart();
     environment->simulationAboutToStart();
-#ifdef SIM_WITH_GUI
-    genericDialogContainer->simulationAboutToStart();
-#endif
     calcInfo->simulationAboutToStart();
     luaScriptContainer->simulationAboutToStart();
     mainSettings->simulationAboutToStart();
@@ -231,9 +223,6 @@ void CMainContainer::simulationEnded(bool removeNewObjects)
     dynamicsContainer->simulationEnded();
     signalContainer->simulationEnded();
     environment->simulationEnded();
-#ifdef SIM_WITH_GUI
-    genericDialogContainer->simulationEnded();
-#endif
     calcInfo->simulationEnded();
     luaScriptContainer->simulationEnded();
     mainSettings->simulationEnded();
@@ -341,6 +330,8 @@ int CMainContainer::createNewInstance()
     if (luaScriptContainer!=NULL)
         luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforeinstanceswitch,NULL,NULL,NULL);
     addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_beforeinstanceswitch,NULL,NULL);
+    if (sandboxScript!=NULL)
+        sandboxScript->runSandboxScript(sim_syscb_beforeinstanceswitch);
 
     if (simulation!=NULL)
         simulation->setOnlineMode(false); // disable online mode before switching
@@ -356,8 +347,6 @@ int CMainContainer::createNewInstance()
     SUIThreadCommand cmdOut;
     cmdIn.cmdId=INSTANCE_ABOUT_TO_BE_CREATED_UITHREADCMD;
     App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-
-    _genericDialogContainerList.push_back(NULL);
 #endif
 
     _undoBufferContainerList.push_back(NULL);
@@ -391,9 +380,6 @@ int CMainContainer::createNewInstance()
 
     currentInstanceIndex=int(_objContList.size())-1;
 
-#ifdef SIM_WITH_GUI
-    genericDialogContainer=NULL;
-#endif
     undoBufferContainer=NULL;
     outsideCommandQueue=NULL;
     buttonBlockContainer=NULL;
@@ -423,9 +409,6 @@ int CMainContainer::createNewInstance()
     ikGroups=NULL;
     objCont=NULL;
 
-#ifdef SIM_WITH_GUI
-    genericDialogContainer=new CGenericDialogContainer();
-#endif
     undoBufferContainer=new CUndoBufferCont();
     outsideCommandQueue=new COutsideCommandQueue();
     buttonBlockContainer=new CButtonBlockContainer(true);
@@ -455,9 +438,6 @@ int CMainContainer::createNewInstance()
     signalContainer=new CSignalContainer();
     commTubeContainer=new CCommTubeContainer();
 
-#ifdef SIM_WITH_GUI
-    _genericDialogContainerList[currentInstanceIndex]=genericDialogContainer;
-#endif
     _undoBufferContainerList[currentInstanceIndex]=undoBufferContainer;
     _outsideCommandQueueList[currentInstanceIndex]=outsideCommandQueue;
     _buttonBlockContainerList[currentInstanceIndex]=buttonBlockContainer;
@@ -488,6 +468,8 @@ int CMainContainer::createNewInstance()
     _objContList[currentInstanceIndex]=objCont;
 
     addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_afterinstanceswitch,NULL,NULL);
+    if (sandboxScript!=NULL)
+        sandboxScript->runSandboxScript(sim_syscb_afterinstanceswitch);
 
     int data[4]={getCurrentInstanceIndex(),_environmentList[currentInstanceIndex]->getSceneUniqueID(),0,0};
     void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceswitch,data,NULL,NULL);
@@ -499,7 +481,6 @@ int CMainContainer::createNewInstance()
     cmdIn.cmdId=INSTANCE_WAS_JUST_CREATED_UITHREADCMD;
     App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 
-    _genericDialogContainerList.push_back(NULL);
 #endif
 
     return(currentInstanceIndex);
@@ -544,10 +525,6 @@ int CMainContainer::destroyCurrentInstance()
     if (buttonBlockContainer!=NULL)
         buttonBlockContainer->removeAllBlocks(true);
 
-#ifdef SIM_WITH_GUI
-    delete genericDialogContainer;
-    genericDialogContainer=NULL;
-#endif
     delete undoBufferContainer;
     undoBufferContainer=NULL;
     delete confContainer;
@@ -605,9 +582,6 @@ int CMainContainer::destroyCurrentInstance()
     delete commTubeContainer;
     commTubeContainer=NULL;
 
-#ifdef SIM_WITH_GUI
-    _genericDialogContainerList.erase(_genericDialogContainerList.begin()+currentInstanceIndex);
-#endif
     _undoBufferContainerList.erase(_undoBufferContainerList.begin()+currentInstanceIndex);
     _confContainerList.erase(_confContainerList.begin()+currentInstanceIndex);
     _luaScriptContainerList.erase(_luaScriptContainerList.begin()+currentInstanceIndex);
@@ -739,9 +713,6 @@ void CMainContainer::emptyScene(bool notCalledFromUndoFunction)
     confContainer->removeMemorized();
     if (notCalledFromUndoFunction)
         mainSettings->setUpDefaultValues();
-#ifdef SIM_WITH_GUI
-    genericDialogContainer->emptySceneProcedure();
-#endif
     cacheData->clearCache();
     drawingCont->emptySceneProcedure();
     pointCloudCont->emptySceneProcedure();
@@ -770,6 +741,8 @@ bool CMainContainer::makeInstanceCurrentFromIndex(int instanceIndex)
     if (luaScriptContainer!=NULL)
         luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforeinstanceswitch,NULL,NULL,NULL);
     addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_beforeinstanceswitch,NULL,NULL);
+    if (sandboxScript!=NULL)
+        sandboxScript->runSandboxScript(sim_syscb_beforeinstanceswitch);
 
     if (simulation!=NULL)
         simulation->setOnlineMode(false); // disable online mode before switching
@@ -793,9 +766,6 @@ bool CMainContainer::makeInstanceCurrentFromIndex(int instanceIndex)
 
     currentInstanceIndex=instanceIndex;
 
-#ifdef SIM_WITH_GUI
-    genericDialogContainer=_genericDialogContainerList[currentInstanceIndex];
-#endif
     undoBufferContainer=_undoBufferContainerList[currentInstanceIndex];
     outsideCommandQueue=_outsideCommandQueueList[currentInstanceIndex];
     simulation=_simulationList[currentInstanceIndex];
@@ -828,6 +798,8 @@ bool CMainContainer::makeInstanceCurrentFromIndex(int instanceIndex)
     if (luaScriptContainer!=NULL)
         luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,NULL,NULL,NULL);
     addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_afterinstanceswitch,NULL,NULL);
+    if (sandboxScript!=NULL)
+        sandboxScript->runSandboxScript(sim_syscb_afterinstanceswitch);
 
     pluginData[0]=currentInstanceIndex;
     pluginData[1]=environment->getSceneUniqueID();
@@ -901,9 +873,6 @@ void CMainContainer::renderYourGeneralObject3DStuff_beforeRegularObjects(CViewab
     customSceneData_tempData->renderYour3DStuff(renderingObject,displayAttrib);
     signalContainer->renderYour3DStuff(renderingObject,displayAttrib);
     environment->renderYour3DStuff(renderingObject,displayAttrib);
-#ifdef SIM_WITH_GUI
-    genericDialogContainer->renderYour3DStuff(renderingObject,displayAttrib);
-#endif
     luaScriptContainer->renderYour3DStuff(renderingObject,displayAttrib);
     mainSettings->renderYour3DStuff(renderingObject,displayAttrib);
     confContainer->renderYour3DStuff(renderingObject,displayAttrib);

@@ -4567,9 +4567,7 @@ simInt simHandleCollision_internal(simInt collisionObjectHandle)
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -6796,9 +6794,7 @@ simInt simSetScriptSimulationParameter_internal(simInt scriptHandle,const simCha
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -6828,18 +6824,24 @@ simInt simDisplayDialog_internal(const simChar* titleText,const simChar* mainTex
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
 #ifdef SIM_WITH_GUI
-        CGenericDialog* it=new CGenericDialog(titleText,mainText,dialogType,false,initialText,titleColors,dialogColors);
-        it->setPauseActive(true);
-        int retVal=App::ct->genericDialogContainer->addDialog(it);
-        if (elementHandle!=NULL)
-            elementHandle[0]=it->getDialogBlockHandle();
+        CInterfaceStack* stack=new CInterfaceStack();
+        stack->pushStringOntoStack(titleText,0);
+        stack->pushStringOntoStack(mainText,0);
+        stack->pushNumberOntoStack(dialogType);
+        stack->pushBoolOntoStack(false);
+        if (initialText!=NULL)
+            stack->pushStringOntoStack(initialText,0);
+        int stackId=App::ct->interfaceStackContainer->addStack(stack);
+        simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript,"sim.displayDialog",stackId);
+        double d;
+        stack->getStackNumberValue(d);
+        App::ct->interfaceStackContainer->destroyStack(stackId);
+        int retVal=int(d);
         return(retVal);
 #else
         return(1);
@@ -6854,19 +6856,19 @@ simInt simGetDialogResult_internal(simInt genericDialogHandle)
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
 #ifdef SIM_WITH_GUI
-        int retVal=App::ct->genericDialogContainer->getDialogResult(genericDialogHandle);
-        if (retVal==-1)
-        {
-            CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
-            return(-1);
-        }
+        CInterfaceStack* stack=new CInterfaceStack();
+        stack->pushNumberOntoStack(genericDialogHandle);
+        int stackId=App::ct->interfaceStackContainer->addStack(stack);
+        simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript,"sim.getDialogResult",stackId);
+        double d;
+        stack->getStackNumberValue(d);
+        App::ct->interfaceStackContainer->destroyStack(stackId);
+        int retVal=int(d);
         return(retVal);
 #else
         return(sim_dlgret_cancel);
@@ -6881,19 +6883,20 @@ simChar* simGetDialogInput_internal(simInt genericDialogHandle)
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(NULL);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         std::string tmp;
 #ifdef SIM_WITH_GUI
-        if (!App::ct->genericDialogContainer->getDialogString(genericDialogHandle,tmp))
-        {
-            CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
+        CInterfaceStack* stack=new CInterfaceStack();
+        stack->pushNumberOntoStack(genericDialogHandle);
+        int stackId=App::ct->interfaceStackContainer->addStack(stack);
+        simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript,"sim.getDialogInput",stackId);
+        bool r=stack->getStackStringValue(tmp);
+        App::ct->interfaceStackContainer->destroyStack(stackId);
+        if (!r)
             return(NULL);
-        }
 #else
         return(NULL);
 #endif
@@ -6912,18 +6915,19 @@ simInt simEndDialog_internal(simInt genericDialogHandle)
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
 #ifdef SIM_WITH_GUI
-        if (!App::ct->genericDialogContainer->removeDialogFromID(genericDialogHandle))
-        {
-            CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_INVALID_HANDLE);
-            return(-1);
-        }
+        CInterfaceStack* stack=new CInterfaceStack();
+        stack->pushNumberOntoStack(genericDialogHandle);
+        int stackId=App::ct->interfaceStackContainer->addStack(stack);
+        simCallScriptFunctionEx_internal(sim_scripttype_sandboxscript,"sim.endDialog",stackId);
+        double d;
+        stack->getStackNumberValue(d);
+        App::ct->interfaceStackContainer->destroyStack(stackId);
+        int retVal=int(d);
 #endif
         return(1);
     }
@@ -6936,9 +6940,7 @@ simInt simSetNavigationMode_internal(simInt navigationMode)
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     App::setMouseMode(navigationMode);
     return(1);

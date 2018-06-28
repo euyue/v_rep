@@ -157,10 +157,6 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getMechanismHandle",_simGetMechanismHandle,            "number mechanismHandle=sim.getMechanismHandle(string mechanismName)",true},
     {"sim.getScriptSimulationParameter",_simGetScriptSimulationParameter,"boolean/number/string parameterValue=sim.getScriptSimulationParameter(number scriptHandle,string parameterName,boolean forceStringReturn=false)\ntable parameterValues,table scriptHandles=sim.getScriptSimulationParameter(number targetScripts,string parameterName,boolean forceStringReturn=false)",true},
     {"sim.setScriptSimulationParameter",_simSetScriptSimulationParameter,"number setCount=sim.setScriptSimulationParameter(number scriptHandle,string parameterName,string parameterValue)",true},
-    {"sim.displayDialog",_simDisplayDialog,                      "number genericDlgHandle,number UIHandle=sim.displayDialog(string title,string mainText,number style,boolean modal,\nstring initTxt,table_6 titleColors,table_6 dlgColors)",true},
-    {"sim.getDialogResult",_simGetDialogResult,                  "number result=sim.getDialogResult(number genericDlgHandle)",true},
-    {"sim.getDialogInput",_simGetDialogInput,                    "string input=sim.getDialogInput(number genericDlgHandle)",true},
-    {"sim.endDialog",_simEndDialog,                              "number result=sim.endDialog(number genericDlgHandle)",true},
     {"sim.stopSimulation",_simStopSimulation,                    "number result=sim.stopSimulation()",true},
     {"sim.pauseSimulation",_simPauseSimulation,                  "number result=sim.pauseSimulation()",true},
     {"sim.startSimulation",_simStartSimulation,                  "number result=sim.startSimulation()",true},
@@ -574,10 +570,6 @@ const SLuaCommands simLuaCommandsOldApi[]=
     {"simGetMechanismHandle",_simGetMechanismHandle,            "Please use the newer 'sim.getMechanismHandle' notation",false},
     {"simGetScriptSimulationParameter",_simGetScriptSimulationParameter,"Please use the newer 'sim.getScriptSimulationParameter' notation",false},
     {"simSetScriptSimulationParameter",_simSetScriptSimulationParameter,"Please use the newer 'sim.setScriptSimulationParameter' notation",false},
-    {"simDisplayDialog",_simDisplayDialog,                      "Please use the newer 'sim.displayDialog' notation",false},
-    {"simGetDialogResult",_simGetDialogResult,                  "Please use the newer 'sim.getDialogResult' notation",false},
-    {"simGetDialogInput",_simGetDialogInput,                    "Please use the newer 'sim.getDialogInput' notation",false},
-    {"simEndDialog",_simEndDialog,                              "Please use the newer 'sim.endDialog' notation",false},
     {"simStopSimulation",_simStopSimulation,                    "Please use the newer 'sim.stopSimulation' notation",false},
     {"simPauseSimulation",_simPauseSimulation,                  "Please use the newer 'sim.pauseSimulation' notation",false},
     {"simStartSimulation",_simStartSimulation,                  "Please use the newer 'sim.startSimulation' notation",false},
@@ -7208,170 +7200,6 @@ int _simSetScriptSimulationParameter(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
-int _simDisplayDialog(luaWrap_lua_State* L)
-{
-    LUA_API_FUNCTION_DEBUG;
-    LUA_START("sim.displayDialog");
-
-    int retVal=-1;// error
-    int elementHandle;
-    if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_string,0,lua_arg_number,0,lua_arg_bool,0))
-    {
-        char* initialText=NULL;
-        float* titleColor=NULL;
-        float* dialogColor=NULL;
-        bool modal=luaToBool(L,4);
-        int dialogType=luaToInt(L,3);
-        bool errorOccured=false;
-        if (modal)
-        {
-            int currentScriptID=getCurrentScriptID(L);
-            CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
-            if (it!=NULL)
-            {
-                if (VThread::isCurrentThreadTheMainSimulationThread())
-                {
-                    errorString=SIM_ERROR_SCRIPT_MUST_RUN_IN_THREAD_FOR_MODAL_OPERATION;
-                    errorOccured=true;
-                }
-                else
-                {
-                    if (dialogType==sim_dlgstyle_message)
-                    {
-                        errorString=SIM_ERROR_CANNOT_USE_THAT_STYLE_IN_MODAL_OPERATION;
-                        errorOccured=true;
-                    }
-                }
-            }
-            else
-                modal=false; // Should anyway never happen!!!
-        }
-        if (!errorOccured)
-        {
-            int res=checkOneGeneralInputArgument(L,5,lua_arg_string,0,true,true,&errorString);
-            if (res!=-1)
-            {
-                if (res==2)
-                {
-                    std::string tmp(luaWrap_lua_tostring(L,5));
-                    initialText=new char[tmp.length()+1];
-                    initialText[tmp.length()]=0;
-                    for (int i=0;i<int(tmp.length());i++)
-                        initialText[i]=tmp[i];
-                }
-                int res=checkOneGeneralInputArgument(L,6,lua_arg_number,6,true,true,&errorString);
-                if (res!=-1)
-                {
-                    if (res==2)
-                    {
-                        titleColor=new float[6];
-                        getFloatsFromTable(L,6,6,titleColor);
-                    }
-                    int res=checkOneGeneralInputArgument(L,7,lua_arg_number,6,true,true,&errorString);
-                    if (res!=-1)
-                    {
-                        if (res==2)
-                        {
-                            dialogColor=new float[6];
-                            getFloatsFromTable(L,7,6,dialogColor);
-                        }
-                        retVal=simDisplayDialog_internal(luaWrap_lua_tostring(L,1),luaWrap_lua_tostring(L,2),dialogType,initialText,titleColor,dialogColor,&elementHandle);
-                        if (retVal!=-1)
-                        {
-#ifdef SIM_WITH_GUI
-                            CGenericDialog* it=App::ct->genericDialogContainer->getDialogFromID(retVal);
-                            if (it!=NULL)
-                            {
-                                int currentScriptID=getCurrentScriptID(L);
-                                CLuaScriptObject* itScrObj=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
-                                if ( (itScrObj->getScriptType()==sim_scripttype_mainscript)||(itScrObj->getScriptType()==sim_scripttype_childscript)||(itScrObj->getScriptType()==sim_scripttype_jointctrlcallback)||(itScrObj->getScriptType()==sim_scripttype_contactcallback) )//||(itScrObj->getScriptType()==sim_scripttype_generalcallback) )
-                                {
-                                    it->setCreatedInMainOrChildScript(true); // this will trigger automatic destruction at simulation end
-                                    it->setPauseActive(false); // that dlg should be inactive during pause
-                                }
-                                it->setModal(modal);
-                                if (modal)
-                                {
-                                    // Now wait here until a button was pressed! (or the simulation is aborted)
-                                    while (it->getDialogResult()==sim_dlgret_still_open)
-                                    {
-                                        CThreadPool::switchBackToPreviousThread();
-                                        if (CThreadPool::getSimulationStopRequested()||(!isObjectAssociatedWithThisThreadedChildScriptValid(L)))
-                                            break;
-                                    }
-                                }
-                            }
-#endif
-                        }
-                    }
-                }
-            }
-        }
-        delete[] initialText;
-        delete[] titleColor;
-        delete[] dialogColor;
-    }
-
-    if (retVal!=-1)
-    {
-        luaWrap_lua_pushnumber(L,retVal);
-        luaWrap_lua_pushnumber(L,elementHandle);
-        LUA_END(2);
-    }
-
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
-}
-
-int _simGetDialogResult(luaWrap_lua_State* L)
-{
-    LUA_API_FUNCTION_DEBUG;
-    LUA_START("sim.getDialogResult");
-
-    int retVal=-1;// error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-        retVal=simGetDialogResult_internal(luaWrap_lua_tointeger(L,1));
-
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
-}
-
-int _simGetDialogInput(luaWrap_lua_State* L)
-{
-    LUA_API_FUNCTION_DEBUG;
-    LUA_START("sim.getDialogInput");
-
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        char* v=simGetDialogInput_internal(luaWrap_lua_tointeger(L,1));
-        if (v!=NULL)
-        {
-            luaWrap_lua_pushstring(L,v);
-            simReleaseBuffer_internal(v);
-            LUA_END(1);
-        }
-    }
-
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
-    LUA_END(0);
-}
-
-int _simEndDialog(luaWrap_lua_State* L)
-{
-    LUA_API_FUNCTION_DEBUG;
-    LUA_START("sim.endDialog");
-
-    int retVal=-1;// error
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-        retVal=simEndDialog_internal(luaWrap_lua_tointeger(L,1));
-
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
-    luaWrap_lua_pushnumber(L,retVal);
-    LUA_END(1);
-}
-
 int _simStopSimulation(luaWrap_lua_State* L)
 {
     LUA_API_FUNCTION_DEBUG;
@@ -8591,7 +8419,35 @@ int _simTest(luaWrap_lua_State* L)
 {
     LUA_API_FUNCTION_DEBUG;
     LUA_START("sim.test");
-
+    if (checkInputArguments(L,&errorString,lua_arg_number,0))
+    {
+        int func=luaWrap_lua_tointeger(L,1);
+        if (func==0)
+        {
+           int r=simDisplayDialog_internal("Hello from title","MainText\nis here!!!\nBye",sim_dlgstyle_ok_cancel,"init text",NULL,NULL,NULL);
+           luaWrap_lua_pushinteger(L,r);
+           LUA_END(1);
+        }
+        if (func==1)
+        {
+           int r=simGetDialogResult_internal(luaWrap_lua_tointeger(L,2));
+           luaWrap_lua_pushinteger(L,r);
+           LUA_END(1);
+        }
+        if (func==2)
+        {
+           char* r=simGetDialogInput_internal(luaWrap_lua_tointeger(L,2));
+           luaWrap_lua_pushstring(L,r);
+           simReleaseBuffer_internal(r);
+           LUA_END(1);
+        }
+        if (func==3)
+        {
+           int r=simEndDialog_internal(luaWrap_lua_tointeger(L,2));
+           luaWrap_lua_pushinteger(L,r);
+           LUA_END(1);
+        }
+    }
     LUA_END(0);
 }
 
@@ -20126,9 +19982,7 @@ int _simHandleChildScript(luaWrap_lua_State* L)
         std::string txt("The command simHandleChildScript is not supported anymore and was replaced&&n");
         txt+="with simHandleChildScripts, which operates in a slightly different manner. Make sure to&&n";
         txt+="adjust this script manually.";
-        float titleCols[6]={0.8f,0.0f,0.0f,0.0f,0.0f,0.0f};
-        float dlgCols[6]={0.5f,0.0f,0.0f,1.0f,1.0f,1.0f};
-        simDisplayDialog_internal(title.c_str(),txt.c_str(),sim_dlgstyle_ok,"",titleCols,dlgCols,NULL);
+        simDisplayDialog_internal(title.c_str(),txt.c_str(),sim_dlgstyle_ok,"",NULL,NULL,NULL);
     }
 
     LUA_SET_OR_RAISE_ERROR(); // we might never return from this!

@@ -38,7 +38,6 @@
 
 #ifdef SIM_WITH_GUI
     #include "globalGuiTextureContainer.h"
-    #include "genericDialogContainer.h"
 #endif
 
 #ifdef SIM_WITH_SERIAL
@@ -183,10 +182,7 @@ public:
 
     CGlobalGuiTextureContainer* globalGuiTextureCont; // We have only one such object!!
 
-    CGenericDialogContainer* genericDialogContainer;
-
 private:
-    std::vector<CGenericDialogContainer*> _genericDialogContainerList;
 #endif
 
 #ifdef SIM_WITH_SERIAL

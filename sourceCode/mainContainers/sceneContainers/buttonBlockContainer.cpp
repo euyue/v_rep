@@ -1018,16 +1018,11 @@ bool CButtonBlockContainer::mouseUp(int xCoord,int yCoord,int currentView)
             if (itButton->getAttributes()&sim_buttonproperty_staydown)
                 itButton->setAttributes(itButton->getAttributes()^sim_buttonproperty_isdown);
 
-            if (itBlock->isGenericDialog())
-                App::ct->genericDialogContainer->buttonPressed(caughtBlock,caughtButton);
-            else
-            {
-                if ( (itButton->getAttributes()&sim_buttonproperty_downupevent)==0 )
-                { // buttons with up/down events are handled elsewhere!
-                    App::ct->outsideCommandQueue->addCommand(sim_message_ui_button_state_change,caughtBlock,caughtButton,itButton->getAttributes(),itButton->getAttributes()^sim_buttonproperty_isdown,NULL,0);
-                    int auxVals[2]={itButton->getAttributes(),itButton->getAttributes()^sim_buttonproperty_isdown};
-                    itBlock->setLastEventButtonID(caughtButton,auxVals);
-                }
+            if ( (itButton->getAttributes()&sim_buttonproperty_downupevent)==0 )
+            { // buttons with up/down events are handled elsewhere!
+                App::ct->outsideCommandQueue->addCommand(sim_message_ui_button_state_change,caughtBlock,caughtButton,itButton->getAttributes(),itButton->getAttributes()^sim_buttonproperty_isdown,NULL,0);
+                int auxVals[2]={itButton->getAttributes(),itButton->getAttributes()^sim_buttonproperty_isdown};
+                itBlock->setLastEventButtonID(caughtButton,auxVals);
             }
             // Now we check if the button is a rollup/rolldown button:
             if ( (itButton->getAttributes()&sim_buttonproperty_rollupaction)&&(itButton->getAttributes()&sim_buttonproperty_staydown))
@@ -1175,14 +1170,9 @@ void CButtonBlockContainer::setEditBoxEdition(int block,int button,bool applyCha
                 if (itButton->label!=editBoxEditionText)
                 {
                     itButton->label=editBoxEditionText;
-                    if (itBlock->isGenericDialog())
-                        App::ct->genericDialogContainer->textChanged(editBoxInEditionBlock,editBoxInEditionButton,editBoxEditionText.c_str());
-                    else
-                    {
-                        App::ct->outsideCommandQueue->addCommand(sim_message_ui_button_state_change,editBoxInEditionBlock,editBoxInEditionButton,itButton->getAttributes(),0,NULL,0);
-                        int auxVals[2]={itButton->getAttributes(),0};
-                        itBlock->setLastEventButtonID(editBoxInEditionButton,auxVals);
-                    }
+                    App::ct->outsideCommandQueue->addCommand(sim_message_ui_button_state_change,editBoxInEditionBlock,editBoxInEditionButton,itButton->getAttributes(),0,NULL,0);
+                    int auxVals[2]={itButton->getAttributes(),0};
+                    itBlock->setLastEventButtonID(editBoxInEditionButton,auxVals);
                 }
             }
         }

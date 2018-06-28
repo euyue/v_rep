@@ -109,6 +109,8 @@ SIMPLE_VTHREAD_RETURN_TYPE _workThread(SIMPLE_VTHREAD_ARGUMENT_TYPE lpData)
 
 //    App::ct->luaScriptContainer->killAddOnScriptStates();
     App::ct->addOnScriptContainer->removeAllScripts();
+    App::ct->sandboxScript->runSandboxScript(sim_syscb_cleanup);
+
     delete App::ct->sandboxScript;
     App::ct->sandboxScript=NULL;
     App::setQuitLevel(1);

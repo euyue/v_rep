@@ -791,7 +791,6 @@ WITH_GUI {
         $$PWD/sourceCode/gui/platform/vDialog.h \
 
     HEADERS += $$PWD/sourceCode/gui/mainContainers/sceneContainers/scintillaEditorContainer.h \
-        $$PWD/sourceCode/gui/mainContainers/sceneContainers/genericDialogContainer.h \
         $$PWD/sourceCode/gui/mainContainers/sceneContainers/oglSurface.h \
 
     HEADERS += $$PWD/sourceCode/gui/mainContainers/applicationContainers/scintillaConsoleContainer.h \
@@ -832,7 +831,6 @@ WITH_GUI {
         $$PWD/sourceCode/gui/menusAndSimilar/helpMenu.h \
 
     HEADERS += $$PWD/sourceCode/gui/various/simRecorder.h \
-        $$PWD/sourceCode/gui/various/genericDialog.h \
 
     HEADERS += $$PWD/sourceCode/gui/libs/auxLibVideo.h \
 }
@@ -1289,7 +1287,6 @@ WITH_GUI {
         $$PWD/sourceCode/gui/platform/vDialog.cpp \
 
     SOURCES += $$PWD/sourceCode/gui/mainContainers/sceneContainers/scintillaEditorContainer.cpp \
-        $$PWD/sourceCode/gui/mainContainers/sceneContainers/genericDialogContainer.cpp \
         $$PWD/sourceCode/gui/mainContainers/sceneContainers/oglSurface.cpp \
 
     SOURCES += $$PWD/sourceCode/gui/mainContainers/applicationContainers/scintillaConsoleContainer.cpp \
@@ -1330,7 +1327,6 @@ WITH_GUI {
         $$PWD/sourceCode/gui/menusAndSimilar/helpMenu.cpp \
 
     SOURCES += $$PWD/sourceCode/gui/various/simRecorder.cpp \
-        $$PWD/sourceCode/gui/various/genericDialog.cpp \
 
     SOURCES += $$PWD/sourceCode/gui/libs/auxLibVideo.cpp \
 }

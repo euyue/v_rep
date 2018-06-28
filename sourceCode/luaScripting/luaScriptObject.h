@@ -62,6 +62,7 @@ public:
     int runNonThreadedChildScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     int runCustomizationScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     int runAddOn(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
+    int runSandboxScript(int callType);
 
     void handleDebug(const char* funcName,const char* funcType,bool inCall,bool sysCall);
 
@@ -176,6 +177,7 @@ public:
 
     static bool canCallSystemCallback(int scriptType,bool threaded,int callType);
     static std::string getSystemCallbackString(int calltype,bool callTips);
+    static std::string getSystemCallbackExString(int calltype);
     static std::vector<std::string> getAllSystemCallbackStrings(int scriptType,bool threaded,bool callTips);
 
 protected:
@@ -190,6 +192,7 @@ protected:
     int _runCustomizationScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     int _runAddOn(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     int _runScriptOrCallScriptFunction(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack,std::string* errorMsg,bool* hasJointCallbackFunc,bool* hasContactCallbackFunc,bool* hasDynCallbackFunc);
+    void _handleSimpleSysExCalls(int callType);
 
     bool _prepareLuaStateAndCallScriptInitSectionIfNeeded();
     bool _checkIfMixingOldAndNewCallMethods();
