@@ -13618,9 +13618,7 @@ simInt simMsgBox_internal(simInt dlgType,simInt buttons,const simChar* title,con
     C_API_FUNCTION_DEBUG;
 #ifdef SIM_WITH_GUI
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
     int retVal=App::uiThread->messageBox_api(dlgType,buttons,title,message);
     return(retVal);
 #else

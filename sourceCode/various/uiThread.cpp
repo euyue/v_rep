@@ -704,17 +704,24 @@ std::string CUiThread::getOpenOrSaveFileName_api(int mode,const char* title,cons
         { // we are in the UI thread. We execute the command now:
             if (mode==sim_filedlg_type_save)
                 retVal=VFileDialog::getSaveFileName(App::mainWindow,0,title,startPath,initName,false,extName,ext);
-            if (mode==sim_filedlg_type_load)
-                retVal=VFileDialog::getOpenFileName(App::mainWindow,0,title,startPath,initName,false,extName,ext);
-            if (mode==sim_filedlg_type_load_multiple)
+            if ( (mode==sim_filedlg_type_load)||(mode==sim_filedlg_type_load_multiple) )
             {
-                std::vector<std::string> files;
-                VFileDialog::getOpenFileNames(files,App::mainWindow,0,title,startPath,initName,false,extName,ext);
-                for (size_t i=0;i<files.size();i++)
+                QString _ext(ext);
+                QStringList e(_ext.split(";"));
+                while (e.size()<10)
+                    e.append("");
+                if (mode==sim_filedlg_type_load)
+                    retVal=VFileDialog::getOpenFileName(App::mainWindow,0,title,startPath,initName,false,extName,e[0].toStdString(),e[1].toStdString(),e[2].toStdString(),e[3].toStdString(),e[4].toStdString(),e[5].toStdString(),e[6].toStdString(),e[7].toStdString(),e[8].toStdString(),e[9].toStdString());
+                else
                 {
-                    retVal+=files[i];
-                    if (i<files.size()-1)
-                        retVal+=";";
+                    std::vector<std::string> files;
+                    VFileDialog::getOpenFileNames(files,App::mainWindow,0,title,startPath,initName,false,extName,e[0].toStdString(),e[1].toStdString(),e[2].toStdString(),e[3].toStdString(),e[4].toStdString(),e[5].toStdString(),e[6].toStdString(),e[7].toStdString(),e[8].toStdString(),e[9].toStdString());
+                    for (size_t i=0;i<files.size();i++)
+                    {
+                        retVal+=files[i];
+                        if (i<files.size()-1)
+                            retVal+=";";
+                    }
                 }
             }
             if (mode==sim_filedlg_type_folder)
