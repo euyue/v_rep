@@ -129,6 +129,9 @@ typedef char* (__cdecl *ptrCodeEditor_getText)(int handle);
 typedef int (__cdecl *ptrCodeEditor_show)(int handle,int showState);
 typedef int (__cdecl *ptrCodeEditor_close)(int handle,int* positionAndSize);
 
+typedef int (__cdecl *ptrMsgBox)(int type, int buttons, const char *title, const char *message);
+typedef char* (__cdecl *ptrFileDialog)(int type, const char *title, const char *startPath, const char *initName, const char *extName, const char *ext, int native);
+
 class CPlugin
 {
 public:
@@ -254,6 +257,9 @@ public:
     ptrCodeEditor_getText _codeEditor_getText;
     ptrCodeEditor_show _codeEditor_show;
     ptrCodeEditor_close _codeEditor_close;
+
+    ptrMsgBox _msgBox;
+    ptrFileDialog _fileDialog;
 
     std::string name;
     std::string _filename;
@@ -414,6 +420,13 @@ public:
     static bool codeEditor_getText(int handle,std::string& text);
     static int codeEditor_show(int handle,int showState);
     static int codeEditor_close(int handle,int* positionAndSize);
+
+    // Custom UI plugin:
+    static CPlugin* currentCustomUi;
+    static bool isCustomUiPluginAvailable();
+    static int msgBox(int type, int buttons, const char *title, const char *message);
+    static bool fileDialog(int type, const char *title, const char *startPath, const char *initName, const char *extName, const char *ext, int native,std::string& files);
+
 
     static bool enableOrDisableSpecificEventCallback(int eventCallbackType,const char* pluginName);
     static void sendSpecialEventCallbackMessageToSomePlugins(int msg,int* auxVals,void* data,int retVals[4]);

@@ -1,4 +1,3 @@
-
 #include "vrepMainHeader.h"
 #include "app.h"
 #include "funcDebug.h"
@@ -15,6 +14,7 @@ CPlugin::CPlugin(const char* filename,const char* pluginName)
     instance=NULL;
     v_repMesh_createCollisionInformationStructure=NULL;
     _codeEditor_openModal=NULL;
+    _msgBox=NULL;
     _loadCount=1;
     extendedVersionInt=-1;
 }
@@ -27,6 +27,8 @@ CPlugin::~CPlugin()
         CPluginContainer::currentMeshEngine=NULL;
     if (_codeEditor_openModal!=NULL)
         CPluginContainer::currentCodeEditor=NULL;
+    if (_msgBox!=NULL)
+        CPluginContainer::currentCustomUi=NULL;
 }
 
 int CPlugin::load()
@@ -164,8 +166,7 @@ int CPlugin::load()
                 v_repMesh_getRayProxSensorOctreeDistanceIfSmaller=(ptrv_repMesh_getRayProxSensorOctreeDistanceIfSmaller)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getRayProxSensorOctreeDistanceIfSmaller"));
                 v_repMesh_getProxSensorOctreeDistanceIfSmaller=(ptrv_repMesh_getProxSensorOctreeDistanceIfSmaller)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getProxSensorOctreeDistanceIfSmaller"));
                 v_repMesh_removePointCloudPointsFromOctree=(ptrv_repMesh_removePointCloudPointsFromOctree)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_removePointCloudPointsFromOctree"));
-
-                if ((v_repMesh_createCollisionInformationStructure!=NULL)&&(v_repMesh_copyCollisionInformationStructure!=NULL)) // just check the 2 first functions
+                if (v_repMesh_createCollisionInformationStructure!=NULL)
                     CPluginContainer::currentMeshEngine=this;
 
                 _codeEditor_openModal=(ptrCodeEditor_openModal)(VVarious::resolveLibraryFuncName(lib,"codeEditor_openModal"));
@@ -174,10 +175,13 @@ int CPlugin::load()
                 _codeEditor_getText=(ptrCodeEditor_getText)(VVarious::resolveLibraryFuncName(lib,"codeEditor_getText"));
                 _codeEditor_show=(ptrCodeEditor_show)(VVarious::resolveLibraryFuncName(lib,"codeEditor_show"));
                 _codeEditor_close=(ptrCodeEditor_close)(VVarious::resolveLibraryFuncName(lib,"codeEditor_close"));
-
-                if ((_codeEditor_openModal!=NULL)&&(_codeEditor_open!=NULL)) // just check the 2 first functions
+                if (_codeEditor_openModal!=NULL)
                     CPluginContainer::currentCodeEditor=this;
 
+                _msgBox=(ptrMsgBox)(VVarious::resolveLibraryFuncName(lib,"msgBox"));
+                _fileDialog=(ptrFileDialog)(VVarious::resolveLibraryFuncName(lib,"fileDialog"));
+                if (_msgBox!=NULL)
+                    CPluginContainer::currentCustomUi=this;
 
                 // For other specific plugins:
                 if (pov!=NULL)
@@ -251,6 +255,7 @@ ptrMeshDecimator CPluginContainer::_meshDecimatorAddress=NULL;
 CPlugin* CPluginContainer::currentDynEngine=NULL;
 CPlugin* CPluginContainer::currentMeshEngine=NULL;
 CPlugin* CPluginContainer::currentCodeEditor=NULL;
+CPlugin* CPluginContainer::currentCustomUi=NULL;
 
 VMutex _meshMutex;
 
@@ -697,6 +702,11 @@ bool CPluginContainer::isMeshPluginAvailable()
 bool CPluginContainer::isCodeEditorPluginAvailable()
 {
     return(currentCodeEditor!=NULL);
+}
+
+bool CPluginContainer::isCustomUiPluginAvailable()
+{
+    return(currentCustomUi!=NULL);
 }
 
 void CPluginContainer::mesh_lockUnlock(bool lock)
@@ -1844,5 +1854,29 @@ int CPluginContainer::codeEditor_close(int handle,int* positionAndSize)
     int retVal=-1;
     if (currentCodeEditor!=NULL)
         retVal=currentCodeEditor->_codeEditor_close(handle,positionAndSize);
+    return(retVal);
+}
+
+int CPluginContainer::msgBox(int type, int buttons, const char *title, const char *message)
+{
+    int retVal=-1;
+    if (currentCustomUi!=NULL)
+        retVal=currentCustomUi->_msgBox(type,buttons,title,message);
+    return(retVal);
+}
+
+bool CPluginContainer::fileDialog(int type, const char *title, const char *startPath, const char *initName, const char *extName, const char *ext, int native,std::string& files)
+{
+    bool retVal=false;
+    if (currentCustomUi!=NULL)
+    {
+        char* res=currentCustomUi->_fileDialog(type,title,startPath,initName,extName,ext,native);
+        if (res!=NULL)
+        {
+            files.assign(res);
+            retVal=true;
+            simReleaseBuffer_internal(res);
+        }
+    }
     return(retVal);
 }
