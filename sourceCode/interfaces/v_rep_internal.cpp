@@ -4273,12 +4273,18 @@ simInt simLoadModel_internal(const simChar* filename)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
-        if (!VFile::doesFileExist(filename))
+        std::string nm(filename);
+        size_t atCopyPos=nm.find("@copy");
+        bool forceAsCopy=(atCopyPos!=std::string::npos);
+        if (forceAsCopy)
+            nm.erase(nm.begin()+atCopyPos,nm.end());
+
+        if (!VFile::doesFileExist(nm))
         {
             CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_FILE_NOT_FOUND);
             return(-1);
         }
-        if (!CFileOperations::loadModel(filename,outputSceneOrModelLoadMessagesWithApiCall,outputSceneOrModelLoadMessagesWithApiCall,false,NULL,true,NULL,false))
+        if (!CFileOperations::loadModel(nm.c_str(),outputSceneOrModelLoadMessagesWithApiCall,outputSceneOrModelLoadMessagesWithApiCall,false,NULL,true,NULL,false,forceAsCopy))
         {
             CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_MODEL_COULD_NOT_BE_READ);
             return(-1);

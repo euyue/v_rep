@@ -306,7 +306,7 @@ int CCopyBuffer::pasteBuffer(bool intoLockedScene)
                                                     &constraintSolverCopy,
                                                     textureObjectCopy,
                                                     dynMaterialObjectCopy,
-                                                    true,VREP_PROGRAM_VERSION_NB);
+                                                    true,VREP_PROGRAM_VERSION_NB,false);
 
     CInterfaceStack stack;
     stack.pushTableOntoStack();

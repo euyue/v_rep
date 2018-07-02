@@ -191,7 +191,7 @@ CInterfaceStackTable* CInterfaceStack::_generateTableMapFromLuaStack(luaWrap_lua
         }
         else if (luaWrap_lua_stype(L,-1)==STACK_OBJECT_BOOL)
         { // the key is a bool
-            bool key=luaWrap_lua_toboolean(L,-1);
+            bool key=luaWrap_lua_toboolean(L,-1)!=0;
             CInterfaceStackObject* obj=_generateObjectFromLuaStack(L,-2,visitedTables);
             table->appendMapObject(obj,key);
         }

@@ -211,7 +211,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
         { // we are NOT in the UI thread. We execute the command now:
             std::string filenameAndPath=CFileOperationsBase::handleVerSpec_loadModel2();
             if (filenameAndPath.length()!=0)
-                loadModel(filenameAndPath.c_str(),true,true,true,NULL,true,NULL,false); // Undo things is in here.
+                loadModel(filenameAndPath.c_str(),true,true,true,NULL,true,NULL,false,false); // Undo things is in here.
             else
                 App::addStatusbarMessage(IDSNS_ABORTED);
         }
@@ -819,7 +819,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            CFileOperations::loadModel(cmd.stringParams[0].c_str(),true,cmd.boolParams[0],false,NULL,cmd.boolParams[1],NULL,false);
+            CFileOperations::loadModel(cmd.stringParams[0].c_str(),true,cmd.boolParams[0],false,NULL,cmd.boolParams[1],NULL,false,false);
         }
         else
             App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread:
@@ -1942,7 +1942,7 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages
     return(result==1);
 }
 
-bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages,bool displayDialogs,bool setCurrentDir,std::string* acknowledgmentPointerInReturn,bool doUndoThingInHere,std::vector<char>* loadBuffer,bool onlyThumbnail)
+bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages,bool displayDialogs,bool setCurrentDir,std::string* acknowledgmentPointerInReturn,bool doUndoThingInHere,std::vector<char>* loadBuffer,bool onlyThumbnail,bool forceModelAsCopy)
 { // if acknowledgment is NULL, then acknowledgments are directly displayed here!
     FUNCTION_DEBUG;
     if (App::isFullScreen()||App::userSettings->doNotShowAcknowledgmentMessages)
@@ -2032,7 +2032,7 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
     #endif
             if (result==1)
             {
-                App::ct->objCont->loadModel(serObj,onlyThumbnail,NULL,NULL,NULL);
+                App::ct->objCont->loadModel(serObj,onlyThumbnail,forceModelAsCopy,NULL,NULL,NULL);
                 serObj.readClose();
                 if (displayMessages&&(!onlyThumbnail))
                     App::addStatusbarMessage(IDSNS_MODEL_LOADED);
@@ -2093,7 +2093,7 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
             result=serObj.readOpen(serializationVersion,vrepVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber);
             if (result==1)
             {
-                App::ct->objCont->loadModel(serObj,onlyThumbnail,NULL,NULL,NULL);
+                App::ct->objCont->loadModel(serObj,onlyThumbnail,forceModelAsCopy,NULL,NULL,NULL);
                 serObj.readClose();
             }
         }

@@ -7922,12 +7922,17 @@ int _simLoadModel(luaWrap_lua_State* L)
                 onlyThumbnails=luaWrap_lua_toboolean(L,2);
             size_t dataLength;
             const char* data=((char*)luaWrap_lua_tolstring(L,1,&dataLength));
-            const std::string path(data,dataLength);
             if (dataLength<1000)
             { // loading from file:
+                std::string path(data,dataLength);
+                size_t atCopyPos=path.find("@copy");
+                bool forceAsCopy=(atCopyPos!=std::string::npos);
+                if (forceAsCopy)
+                    path.erase(path.begin()+atCopyPos,path.end());
+
                 if (VFile::doesFileExist(path))
                 {
-                    if (CFileOperations::loadModel(path.c_str(),false,false,false,NULL,false,NULL,onlyThumbnails))
+                    if (CFileOperations::loadModel(path.c_str(),false,false,false,NULL,false,NULL,onlyThumbnails,forceAsCopy))
                     {
                         if (onlyThumbnails)
                         {
@@ -7954,7 +7959,7 @@ int _simLoadModel(luaWrap_lua_State* L)
             else
             { // loading from buffer:
                 std::vector<char> buffer(data,data+dataLength);
-                if (CFileOperations::loadModel(NULL,false,false,false,NULL,false,&buffer,onlyThumbnails))
+                if (CFileOperations::loadModel(NULL,false,false,false,NULL,false,&buffer,onlyThumbnails,false))
                 {
                     if (onlyThumbnails)
                     {

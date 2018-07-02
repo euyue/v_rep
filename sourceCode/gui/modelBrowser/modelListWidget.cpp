@@ -125,7 +125,7 @@ CThumbnail* CModelListWidget::loadModelThumbnail(const char* pathAndFilename,int
             modelTr.setIdentity();
             modelBoundingBoxSize.clear();
             modelNonDefaultTranslationStepSize=0.0;
-            App::ct->objCont->loadModel(serObj,true,&modelTr,&modelBoundingBoxSize,&modelNonDefaultTranslationStepSize);
+            App::ct->objCont->loadModel(serObj,true,false,&modelTr,&modelBoundingBoxSize,&modelNonDefaultTranslationStepSize);
             retThumbnail=App::ct->environment->modelThumbnail_notSerializedHere.copyYourself();
             App::ct->environment->modelThumbnail_notSerializedHere.copyFrom(thumbO);
             delete thumbO;

@@ -70,7 +70,7 @@ void CObjCont::simulationEnded()
     C3DObject::incrementModelPropertyValidityNumber();
 }
 
-bool CObjCont::loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool justLoadThumbnail,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,float* optionalModelNonDefaultTranslationStepSize)
+bool CObjCont::loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool justLoadThumbnail,bool forceModelAsCopy,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,float* optionalModelNonDefaultTranslationStepSize)
 {   // There is a similar routine for XML files further down
 
     // Should always be called through 'loadModel' or 'loadScene'!!!!
@@ -340,7 +340,7 @@ bool CObjCont::loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool jus
                                         &loadedConstraintSolverObjectList,
                                         loadedTextureList,
                                         loadedDynMaterialList,
-                                        !isScene,fileVrepVersion);
+                                        !isScene,fileVrepVersion,forceModelAsCopy);
 
     // Following to avoid the flickering when loading something (also during undo/redo):
     for (size_t i=0;i<App::ct->objCont->objectList.size();i++)
@@ -385,7 +385,7 @@ void CObjCont::addObjectsToSceneAndPerformMappings(std::vector<C3DObject*>* load
                                                     std::vector<CConstraintSolverObject*>* loadedConstraintSolverObjectList,
                                                     std::vector<CTextureObject*>& loadedTextureObjectList,
                                                     std::vector<CDynMaterialObject*>& loadedDynMaterialObjectList,
-                                                    bool model,int fileVrepVersion)
+                                                    bool model,int fileVrepVersion,bool forceModelAsCopy)
 {
     FUNCTION_DEBUG;
     // We check what suffix offset is needed for this model (in case of a scene, the offset is ignored since we won't introduce the objects as copies!):
@@ -402,10 +402,10 @@ void CObjCont::addObjectsToSceneAndPerformMappings(std::vector<C3DObject*>* load
 
     // We have 3 cases:
     // 1. We are loading a scene, 2. We are loading a model, 3. We are pasting objects
-    // We add objects to the scene as copies only if we also add at least one child script and we don't have a scene. Otherwise objects are added
+    // We add objects to the scene as copies only if we also add at least one associated script and we don't have a scene. Otherwise objects are added
     // and no '#' (or no modified suffix) will appear in their names.
     // Following line summarizes this:
-    bool objectIsACopy=((loadedLuaScriptList->size()!=0)&&model); // scenes are not treated like copies!
+    bool objectIsACopy=(((loadedLuaScriptList->size()!=0)||forceModelAsCopy)&&model); // scenes are not treated like copies!
 
     // Texture data:
     std::vector<int> textureMapping;
@@ -835,10 +835,10 @@ int CObjCont::getSuffixOffsetForObjectToAdd(std::vector<C3DObject*>* loadedObjec
     return(biggestSuffix-smallestSuffix+1);
 }
 
-bool CObjCont::loadModel(CSer& ar,bool justLoadThumbnail,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,float* optionalModelNonDefaultTranslationStepSize)
+bool CObjCont::loadModel(CSer& ar,bool justLoadThumbnail,bool forceModelAsCopy,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,float* optionalModelNonDefaultTranslationStepSize)
 {   // There is a similar routine for XML files further down
 
-    bool retVal=loadModelOrScene(ar,true,false,justLoadThumbnail,optionalModelTr,optionalModelBoundingBoxSize,optionalModelNonDefaultTranslationStepSize);
+    bool retVal=loadModelOrScene(ar,true,false,justLoadThumbnail,forceModelAsCopy,optionalModelTr,optionalModelBoundingBoxSize,optionalModelNonDefaultTranslationStepSize);
     if (!justLoadThumbnail)
     {
         void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_modelloaded,NULL,NULL,NULL);
@@ -986,7 +986,7 @@ C3DObject* CObjCont::load3DObject(CSer& ar,std::string theName,bool &noHit)
 bool CObjCont::loadScene(CSer& ar,bool forUndoRedoOperation)
 {   // We have another similar routine for XML files further down
     removeAllObjects(true);
-    bool retVal=loadModelOrScene(ar,false,true,false,NULL,NULL,NULL);
+    bool retVal=loadModelOrScene(ar,false,true,false,false,NULL,NULL,NULL);
     if (!forUndoRedoOperation)
     {
         void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_sceneloaded,NULL,NULL,NULL);

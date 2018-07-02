@@ -489,7 +489,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
         if (cmd.cmdId==MODEL_BROWSER_DRAG_AND_DROP_CMD)
         {
-            CFileOperations::loadModel(cmd.stringParams[0].c_str(),true,true,false,NULL,false,NULL,false);
+            CFileOperations::loadModel(cmd.stringParams[0].c_str(),true,true,false,NULL,false,NULL,false,false);
             if (App::ct->objCont->getSelSize()==1)
             { // we could have several model bases (in the old fileformat)
                 C3DObject* obj=App::ct->objCont->getLastSelection_object();

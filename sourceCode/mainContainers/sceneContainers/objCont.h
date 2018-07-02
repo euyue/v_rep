@@ -82,7 +82,7 @@ public:
                                                     std::vector<CConstraintSolverObject*>* loadedConstraintSolverObjectList,
                                                     std::vector<CTextureObject*>& loadedTextureObjectList,
                                                     std::vector<CDynMaterialObject*>& loadedDynMaterialObjectList,
-                                                    bool model,int fileVrepVersion);
+                                                    bool model,int fileVrepVersion,bool forceModelAsCopy);
 
     int getSuffixOffsetForObjectToAdd(std::vector<C3DObject*>* loadedObjectList,
         std::vector<CRegCollection*>* loadedGroupList,
@@ -117,8 +117,8 @@ public:
     bool loadScene(CSer& ar,bool forUndoRedoOperation);
     void saveScene(CSer& ar);
     void exportIkContent(CExtIkSer& ar);
-    bool loadModel(CSer& ar,bool justLoadThumbnail,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,float* optionalModelNonDefaultTranslationStepSize);
-    bool loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool justLoadThumbnail,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,float* optionalModelNonDefaultTranslationStepSize);
+    bool loadModel(CSer& ar,bool justLoadThumbnail,bool forceModelAsCopy,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,float* optionalModelNonDefaultTranslationStepSize);
+    bool loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool justLoadThumbnail,bool forceModelAsCopy,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,float* optionalModelNonDefaultTranslationStepSize);
     void setAbsoluteAngle(int identifier,float angle,int index);
     void setAbsolutePosition(int identifier,float pos,int index);
     void setAbsoluteAngles(int identifier,const C3Vector& euler);
