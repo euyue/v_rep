@@ -129,8 +129,8 @@ typedef char* (__cdecl *ptrCodeEditor_getText)(int handle);
 typedef int (__cdecl *ptrCodeEditor_show)(int handle,int showState);
 typedef int (__cdecl *ptrCodeEditor_close)(int handle,int* positionAndSize);
 
-typedef int (__cdecl *ptrMsgBox)(int type, int buttons, const char *title, const char *message);
-typedef char* (__cdecl *ptrFileDialog)(int type, const char *title, const char *startPath, const char *initName, const char *extName, const char *ext, int native);
+typedef int (__cdecl *ptrCustomUi_msgBox)(int type, int buttons, const char *title, const char *message);
+typedef char* (__cdecl *ptrCustomUi_fileDialog)(int type, const char *title, const char *startPath, const char *initName, const char *extName, const char *ext, int native);
 
 class CPlugin
 {
@@ -258,8 +258,8 @@ public:
     ptrCodeEditor_show _codeEditor_show;
     ptrCodeEditor_close _codeEditor_close;
 
-    ptrMsgBox _msgBox;
-    ptrFileDialog _fileDialog;
+    ptrCustomUi_msgBox _customUi_msgBox;
+    ptrCustomUi_fileDialog _customUi_fileDialog;
 
     std::string name;
     std::string _filename;
@@ -424,8 +424,8 @@ public:
     // Custom UI plugin:
     static CPlugin* currentCustomUi;
     static bool isCustomUiPluginAvailable();
-    static int msgBox(int type, int buttons, const char *title, const char *message);
-    static bool fileDialog(int type, const char *title, const char *startPath, const char *initName, const char *extName, const char *ext, int native,std::string& files);
+    static int customUi_msgBox(int type, int buttons, const char *title, const char *message);
+    static bool customUi_fileDialog(int type, const char *title, const char *startPath, const char *initName, const char *extName, const char *ext, int native,std::string& files);
 
 
     static bool enableOrDisableSpecificEventCallback(int eventCallbackType,const char* pluginName);

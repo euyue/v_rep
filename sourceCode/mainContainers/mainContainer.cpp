@@ -68,7 +68,7 @@ bool CMainContainer::setInstanceIndex(int index)
     if (getCurrentInstanceIndex()==index)
         return(true); // we already have this instance!
     if (!isInstanceSwitchingLocked())
-        return(makeInstanceCurrentFromIndex(index));
+        return(makeInstanceCurrentFromIndex(index,false));
     return(false);
 }
 
@@ -497,6 +497,16 @@ int CMainContainer::destroyCurrentInstance()
     if (currentInstanceIndex==-1)
         return(-1);
 
+    if (_objContList.size()>1)
+    { // only send the switch instance message if there is another instance to switch to:
+        addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_beforeinstanceswitch,NULL,NULL);
+        if (sandboxScript!=NULL)
+            sandboxScript->runSandboxScript(sim_syscb_beforeinstanceswitch);
+        int pluginData[4]={-1,_environmentList[int(_objContList.size())-2]->getSceneUniqueID(),0,0};
+        void* pluginReturnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceabouttoswitch,pluginData,NULL,NULL);
+        delete[] (char*)pluginReturnVal;
+    }
+
 #ifdef SIM_WITH_GUI
     SUIThreadCommand cmdIn;
     SUIThreadCommand cmdOut;
@@ -614,7 +624,7 @@ int CMainContainer::destroyCurrentInstance()
     if (_objContList.size()!=0)
     {
         currentInstanceIndex=-1; // We set this so that next instruction succeeds (otherwise we might already be in instance 0 and the function will not process). Added on 5/3/2012
-        makeInstanceCurrentFromIndex(int(_objContList.size())-1);
+        makeInstanceCurrentFromIndex(int(_objContList.size())-1,true);
     }
     else
         currentInstanceIndex=-1;
@@ -654,10 +664,12 @@ void CMainContainer::deinitialize()
     FUNCTION_DEBUG;
     copyBuffer->clearBuffer();
 
+    bool prevInstanceWasDestroyed=false;
     while (_objContList.size()!=0)
     {
-        makeInstanceCurrentFromIndex(int(_objContList.size())-1);
+        makeInstanceCurrentFromIndex(int(_objContList.size())-1,prevInstanceWasDestroyed);
         destroyCurrentInstance();
+        prevInstanceWasDestroyed=true;
     }
 //    delete sandboxScript;
     delete addOnScriptContainer;
@@ -723,10 +735,9 @@ void CMainContainer::emptyScene(bool notCalledFromUndoFunction)
     environment->setSceneIsClosingFlag(false);
 }
 
-bool CMainContainer::makeInstanceCurrentFromIndex(int instanceIndex)
+bool CMainContainer::makeInstanceCurrentFromIndex(int instanceIndex,bool previousInstanceWasDestroyed)
 { 
-    // Careful!! We cannot access the ct items directly, since they might be invalid at this point!
-    // For instance environment->getSceneUniqueID() can crash!!
+    // Careful!! We cannot access the ct items directly, if previousInstanceWasDestroyed is true
 
     FUNCTION_DEBUG;
     if ( (instanceIndex<0)||(instanceIndex>=int(_objContList.size())))
@@ -736,21 +747,21 @@ bool CMainContainer::makeInstanceCurrentFromIndex(int instanceIndex)
     if (isInstanceSwitchingLocked())
         return(false);
 
-
-
-    if (luaScriptContainer!=NULL)
-        luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforeinstanceswitch,NULL,NULL,NULL);
-    addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_beforeinstanceswitch,NULL,NULL);
-    if (sandboxScript!=NULL)
-        sandboxScript->runSandboxScript(sim_syscb_beforeinstanceswitch);
-
     if (simulation!=NULL)
         simulation->setOnlineMode(false); // disable online mode before switching
 
-    int pluginData[4]={currentInstanceIndex,_environmentList[instanceIndex]->getSceneUniqueID(),0,0};
-    void* pluginReturnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceabouttoswitch,pluginData,NULL,NULL);
-    delete[] (char*)pluginReturnVal;
-//    printf("Instance about to switch: next scene unique ID: %i\n",pluginData[1]);
+    if (!previousInstanceWasDestroyed)
+    {
+        luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforeinstanceswitch,NULL,NULL,NULL);
+        addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_beforeinstanceswitch,NULL,NULL);
+        if (sandboxScript!=NULL)
+            sandboxScript->runSandboxScript(sim_syscb_beforeinstanceswitch);
+        int pluginData[4]={currentInstanceIndex,_environmentList[instanceIndex]->getSceneUniqueID(),0,0};
+        void* pluginReturnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceabouttoswitch,pluginData,NULL,NULL);
+        delete[] (char*)pluginReturnVal;
+    }
+
+
 
 
 #ifdef SIM_WITH_GUI
@@ -801,11 +812,8 @@ bool CMainContainer::makeInstanceCurrentFromIndex(int instanceIndex)
     if (sandboxScript!=NULL)
         sandboxScript->runSandboxScript(sim_syscb_afterinstanceswitch);
 
-    pluginData[0]=currentInstanceIndex;
-    pluginData[1]=environment->getSceneUniqueID();
-    pluginData[2]=0;
-    pluginData[3]=0;
-    pluginReturnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceswitch,pluginData,NULL,NULL);
+    int pluginData[4]={currentInstanceIndex,environment->getSceneUniqueID(),0,0};
+    void* pluginReturnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceswitch,pluginData,NULL,NULL);
     delete[] (char*)pluginReturnVal;
     setModificationFlag(64); // instance switched
 //    printf("Instance SWITCHED to scene unique ID: %i\n",pluginData[1]);

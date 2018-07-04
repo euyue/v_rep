@@ -6343,7 +6343,7 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
                                 else
                                     break;
                             }
-                            App::ct->makeInstanceCurrentFromIndex(0);
+                            App::ct->makeInstanceCurrentFromIndex(0,false);
                         }
                     }
                 }

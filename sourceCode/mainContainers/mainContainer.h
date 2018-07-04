@@ -71,7 +71,7 @@ public:
     int getInstanceCount();
 
     int createNewInstance();
-    bool makeInstanceCurrentFromIndex(int instanceIndex);
+    bool makeInstanceCurrentFromIndex(int instanceIndex,bool previousInstanceWasDestroyed);
     int destroyCurrentInstance();
     int getCurrentInstanceIndex();
 

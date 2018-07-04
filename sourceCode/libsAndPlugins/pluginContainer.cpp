@@ -14,7 +14,7 @@ CPlugin::CPlugin(const char* filename,const char* pluginName)
     instance=NULL;
     v_repMesh_createCollisionInformationStructure=NULL;
     _codeEditor_openModal=NULL;
-    _msgBox=NULL;
+    _customUi_msgBox=NULL;
     _loadCount=1;
     extendedVersionInt=-1;
 }
@@ -27,7 +27,7 @@ CPlugin::~CPlugin()
         CPluginContainer::currentMeshEngine=NULL;
     if (_codeEditor_openModal!=NULL)
         CPluginContainer::currentCodeEditor=NULL;
-    if (_msgBox!=NULL)
+    if (_customUi_msgBox!=NULL)
         CPluginContainer::currentCustomUi=NULL;
 }
 
@@ -178,9 +178,9 @@ int CPlugin::load()
                 if (_codeEditor_openModal!=NULL)
                     CPluginContainer::currentCodeEditor=this;
 
-                _msgBox=(ptrMsgBox)(VVarious::resolveLibraryFuncName(lib,"msgBox"));
-                _fileDialog=(ptrFileDialog)(VVarious::resolveLibraryFuncName(lib,"fileDialog"));
-                if (_msgBox!=NULL)
+                _customUi_msgBox=(ptrCustomUi_msgBox)(VVarious::resolveLibraryFuncName(lib,"customUi_msgBox"));
+                _customUi_fileDialog=(ptrCustomUi_fileDialog)(VVarious::resolveLibraryFuncName(lib,"customUi_fileDialog"));
+                if (_customUi_msgBox!=NULL)
                     CPluginContainer::currentCustomUi=this;
 
                 // For other specific plugins:
@@ -1857,20 +1857,20 @@ int CPluginContainer::codeEditor_close(int handle,int* positionAndSize)
     return(retVal);
 }
 
-int CPluginContainer::msgBox(int type, int buttons, const char *title, const char *message)
+int CPluginContainer::customUi_msgBox(int type, int buttons, const char *title, const char *message)
 {
     int retVal=-1;
     if (currentCustomUi!=NULL)
-        retVal=currentCustomUi->_msgBox(type,buttons,title,message);
+        retVal=currentCustomUi->_customUi_msgBox(type,buttons,title,message);
     return(retVal);
 }
 
-bool CPluginContainer::fileDialog(int type, const char *title, const char *startPath, const char *initName, const char *extName, const char *ext, int native,std::string& files)
+bool CPluginContainer::customUi_fileDialog(int type, const char *title, const char *startPath, const char *initName, const char *extName, const char *ext, int native,std::string& files)
 {
     bool retVal=false;
     if (currentCustomUi!=NULL)
     {
-        char* res=currentCustomUi->_fileDialog(type,title,startPath,initName,extName,ext,native);
+        char* res=currentCustomUi->_customUi_fileDialog(type,title,startPath,initName,extName,ext,native);
         if (res!=NULL)
         {
             files.assign(res);

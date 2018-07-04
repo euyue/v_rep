@@ -13606,7 +13606,7 @@ simChar* simFileDialog_internal(simInt mode,const simChar* title,const simChar* 
     #ifndef WIN_VREP // native dialogs have a bug on MacOS/Linux versions: the initial directory is not set. Because of that, we don't use native dialogs
         native=0;
     #endif
-    CPluginContainer::fileDialog(mode,title,startPath,initName,extName,ext,native,nameAndPath);
+    CPluginContainer::customUi_fileDialog(mode,title,startPath,initName,extName,ext,native,nameAndPath);
 
 /*
     std::string stPath(startPath);
@@ -13633,7 +13633,7 @@ simInt simMsgBox_internal(simInt dlgType,simInt buttons,const simChar* title,con
 #ifdef SIM_WITH_GUI
     if (!isSimulatorInitialized(__func__))
         return(-1);
-    int retVal=CPluginContainer::msgBox(dlgType,buttons,title,message);
+    int retVal=CPluginContainer::customUi_msgBox(dlgType,buttons,title,message);
 //    int retVal=App::uiThread->messageBox_api(dlgType,buttons,title,message);
     return(retVal);
 #else
