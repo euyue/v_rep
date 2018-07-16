@@ -33,7 +33,9 @@
 #ifdef SIM_WITH_GUI
     #include <QSplashScreen>
 #endif
-#ifndef WIN_VREP
+#ifdef WIN_VREP
+    #include <dbghelp.h>
+#else
     #include <execinfo.h>
     #include <signal.h>
 #endif
@@ -524,20 +526,39 @@ void _appendCustomDataToBuffer(std::vector<char>& buffer,const char* dataName,co
     }
 }
 
-#ifndef WIN_VREP
+#ifdef WIN_VREP
+LONG WINAPI _winExceptionHandler(PEXCEPTION_POINTERS pExceptionInfo)
+{
+    void* stack[62];
+    HANDLE process=GetCurrentProcess();
+    SymInitialize(process,0,TRUE);
+    unsigned short fr=CaptureStackBackTrace(0,62,stack,NULL);
+    SYMBOL_INFO* symb=(SYMBOL_INFO*)calloc(sizeof(SYMBOL_INFO)+1024*sizeof(char),1);
+    symb->MaxNameLen=1023;
+    symb->SizeOfStruct=sizeof(SYMBOL_INFO);
+    for (size_t i=0;i<fr;i++)
+    {
+        SymFromAddr(process,(DWORD64)(stack[i]),0,symb);
+        printf("%i: %s - 0x%0X\n",fr-i-1,symb->Name,symb->Address);
+    }
+    free(symb);
+    return EXCEPTION_EXECUTE_HANDLER;
+}
+#else
 void _segHandler(int sig)
 {
     void* arr[10];
     size_t s=backtrace(arr,10);
-    fprintf(stderr,"Error: signal %d:\n",sig);
+    fprintf(stderr,"\n\nError: signal %d:\n\n",sig);
     backtrace_symbols_fd(arr,s,STDERR_FILENO);
     exit(1);
 }
 #endif
-
 simInt simRunSimulator_internal(const simChar* applicationName,simInt options,simVoid(*initCallBack)(),simVoid(*loopCallBack)(),simVoid(*deinitCallBack)())
 {
-#ifndef WIN_VREP
+#ifdef WIN_VREP
+    SetUnhandledExceptionFilter(_winExceptionHandler);
+#else
     signal(SIGSEGV,_segHandler);
 #endif
     SignalHandler sigH(SignalHandler::SIG_INT | SignalHandler::SIG_TERM | SignalHandler::SIG_CLOSE);
@@ -8658,11 +8679,18 @@ simInt simAddForce_internal(simInt shapeHandle,const simFloat* position,const si
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        if (!doesObjectExist(__func__,shapeHandle))
+        int handle=shapeHandle;
+        int handleFlags=0;
+        if (shapeHandle>=0)
+        {
+            handleFlags=shapeHandle&0x0ff00000;
+            handle=shapeHandle&0x000fffff;
+        }
+        if (!doesObjectExist(__func__,handle))
             return(-1);
-        if (!isShape(__func__,shapeHandle))
+        if (!isShape(__func__,handle))
             return(-1);
-        CShape* it=App::ct->objCont->getShape(shapeHandle);
+        CShape* it=App::ct->objCont->getShape(handle);
         C3Vector r(position);
         C3Vector f(force);
         C3Vector t(r^f);
@@ -8670,6 +8698,11 @@ simInt simAddForce_internal(simInt shapeHandle,const simFloat* position,const si
         C4Vector q(it->getCumulativeTransformationPart1().Q);
         f=q*f;
         t=q*t;
+        if ((handleFlags&sim_handleflag_resetforcetorque)!=0)
+        {
+            it->clearAdditionalForce();
+            it->clearAdditionalTorque();
+        }
         it->addAdditionalForceAndTorque(f,t);
         return(1);
     }

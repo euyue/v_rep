@@ -122,6 +122,7 @@ win32 {
     LIBS += -lShell32
     LIBS += -lopengl32
     LIBS += -luser32
+    LIBS += -lDbghelp
     DEFINES += WIN_VREP
 }
 

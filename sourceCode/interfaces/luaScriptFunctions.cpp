@@ -1226,6 +1226,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.handleflag_altname",sim_handleflag_altname,true},
     {"sim.handleflag_resetforce",sim_handleflag_resetforce,true},
     {"sim.handleflag_resettorque",sim_handleflag_resettorque,true},
+    {"sim.handleflag_resetforcetorque",sim_handleflag_resetforcetorque,true},
     {"sim.handleflag_silenterror",sim_handleflag_silenterror,true},
     // General object main properties:
     {"sim.objectspecialproperty_collidable",sim_objectspecialproperty_collidable,true},
