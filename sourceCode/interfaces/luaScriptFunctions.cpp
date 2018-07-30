@@ -192,6 +192,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getJointInterval",_simGetJointInterval,                "boolean cyclic,table_2 interval=sim.getJointInterval(number objectHandle)",true},
     {"sim.setJointInterval",_simSetJointInterval,                "number result=sim.setJointInterval(number objectHandle,boolean cyclic,table_2 interval)",true},
     {"sim.loadScene",_simLoadScene,                              "number result=sim.loadScene(string filename)",true},
+    {"sim.closeScene",_simCloseScene,                            "number result=sim.closeScene()",true},
     {"sim.saveScene",_simSaveScene,                              "number result=sim.saveScene(string filename)",true},
     {"sim.loadModel",_simLoadModel,                              "number objectHandle=sim.loadModel(string filename)",true},
     {"sim.saveModel",_simSaveModel,                              "number result=sim.saveModel(number modelBaseHandle,string filename)",true},
@@ -7885,8 +7886,33 @@ int _simLoadScene(luaWrap_lua_State* L)
     LUA_START("sim.loadScene");
 
     int retVal=-1;// error
-    if (checkInputArguments(L,&errorString,lua_arg_string,0))
-        retVal=simLoadScene_internal(luaWrap_lua_tostring(L,1));
+    int currentScriptID=getCurrentScriptID(L);
+    CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
+    if ( (script!=NULL)&&((script->getScriptType()==sim_scripttype_addonfunction)||(script->getScriptType()==sim_scripttype_addonscript)||(script->getScriptType()==sim_scripttype_sandboxscript)) )
+    {
+        if (checkInputArguments(L,&errorString,lua_arg_string,0))
+            retVal=simLoadScene_internal(luaWrap_lua_tostring(L,1));
+    }
+    else
+        errorString=SIM_ERROR_MUST_BE_CALLED_FROM_ADDON_OR_SANDBOX_SCRIPT;
+
+    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+
+int _simCloseScene(luaWrap_lua_State* L)
+{
+    LUA_API_FUNCTION_DEBUG;
+    LUA_START("sim.closeScene");
+
+    int retVal=-1;// error
+    int currentScriptID=getCurrentScriptID(L);
+    CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
+    if ( (script!=NULL)&&((script->getScriptType()==sim_scripttype_addonfunction)||(script->getScriptType()==sim_scripttype_addonscript)||(script->getScriptType()==sim_scripttype_sandboxscript)) )
+        retVal=simCloseScene_internal();
+    else
+        errorString=SIM_ERROR_MUST_BE_CALLED_FROM_ADDON_OR_SANDBOX_SCRIPT;
 
     LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);

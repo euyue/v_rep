@@ -147,7 +147,7 @@
 #define SIM_ERROR_FUNCTIONALITY_NOT_APPLICABLE_WITH_CURRENT_SCRIPT "Functionality not applicable with current script."
 #define SIM_ERROR_FUNCTIONALITY_NOT_APPLICABLE_WITH_CURRENT_SCRIPT_STATE "Functionality not applicable with current script state."
 #define SIM_ERROR_CB_NOT_APPLICABLE_WITH_CURRENT_SCRIPT "Callback not applicable with current script."
-
+#define SIM_ERROR_MUST_BE_CALLED_FROM_ADDON_OR_SANDBOX_SCRIPT "Must be called from an add-on, or from the sandbox script."
 // Class is fully static
 class CApiErrors
 {

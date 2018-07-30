@@ -266,6 +266,7 @@ extern int _simGetArrayParameter(luaWrap_lua_State* L);
 extern int _simGetJointInterval(luaWrap_lua_State* L);
 extern int _simSetJointInterval(luaWrap_lua_State* L);
 extern int _simLoadScene(luaWrap_lua_State* L);
+extern int _simCloseScene(luaWrap_lua_State* L);
 extern int _simSaveScene(luaWrap_lua_State* L);
 extern int _simLoadModel(luaWrap_lua_State* L);
 extern int _simSaveModel(luaWrap_lua_State* L);
