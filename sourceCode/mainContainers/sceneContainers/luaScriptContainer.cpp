@@ -25,7 +25,7 @@ void CLuaScriptContainer::setSaveIncludeScriptFiles(bool save)
 
 CLuaScriptContainer::CLuaScriptContainer()
 {
-    _inMainScriptNow=false;
+    _inMainScriptNow=0;
     insertDefaultScript_mainAndChildScriptsOnly(sim_scripttype_mainscript,false);
 }
 
@@ -160,13 +160,19 @@ int CLuaScriptContainer::removeDestroyedScripts(int scriptType)
 
 void CLuaScriptContainer::setInMainScriptNow(bool launched,int startTimeInMs)
 {
-    _inMainScriptNow=launched;
-    _mainScriptStartTimeInMs=startTimeInMs;
+    if (launched)
+    {
+        if (_inMainScriptNow==0)
+            _mainScriptStartTimeInMs=startTimeInMs;
+        _inMainScriptNow++;
+    }
+    else
+        _inMainScriptNow--;
 }
 
 bool CLuaScriptContainer::getInMainScriptNow() const
 {
-    return(_inMainScriptNow);
+    return(_inMainScriptNow>0);
 }
 
 int CLuaScriptContainer::getMainScriptExecTimeInMs() const

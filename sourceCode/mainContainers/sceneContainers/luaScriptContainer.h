@@ -69,7 +69,7 @@ public:
 protected:
     int _getScriptsToExecute(int scriptType,std::vector<CLuaScriptObject*>& scripts) const;
 
-    bool _inMainScriptNow;
+    int _inMainScriptNow;
     int _mainScriptStartTimeInMs;
 
     std::vector<SScriptCallBack*> _callbackStructureToDestroyAtEndOfSimulation_new;
