@@ -1221,6 +1221,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.handleflag_togglevisibility",sim_handleflag_togglevisibility,true},
     {"sim.handleflag_extended",sim_handleflag_extended,true},
     {"sim.handleflag_greyscale",sim_handleflag_greyscale,true},
+    {"sim.handleflag_depthbuffermeters",sim_handleflag_depthbuffermeters,true},
     {"sim.handleflag_codedstring",sim_handleflag_codedstring,true},
     {"sim.handleflag_model",sim_handleflag_model,true},
     {"sim.handleflag_rawvalue",sim_handleflag_rawvalue,true},
@@ -5955,6 +5956,7 @@ int _simGetVisionSensorDepthBuffer(luaWrap_lua_State* L)
                             sizeY=luaToInt(L,5);
                         int sensHandle=luaToInt(L,1);
                         bool returnString=(sensHandle&sim_handleflag_codedstring)!=0;
+                        bool toMeters=(sensHandle&sim_handleflag_depthbuffermeters)!=0;
                         sensHandle=sensHandle&0xfffff;
                         CVisionSensor* rs=App::ct->objCont->getVisionSensor(sensHandle);
                         if (rs!=NULL)
@@ -5969,6 +5971,14 @@ int _simGetVisionSensorDepthBuffer(luaWrap_lua_State* L)
                             float* buffer=rs->readPortionOfImage(posX,posY,sizeX,sizeY,2);
                             if (buffer!=NULL)
                             {
+                                if (toMeters)
+                                { // Here we need to convert values to distances in meters:
+                                    float n=rs->getNearClippingPlane();
+                                    float f=rs->getFarClippingPlane();
+                                    float fmn=f-n;
+                                    for (int i=0;i<sizeX*sizeY;i++)
+                                        buffer[i]=n+fmn*buffer[i];
+                                }
                                 if (returnString)
                                     luaWrap_lua_pushlstring(L,(char*)buffer,sizeX*sizeY*sizeof(float));
                                 else

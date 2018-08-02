@@ -12932,27 +12932,34 @@ simFloat* simGetVisionSensorDepthBuffer_internal(simInt sensorHandle)
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(NULL);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
+        int handleFlags=sensorHandle&0xff00000;
+        sensorHandle=sensorHandle&0xfffff;
         if (!doesObjectExist(__func__,sensorHandle))
-        {
             return(NULL);
-        }
         if (!isVisionSensor(__func__,sensorHandle))
-        {
             return(NULL);
-        }
         CVisionSensor* it=App::ct->objCont->getVisionSensor(sensorHandle);
         int res[2];
         it->getRealResolution(res);
         float* buff=new float[res[0]*res[1]];
         float* depthBuff=it->getDepthBufferPointer();
-        for (int i=0;i<res[0]*res[1];i++)
-            buff[i]=depthBuff[i];
+        if ((handleFlags&sim_handleflag_depthbuffermeters)!=0)
+        { // Here we need to convert values to distances in meters:
+            float n=it->getNearClippingPlane();
+            float f=it->getFarClippingPlane();
+            float fmn=f-n;
+            for (int i=0;i<res[0]*res[1];i++)
+                buff[i]=n+fmn*depthBuff[i];
+        }
+        else
+        { // values are: 0=on the close clipping plane, 1=on the far clipping plane
+            for (int i=0;i<res[0]*res[1];i++)
+                buff[i]=depthBuff[i];
+        }
         return(buff);
     }
     CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
