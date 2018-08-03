@@ -1008,19 +1008,23 @@ simInt simGetCollectionHandle_internal(const simChar* collectionName)
 {
     C_API_FUNCTION_DEBUG;
 
-    std::string collectionNameAdjusted=getCNameSuffixAdjustedName(collectionName);
+    size_t silentErrorPos=std::string(collectionName).find("@silentError");
+    std::string nm(collectionName);
+    if (silentErrorPos!=std::string::npos)
+        nm.erase(nm.begin()+firstAtPos,nm.end());
+
+    std::string collectionNameAdjusted=getCNameSuffixAdjustedName(nm.c_str());
     enableCNameSuffixAdjustment();
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         CRegCollection* it=App::ct->collections->getCollection(collectionNameAdjusted);
         if (it==NULL)
         {
-            CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_COLLECTION_INEXISTANT);
+            if (silentErrorPos==std::string::npos)
+                CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_COLLECTION_INEXISTANT);
             return(-1);
         }
         int retVal=it->getCollectionID();
@@ -5546,19 +5550,23 @@ simInt simGetCollisionHandle_internal(const simChar* collisionObjectName)
 {
     C_API_FUNCTION_DEBUG;
 
-    std::string collisionObjectNameAdjusted=getCNameSuffixAdjustedName(collisionObjectName);
+    size_t silentErrorPos=std::string(collisionObjectName).find("@silentError");
+    std::string nm(collisionObjectName);
+    if (silentErrorPos!=std::string::npos)
+        nm.erase(nm.begin()+firstAtPos,nm.end());
+
+    std::string collisionObjectNameAdjusted=getCNameSuffixAdjustedName(nm.c_str());
     enableCNameSuffixAdjustment();
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         CRegCollision* it=App::ct->collisions->getObject(collisionObjectNameAdjusted);
         if (it==NULL)
         {
-            CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_COLLISION_INEXISTANT);
+            if (silentErrorPos==std::string::npos)
+                CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_COLLISION_INEXISTANT);
             return(-1);
         }
         int retVal=it->getObjectID();
@@ -5568,23 +5576,27 @@ simInt simGetCollisionHandle_internal(const simChar* collisionObjectName)
     return(-1);
 }
 
-simInt simGetDistanceHandle_internal(const simChar* distanceObjectNameI)
+simInt simGetDistanceHandle_internal(const simChar* distanceObjectName)
 {
     C_API_FUNCTION_DEBUG;
 
-    std::string distanceObjectNameAdjusted=getCNameSuffixAdjustedName(distanceObjectNameI);
+    size_t silentErrorPos=std::string(distanceObjectName).find("@silentError");
+    std::string nm(distanceObjectName);
+    if (silentErrorPos!=std::string::npos)
+        nm.erase(nm.begin()+firstAtPos,nm.end());
+
+    std::string distanceObjectNameAdjusted=getCNameSuffixAdjustedName(nm.c_str());
     enableCNameSuffixAdjustment();
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         CRegDist* it=App::ct->distances->getObject(distanceObjectNameAdjusted);
         if (it==NULL)
         {
-            CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_DISTANCE_INEXISTANT);
+            if (silentErrorPos==std::string::npos)
+                CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_DISTANCE_INEXISTANT);
             return(-1);
         }
         int retVal=it->getObjectID();
@@ -5598,19 +5610,23 @@ simInt simGetIkGroupHandle_internal(const simChar* ikGroupName)
 {
     C_API_FUNCTION_DEBUG;
 
-    std::string ikGroupNameAdjusted=getCNameSuffixAdjustedName(ikGroupName);
+    size_t silentErrorPos=std::string(ikGroupName).find("@silentError");
+    std::string nm(ikGroupName);
+    if (silentErrorPos!=std::string::npos)
+        nm.erase(nm.begin()+firstAtPos,nm.end());
+
+    std::string ikGroupNameAdjusted=getCNameSuffixAdjustedName(nm.c_str());
     enableCNameSuffixAdjustment();
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         CikGroup* it=App::ct->ikGroups->getIkGroup(ikGroupNameAdjusted);
         if (it==NULL)
         {
-            CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_IK_GROUP_INEXISTANT);
+            if (silentErrorPos==std::string::npos)
+                CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_IK_GROUP_INEXISTANT);
             return(-1);
         }
         int retVal=it->getObjectID();
