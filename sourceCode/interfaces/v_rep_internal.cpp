@@ -1011,7 +1011,7 @@ simInt simGetCollectionHandle_internal(const simChar* collectionName)
     size_t silentErrorPos=std::string(collectionName).find("@silentError");
     std::string nm(collectionName);
     if (silentErrorPos!=std::string::npos)
-        nm.erase(nm.begin()+firstAtPos,nm.end());
+        nm.erase(nm.begin()+silentErrorPos,nm.end());
 
     std::string collectionNameAdjusted=getCNameSuffixAdjustedName(nm.c_str());
     enableCNameSuffixAdjustment();
@@ -5553,7 +5553,7 @@ simInt simGetCollisionHandle_internal(const simChar* collisionObjectName)
     size_t silentErrorPos=std::string(collisionObjectName).find("@silentError");
     std::string nm(collisionObjectName);
     if (silentErrorPos!=std::string::npos)
-        nm.erase(nm.begin()+firstAtPos,nm.end());
+        nm.erase(nm.begin()+silentErrorPos,nm.end());
 
     std::string collisionObjectNameAdjusted=getCNameSuffixAdjustedName(nm.c_str());
     enableCNameSuffixAdjustment();
@@ -5583,7 +5583,7 @@ simInt simGetDistanceHandle_internal(const simChar* distanceObjectName)
     size_t silentErrorPos=std::string(distanceObjectName).find("@silentError");
     std::string nm(distanceObjectName);
     if (silentErrorPos!=std::string::npos)
-        nm.erase(nm.begin()+firstAtPos,nm.end());
+        nm.erase(nm.begin()+silentErrorPos,nm.end());
 
     std::string distanceObjectNameAdjusted=getCNameSuffixAdjustedName(nm.c_str());
     enableCNameSuffixAdjustment();
@@ -5613,7 +5613,7 @@ simInt simGetIkGroupHandle_internal(const simChar* ikGroupName)
     size_t silentErrorPos=std::string(ikGroupName).find("@silentError");
     std::string nm(ikGroupName);
     if (silentErrorPos!=std::string::npos)
-        nm.erase(nm.begin()+firstAtPos,nm.end());
+        nm.erase(nm.begin()+silentErrorPos,nm.end());
 
     std::string ikGroupNameAdjusted=getCNameSuffixAdjustedName(nm.c_str());
     enableCNameSuffixAdjustment();
