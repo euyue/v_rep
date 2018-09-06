@@ -2514,7 +2514,7 @@ bool CFileOperations::saveScene(const char* pathAndFilename,bool displayMessages
 
 bool CFileOperations::saveModel(int modelBaseDummyID,const char* pathAndFilename,bool displayMessages,bool displayDialogs,bool setCurrentDir,std::vector<char>* saveBuffer/*=NULL*/)
 {
-    if (CFileOperationsBase::handleVerSpec_canSaveModel())
+    if ( CFileOperationsBase::handleVerSpec_canSaveModel()||(saveBuffer!=NULL) )
     {
         App::ct->luaScriptContainer->sceneOrModelAboutToBeSaved(modelBaseDummyID);
         if (App::isFullScreen())

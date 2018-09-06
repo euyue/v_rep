@@ -15,6 +15,7 @@
 
 VTHREAD_ID_TYPE CThreadPool::_threadToIntercept=0;
 VTHREAD_START_ADDRESS CThreadPool::_threadInterceptCallback=NULL;
+int CThreadPool::_threadInterceptIndex=0;
 int CThreadPool::_processorCoreAffinity=0;
 int CThreadPool::_lockStage=0;
 bool CThreadPool::_threadShouldNotSwitch_override=false;
@@ -295,6 +296,7 @@ void CThreadPool::switchToThread(VTHREAD_ID_TYPE threadID)
                                 _threadToIntercept=0;
                                 _threadInterceptCallback(NULL);
                                 _threadInterceptCallback=NULL;
+                                _threadInterceptIndex--;
                             }
                         }
                         VThread::switchThread();
@@ -975,10 +977,13 @@ bool CThreadPool::_interceptThread(VTHREAD_ID_TYPE theThreadToIntercept,VTHREAD_
     _unlock(1);
     if (retVal)
     {
+        _threadInterceptIndex++;
+        int v=_threadInterceptIndex;
         _threadInterceptCallback=theCallback;
         _threadToIntercept=theThreadToIntercept;
 
-        while (_threadInterceptCallback!=NULL)
+        while (v<=_threadInterceptIndex)
+//        while (_threadInterceptCallback!=NULL)
             VThread::switchThread();
         //_threadToIntercept is also set to zero by the thread itself
     }

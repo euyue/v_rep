@@ -127,5 +127,6 @@ private:
 
     static VTHREAD_ID_TYPE _threadToIntercept;
     static VTHREAD_START_ADDRESS _threadInterceptCallback;
+    static int _threadInterceptIndex;
 
 };

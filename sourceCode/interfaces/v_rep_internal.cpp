@@ -539,7 +539,7 @@ LONG WINAPI _winExceptionHandler(PEXCEPTION_POINTERS pExceptionInfo)
     for (size_t i=0;i<fr;i++)
     {
         SymFromAddr(process,(DWORD64)(stack[i]),0,symb);
-        printf("%i: %s - 0x%0X\n",fr-i-1,symb->Name,symb->Address);
+        printf("%zu: %s - 0x%0I64X\n",fr-i-1,symb->Name,symb->Address);
     }
     free(symb);
     return EXCEPTION_EXECUTE_HANDLER;

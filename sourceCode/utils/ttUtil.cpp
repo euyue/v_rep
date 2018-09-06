@@ -325,21 +325,15 @@ std::string CTTUtil::encode64(const std::string &data)
 std::string CTTUtil::generateUniqueString()
 {
     std::string s("1234567890123456");
-    std::string a(boost::str(boost::format("%i") % int(SIM_RAND_FLOAT*100000000.0f)));
-    while (a.length()<16)
-        a=a+"*";
-    std::string b(boost::str(boost::format("%i") % VDateTime::getTimeInMs()));
-    while (b.length()<16)
-        b="*"+b;
-    std::string c(boost::str(boost::format("%i") % int(VDateTime::getSecondsSince1970())));
-    while (c.length()<16)
-        c=c+"*";
-    for (int i=0;i<16;i++)
-    {
-        s[i]+=a[i]*int(SIM_RAND_FLOAT*4.1f);
-        s[i]+=b[i]*int(SIM_RAND_FLOAT*3.1f);
-        s[i]+=c[i]*int(SIM_RAND_FLOAT*17.1f);
-    }
+    char a[17];
+    for (size_t i=0;i<16;i++)
+        a[i]=(unsigned char)(SIM_RAND_FLOAT*255.1f);
+    char b[17];
+    sprintf(b,"%i",VDateTime::getTimeInMs());
+    char c[17];
+    sprintf(c,"%i",int(VDateTime::getSecondsSince1970()));
+    for (size_t i=0;i<16;i++)
+        s[i]+=a[i]+b[i]+c[i];
     return(s);
 }
 
@@ -348,7 +342,7 @@ std::string CTTUtil::generateUniqueReadableString()
     static bool seeded=false;
     if (!seeded)
     {
-        srand((suint64)VDateTime::getTimeInMs()+VDateTime::getSecondsSince1970());
+        srand((unsigned int)VDateTime::getTimeInMs()+(unsigned int)VDateTime::getSecondsSince1970());
         seeded=true;
     }
     std::string str;

@@ -2441,7 +2441,7 @@ void CMainWindow::setDefaultMouseMode()
 
 int CMainWindow::getMouseMode()
 {
-    FUNCTION_DEBUG;
+//    sim_navigation_clickselection
     return(_mouseMode);
 }
 
