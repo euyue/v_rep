@@ -259,6 +259,7 @@ public:
     float getMeasuredAngularVelocity() const;
     C3Vector getMeasuredLinearVelocity() const;
     C3Vector getMeasuredAngularVelocity3() const;
+    C3Vector getMeasuredAngularVelocityAxis() const;
 
     void setForceAlwaysVisible_tmp(bool force);
 
@@ -399,6 +400,7 @@ protected:
 
     float _measuredAngularVelocity_velocityMeasurement;
     C3Vector _measuredAngularVelocity3_velocityMeasurement;
+    C3Vector _measuredAngularVelocityAxis_velocityMeasurement;
     C3Vector _measuredLinearVelocity_velocityMeasurement;
     C7Vector _previousAbsTransf_velocityMeasurement;
     bool _previousPositionOrientationIsValid;

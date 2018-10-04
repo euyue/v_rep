@@ -1226,6 +1226,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.handleflag_model",sim_handleflag_model,true},
     {"sim.handleflag_rawvalue",sim_handleflag_rawvalue,true},
     {"sim.handleflag_altname",sim_handleflag_altname,true},
+    {"sim.handleflag_axis",sim_handleflag_axis,true},
     {"sim.handleflag_resetforce",sim_handleflag_resetforce,true},
     {"sim.handleflag_resettorque",sim_handleflag_resettorque,true},
     {"sim.handleflag_resetforcetorque",sim_handleflag_resetforcetorque,true},

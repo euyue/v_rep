@@ -57,6 +57,7 @@ C3DObject::C3DObject()
     _measuredAngularVelocity_velocityMeasurement=0.0f;
     _measuredLinearVelocity_velocityMeasurement.clear();
     _measuredAngularVelocity3_velocityMeasurement.clear();
+    _measuredAngularVelocityAxis_velocityMeasurement.clear();
     _previousPositionOrientationIsValid=false;
 
 
@@ -119,10 +120,17 @@ void C3DObject::measureVelocity(float dt)
     {
         _measuredLinearVelocity_velocityMeasurement=(abs.X-_previousAbsTransf_velocityMeasurement.X)*(1.0f/dt);
         _measuredAngularVelocity_velocityMeasurement=abs.Q.getAngleBetweenQuaternions(_previousAbsTransf_velocityMeasurement.Q)/dt;
-
-//      Following bug corrected on 17/9/2013:
-//      _measuredAngularVelocity3_velocityMeasurement=(_previousAbsTransf_velocityMeasurement.getInverse()*abs).Q.getEulerAngles()*(1.0f/dt);
         _measuredAngularVelocity3_velocityMeasurement=(abs*_previousAbsTransf_velocityMeasurement.getInverse()).Q.getEulerAngles()*(1.0f/dt);
+
+        C4Vector AA(_previousAbsTransf_velocityMeasurement.Q);
+        C4Vector BB(abs.Q);
+        if (AA(0)*BB(0)+AA(1)*BB(1)+AA(2)*BB(2)+AA(3)*BB(3)<0.0f)
+            AA=AA*-1.0f;
+        C4Vector r((AA.getInverse()*BB).getAngleAndAxis());
+        _measuredAngularVelocityAxis_velocityMeasurement.set(r(1),r(2),r(3));
+        _measuredAngularVelocityAxis_velocityMeasurement=AA*_measuredAngularVelocityAxis_velocityMeasurement;
+        _measuredAngularVelocityAxis_velocityMeasurement.normalize();
+        _measuredAngularVelocityAxis_velocityMeasurement*=r(0)/dt;
     }
     _previousAbsTransf_velocityMeasurement=abs;
     _previousPositionOrientationIsValid=true;
@@ -165,6 +173,10 @@ C3Vector C3DObject::getMeasuredAngularVelocity3() const
     return(_measuredAngularVelocity3_velocityMeasurement);
 }
 
+C3Vector C3DObject::getMeasuredAngularVelocityAxis() const
+{
+    return(_measuredAngularVelocityAxis_velocityMeasurement);
+}
 
 void C3DObject::setHierarchyColorIndex(int c)
 {
@@ -1348,6 +1360,7 @@ void C3DObject::initializeInitialValuesMain(bool simulationIsRunning)
 
     _measuredAngularVelocity_velocityMeasurement=0.0f;
     _measuredAngularVelocity3_velocityMeasurement.clear();
+    _measuredAngularVelocityAxis_velocityMeasurement.clear();
     _measuredLinearVelocity_velocityMeasurement.clear();
     _previousPositionOrientationIsValid=false;
 //    _previousAbsTransf_velocityMeasurement=getCumulativeTransformationPart1();

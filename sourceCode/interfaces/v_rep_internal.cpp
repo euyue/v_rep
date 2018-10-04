@@ -4184,9 +4184,7 @@ simInt simGetSimulationState_internal()
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -8591,20 +8589,14 @@ simInt simGetVelocity_internal(simInt shapeHandle,simFloat* linearVelocity,simFl
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,shapeHandle))
-        {
             return(-1);
-        }
         if (!isShape(__func__,shapeHandle))
-        {
             return(-1);
-        }
         CShape* it=App::ct->objCont->getShape(shapeHandle);
         C3Vector lv(it->getDynamicLinearVelocity());
         C3Vector av(it->getDynamicAngularVelocity());
@@ -8627,11 +8619,22 @@ simInt simGetObjectVelocity_internal(simInt objectHandle,simFloat* linearVelocit
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        if (!doesObjectExist(__func__,objectHandle))
+        int handle=objectHandle;
+        int handleFlags=0;
+        if (objectHandle>=0)
+        {
+            handleFlags=objectHandle&0x0ff00000;
+            handle=objectHandle&0x000fffff;
+        }
+        if (!doesObjectExist(__func__,handle))
             return(-1);
-        C3DObject* it=App::ct->objCont->getObject(objectHandle);
+        C3DObject* it=App::ct->objCont->getObject(handle);
         C3Vector lv(it->getMeasuredLinearVelocity());
-        C3Vector av(it->getMeasuredAngularVelocity3());
+        C3Vector av;
+        if ((handleFlags&sim_handleflag_axis)!=0)
+            av=it->getMeasuredAngularVelocityAxis();
+        else
+            av=it->getMeasuredAngularVelocity3();
         if (linearVelocity!=NULL)
             lv.copyTo(linearVelocity);
         if (angularVelocity!=NULL)
