@@ -1839,8 +1839,6 @@ void CSView::cameraAndObjectMotion()
     static int restX=0;
     const int treshhold=20;
     const int sleep=10;
-//  const float linJointResolution=0.0001f;
-//  const float angJointResolution=0.001f*degToRad_f;
     int yDiff=mousePosition.y-mouseDownPosition.y;
     int xDiff=mousePosition.x-mouseDownPosition.x;
     if ( (yDiff>-treshhold)&&(yDiff<treshhold) )

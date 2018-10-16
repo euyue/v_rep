@@ -5,6 +5,7 @@
 #include "interfaceStackNumber.h"
 #include "interfaceStackString.h"
 #include "interfaceStackTable.h"
+#include <algorithm> // std::sort, etc.
 
 CInterfaceStackTable::CInterfaceStackTable()
 {
@@ -466,10 +467,76 @@ std::string CInterfaceStackTable::getObjectData() const
     char* tmp=(char*)(&l);
     for (size_t i=0;i<sizeof(l);i++)
         retVal.push_back(tmp[i]);
-    for (size_t i=0;i<_tableObjects.size();i++)
+    if (_isTableArray)
     {
-        retVal.push_back((char)_tableObjects[i]->getObjectType());
-        retVal+=_tableObjects[i]->getObjectData();
+        for (size_t i=0;i<_tableObjects.size();i++)
+        {
+            retVal.push_back((char)_tableObjects[i]->getObjectType());
+            retVal+=_tableObjects[i]->getObjectData();
+        }
+    }
+    else
+    { // we need to store the map data according to a specific key order,
+      // otherwise we can't compare packed tables (which is very convenient in Lua):
+        int boolFalse=-1;
+        int boolTrue=-1;
+        std::vector<std::pair<double,int>> numberKeys;
+        std::vector<std::pair<std::string,int>> stringKeys;
+        for (size_t i=0;i<_tableObjects.size()/2;i++)
+        {
+            CInterfaceStackObject* key=_tableObjects[2*i+0];
+            if (key->getObjectType()==STACK_OBJECT_BOOL)
+            {
+                if ( ((CInterfaceStackBool*)key)->getValue()==false )
+                    boolFalse=i;
+                else
+                    boolTrue=i;
+            }
+            else if (key->getObjectType()==STACK_OBJECT_NUMBER)
+                numberKeys.push_back(std::make_pair(((CInterfaceStackNumber*)key)->getValue(),i));
+            else if (key->getObjectType()==STACK_OBJECT_STRING)
+                stringKeys.push_back(std::make_pair(((CInterfaceStackString*)key)->getValue(NULL),i));
+            else
+            { // should normally not happen. We push unordered
+                retVal.push_back((char)key->getObjectType());
+                retVal+=key->getObjectData();
+                CInterfaceStackObject* obj=_tableObjects[2*i+1];
+                retVal.push_back((char)obj->getObjectType());
+                retVal+=obj->getObjectData();
+            }
+        }
+        if (boolFalse>=0)
+        {
+            retVal.push_back((char)_tableObjects[2*boolFalse+0]->getObjectType());
+            retVal+=_tableObjects[2*boolFalse+0]->getObjectData();
+            retVal.push_back((char)_tableObjects[2*boolFalse+1]->getObjectType());
+            retVal+=_tableObjects[2*boolFalse+1]->getObjectData();
+        }
+        if (boolTrue>=0)
+        {
+            retVal.push_back((char)_tableObjects[2*boolTrue+0]->getObjectType());
+            retVal+=_tableObjects[2*boolTrue+0]->getObjectData();
+            retVal.push_back((char)_tableObjects[2*boolTrue+1]->getObjectType());
+            retVal+=_tableObjects[2*boolTrue+1]->getObjectData();
+        }
+        std::sort(numberKeys.begin(),numberKeys.end());
+        std::sort(stringKeys.begin(),stringKeys.end());
+        for (size_t i=0;i<numberKeys.size();i++)
+        {
+            int ind=numberKeys[i].second;
+            retVal.push_back((char)_tableObjects[2*ind+0]->getObjectType());
+            retVal+=_tableObjects[2*ind+0]->getObjectData();
+            retVal.push_back((char)_tableObjects[2*ind+1]->getObjectType());
+            retVal+=_tableObjects[2*ind+1]->getObjectData();
+        }
+        for (size_t i=0;i<stringKeys.size();i++)
+        {
+            int ind=stringKeys[i].second;
+            retVal.push_back((char)_tableObjects[2*ind+0]->getObjectType());
+            retVal+=_tableObjects[2*ind+0]->getObjectData();
+            retVal.push_back((char)_tableObjects[2*ind+1]->getObjectType());
+            retVal+=_tableObjects[2*ind+1]->getObjectData();
+        }
     }
     return(retVal);
 }
