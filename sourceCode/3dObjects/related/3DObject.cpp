@@ -782,16 +782,16 @@ void C3DObject::announceGcsObjectWillBeErased(int gcsObjectID,bool copyBuffer)
 {
 }
 
-void C3DObject::performIkLoadingMapping(std::vector<int>* map)
+void C3DObject::performIkLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 {
 }
-void C3DObject::performCollectionLoadingMapping(std::vector<int>* map)
+void C3DObject::performCollectionLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 {
 }
-void C3DObject::performCollisionLoadingMapping(std::vector<int>* map)
+void C3DObject::performCollisionLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 {
 }
-void C3DObject::performDistanceLoadingMapping(std::vector<int>* map)
+void C3DObject::performDistanceLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 {
 }
 void C3DObject::performGcsLoadingMapping(std::vector<int>* map)
@@ -841,7 +841,19 @@ void C3DObject::announceCollectionWillBeErasedMain(int collectionID,bool copyBuf
                 _customReferencedHandles[i].generalObjectHandle=-1;
         }
     }
+    if (!copyBuffer)
+    {
+        for (size_t i=0;i<_customReferencedOriginalHandles.size();i++)
+        {
+            if (_customReferencedOriginalHandles[i].generalObjectType==sim_appobj_collection_type)
+            {
+                if (_customReferencedOriginalHandles[i].generalObjectHandle==collectionID)
+                    _customReferencedOriginalHandles[i].generalObjectHandle=-1;
+            }
+        }
+    }
 }
+
 void C3DObject::announceCollisionWillBeErasedMain(int collisionID,bool copyBuffer)
 {
     // This routine can be called for objCont-objects, but also for objects
@@ -853,6 +865,17 @@ void C3DObject::announceCollisionWillBeErasedMain(int collisionID,bool copyBuffe
         {
             if (_customReferencedHandles[i].generalObjectHandle==collisionID)
                 _customReferencedHandles[i].generalObjectHandle=-1;
+        }
+    }
+    if (!copyBuffer)
+    {
+        for (size_t i=0;i<_customReferencedOriginalHandles.size();i++)
+        {
+            if (_customReferencedOriginalHandles[i].generalObjectType==sim_appobj_collision_type)
+            {
+                if (_customReferencedOriginalHandles[i].generalObjectHandle==collisionID)
+                    _customReferencedOriginalHandles[i].generalObjectHandle=-1;
+            }
         }
     }
 }
@@ -867,6 +890,17 @@ void C3DObject::announceDistanceWillBeErasedMain(int distanceID,bool copyBuffer)
         {
             if (_customReferencedHandles[i].generalObjectHandle==distanceID)
                 _customReferencedHandles[i].generalObjectHandle=-1;
+        }
+    }
+    if (!copyBuffer)
+    {
+        for (size_t i=0;i<_customReferencedOriginalHandles.size();i++)
+        {
+            if (_customReferencedOriginalHandles[i].generalObjectType==sim_appobj_distance_type)
+            {
+                if (_customReferencedOriginalHandles[i].generalObjectHandle==distanceID)
+                    _customReferencedOriginalHandles[i].generalObjectHandle=-1;
+            }
         }
     }
 }
@@ -885,41 +919,73 @@ void C3DObject::announceGcsObjectWillBeErasedMain(int gcsObjectID,bool copyBuffe
     }
 }
 
-void C3DObject::performIkLoadingMappingMain(std::vector<int>* map)
+void C3DObject::performIkLoadingMappingMain(std::vector<int>* map,bool loadingAmodel)
 {
     for (size_t i=0;i<_customReferencedHandles.size();i++)
     {
         if (_customReferencedHandles[i].generalObjectType==sim_appobj_ik_type)
             _customReferencedHandles[i].generalObjectHandle=App::ct->objCont->getLoadingMapping(map,_customReferencedHandles[i].generalObjectHandle);
     }
+    if (!loadingAmodel)
+    {
+        for (size_t i=0;i<_customReferencedOriginalHandles.size();i++)
+        {
+            if (_customReferencedOriginalHandles[i].generalObjectType==sim_appobj_ik_type)
+                _customReferencedOriginalHandles[i].generalObjectHandle=App::ct->objCont->getLoadingMapping(map,_customReferencedOriginalHandles[i].generalObjectHandle);
+        }
+    }
 }
 
-void C3DObject::performCollectionLoadingMappingMain(std::vector<int>* map)
+void C3DObject::performCollectionLoadingMappingMain(std::vector<int>* map,bool loadingAmodel)
 {
     if ( (_authorizedViewableObjects>=0)&&(_authorizedViewableObjects>=SIM_IDSTART_COLLECTION) )
         _authorizedViewableObjects=App::ct->objCont->getLoadingMapping(map,_authorizedViewableObjects);
     for (size_t i=0;i<_customReferencedHandles.size();i++)
     {
         if (_customReferencedHandles[i].generalObjectType==sim_appobj_collection_type)
-            _customReferencedHandles[i].generalObjectHandle=App::ct->objCont->getLoadingMapping(map,_customReferencedHandles[i].generalObjectHandle);
+            _customReferencedHandles[i].generalObjectHandle=App::ct->objCont->getLoadingMapping(map,_customReferencedOriginalHandles[i].generalObjectHandle);
+    }
+    if (!loadingAmodel)
+    {
+        for (size_t i=0;i<_customReferencedOriginalHandles.size();i++)
+        {
+            if (_customReferencedOriginalHandles[i].generalObjectType==sim_appobj_collection_type)
+                _customReferencedOriginalHandles[i].generalObjectHandle=App::ct->objCont->getLoadingMapping(map,_customReferencedHandles[i].generalObjectHandle);
+        }
     }
 }
 
-void C3DObject::performCollisionLoadingMappingMain(std::vector<int>* map)
+void C3DObject::performCollisionLoadingMappingMain(std::vector<int>* map,bool loadingAmodel)
 {
     for (size_t i=0;i<_customReferencedHandles.size();i++)
     {
         if (_customReferencedHandles[i].generalObjectType==sim_appobj_collision_type)
             _customReferencedHandles[i].generalObjectHandle=App::ct->objCont->getLoadingMapping(map,_customReferencedHandles[i].generalObjectHandle);
     }
+    if (!loadingAmodel)
+    {
+        for (size_t i=0;i<_customReferencedOriginalHandles.size();i++)
+        {
+            if (_customReferencedOriginalHandles[i].generalObjectType==sim_appobj_collision_type)
+                _customReferencedOriginalHandles[i].generalObjectHandle=App::ct->objCont->getLoadingMapping(map,_customReferencedOriginalHandles[i].generalObjectHandle);
+        }
+    }
 }
 
-void C3DObject::performDistanceLoadingMappingMain(std::vector<int>* map)
+void C3DObject::performDistanceLoadingMappingMain(std::vector<int>* map,bool loadingAmodel)
 {
     for (size_t i=0;i<_customReferencedHandles.size();i++)
     {
         if (_customReferencedHandles[i].generalObjectType==sim_appobj_distance_type)
             _customReferencedHandles[i].generalObjectHandle=App::ct->objCont->getLoadingMapping(map,_customReferencedHandles[i].generalObjectHandle);
+    }
+    if (!loadingAmodel)
+    {
+        for (size_t i=0;i<_customReferencedOriginalHandles.size();i++)
+        {
+            if (_customReferencedOriginalHandles[i].generalObjectType==sim_appobj_distance_type)
+                _customReferencedOriginalHandles[i].generalObjectHandle=App::ct->objCont->getLoadingMapping(map,_customReferencedOriginalHandles[i].generalObjectHandle);
+        }
     }
 }
 
@@ -1007,6 +1073,7 @@ C3DObject* C3DObject::getLastParentInSelection(const std::vector<C3DObject*>* se
 void C3DObject::removeSceneDependenciesMain()
 {
     _customReferencedHandles.clear();
+    _customReferencedOriginalHandles.clear();
 }
 
 C3DObject* C3DObject::copyYourselfMain()
@@ -1098,6 +1165,7 @@ C3DObject* C3DObject::copyYourselfMain()
         theNewObject->_customObjectData_tempData=_customObjectData_tempData->copyYourself();
 
     theNewObject->_customReferencedHandles.assign(_customReferencedHandles.begin(),_customReferencedHandles.end());
+    theNewObject->_customReferencedOriginalHandles.assign(_customReferencedOriginalHandles.begin(),_customReferencedOriginalHandles.end());
 
 
     // The following line is important to properly copy the copy buffer!!!
@@ -1807,7 +1875,21 @@ void C3DObject::serializeMain(CSer& ar)
             {
                 ar << _customReferencedHandles[i].generalObjectType;
                 ar << _customReferencedHandles[i].generalObjectHandle;
-                ar << _customReferencedHandles[i].option;
+                ar << int(0);
+            }
+            ar.flush();
+        }
+
+        if (_customReferencedOriginalHandles.size()>0)
+        {
+            ar.storeDataName("Orh");
+            ar << int(_customReferencedOriginalHandles.size());
+            for (size_t i=0;i<_customReferencedOriginalHandles.size();i++)
+            {
+                ar << _customReferencedOriginalHandles[i].generalObjectType;
+                ar << _customReferencedOriginalHandles[i].generalObjectHandle;
+                if (_customReferencedOriginalHandles[i].generalObjectHandle>=0)
+                    ar << _customReferencedOriginalHandles[i].uniquePersistentIdString;
             }
             ar.flush();
         }
@@ -2060,15 +2142,31 @@ void C3DObject::serializeMain(CSer& ar)
                 {
                     noHit=false;
                     ar >> byteQuantity;
-                    int cnt;
+                    int cnt,dummy;
                     ar >> cnt;
                     for (int i=0;i<cnt;i++)
                     {
                         SCustomRefs r;
                         ar >> r.generalObjectType;
                         ar >> r.generalObjectHandle;
-                        ar >> r.option;
+                        ar >> dummy;
                         _customReferencedHandles.push_back(r);
+                    }
+                }
+                if (theName.compare("Orh")==0)
+                {
+                    noHit=false;
+                    ar >> byteQuantity;
+                    int cnt;
+                    ar >> cnt;
+                    for (int i=0;i<cnt;i++)
+                    {
+                        SCustomOriginalRefs r;
+                        ar >> r.generalObjectType;
+                        ar >> r.generalObjectHandle;
+                        if (r.generalObjectHandle>=0)
+                            ar >> r.uniquePersistentIdString;
+                        _customReferencedOriginalHandles.push_back(r);
                     }
                 }
                 if (theName.compare("Sfa")==0)
@@ -2192,11 +2290,11 @@ void C3DObject::serializeWExtIkMain(CExtIkSer& ar)
 
 int C3DObject::_uniqueIDCounter=0;
 
-void C3DObject::performObjectLoadingMapping(std::vector<int>* map)
+void C3DObject::performObjectLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 {
 }
 
-void C3DObject::performObjectLoadingMappingMain(std::vector<int>* map)
+void C3DObject::performObjectLoadingMappingMain(std::vector<int>* map,bool loadingAmodel)
 {
     int newParentID=App::ct->objCont->getLoadingMapping(map,_parentID);
     setParent(App::ct->objCont->getObject(newParentID));
@@ -2208,6 +2306,14 @@ void C3DObject::performObjectLoadingMappingMain(std::vector<int>* map)
     {
         if (_customReferencedHandles[i].generalObjectType==sim_appobj_object_type)
             _customReferencedHandles[i].generalObjectHandle=App::ct->objCont->getLoadingMapping(map,_customReferencedHandles[i].generalObjectHandle);
+    }
+    if (!loadingAmodel)
+    {
+        for (size_t i=0;i<_customReferencedOriginalHandles.size();i++)
+        {
+            if (_customReferencedOriginalHandles[i].generalObjectType==sim_appobj_object_type)
+                _customReferencedOriginalHandles[i].generalObjectHandle=App::ct->objCont->getLoadingMapping(map,_customReferencedOriginalHandles[i].generalObjectHandle);
+        }
     }
 }
 
@@ -2272,10 +2378,17 @@ bool C3DObject::announceObjectWillBeErasedMain(int objID,bool copyBuffer)
         if (_customReferencedHandles[i].generalObjectType==sim_appobj_object_type)
         {
             if (_customReferencedHandles[i].generalObjectHandle==objID)
-            {
                 _customReferencedHandles[i].generalObjectHandle=-1;
-                if ((_customReferencedHandles[i].option&1)==1)
-                    return(true); // destroy this object
+        }
+    }
+    if (!copyBuffer)
+    {
+        for (size_t i=0;i<_customReferencedOriginalHandles.size();i++)
+        {
+            if (_customReferencedOriginalHandles[i].generalObjectType==sim_appobj_object_type)
+            {
+                if (_customReferencedOriginalHandles[i].generalObjectHandle==objID)
+                    _customReferencedOriginalHandles[i].generalObjectHandle=-1;
             }
         }
     }
@@ -2294,6 +2407,17 @@ void C3DObject::announceIkObjectWillBeErasedMain(int ikGroupID,bool copyBuffer)
                 _customReferencedHandles[i].generalObjectHandle=-1;
         }
     }
+    if (!copyBuffer)
+    {
+        for (size_t i=0;i<_customReferencedOriginalHandles.size();i++)
+        {
+            if (_customReferencedOriginalHandles[i].generalObjectType==sim_appobj_ik_type)
+            {
+                if (_customReferencedOriginalHandles[i].generalObjectHandle==ikGroupID)
+                    _customReferencedOriginalHandles[i].generalObjectHandle=-1;
+            }
+        }
+    }
 }
 
 void C3DObject::setReferencedHandles(int cnt,const int* handles)
@@ -2303,7 +2427,6 @@ void C3DObject::setReferencedHandles(int cnt,const int* handles)
     {
         SCustomRefs r;
         r.generalObjectType=sim_appobj_object_type;
-        r.option=0;
         r.generalObjectHandle=-1;
         if (handles[i]>=0)
         {
@@ -2354,6 +2477,80 @@ int C3DObject::getReferencedHandles(int* handles)
     return(int(_customReferencedHandles.size()));
 }
 
+
+void C3DObject::setReferencedOriginalHandles(int cnt,const int* handles)
+{
+    _customReferencedOriginalHandles.clear();
+    for (int i=0;i<cnt;i++)
+    {
+        SCustomOriginalRefs r;
+        r.generalObjectType=sim_appobj_object_type;
+        r.generalObjectHandle=-1;
+        if (handles[i]>=0)
+        {
+            if (App::ct->objCont->getObject(handles[i])!=NULL)
+            {
+                r.generalObjectHandle=handles[i];
+                r.uniquePersistentIdString=App::ct->objCont->getObject(handles[i])->getUniquePersistentIdString();
+            }
+            else
+            {
+                if (App::ct->collisions->getObject(handles[i])!=NULL)
+                {
+                    r.generalObjectType=sim_appobj_collision_type;
+                    r.generalObjectHandle=handles[i];
+                    r.uniquePersistentIdString=App::ct->collisions->getObject(handles[i])->getUniquePersistentIdString();
+                }
+                if (App::ct->distances->getObject(handles[i])!=NULL)
+                {
+                    r.generalObjectType=sim_appobj_distance_type;
+                    r.generalObjectHandle=handles[i];
+                    r.uniquePersistentIdString=App::ct->distances->getObject(handles[i])->getUniquePersistentIdString();
+                }
+                if (App::ct->ikGroups->getIkGroup(handles[i])!=NULL)
+                {
+                    r.generalObjectType=sim_appobj_ik_type;
+                    r.generalObjectHandle=handles[i];
+                    r.uniquePersistentIdString=App::ct->ikGroups->getIkGroup(handles[i])->getUniquePersistentIdString();
+                }
+                if (App::ct->collections->getCollection(handles[i])!=NULL)
+                {
+                    r.generalObjectType=sim_appobj_collection_type;
+                    r.generalObjectHandle=handles[i];
+                    r.uniquePersistentIdString=App::ct->collections->getCollection(handles[i])->getUniquePersistentIdString();
+                }
+            }
+        }
+        _customReferencedOriginalHandles.push_back(r);
+    }
+}
+
+int C3DObject::getReferencedOriginalHandlesCount()
+{
+    return(int(_customReferencedOriginalHandles.size()));
+}
+
+int C3DObject::getReferencedOriginalHandles(int* handles)
+{
+    for (size_t i=0;i<_customReferencedOriginalHandles.size();i++)
+        handles[i]=_customReferencedOriginalHandles[i].generalObjectHandle;
+    return(int(_customReferencedOriginalHandles.size()));
+}
+
+void C3DObject::checkReferencesToOriginal(const std::map<std::string,int>& allUniquePersistentIdStrings)
+{
+    for (size_t i=0;i<_customReferencedOriginalHandles.size();i++)
+    {
+        if (_customReferencedOriginalHandles[i].generalObjectHandle>=0)
+        {
+            std::map<std::string,int>::const_iterator it=allUniquePersistentIdStrings.find(_customReferencedOriginalHandles[i].uniquePersistentIdString);
+            if (it!=allUniquePersistentIdStrings.end())
+                _customReferencedOriginalHandles[i].generalObjectHandle=it->second;
+            else
+                _customReferencedOriginalHandles[i].generalObjectHandle=-1;
+        }
+    }
+}
 
 void C3DObject::getCumulativeTransformationMatrix(float m[4][4],bool useTempValues) const
 { // useTempValues is false by default. This is used by the IK-routine

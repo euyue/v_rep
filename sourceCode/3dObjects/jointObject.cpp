@@ -1970,21 +1970,21 @@ void CJoint::announceGcsObjectWillBeErased(int gcsObjectID,bool copyBuffer)
     announceGcsObjectWillBeErasedMain(gcsObjectID,copyBuffer);
 }
 
-void CJoint::performIkLoadingMapping(std::vector<int>* map)
+void CJoint::performIkLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 {
-    performIkLoadingMappingMain(map);
+    performIkLoadingMappingMain(map,loadingAmodel);
 }
-void CJoint::performCollectionLoadingMapping(std::vector<int>* map)
+void CJoint::performCollectionLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
-    performCollectionLoadingMappingMain(map);
+    performCollectionLoadingMappingMain(map,loadingAmodel);
 }
-void CJoint::performCollisionLoadingMapping(std::vector<int>* map)
+void CJoint::performCollisionLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
-    performCollisionLoadingMappingMain(map);
+    performCollisionLoadingMappingMain(map,loadingAmodel);
 }
-void CJoint::performDistanceLoadingMapping(std::vector<int>* map)
+void CJoint::performDistanceLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
-    performDistanceLoadingMappingMain(map);
+    performDistanceLoadingMappingMain(map,loadingAmodel);
 }
 
 void CJoint::performGcsLoadingMapping(std::vector<int>* map)
@@ -2572,9 +2572,9 @@ void CJoint::serializeWExtIk(CExtIkSer& ar)
     ar.writeFloat(_dependencyJointFact);
 }
 
-void CJoint::performObjectLoadingMapping(std::vector<int>* map)
+void CJoint::performObjectLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // New_Object_ID=map[Old_Object_ID]
-    performObjectLoadingMappingMain(map);
+    performObjectLoadingMappingMain(map,loadingAmodel);
     _dependencyJointID=App::ct->objCont->getLoadingMapping(map,_dependencyJointID);
     _vortexIntParams[5]=App::ct->objCont->getLoadingMapping(map,_vortexIntParams[5]); // Vortex dependency joint
     _newtonIntParams[1]=App::ct->objCont->getLoadingMapping(map,_newtonIntParams[1]); // Newton dependency joint

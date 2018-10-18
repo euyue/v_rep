@@ -316,25 +316,25 @@ void CLight::announceGcsObjectWillBeErased(int gcsObjectID,bool copyBuffer)
     // in the copyBuffer)
     announceGcsObjectWillBeErasedMain(gcsObjectID,copyBuffer);
 }
-void CLight::performObjectLoadingMapping(std::vector<int>* map)
+void CLight::performObjectLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // New_Object_ID=map[Old_Object_ID]
-    performObjectLoadingMappingMain(map);
+    performObjectLoadingMappingMain(map,loadingAmodel);
 }
-void CLight::performCollectionLoadingMapping(std::vector<int>* map)
+void CLight::performCollectionLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
-    performCollectionLoadingMappingMain(map);
+    performCollectionLoadingMappingMain(map,loadingAmodel);
 }
-void CLight::performCollisionLoadingMapping(std::vector<int>* map)
+void CLight::performCollisionLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
-    performCollisionLoadingMappingMain(map);
+    performCollisionLoadingMappingMain(map,loadingAmodel);
 }
-void CLight::performDistanceLoadingMapping(std::vector<int>* map)
+void CLight::performDistanceLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
-    performDistanceLoadingMappingMain(map);
+    performDistanceLoadingMappingMain(map,loadingAmodel);
 }
-void CLight::performIkLoadingMapping(std::vector<int>* map)
+void CLight::performIkLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 {
-    performIkLoadingMappingMain(map);
+    performIkLoadingMappingMain(map,loadingAmodel);
 }
 void CLight::performGcsLoadingMapping(std::vector<int>* map)
 {

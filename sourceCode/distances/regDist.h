@@ -43,6 +43,7 @@ public:
     bool getDisplaySegment() const;
     void setExplicitHandling(bool explicitHandl);
     bool getExplicitHandling() const;
+    std::string getUniquePersistentIdString() const;
 
     void setSegmentWidth(int w);
     int getSegmentWidth() const;
@@ -54,6 +55,7 @@ protected:
     int object1ID;
     int object2ID;
     std::string objectName;
+    std::string _uniquePersistentIdString;
     int objectID;
     int _segmentWidth;
     float treshhold;

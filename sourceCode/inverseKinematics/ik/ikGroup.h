@@ -23,6 +23,7 @@ public:
     void performIkGroupLoadingMapping(std::vector<int>* map);
     void performCollectionLoadingMapping(std::vector<int>* map);
     bool announceCollectionWillBeErased(int groupID,bool copyBuffer);
+    std::string getUniquePersistentIdString() const;
 
     bool addIkElement(CikEl* anElement);
     void setObjectID(int newID);
@@ -129,6 +130,7 @@ private:
 
     int objectID;
     std::string objectName;
+    std::string _uniquePersistentIdString;
     int maxIterations;
     bool active;
     bool _correctJointLimits;

@@ -192,29 +192,29 @@ void CMill::announceGcsObjectWillBeErased(int gcsObjectID,bool copyBuffer)
     // in the copyBuffer)
     announceGcsObjectWillBeErasedMain(gcsObjectID,copyBuffer);
 }
-void CMill::performObjectLoadingMapping(std::vector<int>* map)
+void CMill::performObjectLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 {
-    performObjectLoadingMappingMain(map);
+    performObjectLoadingMappingMain(map,loadingAmodel);
     if (_millableObject<SIM_IDSTART_COLLECTION)
         _millableObject=App::ct->objCont->getLoadingMapping(map,_millableObject);
 }
-void CMill::performCollectionLoadingMapping(std::vector<int>* map)
+void CMill::performCollectionLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
-    performCollectionLoadingMappingMain(map);
+    performCollectionLoadingMappingMain(map,loadingAmodel);
     if (_millableObject>=SIM_IDSTART_COLLECTION)
         _millableObject=App::ct->objCont->getLoadingMapping(map,_millableObject);
 }
-void CMill::performCollisionLoadingMapping(std::vector<int>* map)
+void CMill::performCollisionLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
-    performCollisionLoadingMappingMain(map);
+    performCollisionLoadingMappingMain(map,loadingAmodel);
 }
-void CMill::performDistanceLoadingMapping(std::vector<int>* map)
+void CMill::performDistanceLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
-    performDistanceLoadingMappingMain(map);
+    performDistanceLoadingMappingMain(map,loadingAmodel);
 }
-void CMill::performIkLoadingMapping(std::vector<int>* map)
+void CMill::performIkLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 {
-    performIkLoadingMappingMain(map);
+    performIkLoadingMappingMain(map,loadingAmodel);
 }
 void CMill::performGcsLoadingMapping(std::vector<int>* map)
 {

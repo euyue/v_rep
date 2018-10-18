@@ -1222,6 +1222,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.handleflag_extended",sim_handleflag_extended,true},
     {"sim.handleflag_greyscale",sim_handleflag_greyscale,true},
     {"sim.handleflag_depthbuffermeters",sim_handleflag_depthbuffermeters,true},
+    {"sim.handleflag_keeporiginal",sim_handleflag_keeporiginal,true},
     {"sim.handleflag_codedstring",sim_handleflag_codedstring,true},
     {"sim.handleflag_model",sim_handleflag_model,true},
     {"sim.handleflag_rawvalue",sim_handleflag_rawvalue,true},

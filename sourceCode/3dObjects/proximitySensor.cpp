@@ -336,29 +336,29 @@ void CProxSensor::announceGcsObjectWillBeErased(int gcsObjectID,bool copyBuffer)
     // in the copyBuffer)
     announceGcsObjectWillBeErasedMain(gcsObjectID,copyBuffer);
 }
-void CProxSensor::performObjectLoadingMapping(std::vector<int>* map)
+void CProxSensor::performObjectLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 {
-    performObjectLoadingMappingMain(map);
+    performObjectLoadingMappingMain(map,loadingAmodel);
     if (_sensableObject<SIM_IDSTART_COLLECTION)
         _sensableObject=App::ct->objCont->getLoadingMapping(map,_sensableObject);
 }
-void CProxSensor::performCollectionLoadingMapping(std::vector<int>* map)
+void CProxSensor::performCollectionLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
-    performCollectionLoadingMappingMain(map);
+    performCollectionLoadingMappingMain(map,loadingAmodel);
     if (_sensableObject>=SIM_IDSTART_COLLECTION)
         _sensableObject=App::ct->objCont->getLoadingMapping(map,_sensableObject);
 }
-void CProxSensor::performCollisionLoadingMapping(std::vector<int>* map)
+void CProxSensor::performCollisionLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
-    performCollisionLoadingMappingMain(map);
+    performCollisionLoadingMappingMain(map,loadingAmodel);
 }
-void CProxSensor::performDistanceLoadingMapping(std::vector<int>* map)
+void CProxSensor::performDistanceLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
-    performDistanceLoadingMappingMain(map);
+    performDistanceLoadingMappingMain(map,loadingAmodel);
 }
-void CProxSensor::performIkLoadingMapping(std::vector<int>* map)
+void CProxSensor::performIkLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 {
-    performIkLoadingMappingMain(map);
+    performIkLoadingMappingMain(map,loadingAmodel);
 }
 void CProxSensor::performGcsLoadingMapping(std::vector<int>* map)
 {

@@ -7,6 +7,7 @@
 #include "ikRoutine.h"
 #include "app.h"
 #include "tt.h"
+#include "ttUtil.h"
 #include <algorithm>
 
 CikGroup::CikGroup()
@@ -36,6 +37,12 @@ CikGroup::CikGroup()
     jointTreshholdLinear=0.001f;
     _calculationResult=sim_ikresult_not_performed;
     _correctJointLimits=false;
+    _uniquePersistentIdString=CTTUtil::generateUniqueReadableString(); // persistent
+}
+
+std::string CikGroup::getUniquePersistentIdString() const
+{
+    return(_uniquePersistentIdString);
 }
 
 CikGroup::~CikGroup()
@@ -312,6 +319,10 @@ void CikGroup::serialize(CSer &ar)
         ar << avoidanceThreshold;
         ar.flush();
 
+        ar.storeDataName("Uis");
+        ar << _uniquePersistentIdString;
+        ar.flush();
+
         for (int i=0;i<int(ikElements.size());i++)
         {
             ar.storeDataName("Ike");
@@ -423,6 +434,12 @@ void CikGroup::serialize(CSer &ar)
                     noHit=false;
                     ar >> byteQuantity;
                     ar >> avoidanceThreshold;
+                }
+                if (theName.compare("Uis")==0)
+                {
+                    noHit=false;
+                    ar >> byteQuantity;
+                    ar >> _uniquePersistentIdString;
                 }
                 if (theName.compare("Ike")==0)
                 {

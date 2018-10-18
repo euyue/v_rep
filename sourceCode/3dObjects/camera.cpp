@@ -1039,26 +1039,26 @@ void CCamera::announceGcsObjectWillBeErased(int gcsObjectID,bool copyBuffer)
     // in the copyBuffer)
     announceGcsObjectWillBeErasedMain(gcsObjectID,copyBuffer);
 }
-void CCamera::performObjectLoadingMapping(std::vector<int>* map)
+void CCamera::performObjectLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // New_Object_ID=map[Old_Object_ID]
-    performObjectLoadingMappingMain(map);
+    performObjectLoadingMappingMain(map,loadingAmodel);
     trackedObjectIdentifier_NeverDirectlyTouch=App::ct->objCont->getLoadingMapping(map,trackedObjectIdentifier_NeverDirectlyTouch);
 }
-void CCamera::performCollectionLoadingMapping(std::vector<int>* map)
+void CCamera::performCollectionLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
-    performCollectionLoadingMappingMain(map);
+    performCollectionLoadingMappingMain(map,loadingAmodel);
 }
-void CCamera::performCollisionLoadingMapping(std::vector<int>* map)
+void CCamera::performCollisionLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
-    performCollisionLoadingMappingMain(map);
+    performCollisionLoadingMappingMain(map,loadingAmodel);
 }
-void CCamera::performDistanceLoadingMapping(std::vector<int>* map)
+void CCamera::performDistanceLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
-    performDistanceLoadingMappingMain(map);
+    performDistanceLoadingMappingMain(map,loadingAmodel);
 }
-void CCamera::performIkLoadingMapping(std::vector<int>* map)
+void CCamera::performIkLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 {
-    performIkLoadingMappingMain(map);
+    performIkLoadingMappingMain(map,loadingAmodel);
 }
 void CCamera::performGcsLoadingMapping(std::vector<int>* map)
 {

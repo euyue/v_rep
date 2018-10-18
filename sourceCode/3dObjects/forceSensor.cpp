@@ -535,25 +535,25 @@ void CForceSensor::announceGcsObjectWillBeErased(int gcsObjectID,bool copyBuffer
     // in the copyBuffer)
     announceGcsObjectWillBeErasedMain(gcsObjectID,copyBuffer);
 }
-void CForceSensor::performObjectLoadingMapping(std::vector<int>* map)
+void CForceSensor::performObjectLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // New_Object_ID=map[Old_Object_ID]
-    performObjectLoadingMappingMain(map);
+    performObjectLoadingMappingMain(map,loadingAmodel);
 }
-void CForceSensor::performCollectionLoadingMapping(std::vector<int>* map)
+void CForceSensor::performCollectionLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
-    performCollectionLoadingMappingMain(map);
+    performCollectionLoadingMappingMain(map,loadingAmodel);
 }
-void CForceSensor::performCollisionLoadingMapping(std::vector<int>* map)
+void CForceSensor::performCollisionLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
-    performCollisionLoadingMappingMain(map);
+    performCollisionLoadingMappingMain(map,loadingAmodel);
 }
-void CForceSensor::performDistanceLoadingMapping(std::vector<int>* map)
+void CForceSensor::performDistanceLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
-    performDistanceLoadingMappingMain(map);
+    performDistanceLoadingMappingMain(map,loadingAmodel);
 }
-void CForceSensor::performIkLoadingMapping(std::vector<int>* map)
+void CForceSensor::performIkLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 {
-    performIkLoadingMappingMain(map);
+    performIkLoadingMappingMain(map,loadingAmodel);
 }
 void CForceSensor::performGcsLoadingMapping(std::vector<int>* map)
 {

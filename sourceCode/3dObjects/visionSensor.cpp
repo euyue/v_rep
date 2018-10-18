@@ -1901,29 +1901,29 @@ void CVisionSensor::announceGcsObjectWillBeErased(int gcsObjectID,bool copyBuffe
     // in the copyBuffer)
     announceGcsObjectWillBeErasedMain(gcsObjectID,copyBuffer);
 }
-void CVisionSensor::performObjectLoadingMapping(std::vector<int>* map)
+void CVisionSensor::performObjectLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // New_Object_ID=map[Old_Object_ID]
-    performObjectLoadingMappingMain(map);
+    performObjectLoadingMappingMain(map,loadingAmodel);
     if (_detectableEntityID<SIM_IDSTART_COLLECTION)
         _detectableEntityID=App::ct->objCont->getLoadingMapping(map,_detectableEntityID);
 }
-void CVisionSensor::performCollectionLoadingMapping(std::vector<int>* map)
+void CVisionSensor::performCollectionLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
-    performCollectionLoadingMappingMain(map);
+    performCollectionLoadingMappingMain(map,loadingAmodel);
     if (_detectableEntityID>=SIM_IDSTART_COLLECTION)
         _detectableEntityID=App::ct->objCont->getLoadingMapping(map,_detectableEntityID);
 }
-void CVisionSensor::performCollisionLoadingMapping(std::vector<int>* map)
+void CVisionSensor::performCollisionLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
-    performCollisionLoadingMappingMain(map);
+    performCollisionLoadingMappingMain(map,loadingAmodel);
 }
-void CVisionSensor::performDistanceLoadingMapping(std::vector<int>* map)
+void CVisionSensor::performDistanceLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
-    performDistanceLoadingMappingMain(map);
+    performDistanceLoadingMappingMain(map,loadingAmodel);
 }
-void CVisionSensor::performIkLoadingMapping(std::vector<int>* map)
+void CVisionSensor::performIkLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 {
-    performIkLoadingMappingMain(map);
+    performIkLoadingMappingMain(map,loadingAmodel);
 }
 void CVisionSensor::performGcsLoadingMapping(std::vector<int>* map)
 {

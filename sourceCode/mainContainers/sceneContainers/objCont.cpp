@@ -568,11 +568,11 @@ void CObjCont::addObjectsToSceneAndPerformMappings(std::vector<C3DObject*>* load
     for (size_t i=0;i<loadedObjectList->size();i++)
     {
         C3DObject* it=loadedObjectList->at(i);
-        it->performObjectLoadingMapping(&objectMapping);
-        it->performCollectionLoadingMapping(&groupMapping);
-        it->performCollisionLoadingMapping(&collisionMapping);
-        it->performDistanceLoadingMapping(&distanceMapping);
-        it->performIkLoadingMapping(&ikGroupMapping);
+        it->performObjectLoadingMapping(&objectMapping,model);
+        it->performCollectionLoadingMapping(&groupMapping,model);
+        it->performCollisionLoadingMapping(&collisionMapping,model);
+        it->performDistanceLoadingMapping(&distanceMapping,model);
+        it->performIkLoadingMapping(&ikGroupMapping,model);
         it->performGcsLoadingMapping(&constraintSolverObjectMapping);
         it->performTextureObjectLoadingMapping(&textureMapping);
     }
@@ -714,6 +714,26 @@ void CObjCont::addObjectsToSceneAndPerformMappings(std::vector<C3DObject*>* load
         App::ct->pageContainer->initializeInitialValues(simulationRunning,loadedObjectList->at(i)->getID());
 //**************************************************************************************
 
+    // Here make sure that referenced objects still exists (when keeping original references):
+    // ------------------------------------------------
+    if (model)
+    {
+        std::map<std::string,int> uniquePersistentIds;
+        for (size_t i=0;i<objectList.size();i++)
+            uniquePersistentIds[getObject(objectList[i])->getUniquePersistentIdString()]=objectList[i];
+        for (size_t i=0;i<App::ct->collisions->collisionObjects.size();i++)
+            uniquePersistentIds[App::ct->collisions->collisionObjects[i]->getUniquePersistentIdString()]=App::ct->collisions->collisionObjects[i]->getObjectID();
+        for (size_t i=0;i<App::ct->distances->distanceObjects.size();i++)
+            uniquePersistentIds[App::ct->distances->distanceObjects[i]->getUniquePersistentIdString()]=App::ct->distances->distanceObjects[i]->getObjectID();
+        for (size_t i=0;i<App::ct->ikGroups->ikGroups.size();i++)
+            uniquePersistentIds[App::ct->ikGroups->ikGroups[i]->getUniquePersistentIdString()]=App::ct->ikGroups->ikGroups[i]->getObjectID();
+        for (size_t i=0;i<App::ct->collections->allCollections.size();i++)
+            uniquePersistentIds[App::ct->collections->allCollections[i]->getUniquePersistentIdString()]=App::ct->collections->allCollections[i]->getCollectionID();
+        for (size_t i=0;i<loadedObjectList->size();i++)
+            loadedObjectList->at(i)->checkReferencesToOriginal(uniquePersistentIds);
+    }
+    // ------------------------------------------------
+
     // We select what was loaded if we have a model loaded through the GUI:
     deselectObjects();
     if (model)
@@ -836,8 +856,7 @@ int CObjCont::getSuffixOffsetForObjectToAdd(std::vector<C3DObject*>* loadedObjec
 }
 
 bool CObjCont::loadModel(CSer& ar,bool justLoadThumbnail,bool forceModelAsCopy,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,float* optionalModelNonDefaultTranslationStepSize)
-{   // There is a similar routine for XML files further down
-
+{
     bool retVal=loadModelOrScene(ar,true,false,justLoadThumbnail,forceModelAsCopy,optionalModelTr,optionalModelBoundingBoxSize,optionalModelNonDefaultTranslationStepSize);
     if (!justLoadThumbnail)
     {

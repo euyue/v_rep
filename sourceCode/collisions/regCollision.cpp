@@ -1,4 +1,3 @@
-
 #include "vrepMainHeader.h"
 #include "v_rep_internal.h"
 #include "regCollision.h"
@@ -6,6 +5,7 @@
 #include "global.h"
 #include "collisionRoutine.h"
 #include "tt.h"
+#include "ttUtil.h"
 #include "app.h"
 #include "v_repStrings.h"
 #include "vDateTime.h"
@@ -17,6 +17,7 @@ CRegCollision::CRegCollision(int obj1ID,int obj2ID,std::string objName,int objID
     object1ID=obj1ID;
     object2ID=obj2ID;
     objectName=objName;
+    _uniquePersistentIdString=CTTUtil::generateUniqueReadableString(); // persistent
     objectID=objID;
     collisionResult=false;
     _collisionResultValid=false;
@@ -26,13 +27,17 @@ CRegCollision::CRegCollision(int obj1ID,int obj2ID,std::string objName,int objID
     contourColor.setColorsAllBlack();
     contourColor.setColor(1.0f,1.0f,1.0f,sim_colorcomponent_emission);
     _initialValuesInitialized=false;
-
     _calcTimeInMs=0;
 
     colliderChangesColor=true;
     collideeChangesColor=false;
     detectAllCollisions=false;
     explicitHandling=false;
+}
+
+std::string CRegCollision::getUniquePersistentIdString() const
+{
+    return(_uniquePersistentIdString);
 }
 
 void CRegCollision::initializeInitialValues(bool simulationIsRunning)
@@ -429,6 +434,10 @@ void CRegCollision::serialize(CSer& ar)
         ar << nothing;
         ar.flush();
 
+        ar.storeDataName("Uis");
+        ar << _uniquePersistentIdString;
+        ar.flush();
+
         ar.storeDataName(SER_END_OF_OBJECT);
     }
     else
@@ -464,6 +473,12 @@ void CRegCollision::serialize(CSer& ar)
                     noHit=false;
                     ar >> byteQuantity;
                     ar >> objectName;
+                }
+                if (theName.compare("Uis")==0)
+                {
+                    noHit=false;
+                    ar >> byteQuantity;
+                    ar >> _uniquePersistentIdString;
                 }
                 if (theName=="Par")
                 {

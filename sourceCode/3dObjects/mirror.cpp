@@ -266,29 +266,29 @@ void CMirror::announceGcsObjectWillBeErased(int gcsObjectID,bool copyBuffer)
     // in the copyBuffer)
     announceGcsObjectWillBeErasedMain(gcsObjectID,copyBuffer);
 }
-void CMirror::performObjectLoadingMapping(std::vector<int>* map)
+void CMirror::performObjectLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // New_Object_ID=map[Old_Object_ID]
-    performObjectLoadingMappingMain(map);
+    performObjectLoadingMappingMain(map,loadingAmodel);
     if (_clippingObjectOrCollection<SIM_IDSTART_COLLECTION)
         _clippingObjectOrCollection=App::ct->objCont->getLoadingMapping(map,_clippingObjectOrCollection);
 }
-void CMirror::performCollectionLoadingMapping(std::vector<int>* map)
+void CMirror::performCollectionLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
-    performCollectionLoadingMappingMain(map);
+    performCollectionLoadingMappingMain(map,loadingAmodel);
     if (_clippingObjectOrCollection>=SIM_IDSTART_COLLECTION)
         _clippingObjectOrCollection=App::ct->objCont->getLoadingMapping(map,_clippingObjectOrCollection);
 }
-void CMirror::performCollisionLoadingMapping(std::vector<int>* map)
+void CMirror::performCollisionLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
-    performCollisionLoadingMappingMain(map);
+    performCollisionLoadingMappingMain(map,loadingAmodel);
 }
-void CMirror::performDistanceLoadingMapping(std::vector<int>* map)
+void CMirror::performDistanceLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
-    performDistanceLoadingMappingMain(map);
+    performDistanceLoadingMappingMain(map,loadingAmodel);
 }
-void CMirror::performIkLoadingMapping(std::vector<int>* map)
+void CMirror::performIkLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 {
-    performIkLoadingMappingMain(map);
+    performIkLoadingMappingMain(map,loadingAmodel);
 }
 void CMirror::performGcsLoadingMapping(std::vector<int>* map)
 {

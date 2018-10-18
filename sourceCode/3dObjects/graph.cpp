@@ -1617,31 +1617,31 @@ void CGraph::announceGcsObjectWillBeErased(int gcsObjectID,bool copyBuffer)
             i++;
     }
 }
-void CGraph::performObjectLoadingMapping(std::vector<int>* map)
+void CGraph::performObjectLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // New_Object_ID=map[Old_Object_ID]
-    performObjectLoadingMappingMain(map);
+    performObjectLoadingMappingMain(map,loadingAmodel);
     for (int i=0;i<int(daten.size());i++)
         daten[i]->performObjectLoadingMapping(map);
 }
-void CGraph::performCollectionLoadingMapping(std::vector<int>* map)
+void CGraph::performCollectionLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
-    performCollectionLoadingMappingMain(map);
+    performCollectionLoadingMappingMain(map,loadingAmodel);
 }
-void CGraph::performCollisionLoadingMapping(std::vector<int>* map)
+void CGraph::performCollisionLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
-    performCollisionLoadingMappingMain(map);
+    performCollisionLoadingMappingMain(map,loadingAmodel);
     for (int i=0;i<int(daten.size());i++)
         daten[i]->performCollisionLoadingMapping(map);
 }
-void CGraph::performDistanceLoadingMapping(std::vector<int>* map)
+void CGraph::performDistanceLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
-    performDistanceLoadingMappingMain(map);
+    performDistanceLoadingMappingMain(map,loadingAmodel);
     for (int i=0;i<int(daten.size());i++)
         daten[i]->performDistanceLoadingMapping(map);
 }
-void CGraph::performIkLoadingMapping(std::vector<int>* map)
+void CGraph::performIkLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 {
-    performIkLoadingMappingMain(map);
+    performIkLoadingMappingMain(map,loadingAmodel);
     for (int i=0;i<int(daten.size());i++)
         daten[i]->performIkLoadingMapping(map);
 }

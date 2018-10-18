@@ -130,10 +130,10 @@ public:
     void announceCollisionWillBeErased(int collisionID,bool copyBuffer);
     void announceDistanceWillBeErased(int distanceID,bool copyBuffer);
     void announceGcsObjectWillBeErased(int gcsObjectID,bool copyBuffer);
-    void performIkLoadingMapping(std::vector<int>* map);
-    void performCollectionLoadingMapping(std::vector<int>* map);
-    void performCollisionLoadingMapping(std::vector<int>* map);
-    void performDistanceLoadingMapping(std::vector<int>* map);
+    void performIkLoadingMapping(std::vector<int>* map,bool loadingAmodel);
+    void performCollectionLoadingMapping(std::vector<int>* map,bool loadingAmodel);
+    void performCollisionLoadingMapping(std::vector<int>* map,bool loadingAmodel);
+    void performDistanceLoadingMapping(std::vector<int>* map,bool loadingAmodel);
     void performGcsLoadingMapping(std::vector<int>* map);
     void performTextureObjectLoadingMapping(std::vector<int>* map);
     void performDynMaterialObjectLoadingMapping(std::vector<int>* map);
@@ -156,7 +156,7 @@ public:
 
     bool announceObjectWillBeErased(int objID,bool copyBuffer);
     void announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer);
-    void performObjectLoadingMapping(std::vector<int>* map);
+    void performObjectLoadingMapping(std::vector<int>* map,bool loadingAmodel);
 
     void setPositionIntervalMin(float min);
     void setPositionIntervalRange(float range);

@@ -1,15 +1,16 @@
-
 #include "vrepMainHeader.h"
 #include "v_rep_internal.h"
 #include "regCollection.h"
 #include "3DObject.h"
 #include "tt.h"
+#include "ttUtil.h"
 #include "app.h"
 
 
 CRegCollection::CRegCollection(std::string grName)
 {
     groupName=grName;
+    _uniquePersistentIdString=CTTUtil::generateUniqueReadableString(); // persistent
     subCollectionList.reserve(4);
     subCollectionList.clear();
     markedObjects.reserve(4);
@@ -25,6 +26,11 @@ CRegCollection::~CRegCollection()
     for (int i=0;i<int(subCollectionList.size());i++)
         delete subCollectionList[i];
     subCollectionList.clear();
+}
+
+std::string CRegCollection::getUniquePersistentIdString() const
+{
+    return(_uniquePersistentIdString);
 }
 
 void CRegCollection::initializeInitialValues(bool simulationIsRunning)
@@ -323,6 +329,10 @@ void CRegCollection::serialize(CSer& ar)
         ar << nothing;
         ar.flush();
 
+        ar.storeDataName("Uis");
+        ar << _uniquePersistentIdString;
+        ar.flush();
+
         for (int i=0;i<int(subCollectionList.size());i++)
         {
             ar.storeDataName("Asg");
@@ -372,6 +382,12 @@ void CRegCollection::serialize(CSer& ar)
                     unsigned char nothing;
                     ar >> nothing;
                     _overridesObjectMainProperties=SIM_IS_BIT_SET(nothing,0);
+                }
+                if (theName.compare("Uis")==0)
+                {
+                    noHit=false;
+                    ar >> byteQuantity;
+                    ar >> _uniquePersistentIdString;
                 }
                 if (noHit)
                     ar.loadUnknownData();

@@ -1,4 +1,3 @@
-
 #include "vrepMainHeader.h"
 #include "v_rep_internal.h"
 #include "regDist.h"
@@ -6,6 +5,7 @@
 #include "global.h"
 #include "distanceRoutine.h"
 #include "tt.h"
+#include "ttUtil.h"
 #include "app.h"
 #include "gV.h"
 #include "v_repStrings.h"
@@ -18,6 +18,7 @@ CRegDist::CRegDist(int obj1ID,int obj2ID,std::string objName,int objID)
     object1ID=obj1ID;
     object2ID=obj2ID;
     objectName=objName;
+    _uniquePersistentIdString=CTTUtil::generateUniqueReadableString(); // persistent
     objectID=objID;
     displaySegment=true;
     explicitHandling=false;
@@ -35,6 +36,11 @@ CRegDist::CRegDist(int obj1ID,int obj2ID,std::string objName,int objID)
     _initialValuesInitialized=false;
 
     _calcTimeInMs=0;
+}
+
+std::string CRegDist::getUniquePersistentIdString() const
+{
+    return(_uniquePersistentIdString);
 }
 
 void CRegDist::initializeInitialValues(bool simulationIsRunning)
@@ -355,6 +361,10 @@ void CRegDist::serialize(CSer& ar)
         ar << objectName;
         ar.flush();
 
+        ar.storeDataName("Uis");
+        ar << _uniquePersistentIdString;
+        ar.flush();
+
         ar.storeDataName(SER_END_OF_OBJECT);
     }
     else
@@ -406,6 +416,12 @@ void CRegDist::serialize(CSer& ar)
                     noHit=false;
                     ar >> byteQuantity;
                     ar >> objectName;
+                }
+                if (theName.compare("Uis")==0)
+                {
+                    noHit=false;
+                    ar >> byteQuantity;
+                    ar >> _uniquePersistentIdString;
                 }
                 if (noHit)
                     ar.loadUnknownData();

@@ -34,6 +34,7 @@ public:
     void setOverridesObjectMainProperties(bool o);
     CRegCollection* copyYourself();
     void emptyCollection();
+    std::string getUniquePersistentIdString() const;
 
     // Variables which need to be serialized
     std::vector<CRegCollectionEl*> subCollectionList;
@@ -43,6 +44,7 @@ public:
 private:
     // Variables which need to be serialized
     std::string groupName;
+    std::string _uniquePersistentIdString;
     int groupID;
     bool _overridesObjectMainProperties;
     // Other

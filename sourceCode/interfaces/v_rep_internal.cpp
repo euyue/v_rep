@@ -18250,10 +18250,15 @@ simInt simSetReferencedHandles_internal(simInt objectHandle,simInt count,const s
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
+        int handleFlags=objectHandle&0xff00000;
+        objectHandle=objectHandle&0xfffff;
         if (!doesObjectExist(__func__,objectHandle))
             return(-1);
         C3DObject* it=App::ct->objCont->getObject(objectHandle);
-        it->setReferencedHandles(count,referencedHandles);
+        if ((handleFlags&sim_handleflag_keeporiginal)==0)
+            it->setReferencedHandles(count,referencedHandles);
+        else
+            it->setReferencedOriginalHandles(count,referencedHandles);
         return(1);
     }
     CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
@@ -18269,15 +18274,30 @@ simInt simGetReferencedHandles_internal(simInt objectHandle,simInt** referencedH
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
+        int handleFlags=objectHandle&0xff00000;
+        objectHandle=objectHandle&0xfffff;
         if (!doesObjectExist(__func__,objectHandle))
             return(-1);
         C3DObject* it=App::ct->objCont->getObject(objectHandle);
-        int cnt=it->getReferencedHandlesCount();
         int* handles=NULL;
-        if (cnt>0)
+        int cnt;
+        if ((handleFlags&sim_handleflag_keeporiginal)==0)
         {
-            handles=new int[cnt];
-            it->getReferencedHandles(handles);
+            cnt=it->getReferencedHandlesCount();
+            if (cnt>0)
+            {
+                handles=new int[cnt];
+                it->getReferencedHandles(handles);
+            }
+        }
+        else
+        {
+            cnt=it->getReferencedOriginalHandlesCount();
+            if (cnt>0)
+            {
+                handles=new int[cnt];
+                it->getReferencedOriginalHandles(handles);
+            }
         }
         referencedHandles[0]=handles;
         return(cnt);

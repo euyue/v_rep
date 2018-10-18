@@ -46,6 +46,7 @@ public:
     bool getExplicitHandling() const;
     int getCollisionColor(int entityID) const;
     bool canComputeCollisionContour() const;
+    std::string getUniquePersistentIdString() const;
 
     void setContourWidth(int w);
     int getContourWidth() const;
@@ -59,6 +60,7 @@ protected:
     int object1ID;
     int object2ID;
     std::string objectName;
+    std::string _uniquePersistentIdString;
     int objectID;
     int _countourWidth;
     // Various:

@@ -221,21 +221,21 @@ void CDummy::announceGcsObjectWillBeErased(int gcsObjectID,bool copyBuffer)
     // in the copyBuffer)
     announceGcsObjectWillBeErasedMain(gcsObjectID,copyBuffer);
 }
-void CDummy::performIkLoadingMapping(std::vector<int>* map)
+void CDummy::performIkLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 {
-    performIkLoadingMappingMain(map);
+    performIkLoadingMappingMain(map,loadingAmodel);
 }
-void CDummy::performCollectionLoadingMapping(std::vector<int>* map)
+void CDummy::performCollectionLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
-    performCollectionLoadingMappingMain(map);
+    performCollectionLoadingMappingMain(map,loadingAmodel);
 }
-void CDummy::performCollisionLoadingMapping(std::vector<int>* map)
+void CDummy::performCollisionLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
-    performCollisionLoadingMappingMain(map);
+    performCollisionLoadingMappingMain(map,loadingAmodel);
 }
-void CDummy::performDistanceLoadingMapping(std::vector<int>* map)
+void CDummy::performDistanceLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // If (map[2*i]==Old_Group_ID) then New_Group_ID=map[2*i+1]
-    performDistanceLoadingMappingMain(map);
+    performDistanceLoadingMappingMain(map,loadingAmodel);
 }
 void CDummy::performGcsLoadingMapping(std::vector<int>* map)
 {
@@ -435,9 +435,9 @@ void CDummy::loadUnknownObjectType(CSer& ar)
     }
 }
 
-void CDummy::performObjectLoadingMapping(std::vector<int>* map)
+void CDummy::performObjectLoadingMapping(std::vector<int>* map,bool loadingAmodel)
 { // New_Object_ID=map[Old_Object_ID]
-    performObjectLoadingMappingMain(map);
+    performObjectLoadingMappingMain(map,loadingAmodel);
     _linkedDummyID=App::ct->objCont->getLoadingMapping(map,_linkedDummyID);
 }
 

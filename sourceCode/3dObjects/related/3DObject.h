@@ -12,7 +12,13 @@ struct SCustomRefs
 {
     int generalObjectType; // e.g. sim_appobj_object_type, sim_appobj_collision_type
     int generalObjectHandle;
-    int option; // bit 0: destroy object if referenced object is destroyed
+};
+
+struct SCustomOriginalRefs
+{
+    int generalObjectType; // e.g. sim_appobj_object_type, sim_appobj_collision_type
+    int generalObjectHandle;
+    std::string uniquePersistentIdString;
 };
 
 class CShape;
@@ -42,14 +48,14 @@ public:
     virtual void announceCollisionWillBeErased(int collisionID,bool copyBuffer);
     virtual void announceDistanceWillBeErased(int distanceID,bool copyBuffer);
     virtual void announceGcsObjectWillBeErased(int gcsObjectID,bool copyBuffer);
-    virtual void performObjectLoadingMapping(std::vector<int>* map);
-    virtual void performCollectionLoadingMapping(std::vector<int>* map);
-    virtual void performCollisionLoadingMapping(std::vector<int>* map);
-    virtual void performDistanceLoadingMapping(std::vector<int>* map);
+    virtual void performObjectLoadingMapping(std::vector<int>* map,bool loadingAmodel);
+    virtual void performCollectionLoadingMapping(std::vector<int>* map,bool loadingAmodel);
+    virtual void performCollisionLoadingMapping(std::vector<int>* map,bool loadingAmodel);
+    virtual void performDistanceLoadingMapping(std::vector<int>* map,bool loadingAmodel);
+    virtual void performIkLoadingMapping(std::vector<int>* map,bool loadingAmodel);
     virtual void performGcsLoadingMapping(std::vector<int>* map);
     virtual void performTextureObjectLoadingMapping(std::vector<int>* map);
     virtual void performDynMaterialObjectLoadingMapping(std::vector<int>* map);
-    virtual void performIkLoadingMapping(std::vector<int>* map);
     virtual void bufferMainDisplayStateVariables();
     virtual void bufferedMainDisplayStateVariablesToDisplay();
 
@@ -86,14 +92,14 @@ public:
     void announceDistanceWillBeErasedMain(int distanceID,bool copyBuffer);
     void announceGcsObjectWillBeErasedMain(int gcsObjectID,bool copyBuffer);
 
-    void performObjectLoadingMappingMain(std::vector<int>* map);
-    void performCollectionLoadingMappingMain(std::vector<int>* map);
-    void performCollisionLoadingMappingMain(std::vector<int>* map);
-    void performDistanceLoadingMappingMain(std::vector<int>* map);
+    void performObjectLoadingMappingMain(std::vector<int>* map,bool loadingAmodel);
+    void performCollectionLoadingMappingMain(std::vector<int>* map,bool loadingAmodel);
+    void performCollisionLoadingMappingMain(std::vector<int>* map,bool loadingAmodel);
+    void performDistanceLoadingMappingMain(std::vector<int>* map,bool loadingAmodel);
+    void performIkLoadingMappingMain(std::vector<int>* map,bool loadingAmodel);
     void performGcsLoadingMappingMain(std::vector<int>* map);
     void performTextureObjectLoadingMappingMain(std::vector<int>* map);
     void performDynMaterialObjectLoadingMappingMain(std::vector<int>* map);
-    void performIkLoadingMappingMain(std::vector<int>* map);
 
     void bufferMainDisplayStateVariablesMain();
     void bufferedMainDisplayStateVariablesToDisplayMain();
@@ -115,6 +121,10 @@ public:
     void setReferencedHandles(int cnt,const int* handles);
     int getReferencedHandlesCount();
     int getReferencedHandles(int* handles);
+    void setReferencedOriginalHandles(int cnt,const int* handles);
+    int getReferencedOriginalHandlesCount();
+    int getReferencedOriginalHandles(int* handles);
+    void checkReferencesToOriginal(const std::map<std::string,int>& allUniquePersistentIdStrings);
 
     C3DObject* getFirstParentInSelection(const std::vector<C3DObject*>* sel) const;
     C3DObject* getLastParentInSelection(const std::vector<C3DObject*>* sel) const;
@@ -378,6 +388,7 @@ protected:
     CCustomData* _customObjectData;
     CCustomData* _customObjectData_tempData; // this one is not serialized (but copied)!
     std::vector<SCustomRefs> _customReferencedHandles;
+    std::vector<SCustomOriginalRefs> _customReferencedOriginalHandles;
     std::string _modelAcknowledgement;
 
     C7Vector _transformation_buffered;
