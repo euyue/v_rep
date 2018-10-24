@@ -7146,16 +7146,12 @@ simInt simCopyPasteObjects_internal(simInt* objectHandles,simInt objectCount,sim
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         if (ifEditModeActiveGenerateErrorAndReturnTrue(__func__))
-        {
             return(-1);
-        }
         // memorize current selection:
         std::vector<int> initSel;
         for (int i=0;i<App::ct->objCont->getSelSize();i++)
@@ -7175,13 +7171,13 @@ simInt simCopyPasteObjects_internal(simInt* objectHandles,simInt objectCount,sim
         std::vector<int> sel;
         if (options&1)
         {
-            for (int i=0;i<int(selT.size());i++)
+            for (size_t i=0;i<selT.size();i++)
             {
                 C3DObject* it=App::ct->objCont->getObject(selT[i]);
                 bool ok=true;
                 if (it->getParent()!=NULL)
                 {
-                    for (int j=0;j<int(selT.size());j++)
+                    for (size_t j=0;j<selT.size();j++)
                     {
                         C3DObject* it2=App::ct->objCont->getObject(selT[j]);
                         if (it!=it2)
@@ -7217,7 +7213,7 @@ simInt simCopyPasteObjects_internal(simInt* objectHandles,simInt objectCount,sim
 
         // Restore the initial selection:
         App::ct->objCont->deselectObjects();
-        for (int i=0;i<int(initSel.size());i++)
+        for (size_t i=0;i<initSel.size();i++)
             App::ct->objCont->addObjectToSelection(initSel[i]);
 
         return(retVal);

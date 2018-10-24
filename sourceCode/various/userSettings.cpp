@@ -492,7 +492,7 @@ CUserSettings::CUserSettings()
     externalScriptEditor="c:/Program Files (x86)/Notepad++/notepad++";
     _useExternalScriptEditorToSave=_useExternalScriptEditor;
     externalScriptEditorToSave=externalScriptEditor;
-    abortScriptExecutionButton=2;
+    abortScriptExecutionButton=3;
     triCountInOBB=8; // gave best results in 2009/07/21
     identicalVerticesCheck=true;
     identicalVerticesTolerance=0.0001f;
