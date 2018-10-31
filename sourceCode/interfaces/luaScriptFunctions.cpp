@@ -6207,10 +6207,16 @@ int _simGetIkGroupHandle(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         std::string name(luaWrap_lua_tostring(L,1));
-        if (suffixAdjustStringIfNeeded(functionName,true,L,name))
+        size_t pos=name.find("@");
+        std::string n(name);
+        if (pos!=std::string::npos)
+            n.assign(name.begin(),name.begin()+pos);
+        if (suffixAdjustStringIfNeeded(functionName,true,L,n))
         {
+            if (pos!=std::string::npos)
+                n=n+std::string(name.begin()+pos,name.end());
             quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment();
-            retVal=simGetIkGroupHandle_internal(name.c_str());
+            retVal=simGetIkGroupHandle_internal(n.c_str());
         }
     }
 
@@ -6228,10 +6234,16 @@ int _simGetCollisionHandle(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         std::string name(luaWrap_lua_tostring(L,1));
-        if (suffixAdjustStringIfNeeded(functionName,true,L,name))
+        size_t pos=name.find("@");
+        std::string n(name);
+        if (pos!=std::string::npos)
+            n.assign(name.begin(),name.begin()+pos);
+        if (suffixAdjustStringIfNeeded(functionName,true,L,n))
         {
+            if (pos!=std::string::npos)
+                n=n+std::string(name.begin()+pos,name.end());
             quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment();
-            retVal=simGetCollisionHandle_internal(name.c_str());
+            retVal=simGetCollisionHandle_internal(n.c_str());
         }
     }
 
@@ -6269,10 +6281,16 @@ int _simGetDistanceHandle(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         std::string name(luaWrap_lua_tostring(L,1));
-        if (suffixAdjustStringIfNeeded(functionName,true,L,name))
+        size_t pos=name.find("@");
+        std::string n(name);
+        if (pos!=std::string::npos)
+            n.assign(name.begin(),name.begin()+pos);
+        if (suffixAdjustStringIfNeeded(functionName,true,L,n))
         {
+            if (pos!=std::string::npos)
+                n=n+std::string(name.begin()+pos,name.end());
             quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment();
-            retVal=simGetDistanceHandle_internal(name.c_str());
+            retVal=simGetDistanceHandle_internal(n.c_str());
         }
     }
 
@@ -6311,10 +6329,16 @@ int _simGetCollectionHandle(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         std::string name(luaWrap_lua_tostring(L,1));
-        if (suffixAdjustStringIfNeeded(functionName,true,L,name))
+        size_t pos=name.find("@");
+        std::string n(name);
+        if (pos!=std::string::npos)
+            n.assign(name.begin(),name.begin()+pos);
+        if (suffixAdjustStringIfNeeded(functionName,true,L,n))
         {
+            if (pos!=std::string::npos)
+                n=n+std::string(name.begin()+pos,name.end());
             quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment();
-            retVal=simGetCollectionHandle_internal(name.c_str());
+            retVal=simGetCollectionHandle_internal(n.c_str());
         }
     }
 
