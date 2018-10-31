@@ -268,20 +268,25 @@ void CQDlgCommonProperties::refresh()
         //**
 
         //** Cuttable
-        ui->qqCuttable->setEnabled(ls->isPotentiallyCuttable()&&noEditModeNoSim);
-        if (isSimpleShape)
-            ui->qqCuttable->setChecked((ls->getLocalObjectSpecialProperty()&sim_objectspecialproperty_cuttable)!=0);
-        else
-            ui->qqCuttable->setChecked(false);
-        if (isShape)
+        if (App::userSettings->enableOldMillObjects)
         {
-            if (isSimpleShape&&(!isPurePrimitive))
-                ui->qqCuttable->setText(tr(IDS_CUTTABLE_PROP));
+            ui->qqCuttable->setEnabled(ls->isPotentiallyCuttable()&&noEditModeNoSim);
+            if (isSimpleShape)
+                ui->qqCuttable->setChecked((ls->getLocalObjectSpecialProperty()&sim_objectspecialproperty_cuttable)!=0);
             else
-                ui->qqCuttable->setText(tr(IDS_CUTTABLE_BUT_NOT_SIMPLE_NON_PURE_SHAPE));
+                ui->qqCuttable->setChecked(false);
+            if (isShape)
+            {
+                if (isSimpleShape&&(!isPurePrimitive))
+                    ui->qqCuttable->setText(tr(IDS_CUTTABLE_PROP));
+                else
+                    ui->qqCuttable->setText(tr(IDS_CUTTABLE_BUT_NOT_SIMPLE_NON_PURE_SHAPE));
+            }
+            else
+                ui->qqCuttable->setText(tr(IDS_CUTTABLE_PROP));
         }
         else
-            ui->qqCuttable->setText(tr(IDS_CUTTABLE_PROP));
+            ui->qqCuttable->setVisible(false);
         //**
 
         //** Detectable

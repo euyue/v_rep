@@ -204,7 +204,7 @@ void CCalculationInfo::formatInfo()
     }
     else
         _dynamicsTxt[1]+="0 (no dynamic content)";
-
+/*
     // Milling calculation:
     if (CPluginContainer::isMeshPluginAvailable())
     {
@@ -220,6 +220,7 @@ void CCalculationInfo::formatInfo()
     _millTxt[1]+=boost::lexical_cast<std::string>(_millCalcCount)+", surface cut: ";
     _millTxt[1]+=boost::lexical_cast<std::string>(_millRemovedSurface*1000000.0f)+" mm^2 (";
     _millTxt[1]+=boost::lexical_cast<std::string>(_millCalcDuration)+" ms)";
+    */
 }
 
 float CCalculationInfo::getCollisionCalculationTime()

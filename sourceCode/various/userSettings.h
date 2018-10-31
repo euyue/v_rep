@@ -87,6 +87,8 @@ public:
     bool enableOldCustomContactHandlingEdition;
     bool enableOldGeneralCallbackScriptEdition;
     bool enableOldJointCallbackScriptEdition;
+    bool enableOldMillObjects;
+    bool enableOldMirrorObjects;
     bool displayBoundingBoxeWhenObjectSelected;
     bool antiAliasing;
     float dynamicActivityRange;

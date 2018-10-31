@@ -37,6 +37,7 @@ void CQDlgModelProperties::refresh()
     ui->qqNotCollidable->setChecked((ovProp&sim_modelproperty_not_collidable)!=0);
     ui->qqNotMeasurable->setChecked((ovProp&sim_modelproperty_not_measurable)!=0);
     ui->qqNotRenderable->setChecked((ovProp&sim_modelproperty_not_renderable)!=0);
+    ui->qqNotCuttable->setVisible(App::userSettings->enableOldMillObjects);
     ui->qqNotCuttable->setChecked((ovProp&sim_modelproperty_not_cuttable)!=0);
     ui->qqNotDetectable->setChecked((ovProp&sim_modelproperty_not_detectable)!=0);
     ui->qqNotDynamic->setChecked((ovProp&sim_modelproperty_not_dynamic)!=0);

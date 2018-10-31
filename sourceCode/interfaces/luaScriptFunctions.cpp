@@ -6085,12 +6085,18 @@ int _simGetObjectHandle(luaWrap_lua_State* L)
     {
         std::string name(luaWrap_lua_tostring(L,1));
         size_t pos=name.find("@alt");
+        size_t pos2=name.find("@");
         if (pos==std::string::npos)
         { // handle retrieval via regular name
-            if (suffixAdjustStringIfNeeded(functionName,true,L,name))
+            std::string n(name);
+            if (pos2!=std::string::npos)
+                n.assign(name.begin(),name.begin()+pos2);
+            if (suffixAdjustStringIfNeeded(functionName,true,L,n))
             {
+                if (pos2!=std::string::npos)
+                    n=n+std::string(name.begin()+pos2,name.end());
                 quicklyDisableAndAutomaticallyReenableCNameSuffixAdjustment();
-                retVal=simGetObjectHandle_internal(name.c_str());
+                retVal=simGetObjectHandle_internal(n.c_str());
             }
         }
         else

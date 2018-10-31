@@ -89,6 +89,9 @@
 #define _USR_ENABLE_OLD_CUSTOM_CONTACT_HANDLING_EDITION "enableOldCustomContactHandlingEdition"
 #define _USR_ENABLE_OLD_GENERAL_CALLBACK_SCRIPT_EDITION "enableOldGeneralCallbackScriptEdition"
 #define _USR_ENABLE_OLD_JOINT_CALLBACK_SCRIPT_EDITION "enableOldJointCallbackScriptEdition"
+#define _USR_ENABLE_OLD_MILL_OBJECTS "enableOldMillObjects"
+#define _USR_ENABLE_OLD_MIRROR_OBJECTS "enableOldMirrorObjects"
+
 
 #define _USR_ABORT_SCRIPT_EXECUTION_BUTTON "abortScriptExecutionButton"
 #define _USR_RENDERING_SURFACE_VERTICAL_SHIFT "renderingSurfaceVShift"
@@ -477,6 +480,9 @@ CUserSettings::CUserSettings()
     enableOldGeneralCallbackScriptEdition=false;
     enableOldJointCallbackScriptEdition=false;
     _supportOldApiNotation=true;
+    enableOldMillObjects=false;
+    enableOldMirrorObjects=false;
+
 
 
     // Various section:
@@ -923,6 +929,8 @@ void CUserSettings::saveUserSettings()
     c.addBoolean(_USR_ENABLE_OLD_CUSTOM_CONTACT_HANDLING_EDITION,enableOldCustomContactHandlingEdition,"");
     c.addBoolean(_USR_ENABLE_OLD_GENERAL_CALLBACK_SCRIPT_EDITION,enableOldGeneralCallbackScriptEdition,"");
     c.addBoolean(_USR_ENABLE_OLD_JOINT_CALLBACK_SCRIPT_EDITION,enableOldJointCallbackScriptEdition,"");
+    c.addBoolean(_USR_ENABLE_OLD_MILL_OBJECTS,enableOldMillObjects,"");
+    c.addBoolean(_USR_ENABLE_OLD_MIRROR_OBJECTS,enableOldMirrorObjects,"");
 
     c.addRandomLine("");
     c.addRandomLine("");
@@ -1259,7 +1267,8 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_ENABLE_OLD_CUSTOM_CONTACT_HANDLING_EDITION,enableOldCustomContactHandlingEdition);
     c.getBoolean(_USR_ENABLE_OLD_GENERAL_CALLBACK_SCRIPT_EDITION,enableOldGeneralCallbackScriptEdition);
     c.getBoolean(_USR_ENABLE_OLD_JOINT_CALLBACK_SCRIPT_EDITION,enableOldJointCallbackScriptEdition);
-
+    c.getBoolean(_USR_ENABLE_OLD_MILL_OBJECTS,enableOldMillObjects);
+    c.getBoolean(_USR_ENABLE_OLD_MIRROR_OBJECTS,enableOldMirrorObjects);
 
     // Various section:
     // *****************************

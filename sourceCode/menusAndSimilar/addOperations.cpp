@@ -1511,7 +1511,7 @@ void CAddOperations::addMenu(VMenu* menu,CSView* subView,bool onlyCamera)
 
         menu->appendMenuItem(linkedObjIsInexistentOrNotGraphNorRenderingSens,false,ADD_COMMANDS_ADD_CAMERA_ACCMD,IDS_CAMERA_MENU_ITEM);
 
-        if (CMiscBase::handleVerSpec_fullEditionAdd())
+        if (CMiscBase::handleVerSpec_fullEditionAdd()&&App::userSettings->enableOldMirrorObjects)
             menu->appendMenuItem(true,false,ADD_COMMANDS_ADD_MIRROR_ACCMD,IDS_MIRROR_MENU_ITEM);
 
         itemsPresent=true;
@@ -1553,12 +1553,15 @@ void CAddOperations::addMenu(VMenu* menu,CSView* subView,bool onlyCamera)
 
             menu->appendMenuItem(true,false,ADD_COMMANDS_ADD_FORCE_SENSOR_ACCMD,IDSN_FORCE_SENSOR);
 
-            VMenu* mill=new VMenu();
-            mill->appendMenuItem(true,false,ADD_COMMANDS_ADD_PYRAMID_MILL_ACCMD,IDS_PYRAMID_TYPE_MENU_ITEM);
-            mill->appendMenuItem(true,false,ADD_COMMANDS_ADD_CYLINDER_MILL_ACCMD,IDS_CYLINDER_TYPE_MENU_ITEM);
-            mill->appendMenuItem(true,false,ADD_COMMANDS_ADD_DISC_MILL_ACCMD,IDS_DISC_TYPE_MENU_ITEM);
-            mill->appendMenuItem(true,false,ADD_COMMANDS_ADD_CONE_MILL_ACCMD,IDS_CONE_TYPE_MENU_ITEM);
-            menu->appendMenuAndDetach(mill,true,IDSN_MILL);
+            if (App::userSettings->enableOldMillObjects)
+            {
+                VMenu* mill=new VMenu();
+                mill->appendMenuItem(true,false,ADD_COMMANDS_ADD_PYRAMID_MILL_ACCMD,IDS_PYRAMID_TYPE_MENU_ITEM);
+                mill->appendMenuItem(true,false,ADD_COMMANDS_ADD_CYLINDER_MILL_ACCMD,IDS_CYLINDER_TYPE_MENU_ITEM);
+                mill->appendMenuItem(true,false,ADD_COMMANDS_ADD_DISC_MILL_ACCMD,IDS_DISC_TYPE_MENU_ITEM);
+                mill->appendMenuItem(true,false,ADD_COMMANDS_ADD_CONE_MILL_ACCMD,IDS_CONE_TYPE_MENU_ITEM);
+                menu->appendMenuAndDetach(mill,true,IDSN_MILL);
+            }
 
             VMenu* pathM=new VMenu();
             pathM->appendMenuItem(true,false,ADD_COMMANDS_ADD_PATH_SEGMENT_ACCMD,IDS_SEGMENT_TYPE_MENU_ITEM);
