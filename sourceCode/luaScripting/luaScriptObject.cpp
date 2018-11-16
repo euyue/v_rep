@@ -90,6 +90,7 @@ CLuaScriptObject::CLuaScriptObject(int scriptTypeOrMinusOneForSerialization)
         scriptID=SIM_IDSTART_SANDBOXSCRIPT;
         _errorReportMode=sim_api_error_output|sim_api_warning_output;
         L=initializeNewLuaState(getScriptSuffixNumberString().c_str(),_debugLevel);
+        _randGen.seed(123456);
         std::string tmp("sim_current_script_id=");
         tmp+=boost::lexical_cast<std::string>(getScriptID());
         luaWrap_luaL_dostring(L,tmp.c_str());
@@ -592,6 +593,16 @@ std::string CLuaScriptObject::getLastErrorString() const
 void CLuaScriptObject::setLastErrorString(const char* txt)
 {
     _lastErrorString=txt;
+}
+
+double CLuaScriptObject::getRandomDouble()
+{
+    return(double(_randGen())/double(_randGen.max()));
+}
+
+void CLuaScriptObject::setRandomSeed(unsigned int s)
+{
+    _randGen.seed(s);
 }
 
 int CLuaScriptObject::getScriptExecutionTimeInMs() const
@@ -1579,6 +1590,7 @@ void CLuaScriptObject::_launchThreadedChildScriptNow()
         _errorReportMode=sim_api_error_output|sim_api_warning_output;
         _lastErrorString=SIM_API_CALL_NO_ERROR;
         L=initializeNewLuaState(getScriptSuffixNumberString().c_str(),_debugLevel);
+        _randGen.seed(123456);
     }
     int oldTop=luaWrap_lua_gettop(L);   // We store lua's stack
 
@@ -1751,6 +1763,7 @@ int CLuaScriptObject::_runScriptOrCallScriptFunction(int callType,const CInterfa
         _errorReportMode=sim_api_error_output|sim_api_warning_output;
         _lastErrorString=SIM_API_CALL_NO_ERROR;
         L=initializeNewLuaState(getScriptSuffixNumberString().c_str(),_debugLevel);
+        _randGen.seed(123456);
         if (_checkIfMixingOldAndNewCallMethods())
         {
             std::string msg("Warning: [");
@@ -3282,6 +3295,7 @@ void CLuaScriptObject::_runJointCtrlCallback_OLD(int callType,const std::vector<
         _errorReportMode=sim_api_error_output|sim_api_warning_output;
         _lastErrorString=SIM_API_CALL_NO_ERROR;
         L=initializeNewLuaState(getScriptSuffixNumberString().c_str(),_debugLevel);
+        _randGen.seed(123456);
         callType=sim_syscb_init;
     }
 
@@ -3493,6 +3507,7 @@ int CLuaScriptObject::runContactCallback_OLD(const int inDataInt[3],int outDataI
         _errorReportMode=sim_api_error_output|sim_api_warning_output;
         _lastErrorString=SIM_API_CALL_NO_ERROR;
         L=initializeNewLuaState("",_debugLevel);
+        _randGen.seed(123456);
     }
 
     int oldTop=luaWrap_lua_gettop(L);   // We store lua's stack
@@ -3570,6 +3585,7 @@ int CLuaScriptObject::runGeneralCallback_OLD(int callbackId,int callbackTag,void
         _errorReportMode=sim_api_error_output|sim_api_warning_output;
         _lastErrorString=SIM_API_CALL_NO_ERROR;
         L=initializeNewLuaState("",_debugLevel);
+        _randGen.seed(123456);
     }
 
     int oldTop=luaWrap_lua_gettop(L);   // We store lua's stack

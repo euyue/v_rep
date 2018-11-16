@@ -10,6 +10,7 @@
 #include "customData.h"
 #include "interfaceStack.h"
 #include "luaScriptObjectBase.h"
+#include <random>
 
 #define DEFAULT_MAINSCRIPT_NAME "dltmscpt.txt"
 #define DEFAULT_NONTHREADEDCHILDSCRIPT_NAME "dltcscpt.txt"
@@ -137,6 +138,9 @@ public:
     int getErrorReportMode() const;
     void setErrorReportMode(int e);
 
+    double getRandomDouble();
+    void setRandomSeed(unsigned int s);
+
     std::string getLastErrorString() const;
     void setLastErrorString(const char* txt);
 
@@ -253,7 +257,7 @@ protected:
     VMutex _localMutex;
     std::string _addOnName;
     int _addOn_executionState;
-
+    std::mt19937 _randGen;
     std::string _filenameForExternalScriptEditor;
 
 

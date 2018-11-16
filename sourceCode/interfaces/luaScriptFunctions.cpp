@@ -458,6 +458,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.registerScriptVariable",_simRegisterScriptVariable,    "number result=sim.registerScriptVariable(string varNameAtPluginName)",true},
     {"sim.isDeprecated",_simIsDeprecated,                        "number result=sim.isDeprecated(string funcOrConst)",true},
     {"sim.getPersistentDataTags",_simGetPersistentDataTags,      "table tags=sim.getPersistentDataTags()",true},
+    {"sim.getRandom",_simGetRandom,                              "number randomNumber=sim.getRandom(number seed=nil)",true},
 
 
 
@@ -17795,6 +17796,30 @@ int _simGetPersistentDataTags(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
+int _simGetRandom(luaWrap_lua_State* L)
+{
+    LUA_API_FUNCTION_DEBUG;
+    LUA_START("sim.getRandom");
+
+    int currentScriptID=getCurrentScriptID(L);
+    CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
+    if (it!=NULL)
+    {
+        int res=checkOneGeneralInputArgument(L,1,lua_arg_number,0,true,true,&errorString);
+        if (res>=0)
+        {
+            if (res==2)
+            {
+                unsigned int s=abs(luaToInt(L,1));
+                it->setRandomSeed(s);
+            }
+            luaWrap_lua_pushnumber(L,it->getRandomDouble());
+            LUA_END(1);
+        }
+    }
+    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_END(0);
+}
 
 //****************************************************
 //****************************************************

@@ -559,6 +559,7 @@ extern int _simRegisterScriptFunction(luaWrap_lua_State* L);
 extern int _simRegisterScriptVariable(luaWrap_lua_State* L);
 extern int _simIsDeprecated(luaWrap_lua_State* L);
 extern int _simGetPersistentDataTags(luaWrap_lua_State* L);
+extern int _simGetRandom(luaWrap_lua_State* L);
 extern int _simTest(luaWrap_lua_State* L);
 
 extern int _simTestCE_openModal(luaWrap_lua_State* L);
