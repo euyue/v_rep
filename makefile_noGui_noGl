@@ -11,6 +11,7 @@ else
 	EXT = dylib
 endif
 
+CFLAGS += -std=c++11
 CFLAGS += -I../../lua5_1_4_Linux26g4_64_lib/include
 
 CFLAGS += -I../programming/include

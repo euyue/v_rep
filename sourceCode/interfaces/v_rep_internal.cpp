@@ -29,6 +29,7 @@
 #include "apiErrors.h"
 #include "sigHandler.h"
 #include "luaScriptFunctions.h"
+#include <algorithm>
 #include "v_rep_internalBase.h"
 #ifdef SIM_WITH_GUI
     #include <QSplashScreen>
