@@ -498,7 +498,7 @@ CUserSettings::CUserSettings()
     externalScriptEditor="c:/Program Files (x86)/Notepad++/notepad++";
     _useExternalScriptEditorToSave=_useExternalScriptEditor;
     externalScriptEditorToSave=externalScriptEditor;
-    abortScriptExecutionButton=3;
+    _abortScriptExecutionButton=3;
     triCountInOBB=8; // gave best results in 2009/07/21
     identicalVerticesCheck=true;
     identicalVerticesTolerance=0.0001f;
@@ -637,6 +637,13 @@ int CUserSettings::getIdleFps()
 void CUserSettings::setIdleFps(int fps)
 {
     _idleFps=tt::getLimitedInt(0,25,fps);
+}
+
+int CUserSettings::getAbortScriptExecutionTiming()
+{
+    if (ignoreAbortScriptExecTiming())
+        return(0);
+    return(_abortScriptExecutionButton);
 }
 
 int CUserSettings::getNextFreeServerPortToUse()
@@ -946,7 +953,7 @@ void CUserSettings::saveUserSettings()
     c.addInteger(_USR_FREE_SERVER_PORT_RANGE,freeServerPortRange,"");
     c.addBoolean(_USR_USE_EXTERNAL_SCRIPT_EDITOR,_useExternalScriptEditorToSave,"");
     c.addString(_USR_EXTERNAL_SCRIPT_EDITOR,externalScriptEditorToSave,"");
-    c.addInteger(_USR_ABORT_SCRIPT_EXECUTION_BUTTON,abortScriptExecutionButton,"in seconds. Zero to disable.");
+    c.addInteger(_USR_ABORT_SCRIPT_EXECUTION_BUTTON,_abortScriptExecutionButton,"in seconds. Zero to disable.");
     c.addInteger(_USR_TRIANGLE_COUNT_IN_OBB,triCountInOBB,"");
     c.addBoolean(_USR_REMOVE_IDENTICAL_VERTICES,identicalVerticesCheck,"");
     c.addFloat(_USR_IDENTICAL_VERTICES_TOLERANCE,identicalVerticesTolerance,"");
@@ -1288,7 +1295,7 @@ void CUserSettings::loadUserSettings()
     _useExternalScriptEditorToSave=_useExternalScriptEditor;
     c.getString(_USR_EXTERNAL_SCRIPT_EDITOR,externalScriptEditor);
     externalScriptEditorToSave=externalScriptEditor;
-    c.getInteger(_USR_ABORT_SCRIPT_EXECUTION_BUTTON,abortScriptExecutionButton);
+    c.getInteger(_USR_ABORT_SCRIPT_EXECUTION_BUTTON,_abortScriptExecutionButton);
     c.getInteger(_USR_TRIANGLE_COUNT_IN_OBB,triCountInOBB);
     c.getBoolean(_USR_REMOVE_IDENTICAL_VERTICES,identicalVerticesCheck);
     c.getFloat(_USR_IDENTICAL_VERTICES_TOLERANCE,identicalVerticesTolerance);

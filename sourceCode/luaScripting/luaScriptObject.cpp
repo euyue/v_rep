@@ -14,6 +14,7 @@
 #include "pluginContainer.h"
 
 int CLuaScriptObject::_nextIdForExternalScriptEditor=-1;
+int CLuaScriptObject::_scriptUniqueCounter=-1;
 bool CLuaScriptObject::emergencyStopButtonPressed=false;
 VMutex CLuaScriptObject::_globalMutex;
 std::vector<CLuaScriptObject*> CLuaScriptObject::toBeCalledByThread;
@@ -21,6 +22,7 @@ std::vector<CLuaScriptObject*> CLuaScriptObject::toBeCalledByThread;
 CLuaScriptObject::CLuaScriptObject(int scriptTypeOrMinusOneForSerialization)
 {
     scriptID=SIM_IDSTART_LUASCRIPT;
+    _scriptUniqueId=_scriptUniqueCounter++;
     _objectIDAttachedTo_child=-1; // used for child scripts
     _objectIDAttachedTo_callback=-1; // used for callback scripts
     _objectIDAttachedTo_customization=-1; // used for customization scripts
@@ -1003,6 +1005,11 @@ const char* CLuaScriptObject::getScriptText(std::vector<int>* scriptFoldingInfo)
 int CLuaScriptObject::getScriptID() const
 {
     return(scriptID);
+}
+
+int CLuaScriptObject::getScriptUniqueID() const
+{
+    return(_scriptUniqueId);
 }
 
 void CLuaScriptObject::setScriptID(int newID)

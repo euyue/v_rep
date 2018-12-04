@@ -1680,7 +1680,7 @@ int C3DObject::getScriptExecutionOrder(int scriptType) const
     return(sim_scriptexecorder_normal);
 }
 
-int C3DObject::getScriptsToExecute(int scriptType,int parentTraversalDirection,std::vector<CLuaScriptObject*>& scripts)
+int C3DObject::getScriptsToExecute(int scriptType,int parentTraversalDirection,std::vector<CLuaScriptObject*>& scripts,std::vector<int>& uniqueIds)
 {
     int cnt=0;
     CLuaScriptObject* attachedScript=NULL;
@@ -1709,6 +1709,7 @@ int C3DObject::getScriptsToExecute(int scriptType,int parentTraversalDirection,s
         {
             cnt++;
             scripts.push_back(attachedScript);
+            uniqueIds.push_back(attachedScript->getScriptUniqueID());
         }
 
         std::vector<C3DObject*> orderFirst;
@@ -1726,13 +1727,14 @@ int C3DObject::getScriptsToExecute(int scriptType,int parentTraversalDirection,s
         for (size_t i=0;i<toHandle.size();i++)
         {
             for (size_t j=0;j<toHandle[i]->size();j++)
-                cnt+=toHandle[i]->at(j)->getScriptsToExecute(scriptType,traversalDir,scripts);
+                cnt+=toHandle[i]->at(j)->getScriptsToExecute(scriptType,traversalDir,scripts,uniqueIds);
         }
 
         if ( (traversalDir==sim_scripttreetraversal_reverse)&&(attachedScript!=NULL)&&(!attachedScript->getScriptIsDisabled()) )
         {
             cnt++;
             scripts.push_back(attachedScript);
+            uniqueIds.push_back(attachedScript->getScriptUniqueID());
         }
     }
     return(cnt);

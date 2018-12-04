@@ -3451,9 +3451,9 @@ void luaHookFunction(luaWrap_lua_State* L,luaWrap_lua_Debug* ar)
         if ( (scriptType==sim_scripttype_mainscript)||(scriptType==sim_scripttype_childscript)||(scriptType==sim_scripttype_jointctrlcallback)||(scriptType==sim_scripttype_contactcallback) ) //||(scriptType==sim_scripttype_generalcallback) )
         {
 #ifdef SIM_WITH_GUI
-            if (App::userSettings->abortScriptExecutionButton!=0)
+            if (App::userSettings->getAbortScriptExecutionTiming()!=0)
             {
-                bool doIt=( (App::ct->luaScriptContainer->getMainScriptExecTimeInMs()>(App::userSettings->abortScriptExecutionButton*1000))&&App::ct->luaScriptContainer->getInMainScriptNow() );
+                bool doIt=( (App::ct->luaScriptContainer->getMainScriptExecTimeInMs()>(App::userSettings->getAbortScriptExecutionTiming()*1000))&&App::ct->luaScriptContainer->getInMainScriptNow() );
                 if ( (App::mainWindow!=NULL)&&(App::mainWindow->openglWidget->getModelDragAndDropInfo()==NULL) )
                 { // Otherwise can get very slow somehow
                     App::ct->simulation->showAndHandleEmergencyStopButton(doIt,it->getShortDescriptiveName().c_str());
@@ -3496,11 +3496,11 @@ void luaHookFunction(luaWrap_lua_State* L,luaWrap_lua_Debug* ar)
         else
         { // non-simulation scripts (i.e. add-ons and customization scripts)
 #ifdef SIM_WITH_GUI
-            if (App::userSettings->abortScriptExecutionButton!=0)
+            if (App::userSettings->getAbortScriptExecutionTiming()!=0)
             {
                 if ( (App::mainWindow!=NULL)&&(App::mainWindow->openglWidget->getModelDragAndDropInfo()==NULL) )
                 { // Otherwise can get very slow somehow
-                    if ( it->getScriptExecutionTimeInMs()>(App::userSettings->abortScriptExecutionButton*1000) )
+                    if ( it->getScriptExecutionTimeInMs()>(App::userSettings->getAbortScriptExecutionTiming()*1000) )
                     {
                         App::ct->simulation->showAndHandleEmergencyStopButton(true,it->getShortDescriptiveName().c_str());
                         if (CLuaScriptObject::emergencyStopButtonPressed)

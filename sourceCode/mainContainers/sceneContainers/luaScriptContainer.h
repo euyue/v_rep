@@ -27,6 +27,8 @@ public:
     CLuaScriptObject* getScriptFromObjectAttachedTo_customization(int threeDObjectID) const;
 
     int getScriptsFromObjectAttachedTo(int threeDObjectID,std::vector<CLuaScriptObject*>& scripts) const;
+    bool doesScriptWithUniqueIdExist(int id) const;
+
     void killAllSimulationLuaStates();
     int insertDefaultScript_mainAndChildScriptsOnly(int scriptType,bool threaded);
     void setInMainScriptNow(bool launched,int startTimeInMs);
@@ -67,7 +69,7 @@ public:
     static void setSaveIncludeScriptFiles(bool save);
 
 protected:
-    int _getScriptsToExecute(int scriptType,std::vector<CLuaScriptObject*>& scripts) const;
+    int _getScriptsToExecute(int scriptType,std::vector<CLuaScriptObject*>& scripts,std::vector<int>& uniqueIds) const;
 
     int _inMainScriptNow;
     int _mainScriptStartTimeInMs;

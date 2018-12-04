@@ -470,7 +470,7 @@ void CLuaScriptContainer::sceneOrModelAboutToBeSaved(int modelBase)
     }
 }
 
-int CLuaScriptContainer::_getScriptsToExecute(int scriptType,std::vector<CLuaScriptObject*>& scripts) const
+int CLuaScriptContainer::_getScriptsToExecute(int scriptType,std::vector<CLuaScriptObject*>& scripts,std::vector<int>& uniqueIds) const
 {
     std::vector<C3DObject*> orderFirst;
     std::vector<C3DObject*> orderNormal;
@@ -487,10 +487,21 @@ int CLuaScriptContainer::_getScriptsToExecute(int scriptType,std::vector<CLuaScr
     for (size_t i=0;i<toHandle.size();i++)
     {
         for (size_t j=0;j<toHandle[i]->size();j++)
-            toHandle[i]->at(j)->getScriptsToExecute(scriptType,sim_scripttreetraversal_reverse,scripts);
+            toHandle[i]->at(j)->getScriptsToExecute(scriptType,sim_scripttreetraversal_reverse,scripts,uniqueIds);
     }
     return(int(scripts.size()));
 }
+
+bool CLuaScriptContainer::doesScriptWithUniqueIdExist(int id) const
+{
+    for (size_t i=0;i<allScripts.size();i++)
+    {
+        if (allScripts[i]->getScriptUniqueID()==id)
+            return(true);
+    }
+    return(false);
+}
+
 
 int CLuaScriptContainer::handleCascadedScriptExecution(int scriptType,int callTypeOrResumeLocation,CInterfaceStack* inStack,CInterfaceStack* outStack,int* retInfo)
 {
@@ -498,58 +509,16 @@ int CLuaScriptContainer::handleCascadedScriptExecution(int scriptType,int callTy
     if (retInfo!=NULL)
         retInfo[0]=0;
     std::vector<CLuaScriptObject*> scripts;
-    _getScriptsToExecute(scriptType,scripts);
+    std::vector<int> uniqueIds;
+    _getScriptsToExecute(scriptType,scripts,uniqueIds);
     for (size_t i=0;i<scripts.size();i++)
     {
-        CLuaScriptObject* script=scripts[i];
-        if (!script->getScriptIsDisabled())
-        {
-            if (scriptType==sim_scripttype_customizationscript)
+        if (doesScriptWithUniqueIdExist(uniqueIds[i]))
+        { // the script could have been erased in the mean time
+            CLuaScriptObject* script=scripts[i];
+            if (!script->getScriptIsDisabled())
             {
-                bool doIt=true;
-                if ( (callTypeOrResumeLocation==sim_syscb_dyncallback)&&(!script->getContainsDynCallbackFunction()) )
-                    doIt=false;
-                if ( (callTypeOrResumeLocation==sim_syscb_contactcallback)&&(!script->getContainsContactCallbackFunction()) )
-                    doIt=false;
-                if (doIt)
-                {
-                    if (script->runCustomizationScript(callTypeOrResumeLocation,inStack,outStack)==1)
-                    {
-                        cnt++;
-                        if (callTypeOrResumeLocation==sim_syscb_contactcallback)
-                        {
-                            if (retInfo!=NULL)
-                                retInfo[0]=1;
-                            break;
-                        }
-                        if (callTypeOrResumeLocation==sim_syscb_beforemainscript)
-                        {
-                            bool doNotRunMainScript;
-                            if ((outStack!=NULL)&&outStack->getStackMapBoolValue("doNotRunMainScript",doNotRunMainScript))
-                            {
-                                if (doNotRunMainScript)
-                                {
-                                    if (retInfo!=NULL)
-                                        retInfo[0]=1;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            else if ((scriptType&sim_scripttype_childscript)!=0)
-            {
-                if (script->getThreadedExecution())
-                {
-                    if (callTypeOrResumeLocation==sim_scriptthreadresume_launch)
-                    {
-                        if (script->launchThreadedChildScript())
-                            cnt++;
-                    }
-                    else
-                        cnt+=script->resumeThreadedChildScriptIfLocationMatch(callTypeOrResumeLocation);
-                }
-                else
+                if (scriptType==sim_scripttype_customizationscript)
                 {
                     bool doIt=true;
                     if ( (callTypeOrResumeLocation==sim_syscb_dyncallback)&&(!script->getContainsDynCallbackFunction()) )
@@ -558,7 +527,7 @@ int CLuaScriptContainer::handleCascadedScriptExecution(int scriptType,int callTy
                         doIt=false;
                     if (doIt)
                     {
-                        if (script->runNonThreadedChildScript(callTypeOrResumeLocation,inStack,outStack)==1)
+                        if (script->runCustomizationScript(callTypeOrResumeLocation,inStack,outStack)==1)
                         {
                             cnt++;
                             if (callTypeOrResumeLocation==sim_syscb_contactcallback)
@@ -566,6 +535,52 @@ int CLuaScriptContainer::handleCascadedScriptExecution(int scriptType,int callTy
                                 if (retInfo!=NULL)
                                     retInfo[0]=1;
                                 break;
+                            }
+                            if (callTypeOrResumeLocation==sim_syscb_beforemainscript)
+                            {
+                                bool doNotRunMainScript;
+                                if ((outStack!=NULL)&&outStack->getStackMapBoolValue("doNotRunMainScript",doNotRunMainScript))
+                                {
+                                    if (doNotRunMainScript)
+                                    {
+                                        if (retInfo!=NULL)
+                                            retInfo[0]=1;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                else if ((scriptType&sim_scripttype_childscript)!=0)
+                {
+                    if (script->getThreadedExecution())
+                    {
+                        if (callTypeOrResumeLocation==sim_scriptthreadresume_launch)
+                        {
+                            if (script->launchThreadedChildScript())
+                                cnt++;
+                        }
+                        else
+                            cnt+=script->resumeThreadedChildScriptIfLocationMatch(callTypeOrResumeLocation);
+                    }
+                    else
+                    {
+                        bool doIt=true;
+                        if ( (callTypeOrResumeLocation==sim_syscb_dyncallback)&&(!script->getContainsDynCallbackFunction()) )
+                            doIt=false;
+                        if ( (callTypeOrResumeLocation==sim_syscb_contactcallback)&&(!script->getContainsContactCallbackFunction()) )
+                            doIt=false;
+                        if (doIt)
+                        {
+                            if (script->runNonThreadedChildScript(callTypeOrResumeLocation,inStack,outStack)==1)
+                            {
+                                cnt++;
+                                if (callTypeOrResumeLocation==sim_syscb_contactcallback)
+                                {
+                                    if (retInfo!=NULL)
+                                        retInfo[0]=1;
+                                    break;
+                                }
                             }
                         }
                     }

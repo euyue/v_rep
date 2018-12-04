@@ -29,6 +29,7 @@ public:
     void simulationEnded();
 
     int getScriptID() const;
+    int getScriptUniqueID() const;
     void setScriptID(int newID);
     bool isSceneScript() const;
     std::string getIncludeScriptFilePathAndName() const;
@@ -205,6 +206,7 @@ protected:
 
     // Variables that need to be copied and serialized:
     int scriptID;
+    int _scriptUniqueId;
     int _scriptType; // sim_scriptproperty_mainscript, etc.
     bool _threadedExecution;
     bool _scriptIsDisabled;
@@ -276,6 +278,7 @@ protected:
     bool _automaticCascadingCallsDisabled_OLD; // reset to false at simulation start!
 
     static int _nextIdForExternalScriptEditor;
+    static int _scriptUniqueCounter;
     static VMutex _globalMutex;
     static std::vector<CLuaScriptObject*> toBeCalledByThread;
     static VTHREAD_RETURN_TYPE _startAddressForThreadedScripts(VTHREAD_ARGUMENT_TYPE lpData);

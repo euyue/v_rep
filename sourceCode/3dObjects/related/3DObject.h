@@ -109,7 +109,7 @@ public:
     // Various functions
     void getChildScriptsToRun_OLD(std::vector<int>& childScriptIDs);
     int getScriptExecutionOrder(int scriptType) const;
-    int getScriptsToExecute(int scriptType,int parentTraversalDirection,std::vector<CLuaScriptObject*>& scripts);
+    int getScriptsToExecute(int scriptType,int parentTraversalDirection,std::vector<CLuaScriptObject*>& scripts,std::vector<int>& uniqueIds);
 
     void scalePosition(float scalingFactor);
     void getAllShapeObjectsRecursive(std::vector<CShape*>* shapeList,bool baseIncluded=true,bool start=true) const;

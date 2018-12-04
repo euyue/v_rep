@@ -32,6 +32,8 @@ public:
     void setUseBuiltInScriptEditorToSave(bool u);
     int getIdleFps();
     void setIdleFps(int fps);
+    int getAbortScriptExecutionTiming();
+
 
     int getNextFreeServerPortToUse();
     void setNextFreeServerPortToUse(int p);
@@ -74,7 +76,6 @@ public:
     int autoSaveDelay;
     int bulletSerializationBuffer;
     bool askToIncludeScriptFiles;
-    int abortScriptExecutionButton;
     int timeInMsForUndoRedoTooLongWarning;
 
     bool middleMouseButtonSwitchesModes;
@@ -271,4 +272,5 @@ private:
     float _rotationStepSize;
     int _idleFps;
     int _nextfreeServerPortToUse;
+    int _abortScriptExecutionButton;
 };
