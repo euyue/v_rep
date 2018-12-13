@@ -4033,6 +4033,13 @@ simInt simSetStringParameter_internal(simInt parameter,const simChar* str)
             App::ct->addOnScriptContainer->setAdditionalAddOnScript(str);
             return(1);
         }
+        if (parameter==sim_stringparam_job)
+        {
+            bool r=App::ct->environment->setCurrentJob(str);
+            if (r)
+                return(1);
+            return(0);
+        }
 
         CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_INVALID_PARAMETER);
         return(-1);

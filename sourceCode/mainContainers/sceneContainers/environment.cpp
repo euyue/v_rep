@@ -752,9 +752,22 @@ void CEnvironment::reactivateFogThatWasTemporarilyDisabled()
         enableFog(true);
 }
 
-std::string CEnvironment::getCurrentJob()
+std::string CEnvironment::getCurrentJob() const
 {
     return(_currentJob);
+}
+
+bool CEnvironment::setCurrentJob(const char* jobName)
+{
+    for (size_t i=0;i<_jobs.size();i++)
+    {
+        if (_jobs[i].compare(jobName)==0)
+        {
+            _currentJob=jobName;
+            return(true);
+        }
+    }
+    return(false);
 }
 
 int CEnvironment::getJobCount()

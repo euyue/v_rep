@@ -93,7 +93,8 @@ public:
     bool getSceneIsClosingFlag() const;
     void setSceneIsClosingFlag(bool closing);
 
-    std::string getCurrentJob();
+    std::string getCurrentJob() const;
+    bool setCurrentJob(const char* jobName);
     int getJobCount();
     int getJobIndex(const std::string& name);
     std::string getJobAtIndex(int index);
