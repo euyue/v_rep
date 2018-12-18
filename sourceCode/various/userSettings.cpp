@@ -1323,6 +1323,7 @@ void CUserSettings::loadUserSettings()
         VDialog::dialogStyle=QT_MODELESS_DLG_STYLE;
         CScintillaDlg::dialogStyle=QT_MODELESS_SCINTILLA_DLG_STYLE;
         CScintillaConsoleDlg::dialogStyle=QT_MODELESS_SCINTILLA_DLG_STYLE;
+        CScintillaUserNonModalDlg::dialogStyle=QT_MODELESS_SCINTILLA_DLG_STYLE;
     #endif
 #endif
     c.getBoolean(_USR_USE_EXTERNAL_LUA_LIBRARY,useExternalLuaLibrary);

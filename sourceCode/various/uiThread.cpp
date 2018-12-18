@@ -399,6 +399,29 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
             cmdOut->intParams.push_back(p[1]);
         }
     }
+    if ( (!App::isFullScreen())&&(App::mainWindow!=NULL)&&(cmdIn->cmdId==OPEN_NONMODAL_USER_EDITOR_UITHREADCMD) )
+    {
+        CScintillaUserNonModalDlg* dlg=new CScintillaUserNonModalDlg(cmdIn->stringParams[0],cmdIn->intParams[0],cmdIn->stringParams[2].c_str(),cmdIn->boolParams[0],App::mainWindow);
+        dlg->initialize(cmdIn->stringParams[1].c_str());
+        int handle=App::mainWindow->scintillaUserNonModalDlgContainer->addDlg(dlg);
+        cmdOut->intParams.push_back(handle);
+    }
+    if ( (!App::isFullScreen())&&(App::mainWindow!=NULL)&&(cmdIn->cmdId==CLOSE_NONMODAL_USER_EDITOR_UITHREADCMD) )
+    {
+        int h=cmdIn->intParams[0];
+        bool ignoreCb=cmdIn->boolParams[0];
+        CScintillaUserNonModalDlg* dlg=App::mainWindow->scintillaUserNonModalDlgContainer->getDlg(h);
+        int retVal=0;
+        if (dlg!=NULL)
+        {
+            if (dlg->getIsOpen())
+            {
+                retVal=1;
+                dlg->forceClose(ignoreCb);
+            }
+        }
+        cmdOut->intParams.push_back(retVal);
+    }
     if ( (!App::isFullScreen())&&(App::mainWindow!=NULL)&&(cmdIn->cmdId==OPEN_MODAL_SCRIPT_SIMULATION_PARAMETERS_UITHREADCMD) )
     {
         CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(cmdIn->intParams[0]);

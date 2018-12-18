@@ -541,6 +541,7 @@ extern int _simInsertObjectIntoPointCloud(luaWrap_lua_State* L);
 extern int _simSubtractObjectFromPointCloud(luaWrap_lua_State* L);
 extern int _simCheckOctreePointOccupancy(luaWrap_lua_State* L);
 extern int _simOpenTextEditor(luaWrap_lua_State* L);
+extern int _simCloseTextEditor(luaWrap_lua_State* L);
 extern int _simSetVisionSensorFilter(luaWrap_lua_State* L);
 extern int _simGetVisionSensorFilter(luaWrap_lua_State* L);
 extern int _simHandleSimulationStart(luaWrap_lua_State* L);

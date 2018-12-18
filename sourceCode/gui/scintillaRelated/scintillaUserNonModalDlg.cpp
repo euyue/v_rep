@@ -3,7 +3,7 @@
 // (http://www.codeproject.com/KB/cpp/Personal_C___Compiler.aspx)
 
 #include "vrepMainHeader.h"
-#include "scintillaUserModalDlg.h"
+#include "scintillaUserNonModalDlg.h"
 #include "v_rep_internal.h"
 #include "luaScriptFunctions.h"
 #include "vMessageBox.h"
@@ -19,8 +19,14 @@
 #include "tt.h"
 #include "ttUtil.h"
 
-CScintillaUserModalDlg::CScintillaUserModalDlg(const std::string& xmlInfo,QWidget* pParent, Qt::WindowFlags f) : QDialog(pParent,QT_MODAL_SCINTILLA_DLG_STYLE)
+Qt::WindowFlags CScintillaUserNonModalDlg::dialogStyle;
+
+CScintillaUserNonModalDlg::CScintillaUserNonModalDlg(const std::string& xmlInfo,int scriptId,const char* callbackFunc,bool simScript,QWidget* pParent, Qt::WindowFlags f) : QDialog(pParent,dialogStyle)
 {
+    _scriptId=scriptId;
+    _callbackFunc=callbackFunc;
+    _simScript=simScript;
+    _open=true;
     _editable=true;
     _searchable=true;
     _isLua=false;
@@ -137,7 +143,7 @@ CScintillaUserModalDlg::CScintillaUserModalDlg(const std::string& xmlInfo,QWidge
                     if (_allKeywords1.size()>0)
                         _allKeywords1+=" ";
                     _allKeywords1+=str;
-                    SScintillaUserKeyword b;
+                    SScintillaNMUserKeyword b;
                     b.keyword=str;
                     b.autocomplete=true;
                     w->QueryBoolAttribute("autocomplete",&b.autocomplete);
@@ -156,7 +162,7 @@ CScintillaUserModalDlg::CScintillaUserModalDlg(const std::string& xmlInfo,QWidge
                 if (_allKeywords1.size()>0)
                     _allKeywords1+=" ";
                 _allKeywords1+=simLuaCommands[i].name;
-                SScintillaUserKeyword b;
+                SScintillaNMUserKeyword b;
                 b.keyword=simLuaCommands[i].name;
                 b.autocomplete=simLuaCommands[i].autoComplete;
                 b.callTip=simLuaCommands[i].callTip;
@@ -169,7 +175,7 @@ CScintillaUserModalDlg::CScintillaUserModalDlg(const std::string& xmlInfo,QWidge
                     if (_allKeywords1.size()>0)
                         _allKeywords1+=" ";
                     _allKeywords1+=simLuaCommandsOldApi[i].name;
-                    SScintillaUserKeyword b;
+                    SScintillaNMUserKeyword b;
                     b.keyword=simLuaCommandsOldApi[i].name;
                     b.autocomplete=simLuaCommandsOldApi[i].autoComplete;
                     b.callTip=simLuaCommandsOldApi[i].callTip;
@@ -181,7 +187,7 @@ CScintillaUserModalDlg::CScintillaUserModalDlg(const std::string& xmlInfo,QWidge
                 if (_allKeywords1.size()>0)
                     _allKeywords1+=" ";
                 _allKeywords1+=App::ct->luaCustomFuncAndVarContainer->allCustomFunctions[i]->getFunctionName();
-                SScintillaUserKeyword b;
+                SScintillaNMUserKeyword b;
                 b.keyword=App::ct->luaCustomFuncAndVarContainer->allCustomFunctions[i]->getFunctionName();
                 b.autocomplete=App::ct->luaCustomFuncAndVarContainer->allCustomFunctions[i]->getCallTips().size()>0;
                 b.callTip=App::ct->luaCustomFuncAndVarContainer->allCustomFunctions[i]->getCallTips();
@@ -203,7 +209,7 @@ CScintillaUserModalDlg::CScintillaUserModalDlg(const std::string& xmlInfo,QWidge
                     if (_allKeywords2.size()>0)
                         _allKeywords2+=" ";
                     _allKeywords2+=str;
-                    SScintillaUserKeyword b;
+                    SScintillaNMUserKeyword b;
                     b.keyword=str;
                     b.autocomplete=true;
                     w->QueryBoolAttribute("autocomplete",&b.autocomplete);
@@ -223,7 +229,7 @@ CScintillaUserModalDlg::CScintillaUserModalDlg(const std::string& xmlInfo,QWidge
                 if (_allKeywords2.size()>0)
                     _allKeywords2+=" ";
                 _allKeywords2+=simLuaVariables[i].name;
-                SScintillaUserKeyword b;
+                SScintillaNMUserKeyword b;
                 b.keyword=simLuaVariables[i].name;
                 b.autocomplete=simLuaVariables[i].autoComplete;
                 b.callTip="";
@@ -236,7 +242,7 @@ CScintillaUserModalDlg::CScintillaUserModalDlg(const std::string& xmlInfo,QWidge
                     if (_allKeywords2.size()>0)
                         _allKeywords2+=" ";
                     _allKeywords2+=simLuaVariablesOldApi[i].name;
-                    SScintillaUserKeyword b;
+                    SScintillaNMUserKeyword b;
                     b.keyword=simLuaVariablesOldApi[i].name;
                     b.autocomplete=simLuaVariablesOldApi[i].autoComplete;
                     b.callTip="";
@@ -248,7 +254,7 @@ CScintillaUserModalDlg::CScintillaUserModalDlg(const std::string& xmlInfo,QWidge
                 if (_allKeywords2.size()>0)
                     _allKeywords2+=" ";
                 _allKeywords2+=App::ct->luaCustomFuncAndVarContainer->allCustomVariables[i]->getVariableName();
-                SScintillaUserKeyword b;
+                SScintillaNMUserKeyword b;
                 b.keyword=App::ct->luaCustomFuncAndVarContainer->allCustomVariables[i]->getVariableName();
                 b.autocomplete=App::ct->luaCustomFuncAndVarContainer->allCustomVariables[i]->getHasAutoCompletion();
                 b.callTip="";
@@ -257,6 +263,7 @@ CScintillaUserModalDlg::CScintillaUserModalDlg(const std::string& xmlInfo,QWidge
         }
     }
 
+    setAttribute(Qt::WA_DeleteOnClose);
     _scintillaObject=new QsciScintilla;
 
     // Use following if using a QDialog!!
@@ -308,24 +315,101 @@ CScintillaUserModalDlg::CScintillaUserModalDlg(const std::string& xmlInfo,QWidge
     _setColorsAndMainStyles();
 }
 
-CScintillaUserModalDlg::~CScintillaUserModalDlg()
+CScintillaUserNonModalDlg::~CScintillaUserNonModalDlg()
 {
-    delete _scintillaObject;
+    // _scintillaObject is normally automatically destroyed!
+    // delete _scintillaObject;
 }
 
-bool CScintillaUserModalDlg::initialize(const char* text)
+void CScintillaUserNonModalDlg::closeEvent(QCloseEvent *event)
+{
+    event->ignore();
+    forceClose(false);
+}
+
+void CScintillaUserNonModalDlg::forceClose(bool ignoreCb)
+{
+    int l=_scintillaObject->SendScintilla(QsciScintillaBase::SCI_GETLENGTH);
+    _textAtClosing.resize(l+1);
+    _scintillaObject->SendScintilla(QsciScintillaBase::SCI_GETTEXT,(unsigned long)l+1,&_textAtClosing[0]);
+    QRect geom(geometry());
+    _sizeAtClosing[0]=geom.width();
+    _sizeAtClosing[1]=geom.height();
+    _posAtClosing[0]=geom.x();
+    _posAtClosing[1]=geom.y();
+    _open=false;
+    if (ignoreCb)
+        _callbackFunc.clear();
+}
+
+void CScintillaUserNonModalDlg::setHandle(int h)
+{
+    _handle=h;
+}
+
+int CScintillaUserNonModalDlg::getHandle() const
+{
+    return(_handle);
+}
+
+int CScintillaUserNonModalDlg::getScriptId() const
+{
+    return(_scriptId);
+}
+
+std::string CScintillaUserNonModalDlg::getCallbackFunc() const
+{
+    return(_callbackFunc);
+}
+
+bool CScintillaUserNonModalDlg::getIsOpen() const
+{
+    return(_open);
+}
+
+bool CScintillaUserNonModalDlg::isAssociatedWithSimScript() const
+{
+    return(_simScript);
+}
+
+void CScintillaUserNonModalDlg::handleCallback()
+{
+    int stack=simCreateStack_internal();
+    simPushStringOntoStack_internal(stack,_textAtClosing.c_str(),_textAtClosing.size());
+    simPushInt32TableOntoStack_internal(stack,_sizeAtClosing,2);
+    simPushInt32TableOntoStack_internal(stack,_posAtClosing,2);
+    simCallScriptFunctionEx_internal(_scriptId,_callbackFunc.c_str(),stack);
+    simReleaseStack_internal(stack);
+    _callbackFunc.clear();
+}
+
+void CScintillaUserNonModalDlg::initialize(const char* text)
 {
     move(_position[0],_position[1]);
     resize(_size[0],_size[1]);
+    show();
 
     _scintillaObject->SendScintilla(QsciScintillaBase::SCI_SETTEXT,(unsigned long)0,text);
     _scintillaObject->SendScintilla(QsciScintillaBase::SCI_EMPTYUNDOBUFFER); // Make sure the undo buffer is empty (otherwise the first undo will remove the whole script --> a bit confusing)
     if (!_editable)
         _scintillaObject->SendScintilla(QsciScintillaBase::SCI_SETREADONLY,(int)1);
-    return(true);
 }
 
-void CScintillaUserModalDlg::_setColorsAndMainStyles()
+void CScintillaUserNonModalDlg::showOrHideDlg(bool showState)
+{
+    if (_open)
+    {
+        if (showState)
+            show();
+        else
+            hide();
+    }
+}
+
+
+
+
+void CScintillaUserNonModalDlg::_setColorsAndMainStyles()
 { // backgroundStyle=0 Main script, 1=non-threaded, 2=threaded
     struct SScintillaColors
     {
@@ -392,27 +476,7 @@ void CScintillaUserModalDlg::_setColorsAndMainStyles()
     }
 }
 
-std::string CScintillaUserModalDlg::makeDialogModal()
-{
-    setModal(true);
-    exec();
-    int l=_scintillaObject->SendScintilla(QsciScintillaBase::SCI_GETLENGTH);
-    std::string retVal;
-    retVal.resize(l+1);
-    _scintillaObject->SendScintilla(QsciScintillaBase::SCI_GETTEXT,(unsigned long)l+1,&retVal[0]);
-    return(retVal);
-}
-
-void CScintillaUserModalDlg::getSizeAndPosition(int s[2],int p[2]) const
-{
-    QRect geom(geometry());
-    s[0]=geom.width();
-    s[1]=geom.height();
-    p[0]=geom.x();
-    p[1]=geom.y();
-}
-
-void CScintillaUserModalDlg::_setAStyle(int style,unsigned int fore,unsigned int back,int size,const char *face)
+void CScintillaUserNonModalDlg::_setAStyle(int style,unsigned int fore,unsigned int back,int size,const char *face)
 {
     _scintillaObject->SendScintilla(QsciScintillaBase::SCI_STYLESETFORE,(unsigned long)style,(long)fore);
     _scintillaObject->SendScintilla(QsciScintillaBase::SCI_STYLESETBACK,(unsigned long)style,(long)back);
@@ -422,7 +486,7 @@ void CScintillaUserModalDlg::_setAStyle(int style,unsigned int fore,unsigned int
         _scintillaObject->SendScintilla(QsciScintillaBase::SCI_STYLESETFONT,(unsigned long)style,face);
 }
 
-void CScintillaUserModalDlg::_prepAutoCompletionList(const std::string& txt)
+void CScintillaUserNonModalDlg::_prepAutoCompletionList(const std::string& txt)
 {
     _autoCompletionList.clear();
     std::vector<std::string> t;
@@ -481,7 +545,7 @@ void CScintillaUserModalDlg::_prepAutoCompletionList(const std::string& txt)
     }
 }
 
-std::string CScintillaUserModalDlg::_getCallTip(const char* txt) const
+std::string CScintillaUserNonModalDlg::_getCallTip(const char* txt) const
 { 
     size_t l=strlen(txt);
 
@@ -500,7 +564,7 @@ std::string CScintillaUserModalDlg::_getCallTip(const char* txt) const
     return("");
 }
 
-void CScintillaUserModalDlg::_updateUi(int updated)
+void CScintillaUserNonModalDlg::_updateUi(int updated)
 {
     _scintillaObject->SendScintilla(QsciScintillaBase::SCI_SETINDICATORCURRENT,(int)20);
 
@@ -532,7 +596,7 @@ void CScintillaUserModalDlg::_updateUi(int updated)
     }
 }
 
-void CScintillaUserModalDlg::_onFind()
+void CScintillaUserNonModalDlg::_onFind()
 {
     int txtL=_scintillaObject->SendScintilla(QsciScintillaBase::SCI_GETSELTEXT,(unsigned long)0,(long)0)-1;
     if (txtL>=1)
@@ -552,7 +616,7 @@ void CScintillaUserModalDlg::_onFind()
     }
 }
 
-void CScintillaUserModalDlg::_getColorFromString(const char* txt,unsigned int& col) const
+void CScintillaUserNonModalDlg::_getColorFromString(const char* txt,unsigned int& col) const
 {
     if (txt!=NULL)
     {
@@ -576,7 +640,7 @@ void CScintillaUserModalDlg::_getColorFromString(const char* txt,unsigned int& c
     }
 }
 
-void CScintillaUserModalDlg::_findText(const char* txt,bool caseSensitive)
+void CScintillaUserNonModalDlg::_findText(const char* txt,bool caseSensitive)
 {
     int totTextLength=_scintillaObject->SendScintilla(QsciScintillaBase::SCI_GETLENGTH);
     int caseInfo=0;
@@ -602,7 +666,7 @@ void CScintillaUserModalDlg::_findText(const char* txt,bool caseSensitive)
         _scintillaObject->SendScintilla(QsciScintillaBase::SCI_SETSEL,(unsigned long)p,(long)p+txtL);
 }
 
-void CScintillaUserModalDlg::_charAdded(int charAdded)
+void CScintillaUserNonModalDlg::_charAdded(int charAdded)
 {
     if (_scintillaObject->SendScintilla(QsciScintillaBase::SCI_AUTOCACTIVE)!=0)
     { // Autocomplete is active

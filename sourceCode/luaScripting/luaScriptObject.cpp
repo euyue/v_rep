@@ -2449,6 +2449,11 @@ bool CLuaScriptObject::hasLuaState() const
     return(L!=NULL);
 }
 
+bool CLuaScriptObject::isSimulationScript() const
+{
+    return( (_scriptType==sim_scripttype_mainscript)||(_scriptType==sim_scripttype_childscript) );
+}
+
 void CLuaScriptObject::killLuaState()
 {
     if (L!=NULL)

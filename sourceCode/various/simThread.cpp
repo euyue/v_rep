@@ -67,6 +67,10 @@ void CSimThread::executeMessages()
             App::uiThread->requestSceneRender_wait(); // non-threaded rendering
         }
     }
+
+    if (App::mainWindow->scintillaUserNonModalDlgContainer!=NULL)
+        App::mainWindow->scintillaUserNonModalDlgContainer->handleCallbacks();
+
 #endif
 
     int pass=0;

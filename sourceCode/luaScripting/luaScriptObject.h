@@ -79,6 +79,7 @@ public:
 
     void killLuaState();
     bool hasLuaState() const;
+    bool isSimulationScript() const;
     int getNumberOfPasses() const;
     void setNumberOfPasses(int p);
     int setUserData(char* data);

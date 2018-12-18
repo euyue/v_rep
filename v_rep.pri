@@ -796,6 +796,7 @@ WITH_GUI {
 
     HEADERS += $$PWD/sourceCode/gui/mainContainers/applicationContainers/scintillaConsoleContainer.h \
         $$PWD/sourceCode/gui/mainContainers/applicationContainers/globalGuiTextureContainer.h \
+        $$PWD/sourceCode/gui/mainContainers/applicationContainers/scintillaUserNonModalDlgContainer.h \
 
     HEADERS += $$PWD/sourceCode/gui/editModes/editModeContainer.h \
         $$PWD/sourceCode/gui/editModes/shapeEditMode.h \
@@ -822,6 +823,7 @@ WITH_GUI {
         $$PWD/sourceCode/gui/scintillaRelated/scintillaDlg.h \
         $$PWD/sourceCode/gui/scintillaRelated/scintillaModalDlg.h \
         $$PWD/sourceCode/gui/scintillaRelated/scintillaUserModalDlg.h \
+        $$PWD/sourceCode/gui/scintillaRelated/scintillaUserNonModalDlg.h \
         $$PWD/sourceCode/gui/scintillaRelated/scintillaConsoleDlg.h \
 
     HEADERS += $$PWD/sourceCode/gui/menusAndSimilar/toolBarCommand.h \
@@ -1292,6 +1294,7 @@ WITH_GUI {
 
     SOURCES += $$PWD/sourceCode/gui/mainContainers/applicationContainers/scintillaConsoleContainer.cpp \
         $$PWD/sourceCode/gui/mainContainers/applicationContainers/globalGuiTextureContainer.cpp \
+        $$PWD/sourceCode/gui/mainContainers/applicationContainers/scintillaUserNonModalDlgContainer.cpp \
 
     SOURCES += $$PWD/sourceCode/gui/editModes/editModeContainer.cpp \
         $$PWD/sourceCode/gui/editModes/shapeEditMode.cpp \
@@ -1318,6 +1321,7 @@ WITH_GUI {
         $$PWD/sourceCode/gui/scintillaRelated/scintillaDlg.cpp \
         $$PWD/sourceCode/gui/scintillaRelated/scintillaModalDlg.cpp \
         $$PWD/sourceCode/gui/scintillaRelated/scintillaUserModalDlg.cpp \
+        $$PWD/sourceCode/gui/scintillaRelated/scintillaUserNonModalDlg.cpp \
         $$PWD/sourceCode/gui/scintillaRelated/scintillaConsoleDlg.cpp \
 
     SOURCES += $$PWD/sourceCode/gui/menusAndSimilar/toolBarCommand.cpp \
