@@ -409,7 +409,6 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
     if ( (!App::isFullScreen())&&(App::mainWindow!=NULL)&&(cmdIn->cmdId==CLOSE_NONMODAL_USER_EDITOR_UITHREADCMD) )
     {
         int h=cmdIn->intParams[0];
-        bool ignoreCb=cmdIn->boolParams[0];
         CScintillaUserNonModalDlg* dlg=App::mainWindow->scintillaUserNonModalDlgContainer->getDlg(h);
         int retVal=0;
         if (dlg!=NULL)
@@ -417,8 +416,17 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
             if (dlg->getIsOpen())
             {
                 retVal=1;
-                dlg->forceClose(ignoreCb);
-            }
+                cmdOut->stringParams.push_back(dlg->getCallbackFunc());
+                std::string txt;
+                int pos[2];
+                int size[2];
+                dlg->forceClose(&txt,pos,size);
+                cmdOut->stringParams.push_back(txt);
+                cmdOut->intParams.push_back(pos[0]);
+                cmdOut->intParams.push_back(pos[1]);
+                cmdOut->intParams.push_back(size[0]);
+                cmdOut->intParams.push_back(size[1]);
+           }
         }
         cmdOut->intParams.push_back(retVal);
     }

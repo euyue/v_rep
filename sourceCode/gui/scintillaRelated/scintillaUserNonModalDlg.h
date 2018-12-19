@@ -27,7 +27,7 @@ public:
 
     // UI thread only:
     void initialize(const char* text);
-    void forceClose(bool ignoreCb);
+    void forceClose(std::string* txt,int pos[2],int size[2]);
     void showOrHideDlg(bool showState);
 
     // sim thread only:

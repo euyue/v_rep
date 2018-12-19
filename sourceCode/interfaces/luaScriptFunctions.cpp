@@ -17034,9 +17034,20 @@ int _simCloseTextEditor(luaWrap_lua_State* L)
         SUIThreadCommand cmdOut;
         cmdIn.cmdId=CLOSE_NONMODAL_USER_EDITOR_UITHREADCMD;
         cmdIn.intParams.push_back(h);
-        cmdIn.boolParams.push_back(ignoreCb);
         App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
         int res=cmdOut.intParams[0];
+        if (res>0)
+        {   // We call the callback directly from here:
+            CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptID(L));
+            if (it!=NULL)
+            {
+                CInterfaceStack stack;
+                stack.pushStringOntoStack(cmdOut.stringParams[1].c_str(),cmdOut.stringParams[1].size());
+                stack.pushIntArrayTableOntoStack(&cmdOut.intParams[1],2);
+                stack.pushIntArrayTableOntoStack(&cmdOut.intParams[3],2);
+                it->callScriptFunctionEx(cmdOut.stringParams[0].c_str(),&stack);
+            }
+        }
         luaWrap_lua_pushinteger(L,res);
         LUA_END(1);
     }

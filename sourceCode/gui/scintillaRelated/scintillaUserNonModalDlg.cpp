@@ -324,10 +324,10 @@ CScintillaUserNonModalDlg::~CScintillaUserNonModalDlg()
 void CScintillaUserNonModalDlg::closeEvent(QCloseEvent *event)
 {
     event->ignore();
-    forceClose(false);
+    forceClose(NULL,NULL,NULL);
 }
 
-void CScintillaUserNonModalDlg::forceClose(bool ignoreCb)
+void CScintillaUserNonModalDlg::forceClose(std::string* txt,int pos[2],int size[2])
 {
     int l=_scintillaObject->SendScintilla(QsciScintillaBase::SCI_GETLENGTH);
     _textAtClosing.resize(l+1);
@@ -338,8 +338,19 @@ void CScintillaUserNonModalDlg::forceClose(bool ignoreCb)
     _posAtClosing[0]=geom.x();
     _posAtClosing[1]=geom.y();
     _open=false;
-    if (ignoreCb)
-        _callbackFunc.clear();
+    _callbackFunc.clear();
+    if (txt!=NULL)
+        txt[0]=_textAtClosing;
+    if (pos!=NULL)
+    {
+        pos[0]=_posAtClosing[0];
+        pos[1]=_posAtClosing[1];
+    }
+    if (size!=NULL)
+    {
+        size[0]=_sizeAtClosing[0];
+        size[1]=_sizeAtClosing[1];
+    }
 }
 
 void CScintillaUserNonModalDlg::setHandle(int h)
