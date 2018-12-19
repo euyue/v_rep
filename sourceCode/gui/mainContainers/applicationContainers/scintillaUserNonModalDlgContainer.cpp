@@ -50,23 +50,26 @@ void CScintillaUserNonModalDlgContainer::handleDlgRemoval()
     for (size_t i=0;i<_allDlgs.size();i++)
     {
         CScintillaUserNonModalDlg* dlg=_allDlgs[i];
-        bool remove=( (!dlg->getIsOpen())&&(dlg->getCallbackFunc().size()==0) );
-        if (!remove)
+        if (dlg->getSceneUniqueId()==App::ct->environment->getSceneUniqueID())
         {
-            CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(dlg->getScriptId());
-            if ( (it==NULL)||(!it->hasLuaState()) )
-                remove=true; // script was removed or has no state
-            else
+            bool remove=( (!dlg->getIsOpen())&&(dlg->getCallbackFunc().size()==0) );
+            if (!remove)
             {
-                if ( App::ct->simulation->isSimulationStopped()&&dlg->isAssociatedWithSimScript() )
-                    remove=true;
+                CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(dlg->getScriptId());
+                if ( (it==NULL)||(!it->hasLuaState()) )
+                    remove=true; // script was removed or has no state
+                else
+                {
+                    if ( App::ct->simulation->isSimulationStopped()&&dlg->isAssociatedWithSimScript() )
+                        remove=true;
+                }
             }
-        }
-        if (remove)
-        { // dlg close button was pressed and callback called. We can remove that dlg
-            delete dlg;
-            _allDlgs.erase(_allDlgs.begin()+i);
-            i--; // reprocess this position
+            if (remove)
+            { // dlg close button was pressed and callback called. We can remove that dlg
+                delete dlg;
+                _allDlgs.erase(_allDlgs.begin()+i);
+                i--; // reprocess this position
+            }
         }
     }
 }
@@ -83,6 +86,14 @@ void CScintillaUserNonModalDlgContainer::handleCallbacks()
 
 void CScintillaUserNonModalDlgContainer::showOrHideAll(bool showState)
 {
-    for (size_t i=0;i<_allDlgs.size();i++)
-        _allDlgs[i]->showOrHideDlg(showState);
+    if (App::ct->environment!=NULL)
+    {
+        int sceneId=App::ct->environment->getSceneUniqueID();
+        for (size_t i=0;i<_allDlgs.size();i++)
+        {
+            CScintillaUserNonModalDlg* dlg=_allDlgs[i];
+            if (dlg->getSceneUniqueId()==sceneId)
+                dlg->showOrHideDlg(showState);
+        }
+    }
 }

@@ -2501,6 +2501,8 @@ void CMainWindow::newInstanceAboutToBeCreated()
         sceneHierarchyLayout->addWidget(sceneHierarchyWidget);
         sceneHierarchyWidget->setVisible(false);//here_for_new_hierarchy
     }
+    if (scintillaUserNonModalDlgContainer!=NULL)
+        scintillaUserNonModalDlgContainer->showOrHideAll(false);
 
     _scintillaEditorContainerList.push_back(NULL);
     scintillaEditorContainer=new CScintillaEditorContainer();
@@ -2545,6 +2547,8 @@ void CMainWindow::instanceAboutToChange(int newInstanceIndex)
     if ( (newInstanceIndex>=0)&&(newInstanceIndex<int(_scintillaEditorContainerList.size())) )
         scintillaEditorContainer=_scintillaEditorContainerList[newInstanceIndex];
     scintillaEditorContainer->showOrHideAllEditors(true);
+    if (scintillaUserNonModalDlgContainer!=NULL)
+        scintillaUserNonModalDlgContainer->showOrHideAll(false);
 
     if (sceneHierarchyWidget!=NULL)
         sceneHierarchyWidget->setVisible(false);
@@ -2557,6 +2561,15 @@ void CMainWindow::instanceAboutToChange(int newInstanceIndex)
 
     _flyModeCameraHandle=-1;
 }
+
+void CMainWindow::instanceHasChanged(int newInstanceIndex)
+{
+    FUNCTION_DEBUG;
+
+    if (scintillaUserNonModalDlgContainer!=NULL)
+        scintillaUserNonModalDlgContainer->showOrHideAll(true);
+}
+
 
 void CMainWindow::newSceneNameWasSet(const char* name)
 {

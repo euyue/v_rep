@@ -169,6 +169,7 @@ public:
     void newInstanceWasJustCreated();
     void instanceAboutToBeDestroyed(int currentInstanceIndex);
     void instanceAboutToChange(int newInstanceIndex);
+    void instanceHasChanged(int newInstanceIndex);
     void newSceneNameWasSet(const char* name);
 
     void closeTemporarilyNonEditModeDialogs();

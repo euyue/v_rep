@@ -21,11 +21,12 @@
 
 Qt::WindowFlags CScintillaUserNonModalDlg::dialogStyle;
 
-CScintillaUserNonModalDlg::CScintillaUserNonModalDlg(const std::string& xmlInfo,int scriptId,const char* callbackFunc,bool simScript,QWidget* pParent, Qt::WindowFlags f) : QDialog(pParent,dialogStyle)
+CScintillaUserNonModalDlg::CScintillaUserNonModalDlg(const std::string& xmlInfo,int scriptId,int sceneUniqueId,const char* callbackFunc,bool simScript,QWidget* pParent, Qt::WindowFlags f) : QDialog(pParent,dialogStyle)
 {
     _scriptId=scriptId;
     _callbackFunc=callbackFunc;
     _simScript=simScript;
+    _sceneUniqueId=sceneUniqueId;
     _open=true;
     _editable=true;
     _searchable=true;
@@ -332,15 +333,18 @@ void CScintillaUserNonModalDlg::forceClose(std::string* txt,int pos[2],int size[
     int l=_scintillaObject->SendScintilla(QsciScintillaBase::SCI_GETLENGTH);
     _textAtClosing.resize(l+1);
     _scintillaObject->SendScintilla(QsciScintillaBase::SCI_GETTEXT,(unsigned long)l+1,&_textAtClosing[0]);
+    _textAtClosing.resize(l);
     QRect geom(geometry());
     _sizeAtClosing[0]=geom.width();
     _sizeAtClosing[1]=geom.height();
     _posAtClosing[0]=geom.x();
     _posAtClosing[1]=geom.y();
     _open=false;
-    _callbackFunc.clear();
     if (txt!=NULL)
+    {
         txt[0]=_textAtClosing;
+        _callbackFunc.clear();
+    }
     if (pos!=NULL)
     {
         pos[0]=_posAtClosing[0];
@@ -361,6 +365,11 @@ void CScintillaUserNonModalDlg::setHandle(int h)
 int CScintillaUserNonModalDlg::getHandle() const
 {
     return(_handle);
+}
+
+int CScintillaUserNonModalDlg::getSceneUniqueId() const
+{
+    return(_sceneUniqueId);
 }
 
 int CScintillaUserNonModalDlg::getScriptId() const
@@ -387,8 +396,8 @@ void CScintillaUserNonModalDlg::handleCallback()
 {
     int stack=simCreateStack_internal();
     simPushStringOntoStack_internal(stack,_textAtClosing.c_str(),_textAtClosing.size());
-    simPushInt32TableOntoStack_internal(stack,_sizeAtClosing,2);
     simPushInt32TableOntoStack_internal(stack,_posAtClosing,2);
+    simPushInt32TableOntoStack_internal(stack,_sizeAtClosing,2);
     simCallScriptFunctionEx_internal(_scriptId,_callbackFunc.c_str(),stack);
     simReleaseStack_internal(stack);
     _callbackFunc.clear();

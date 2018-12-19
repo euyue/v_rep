@@ -833,6 +833,11 @@ bool CMainContainer::makeInstanceCurrentFromIndex(int instanceIndex,bool previou
             cmdIn.cmdId=VISUALIZATION_ON_UITHREADCMD;
             App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
         }
+        SUIThreadCommand cmdIn;
+        SUIThreadCommand cmdOut;
+        cmdIn.cmdId=INSTANCE_HAS_CHANGE_UITHREADCMD;
+        cmdIn.intParams.push_back(instanceIndex);
+        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     }
 #endif
 

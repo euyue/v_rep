@@ -17007,6 +17007,7 @@ int _simOpenTextEditor(luaWrap_lua_State* L)
                     cmdIn.stringParams.push_back(initText);
                     cmdIn.stringParams.push_back(callbackFunction);
                     cmdIn.intParams.push_back(it->getScriptID());
+                    cmdIn.intParams.push_back(App::ct->environment->getSceneUniqueID());
                     cmdIn.boolParams.push_back(it->isSimulationScript());
                     App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
                     handle=cmdOut.intParams[0];

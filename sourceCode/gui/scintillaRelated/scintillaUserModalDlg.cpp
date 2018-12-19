@@ -400,6 +400,7 @@ std::string CScintillaUserModalDlg::makeDialogModal()
     std::string retVal;
     retVal.resize(l+1);
     _scintillaObject->SendScintilla(QsciScintillaBase::SCI_GETTEXT,(unsigned long)l+1,&retVal[0]);
+    retVal.resize(l);
     return(retVal);
 }
 

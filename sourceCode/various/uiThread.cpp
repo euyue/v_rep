@@ -283,6 +283,8 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
             App::mainWindow->newInstanceWasJustCreated();
         if (cmdIn->cmdId==INSTANCE_ABOUT_TO_CHANGE_UITHREADCMD)
             App::mainWindow->instanceAboutToChange(cmdIn->intParams[0]);
+        if (cmdIn->cmdId==INSTANCE_HAS_CHANGE_UITHREADCMD)
+            App::mainWindow->instanceHasChanged(cmdIn->intParams[0]);
         if (cmdIn->cmdId==INSTANCE_ABOUT_TO_BE_DESTROYED_UITHREADCMD)
             App::mainWindow->instanceAboutToBeDestroyed(cmdIn->intParams[0]);
         if (cmdIn->cmdId==NEW_SCENE_NAME_UITHREADCMD)
@@ -401,7 +403,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
     }
     if ( (!App::isFullScreen())&&(App::mainWindow!=NULL)&&(cmdIn->cmdId==OPEN_NONMODAL_USER_EDITOR_UITHREADCMD) )
     {
-        CScintillaUserNonModalDlg* dlg=new CScintillaUserNonModalDlg(cmdIn->stringParams[0],cmdIn->intParams[0],cmdIn->stringParams[2].c_str(),cmdIn->boolParams[0],App::mainWindow);
+        CScintillaUserNonModalDlg* dlg=new CScintillaUserNonModalDlg(cmdIn->stringParams[0],cmdIn->intParams[0],cmdIn->intParams[1],cmdIn->stringParams[2].c_str(),cmdIn->boolParams[0],App::mainWindow);
         dlg->initialize(cmdIn->stringParams[1].c_str());
         int handle=App::mainWindow->scintillaUserNonModalDlgContainer->addDlg(dlg);
         cmdOut->intParams.push_back(handle);
