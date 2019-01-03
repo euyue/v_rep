@@ -15,7 +15,7 @@
     #LUA_LIBS = "/usr/local/lib/liblua5.1.dylib"    # (e.g. MacOS)
 
 # qscintilla location:
-    QSCINTILLA_DIR = "d:/QScintilla-commercial-2.7.2"    # (e.g. Windows)
+    QSCINTILLA_DIR = "d:/QScintilla_commercial-2.10.2"    # (e.g. Windows)
     #QSCINTILLA_DIR = "../../QScintilla-commercial-2.7.2"    # (e.g. Windows-MSYS2)
     #QSCINTILLA_DIR = "../../QScintilla-commercial-2.7.2"    # (e.g. Ubuntu)
     #QSCINTILLA_DIR = "../../QScintilla-commercial-2.7.2"    # (e.g. MacOS)

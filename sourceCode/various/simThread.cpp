@@ -507,7 +507,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                             ss=App::userSettings->getTranslationStepSize();
                         float x=cmd.floatParams[0]-fmod(cmd.floatParams[0],ss);
                         float y=cmd.floatParams[1]-fmod(cmd.floatParams[1],ss);
-
                         tr.X(0)+=x;
                         tr.X(1)+=y;
                         obj->setLocalTransformation(tr);

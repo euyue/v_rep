@@ -328,7 +328,11 @@ int COglSurface::modelDragMoveEvent(int xPos,int yPos,C3Vector* desiredModelPosi
     {
         offx+=_hierarchyWidth;
         if (xPos-offx<=0)
+        {
+            if (desiredModelPosition!=NULL)
+                desiredModelPosition->clear();
             return(1);
+        }
     }
     mousePreviousRelativePosition[0]=mouseRelativePosition[0];
     mousePreviousRelativePosition[1]=mouseRelativePosition[1];
