@@ -4523,8 +4523,8 @@ void pushAllVrepFunctionNamesThatStartSame_autoCompletionList(const std::string&
                 if (!hasDot)
                 {
                     size_t dp=n.find('.');
-                    if (dp!=std::string::npos)
-                        n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot
+                    if ( (dp!=std::string::npos)&&(txt.size()>0) )
+                        n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot, if txt is not empty
                 }
                 std::map<std::string,bool>::iterator it=m.find(n);
                 if (it==m.end())
@@ -4547,8 +4547,8 @@ void pushAllVrepFunctionNamesThatStartSame_autoCompletionList(const std::string&
                     if (!hasDot)
                     {
                         size_t dp=n.find('.');
-                        if (dp!=std::string::npos)
-                            n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot
+                        if ( (dp!=std::string::npos)&&(txt.size()>0) )
+                            n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot, if txt is not empty
                     }
                     std::map<std::string,bool>::iterator it=m.find(n);
                     if (it==m.end())
@@ -4569,8 +4569,8 @@ void pushAllVrepFunctionNamesThatStartSame_autoCompletionList(const std::string&
             if (!hasDot)
             {
                 size_t dp=n.find('.');
-                if (dp!=std::string::npos)
-                    n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot
+                if ( (dp!=std::string::npos)&&(txt.size()>0) )
+                    n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot, if txt is not empty
             }
             std::map<std::string,bool>::iterator it=m.find(n);
             if (it==m.end())
@@ -4596,8 +4596,8 @@ void pushAllVrepVariableNamesThatStartSame_autoCompletionList(const std::string&
                 if (!hasDot)
                 {
                     size_t dp=n.find('.');
-                    if (dp!=std::string::npos)
-                        n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot
+                    if ( (dp!=std::string::npos)&&(txt.size()>0) )
+                        n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot, if txt is not empty
                 }
                 std::map<std::string,bool>::iterator it=m.find(n);
                 if (it==m.end())
@@ -4620,8 +4620,8 @@ void pushAllVrepVariableNamesThatStartSame_autoCompletionList(const std::string&
                     if (!hasDot)
                     {
                         size_t dp=n.find('.');
-                        if (dp!=std::string::npos)
-                            n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot
+                        if ( (dp!=std::string::npos)&&(txt.size()>0) )
+                            n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot, if txt is not empty
                     }
                     std::map<std::string,bool>::iterator it=m.find(n);
                     if (it==m.end())

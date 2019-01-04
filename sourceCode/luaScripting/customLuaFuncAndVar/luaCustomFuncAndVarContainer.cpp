@@ -249,8 +249,8 @@ void CLuaCustomFuncAndVarContainer::pushAllFunctionNamesThatStartSame_autoComple
                 if (!hasDot)
                 {
                     size_t dp=n.find('.');
-                    if (dp!=std::string::npos)
-                        n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot
+                    if ( (dp!=std::string::npos)&&(txt.size()>0) )
+                        n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot, if txt is not empty
                 }
                 std::map<std::string,bool>::iterator it=m.find(n);
                 if (it==m.end())
@@ -277,8 +277,8 @@ void CLuaCustomFuncAndVarContainer::pushAllVariableNamesThatStartSame_autoComple
                 if (!hasDot)
                 {
                     size_t dp=n.find('.');
-                    if (dp!=std::string::npos)
-                        n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot
+                    if ( (dp!=std::string::npos)&&(txt.size()>0) )
+                        n.erase(n.begin()+dp,n.end()); // we only push the text up to the dot, if txt is not empty
                 }
                 std::map<std::string,bool>::iterator it=m.find(n);
                 if (it==m.end())

@@ -18534,19 +18534,33 @@ simChar* simGetApiFunc_internal(simInt scriptHandleOrType,const simChar* apiWord
         }
         else
             scriptType=scriptHandleOrType;
-        if ( (scriptType>=0)&&(strlen(apiWord)>0) )
+        if ( (scriptType>=0) )//&&(strlen(apiWord)>0) )
         {
-
+            std::string apiW(apiWord);
+            bool funcs=true;
+            bool vars=true;
+            if (apiW.size()>0)
+            {
+                if ( (apiW[0]=='+')||(apiW[0]=='-') )
+                {
+                    vars=(apiW[0]!='+');
+                    funcs=(apiW[0]!='-');
+                    apiW.erase(0,1);
+                }
+            }
             std::vector<std::string> t;
             std::map<std::string,bool> map;
-
-            pushAllVrepFunctionNamesThatStartSame_autoCompletionList(apiWord,t,map,scriptType,threaded);
-            pushAllVrepVariableNamesThatStartSame_autoCompletionList(apiWord,t,map);
-            App::ct->luaCustomFuncAndVarContainer->pushAllFunctionNamesThatStartSame_autoCompletionList(apiWord,t,map);
-            App::ct->luaCustomFuncAndVarContainer->pushAllVariableNamesThatStartSame_autoCompletionList(apiWord,t,map);
-
+            if (funcs)
+            {
+                pushAllVrepFunctionNamesThatStartSame_autoCompletionList(apiW,t,map,scriptType,threaded);
+                App::ct->luaCustomFuncAndVarContainer->pushAllFunctionNamesThatStartSame_autoCompletionList(apiW,t,map);
+            }
+            if (vars)
+            {
+                pushAllVrepVariableNamesThatStartSame_autoCompletionList(apiW,t,map);
+                App::ct->luaCustomFuncAndVarContainer->pushAllVariableNamesThatStartSame_autoCompletionList(apiW,t,map);
+            }
             std::sort(t.begin(),t.end());
-
             std::string theWords;
             for (int i=0;i<int(t.size());i++)
             {
