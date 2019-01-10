@@ -313,12 +313,23 @@ void CUndoBufferCont::undo()
         return;
     if (App::mainWindow==NULL)
         return; // we are in headless mode
-    if (App::mainWindow->scintillaEditorContainer->areWindowsOpen())
-    {
-        App::uiThread->messageBox_information(App::mainWindow,strTranslate(IDSN_UNDO_REDO),strTranslate(IDS_UNDO_REDO_WITH_OPEN_SCRIPT_EDITOR_MESSAGE),VMESSAGEBOX_OKELI);
-        return;
-    }
 
+    if (App::userSettings->useOldCodeEditor)
+    {
+        if (App::mainWindow->scintillaEditorContainer->areWindowsOpen())
+        {
+            App::uiThread->messageBox_information(App::mainWindow,strTranslate(IDSN_UNDO_REDO),strTranslate(IDS_UNDO_REDO_WITH_OPEN_SCRIPT_EDITOR_MESSAGE),VMESSAGEBOX_OKELI);
+            return;
+        }
+    }
+    else
+    {
+        if (App::mainWindow->codeEditorContainer->areSceneEditorsOpen())
+        {
+            App::uiThread->messageBox_information(App::mainWindow,strTranslate(IDSN_UNDO_REDO),strTranslate(IDS_UNDO_REDO_WITH_OPEN_SCRIPT_EDITOR_MESSAGE),VMESSAGEBOX_OKELI);
+            return;
+        }
+    }
     _inUndoRoutineNow=true;
     // 1. We memorize this position: NOOOOOOO!!! Can cause subtle errors!! 
     if (_announceChangeGradualCalledTime!=-1)
@@ -387,12 +398,22 @@ void CUndoBufferCont::redo()
         return; // nothing to redo
     if (App::mainWindow==NULL)
         return; // we are in headless mode
-    if (App::mainWindow->scintillaEditorContainer->areWindowsOpen())
+    if (App::userSettings->useOldCodeEditor)
     {
-        App::uiThread->messageBox_information(App::mainWindow,strTranslate(IDSN_UNDO_REDO),strTranslate(IDS_UNDO_REDO_WITH_OPEN_SCRIPT_EDITOR_MESSAGE),VMESSAGEBOX_OKELI);
-        return;
+        if (App::mainWindow->scintillaEditorContainer->areWindowsOpen())
+        {
+            App::uiThread->messageBox_information(App::mainWindow,strTranslate(IDSN_UNDO_REDO),strTranslate(IDS_UNDO_REDO_WITH_OPEN_SCRIPT_EDITOR_MESSAGE),VMESSAGEBOX_OKELI);
+            return;
+        }
     }
-
+    else
+    {
+        if (App::mainWindow->codeEditorContainer->areSceneEditorsOpen())
+        {
+            App::uiThread->messageBox_information(App::mainWindow,strTranslate(IDSN_UNDO_REDO),strTranslate(IDS_UNDO_REDO_WITH_OPEN_SCRIPT_EDITOR_MESSAGE),VMESSAGEBOX_OKELI);
+            return;
+        }
+    }
     // 2. We go forward:
     _currentStateIndex++;
     std::vector<char> theBuff;

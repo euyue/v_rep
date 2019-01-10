@@ -443,25 +443,36 @@ void CQDlgScripts::on_qqScriptList_itemDoubleClicked(QListWidgetItem *item)
             CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(item->data(Qt::UserRole).toInt());
             if (it!=NULL)
             {
-                if ((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript)||(it->getScriptType()==sim_scripttype_jointctrlcallback)||(it->getScriptType()==sim_scripttype_contactcallback)||(it->getScriptType()==sim_scripttype_generalcallback))
-                    App::mainWindow->scintillaEditorContainer->openEditorForScript(it->getScriptID());
-                if (it->getScriptType()==sim_scripttype_customizationscript)
-                { // needs to be modal
-                    // Process the command via the simulation thread (delayed):
-                    C3DObject* theObj=App::ct->objCont->getObject(it->getObjectIDThatScriptIsAttachedTo_customization());
-                    SSimulationThreadCommand cmd;
-                    cmd.cmdId=OPEN_MODAL_CUSTOMIZATION_SCRIPT_EDITOR_CMD;
-                    cmd.intParams.push_back(theObj->getID());
-                    App::appendSimulationThreadCommand(cmd);
+                if (App::userSettings->useOldCodeEditor)
+                {
+                    if ((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript)||(it->getScriptType()==sim_scripttype_jointctrlcallback)||(it->getScriptType()==sim_scripttype_contactcallback)||(it->getScriptType()==sim_scripttype_generalcallback))
+                        App::mainWindow->scintillaEditorContainer->openEditorForScript(it->getScriptID());
+                    if (it->getScriptType()==sim_scripttype_customizationscript)
+                    { // needs to be modal
+                        // Process the command via the simulation thread (delayed):
+                        C3DObject* theObj=App::ct->objCont->getObject(it->getObjectIDThatScriptIsAttachedTo_customization());
+                        SSimulationThreadCommand cmd;
+                        cmd.cmdId=OPEN_MODAL_CUSTOMIZATION_SCRIPT_EDITOR_CMD;
+                        cmd.intParams.push_back(theObj->getID());
+                        App::appendSimulationThreadCommand(cmd);
+                    }
+                    if (it->getScriptType()==sim_scripttype_addonscript)
+                    { // needs to be modal
+                        CScintillaModalDlg dlg(sim_scripttype_addonscript,false,App::mainWindow);
+                        std::string dlgTitle("Add-on script '");
+                        dlgTitle+=it->getAddOnName();
+                        dlgTitle+="' (READ ONLY)";
+                        if (dlg.initialize(it->getScriptID(),dlgTitle.c_str(),true,true))
+                            dlg.makeDialogModal();
+                    }
                 }
-                if (it->getScriptType()==sim_scripttype_addonscript)
-                { // needs to be modal
-                    CScintillaModalDlg dlg(sim_scripttype_addonscript,false,App::mainWindow);
-                    std::string dlgTitle("Add-on script '");
-                    dlgTitle+=it->getAddOnName();
-                    dlgTitle+="' (READ ONLY)";
-                    if (dlg.initialize(it->getScriptID(),dlgTitle.c_str(),true,true))
-                        dlg.makeDialogModal();
+                else
+                {
+                    // Process the command via the simulation thread (delayed):
+                    SSimulationThreadCommand cmd;
+                    cmd.cmdId=OPEN_SCRIPT_EDITOR_CMD;
+                    cmd.intParams.push_back(it->getScriptID());
+                    App::appendSimulationThreadCommand(cmd);
                 }
             }
         }

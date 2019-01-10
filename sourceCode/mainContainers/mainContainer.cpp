@@ -98,7 +98,12 @@ void CMainContainer::simulationAboutToStart()
 
 #ifdef SIM_WITH_GUI
     if (App::mainWindow!=NULL)
-        App::mainWindow->scintillaEditorContainer->applyChanges(false);
+    {
+        if (App::userSettings->useOldCodeEditor)
+            App::mainWindow->scintillaEditorContainer->applyChanges(false);
+        else
+            App::mainWindow->codeEditorContainer->simulationAboutToStart();
+    }
 #endif
 
     if (App::ct->dynamicsContainer->getDynamicEngineType(NULL)==sim_physics_newton)
@@ -200,6 +205,11 @@ void CMainContainer::simulationAboutToEnd()
     delete[] (char*)retVal;
 
     luaScriptContainer->simulationAboutToEnd(); // will call a last time the main and all non-threaded child scripts, then reset them
+
+#ifdef SIM_WITH_GUI
+    if (App::mainWindow!=NULL)
+        App::mainWindow->codeEditorContainer->simulationAboutToEnd();
+#endif
 }
 
 void CMainContainer::simulationEnded(bool removeNewObjects)
@@ -508,6 +518,9 @@ int CMainContainer::destroyCurrentInstance()
     }
 
 #ifdef SIM_WITH_GUI
+    if (App::mainWindow!=NULL)
+        App::mainWindow->codeEditorContainer->sceneClosed(environment->getSceneUniqueID());
+
     SUIThreadCommand cmdIn;
     SUIThreadCommand cmdOut;
     cmdIn.cmdId=INSTANCE_ABOUT_TO_BE_DESTROYED_UITHREADCMD;
@@ -695,6 +708,10 @@ void CMainContainer::emptyScene(bool notCalledFromUndoFunction)
     if (notCalledFromUndoFunction)
         undoBufferContainer->emptySceneProcedure();
 
+#ifdef SIM_WITH_GUI
+    if (App::mainWindow!=NULL)
+        App::mainWindow->codeEditorContainer->sceneClosed(environment->getSceneUniqueID());
+#endif
     environment->setSceneIsClosingFlag(true); // so that attached scripts can react to it
     // Following is saved (what does it mean??)
     objCont->removeSceneDependencies();

@@ -563,12 +563,10 @@ extern int _simGetPersistentDataTags(luaWrap_lua_State* L);
 extern int _simGetRandom(luaWrap_lua_State* L);
 extern int _simTest(luaWrap_lua_State* L);
 
-extern int _simTestCE_openModal(luaWrap_lua_State* L);
-extern int _simTestCE_open(luaWrap_lua_State* L);
-extern int _simTestCE_setText(luaWrap_lua_State* L);
-extern int _simTestCE_getText(luaWrap_lua_State* L);
-extern int _simTestCE_show(luaWrap_lua_State* L);
-extern int _simTestCE_close(luaWrap_lua_State* L);
+extern int _simTextEditorOpen(luaWrap_lua_State* L);
+extern int _simTextEditorClose(luaWrap_lua_State* L);
+extern int _simTextEditorShow(luaWrap_lua_State* L);
+extern int _simTextEditorGetInfo(luaWrap_lua_State* L);
 
 
 // DEPRECATED

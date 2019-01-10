@@ -125,7 +125,7 @@ typedef char (__cdecl *ptrv_repMesh_removePointCloudPointsFromOctree)(void*,cons
 typedef char* (__cdecl *ptrCodeEditor_openModal)(const char* initText,const char* properties,int* positionAndSize);
 typedef int (__cdecl *ptrCodeEditor_open)(const char* initText,const char* properties);
 typedef int (__cdecl *ptrCodeEditor_setText)(int handle,const char* text,int insertMode);
-typedef char* (__cdecl *ptrCodeEditor_getText)(int handle);
+typedef char* (__cdecl *ptrCodeEditor_getText)(int handle,int* positionAndSize);
 typedef int (__cdecl *ptrCodeEditor_show)(int handle,int showState);
 typedef int (__cdecl *ptrCodeEditor_close)(int handle,int* positionAndSize);
 
@@ -417,7 +417,7 @@ public:
     static bool codeEditor_openModal(const char* initText,const char* properties,std::string& modifiedText,int* positionAndSize);
     static int codeEditor_open(const char* initText,const char* properties);
     static int codeEditor_setText(int handle,const char* text,int insertMode);
-    static bool codeEditor_getText(int handle,std::string& text);
+    static bool codeEditor_getText(int handle,std::string& text,int* positionAndSize);
     static int codeEditor_show(int handle,int showState);
     static int codeEditor_close(int handle,int* positionAndSize);
 

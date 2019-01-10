@@ -5224,10 +5224,15 @@ simInt simSetScriptText_internal(simInt scriptHandle,const simChar* scriptText)
 #ifdef SIM_WITH_GUI
             if (App::mainWindow!=NULL)
             {
-                bool wasOpen=App::mainWindow->scintillaEditorContainer->closeEditor(scriptHandle);
-                it->setScriptText(scriptText,NULL);
-                if (wasOpen)
-                    App::mainWindow->scintillaEditorContainer->openEditorForScript(scriptHandle);
+                if (App::userSettings->useOldCodeEditor)
+                {
+                    bool wasOpen=App::mainWindow->scintillaEditorContainer->closeEditor(scriptHandle);
+                    it->setScriptText(scriptText,NULL);
+                    if (wasOpen)
+                        App::mainWindow->scintillaEditorContainer->openEditorForScript(scriptHandle);
+                }
+                else
+                    App::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptHandle,nullptr,true);
             }
             else
 #endif
@@ -5267,10 +5272,15 @@ const simChar* simGetScriptText_internal(simInt scriptHandle)
 #ifdef SIM_WITH_GUI
         if (App::mainWindow!=NULL)
         {
-            bool wasOpen=App::mainWindow->scintillaEditorContainer->closeEditor(scriptHandle);
-            retVal=it->getScriptText(NULL);
-            if (wasOpen)
-                App::mainWindow->scintillaEditorContainer->openEditorForScript(scriptHandle);
+            if (App::userSettings->useOldCodeEditor)
+            {
+                bool wasOpen=App::mainWindow->scintillaEditorContainer->closeEditor(scriptHandle);
+                retVal=it->getScriptText(NULL);
+                if (wasOpen)
+                    App::mainWindow->scintillaEditorContainer->openEditorForScript(scriptHandle);
+            }
+            else
+                App::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptHandle,nullptr,false);
         }
         else
 #endif
@@ -9449,8 +9459,28 @@ simInt simAuxiliaryConsoleOpen_internal(const simChar* title,simInt maxLines,sim
 #ifdef SIM_WITH_GUI
         if (App::mainWindow!=NULL)
         {
-            CConsoleInitInfo* info=new CConsoleInitInfo(mode,title,maxLines,position,size,textColor,backgroundColor,App::ct->getCurrentInstanceIndex());
-            retVal=App::mainWindow->scintillaConsoleContainer->addConsoleInfo(info);
+            if (App::userSettings->useOldCodeEditor)
+            {
+                CConsoleInitInfo* info=new CConsoleInitInfo(mode,title,maxLines,position,size,textColor,backgroundColor,App::ct->getCurrentInstanceIndex());
+                retVal=App::mainWindow->scintillaConsoleContainer->addConsoleInfo(info);
+            }
+            else
+            {
+                int tCol[3]={0,0,0};
+                int bCol[3]={255,255,255};
+                for (size_t i=0;i<3;i++)
+                {
+                    if (textColor!=nullptr)
+                        tCol[i]=int(textColor[i]*255.1f);
+                    if (backgroundColor!=nullptr)
+                        bCol[i]=int(backgroundColor[i]*255.1f);
+                }
+                if (position!=nullptr)
+                    printf("Pos: %i, %i\n",position[0],position[1]);
+                if (size!=nullptr)
+                    printf("Size: %i, %i\n",size[0],size[1]);
+                retVal=App::mainWindow->codeEditorContainer->openConsole(title,maxLines,mode,position,size,tCol,bCol,-1);
+            }
         }
 #endif
         return(retVal);
@@ -9464,15 +9494,21 @@ simInt simAuxiliaryConsoleClose_internal(simInt consoleHandle)
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
 #ifdef SIM_WITH_GUI
-        if ( (App::mainWindow!=NULL)&&(App::mainWindow->scintillaConsoleContainer->removeConsole(consoleHandle)) )
-            return(1);
+        if (App::userSettings->useOldCodeEditor)
+        {
+            if ( (App::mainWindow!=NULL)&&(App::mainWindow->scintillaConsoleContainer->removeConsole(consoleHandle)) )
+                return(1);
+        }
+        else
+        {
+            if ( (App::mainWindow!=NULL)&&(App::mainWindow->codeEditorContainer->close(consoleHandle,nullptr,nullptr,nullptr)) )
+                return(1);
+        }
 #endif
         return(0);
     }
@@ -9494,13 +9530,29 @@ simInt simAuxiliaryConsoleShow_internal(simInt consoleHandle,simBool showState)
         int handle=consoleHandle&0x000fffff;
         if ((handleFlags&sim_handleflag_extended)!=0)
         { // we just wanna now if the console is still open
-            if ( (App::mainWindow!=NULL)&&(App::mainWindow->scintillaConsoleContainer->isConsoleHandleValid(handle)) )
-                return(1);
+            if (App::userSettings->useOldCodeEditor)
+            {
+                if ( (App::mainWindow!=NULL)&&(App::mainWindow->scintillaConsoleContainer->isConsoleHandleValid(handle)) )
+                    return(1);
+            }
+            else
+            {
+                if ( (App::mainWindow!=NULL)&&(App::mainWindow->codeEditorContainer->isHandleValid(handle)) )
+                    return(1);
+            }
         }
         else
         { // normal operation
-            if ( (App::mainWindow!=NULL)&&(App::mainWindow->scintillaConsoleContainer->consoleSetShowState(handle,showState!=0)) )
-                return(1);
+            if (App::userSettings->useOldCodeEditor)
+            {
+                if ( (App::mainWindow!=NULL)&&(App::mainWindow->scintillaConsoleContainer->consoleSetShowState(handle,showState!=0)) )
+                    return(1);
+            }
+            else
+            {
+                if (App::mainWindow!=NULL)
+                    return(App::mainWindow->codeEditorContainer->showOrHide(handle,showState!=0));
+            }
         }
 #endif
         return(0);
@@ -9521,18 +9573,29 @@ simInt simAuxiliaryConsolePrint_internal(simInt consoleHandle,const simChar* tex
 #ifdef SIM_WITH_GUI
         if (App::mainWindow!=NULL)
         {
-            CScintillaConsoleDlg* it=App::mainWindow->scintillaConsoleContainer->getConsoleFromHandle(consoleHandle);
-            if (it==NULL)
+            if (App::userSettings->useOldCodeEditor)
             {
-                CConsoleInitInfo* info=App::mainWindow->scintillaConsoleContainer->getConsoleInfoFromHandle(consoleHandle);
-                if (info==NULL)
-                    return(0); // Kind of silent error
+                CScintillaConsoleDlg* it=App::mainWindow->scintillaConsoleContainer->getConsoleFromHandle(consoleHandle);
+                if (it==NULL)
+                {
+                    CConsoleInitInfo* info=App::mainWindow->scintillaConsoleContainer->getConsoleInfoFromHandle(consoleHandle);
+                    if (info==NULL)
+                        return(0); // Kind of silent error
+                    else
+                        info->addText(text);
+                }
                 else
-                    info->addText(text);
+                    it->info->addText(text);
+                return(1);
             }
             else
-                it->info->addText(text);
-            return(1);
+            {
+                if (text==nullptr)
+                    App::mainWindow->codeEditorContainer->setText(consoleHandle,"");
+                if (App::mainWindow->codeEditorContainer->appendText(consoleHandle,text))
+                    return(1);
+                return(0);
+            }
         }
 #endif
         return(1); // in headless mode we fake success
@@ -18042,32 +18105,45 @@ simChar* simOpenTextEditor_internal(const simChar* initText,const simChar* xml,s
     if (!isSimulatorInitialized(__func__))
         return(NULL);
 
-    SUIThreadCommand cmdIn;
-    SUIThreadCommand cmdOut;
-    cmdIn.cmdId=OPEN_MODAL_USER_EDITOR_UITHREADCMD;
-    std::string _xml;
-    if (xml!=NULL)
-        _xml=xml;
-    cmdIn.stringParams.push_back(_xml);
-    cmdIn.stringParams.push_back(initText);
     char* retVal=NULL;
+    if (App::userSettings->useOldCodeEditor)
     {
-        // Following instruction very important if the function below tries to lock resources (or a plugin it calls!):
-        SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-        retVal=new char[cmdOut.stringParams[0].size()+1];
-        for (size_t i=0;i<cmdOut.stringParams[0].size();i++)
-            retVal[i]=cmdOut.stringParams[0][i];
-        retVal[cmdOut.stringParams[0].size()]=0;
-        if (various!=NULL)
+        SUIThreadCommand cmdIn;
+        SUIThreadCommand cmdOut;
+        cmdIn.cmdId=OPEN_MODAL_USER_EDITOR_UITHREADCMD;
+        std::string _xml;
+        if (xml!=NULL)
+            _xml=xml;
+        cmdIn.stringParams.push_back(_xml);
+        cmdIn.stringParams.push_back(initText);
         {
-            various[1]=cmdOut.intParams[0];
-            various[2]=cmdOut.intParams[1];
-            various[3]=cmdOut.intParams[2];
-            various[4]=cmdOut.intParams[3];
+            // Following instruction very important if the function below tries to lock resources (or a plugin it calls!):
+            SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
+            App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+            retVal=new char[cmdOut.stringParams[0].size()+1];
+            for (size_t i=0;i<cmdOut.stringParams[0].size();i++)
+                retVal[i]=cmdOut.stringParams[0][i];
+            retVal[cmdOut.stringParams[0].size()]=0;
+            if (various!=NULL)
+            {
+                various[0]=cmdOut.intParams[0];
+                various[1]=cmdOut.intParams[1];
+                various[2]=cmdOut.intParams[2];
+                various[3]=cmdOut.intParams[3];
+            }
         }
     }
-
+    else
+    {
+        if (App::mainWindow!=nullptr)
+        {
+            std::string txt=App::mainWindow->codeEditorContainer->openModalTextEditor(initText,xml,various);
+            retVal=new char[txt.size()+1];
+            for (size_t i=0;i<txt.size();i++)
+                retVal[i]=txt[i];
+            retVal[txt.size()]=0;
+        }
+    }
     return(retVal);
 }
 
@@ -18784,18 +18860,37 @@ simInt simEventNotification_internal(const simChar* event)
                 {
                     const char* msg=rootElement->Attribute("msg");
                     const char* handle=rootElement->Attribute("handle");
-                    if ((msg!=NULL)&&(handle!=NULL))
+                    const char* data=rootElement->Attribute("data");
+                    if ((msg!=nullptr)&&(handle!=nullptr)&&(data!=nullptr))
                     {
-                        if (strcmp(msg,"close")==0)
+                        if (strcmp(msg,"closeEditor")==0)
                         {
                             int h;
                             if (tt::stringToInt(handle,h))
                             {
-                                if (CPluginContainer::isCodeEditorPluginAvailable())
-                                { // testing
-                                    retVal=CPluginContainer::codeEditor_close(h,NULL);
+                                if (strlen(data)!=0)
+                                {
+                                    int callingScript=App::mainWindow->codeEditorContainer->getCallingScriptHandle(h);
+                                    CInterfaceStack* stack=new CInterfaceStack();
+                                    int posAndSize[4];
+                                    std::string txt=App::mainWindow->codeEditorContainer->getText(h,posAndSize);
+                                    stack->pushStringOntoStack(txt.c_str(),0);
+                                    stack->pushIntArrayTableOntoStack(posAndSize+0,2);
+                                    stack->pushIntArrayTableOntoStack(posAndSize+2,2);
+                                    int stackId=App::ct->interfaceStackContainer->addStack(stack);
+                                    simCallScriptFunctionEx_internal(callingScript,data,stackId);
+                                    App::ct->interfaceStackContainer->destroyStack(stackId);
                                 }
+                                if ( (strlen(data)==0)||App::mainWindow->codeEditorContainer->getCloseAfterCallbackCalled(h) )
+                                    App::mainWindow->codeEditorContainer->close(h,nullptr,nullptr,nullptr);
+                                retVal=1;
                             }
+                        }
+                        if (strcmp(msg,"restartScript")==0)
+                        {
+                            int h;
+                            if (tt::stringToInt(handle,h))
+                                App::mainWindow->codeEditorContainer->restartScript(h);
                         }
                     }
                 }

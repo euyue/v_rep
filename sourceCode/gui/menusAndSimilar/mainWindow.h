@@ -24,6 +24,7 @@
 #include "scintillaConsoleContainer.h"
 #include "scintillaEditorContainer.h"
 #include "scintillaUserNonModalDlgContainer.h"
+#include "codeEditorContainer.h"
 #include "simThread.h"
 #include "modelFolderWidget.h"
 #include "modelListWidget.h"
@@ -145,6 +146,7 @@ public:
     CScintillaConsoleContainer* scintillaConsoleContainer;
     CScintillaEditorContainer* scintillaEditorContainer;
     CScintillaUserNonModalDlgContainer* scintillaUserNonModalDlgContainer;
+    CCodeEditorContainer* codeEditorContainer;
 
     void onLeftMouseButtonDownTT(int xPos,int yPos);
     void onMiddleMouseButtonDownTT(int xPos,int yPos);

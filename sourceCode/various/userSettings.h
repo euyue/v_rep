@@ -185,48 +185,6 @@ public:
     int mainScriptColor_word3[3];
     int mainScriptColor_word4[3];
 
-    int jointCallbackScriptColor_background[3];
-    int jointCallbackScriptColor_selection[3];
-    int jointCallbackScriptColor_comment[3];
-    int jointCallbackScriptColor_number[3];
-    int jointCallbackScriptColor_string[3];
-    int jointCallbackScriptColor_character[3];
-    int jointCallbackScriptColor_operator[3];
-    int jointCallbackScriptColor_preprocessor[3];
-    int jointCallbackScriptColor_identifier[3];
-    int jointCallbackScriptColor_word[3];
-    int jointCallbackScriptColor_word2[3];
-    int jointCallbackScriptColor_word3[3];
-    int jointCallbackScriptColor_word4[3];
-
-    int contactCallbackScriptColor_background[3];
-    int contactCallbackScriptColor_selection[3];
-    int contactCallbackScriptColor_comment[3];
-    int contactCallbackScriptColor_number[3];
-    int contactCallbackScriptColor_string[3];
-    int contactCallbackScriptColor_character[3];
-    int contactCallbackScriptColor_operator[3];
-    int contactCallbackScriptColor_preprocessor[3];
-    int contactCallbackScriptColor_identifier[3];
-    int contactCallbackScriptColor_word[3];
-    int contactCallbackScriptColor_word2[3];
-    int contactCallbackScriptColor_word3[3];
-    int contactCallbackScriptColor_word4[3];
-
-    int generalCallbackScriptColor_background[3];
-    int generalCallbackScriptColor_selection[3];
-    int generalCallbackScriptColor_comment[3];
-    int generalCallbackScriptColor_number[3];
-    int generalCallbackScriptColor_string[3];
-    int generalCallbackScriptColor_character[3];
-    int generalCallbackScriptColor_operator[3];
-    int generalCallbackScriptColor_preprocessor[3];
-    int generalCallbackScriptColor_identifier[3];
-    int generalCallbackScriptColor_word[3];
-    int generalCallbackScriptColor_word2[3];
-    int generalCallbackScriptColor_word3[3];
-    int generalCallbackScriptColor_word4[3];
-
     int customizationScriptColor_background[3];
     int customizationScriptColor_selection[3];
     int customizationScriptColor_comment[3];
@@ -241,20 +199,6 @@ public:
     int customizationScriptColor_word3[3];
     int customizationScriptColor_word4[3];
 
-    int addOnScriptColor_background[3];
-    int addOnScriptColor_selection[3];
-    int addOnScriptColor_comment[3];
-    int addOnScriptColor_number[3];
-    int addOnScriptColor_string[3];
-    int addOnScriptColor_character[3];
-    int addOnScriptColor_operator[3];
-    int addOnScriptColor_preprocessor[3];
-    int addOnScriptColor_identifier[3];
-    int addOnScriptColor_word[3];
-    int addOnScriptColor_word2[3];
-    int addOnScriptColor_word3[3];
-    int addOnScriptColor_word4[3];
-
     int highResDisplay;
     bool noEdgesWhenMouseDownInCameraView;
     bool noTexturesWhenMouseDownInCameraView;
@@ -262,6 +206,8 @@ public:
     int hierarchyRefreshCnt;
     int desktopRecordingIndex;
     int desktopRecordingWidth;
+
+    bool useOldCodeEditor;
 
 private:
     bool _supportOldApiNotation;

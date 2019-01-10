@@ -1207,20 +1207,31 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
             openScriptEditor=(retVals[0]!=1);
             if (openScriptEditor)
             {
-                if (it->getScriptType()==sim_scripttype_customizationscript)
-                { // With customization scripts, we wanna open a modal dialog:
-                    C3DObject* theObj=App::ct->objCont->getObject(it->getObjectIDThatScriptIsAttachedTo_customization());
-                    if (theObj!=NULL)
-                    {
-                        // Process the command via the simulation thread (delayed):
-                        SSimulationThreadCommand cmd;
-                        cmd.cmdId=OPEN_MODAL_CUSTOMIZATION_SCRIPT_EDITOR_CMD;
-                        cmd.intParams.push_back(theObj->getID());
-                        App::appendSimulationThreadCommand(cmd);
+                if (App::userSettings->useOldCodeEditor)
+                {
+                    if (it->getScriptType()==sim_scripttype_customizationscript)
+                    { // With customization scripts, we wanna open a modal dialog:
+                        C3DObject* theObj=App::ct->objCont->getObject(it->getObjectIDThatScriptIsAttachedTo_customization());
+                        if (theObj!=NULL)
+                        {
+                            // Process the command via the simulation thread (delayed):
+                            SSimulationThreadCommand cmd;
+                            cmd.cmdId=OPEN_MODAL_CUSTOMIZATION_SCRIPT_EDITOR_CMD;
+                            cmd.intParams.push_back(theObj->getID());
+                            App::appendSimulationThreadCommand(cmd);
+                        }
                     }
+                    else
+                        App::mainWindow->scintillaEditorContainer->openEditorForScript(it->getScriptID());
                 }
                 else
-                    App::mainWindow->scintillaEditorContainer->openEditorForScript(it->getScriptID());
+                {
+                    // Process the command via the simulation thread (delayed):
+                    SSimulationThreadCommand cmd;
+                    cmd.cmdId=OPEN_SCRIPT_EDITOR_CMD;
+                    cmd.intParams.push_back(it->getScriptID());
+                    App::appendSimulationThreadCommand(cmd);
+                }
             }
         }
         return(true);

@@ -1326,53 +1326,56 @@ void CLuaScriptObject::perform3DObjectLoadingMapping(std::vector<int>* map)
 
 bool CLuaScriptObject::announce3DObjectWillBeErased(int objectID,bool copyBuffer)
 { // script will be erased if attached to objectID (if threaded simulation is not running!)
-    if (_objectIDAttachedTo_child==objectID)
+    bool retVal=false;
+    if (copyBuffer)
+        retVal=(_objectIDAttachedTo_child==objectID)||(_objectIDAttachedTo_callback==objectID)||(_objectIDAttachedTo_customization==objectID);
+    else
     {
-        if (copyBuffer)
-            return(true);
-        if (!App::ct->simulation->isSimulationStopped()) // Removed the if(_threadedExecution()) thing on 2008/12/08
-        { // threaded scripts cannot be directly erased, since the Lua state needs to be cleared in the thread that created it
+        bool closeCodeEditor=false;
+        if (_objectIDAttachedTo_child==objectID)
+        {
+            closeCodeEditor=true;
+            if (!App::ct->simulation->isSimulationStopped()) // Removed the if(_threadedExecution()) thing on 2008/12/08
+            { // threaded scripts cannot be directly erased, since the Lua state needs to be cleared in the thread that created it
+                _objectIDAttachedTo_child=-1; // This is for a potential threaded simulation running
+                _flaggedForDestruction=true;
+                retVal=!_inExecutionNow; // from false to !_inExecutionNow on 8/9/2016
+            }
+            else
+                retVal=true;
+        }
+        if ( (_objectIDAttachedTo_callback==objectID)||(_objectIDAttachedTo_customization==objectID) )
+        {
+            closeCodeEditor=true;
+            _flaggedForDestruction=true;
+            retVal=!_inExecutionNow; // from false to !_inExecutionNow on 26/8/2016 (i.e. no delayed destruction anymore. Important since the clean-up section of custom. scripts can contain code that refers to the attached object, etc.)
+        }
+        if (closeCodeEditor)
+        {
 #ifdef SIM_WITH_GUI
             if (App::mainWindow!=NULL)
-                App::mainWindow->scintillaEditorContainer->closeEditor(scriptID);
+            {
+                if (App::userSettings->useOldCodeEditor)
+                    App::mainWindow->scintillaEditorContainer->closeEditor(scriptID);
+                else
+                    App::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptID,_previousEditionWindowPosAndSize,true);
+            }
 #endif
-            _objectIDAttachedTo_child=-1; // This is for a potential threaded simulation running
-            _flaggedForDestruction=true;
-            return(!_inExecutionNow); // from false to !_inExecutionNow on 8/9/2016
         }
-        else
-            return(true);
     }
-    if (_objectIDAttachedTo_callback==objectID)
-    {
-        if (copyBuffer)
-            return(true);
-        _flaggedForDestruction=true;
-#ifdef SIM_WITH_GUI
-        if (App::mainWindow!=NULL)
-            App::mainWindow->scintillaEditorContainer->closeEditor(scriptID);
-#endif
-        return(!_inExecutionNow); // from false to !_inExecutionNow on 26/8/2016 (i.e. no delayed destruction anymore)
-    }
-    if (_objectIDAttachedTo_customization==objectID)
-    {
-        if (copyBuffer)
-            return(true);
-        _flaggedForDestruction=true;
-#ifdef SIM_WITH_GUI
-        if (App::mainWindow!=NULL)
-            App::mainWindow->scintillaEditorContainer->closeEditor(scriptID);
-#endif
-        return(!_inExecutionNow); // from false to !_inExecutionNow on 26/8/2016 (i.e. no delayed destruction anymore. Important since the clean-up section of custom. scripts can contain code that refers to the attached object, etc.)
-    }
-    return(false);
+    return(retVal);
 }
 
 int CLuaScriptObject::flagScriptForRemoval()
 { // retVal: 0--> cannot be removed, 1 --> will be removed in a delayed manner, 2--> can be removed now
 #ifdef SIM_WITH_GUI
     if (App::mainWindow!=NULL)
-        App::mainWindow->scintillaEditorContainer->closeEditor(scriptID);
+    {
+        if (App::userSettings->useOldCodeEditor)
+            App::mainWindow->scintillaEditorContainer->closeEditor(scriptID);
+        else
+            App::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptID,_previousEditionWindowPosAndSize,true);
+    }
 #endif
 
     if (App::ct->simulation->isSimulationStopped())

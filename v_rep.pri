@@ -797,6 +797,7 @@ WITH_GUI {
     HEADERS += $$PWD/sourceCode/gui/mainContainers/applicationContainers/scintillaConsoleContainer.h \
         $$PWD/sourceCode/gui/mainContainers/applicationContainers/globalGuiTextureContainer.h \
         $$PWD/sourceCode/gui/mainContainers/applicationContainers/scintillaUserNonModalDlgContainer.h \
+        $$PWD/sourceCode/gui/mainContainers/applicationContainers/codeEditorContainer.h \
 
     HEADERS += $$PWD/sourceCode/gui/editModes/editModeContainer.h \
         $$PWD/sourceCode/gui/editModes/shapeEditMode.h \
@@ -1295,6 +1296,7 @@ WITH_GUI {
     SOURCES += $$PWD/sourceCode/gui/mainContainers/applicationContainers/scintillaConsoleContainer.cpp \
         $$PWD/sourceCode/gui/mainContainers/applicationContainers/globalGuiTextureContainer.cpp \
         $$PWD/sourceCode/gui/mainContainers/applicationContainers/scintillaUserNonModalDlgContainer.cpp \
+        $$PWD/sourceCode/gui/mainContainers/applicationContainers/codeEditorContainer.cpp \
 
     SOURCES += $$PWD/sourceCode/gui/editModes/editModeContainer.cpp \
         $$PWD/sourceCode/gui/editModes/shapeEditMode.cpp \

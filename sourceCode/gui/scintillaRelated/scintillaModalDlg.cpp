@@ -120,23 +120,6 @@ void CScintillaModalDlg::_setColorsAndMainStyles()
     unsigned int colWord3=VRGBW(App::userSettings->customizationScriptColor_word3);
     unsigned int colWord4=VRGBW(App::userSettings->customizationScriptColor_word4);
 
-    if (_scriptType==sim_scripttype_addonscript)
-    {
-        colBackground=VRGBW(App::userSettings->addOnScriptColor_background);
-        colSelection=VRGBW(App::userSettings->addOnScriptColor_selection);
-        colComment=VRGBW(App::userSettings->addOnScriptColor_comment);
-        colNumber=VRGBW(App::userSettings->addOnScriptColor_number);
-        colString=VRGBW(App::userSettings->addOnScriptColor_string);
-        colCharacter=VRGBW(App::userSettings->addOnScriptColor_character);
-        colOperator=VRGBW(App::userSettings->addOnScriptColor_operator);
-        colPreprocessor=VRGBW(App::userSettings->addOnScriptColor_preprocessor);
-        colIdentifier=VRGBW(App::userSettings->addOnScriptColor_identifier);
-        colWord=VRGBW(App::userSettings->addOnScriptColor_word);
-        colWord2=VRGBW(App::userSettings->addOnScriptColor_word2);
-        colWord3=VRGBW(App::userSettings->addOnScriptColor_word3);
-        colWord4=VRGBW(App::userSettings->addOnScriptColor_word4);
-    }
-
     static SScintillaColors syntaxColors[]= 
     {
         {SCE_LUA_COMMENT,colComment},

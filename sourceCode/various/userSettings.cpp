@@ -91,6 +91,7 @@
 #define _USR_ENABLE_OLD_JOINT_CALLBACK_SCRIPT_EDITION "enableOldJointCallbackScriptEdition"
 #define _USR_ENABLE_OLD_MILL_OBJECTS "enableOldMillObjects"
 #define _USR_ENABLE_OLD_MIRROR_OBJECTS "enableOldMirrorObjects"
+#define _USR_ENABLE_OLD_CODE_EDITOR "useOldCodeEditor"
 
 
 #define _USR_ABORT_SCRIPT_EXECUTION_BUTTON "abortScriptExecutionButton"
@@ -164,48 +165,6 @@
 #define _USR_MAIN_SCRIPT_COLOR_WORD3 "mainScriptColor_word3"
 #define _USR_MAIN_SCRIPT_COLOR_WORD4 "mainScriptColor_word4"
 
-#define _USR_JOINT_CALLBACK_SCRIPT_COLOR_BACKGROUND "jointCallbackScriptColor_background"
-#define _USR_JOINT_CALLBACK_SCRIPT_COLOR_SELECTION "jointCallbackScriptColor_selection"
-#define _USR_JOINT_CALLBACK_SCRIPT_COLOR_COMMENT "jointCallbackScriptColor_comment"
-#define _USR_JOINT_CALLBACK_SCRIPT_COLOR_NUMBER "jointCallbackScriptColor_number"
-#define _USR_JOINT_CALLBACK_SCRIPT_COLOR_STRING "jointCallbackScriptColor_string"
-#define _USR_JOINT_CALLBACK_SCRIPT_COLOR_CHARACTER "jointCallbackScriptColor_character"
-#define _USR_JOINT_CALLBACK_SCRIPT_COLOR_OPERATOR "jointCallbackScriptColor_operator"
-#define _USR_JOINT_CALLBACK_SCRIPT_COLOR_PREPROCESSOR "jointCallbackScriptColor_preprocessor"
-#define _USR_JOINT_CALLBACK_SCRIPT_COLOR_IDENTIFIER "jointCallbackScriptColor_identifier"
-#define _USR_JOINT_CALLBACK_SCRIPT_COLOR_WORD "jointCallbackScriptColor_word"
-#define _USR_JOINT_CALLBACK_SCRIPT_COLOR_WORD2 "jointCallbackScriptColor_word2"
-#define _USR_JOINT_CALLBACK_SCRIPT_COLOR_WORD3 "jointCallbackScriptColor_word3"
-#define _USR_JOINT_CALLBACK_SCRIPT_COLOR_WORD4 "jointCallbackScriptColor_word4"
-
-#define _USR_CONTACT_CALLBACK_SCRIPT_COLOR_BACKGROUND "contactCallbackScriptColor_background"
-#define _USR_CONTACT_CALLBACK_SCRIPT_COLOR_SELECTION "contactCallbackScriptColor_selection"
-#define _USR_CONTACT_CALLBACK_SCRIPT_COLOR_COMMENT "contactCallbackScriptColor_comment"
-#define _USR_CONTACT_CALLBACK_SCRIPT_COLOR_NUMBER "contactCallbackScriptColor_number"
-#define _USR_CONTACT_CALLBACK_SCRIPT_COLOR_STRING "contactCallbackScriptColor_string"
-#define _USR_CONTACT_CALLBACK_SCRIPT_COLOR_CHARACTER "contactCallbackScriptColor_character"
-#define _USR_CONTACT_CALLBACK_SCRIPT_COLOR_OPERATOR "contactCallbackScriptColor_operator"
-#define _USR_CONTACT_CALLBACK_SCRIPT_COLOR_PREPROCESSOR "contactCallbackScriptColor_preprocessor"
-#define _USR_CONTACT_CALLBACK_SCRIPT_COLOR_IDENTIFIER "contactCallbackScriptColor_identifier"
-#define _USR_CONTACT_CALLBACK_SCRIPT_COLOR_WORD "contactCallbackScriptColor_word"
-#define _USR_CONTACT_CALLBACK_SCRIPT_COLOR_WORD2 "contactCallbackScriptColor_word2"
-#define _USR_CONTACT_CALLBACK_SCRIPT_COLOR_WORD3 "contactCallbackScriptColor_word3"
-#define _USR_CONTACT_CALLBACK_SCRIPT_COLOR_WORD4 "contactCallbackScriptColor_word4"
-
-#define _USR_GENERAL_CALLBACK_SCRIPT_COLOR_BACKGROUND "generalCallbackScriptColor_background"
-#define _USR_GENERAL_CALLBACK_SCRIPT_COLOR_SELECTION "generalCallbackScriptColor_selection"
-#define _USR_GENERAL_CALLBACK_SCRIPT_COLOR_COMMENT "generalCallbackScriptColor_comment"
-#define _USR_GENERAL_CALLBACK_SCRIPT_COLOR_NUMBER "generalCallbackScriptColor_number"
-#define _USR_GENERAL_CALLBACK_SCRIPT_COLOR_STRING "generalCallbackScriptColor_string"
-#define _USR_GENERAL_CALLBACK_SCRIPT_COLOR_CHARACTER "generalCallbackScriptColor_character"
-#define _USR_GENERAL_CALLBACK_SCRIPT_COLOR_OPERATOR "generalCallbackScriptColor_operator"
-#define _USR_GENERAL_CALLBACK_SCRIPT_COLOR_PREPROCESSOR "generalCallbackScriptColor_preprocessor"
-#define _USR_GENERAL_CALLBACK_SCRIPT_COLOR_IDENTIFIER "generalCallbackScriptColor_identifier"
-#define _USR_GENERAL_CALLBACK_SCRIPT_COLOR_WORD "generalCallbackScriptColor_word"
-#define _USR_GENERAL_CALLBACK_SCRIPT_COLOR_WORD2 "generalCallbackScriptColor_word2"
-#define _USR_GENERAL_CALLBACK_SCRIPT_COLOR_WORD3 "generalCallbackScriptColor_word3"
-#define _USR_GENERAL_CALLBACK_SCRIPT_COLOR_WORD4 "generalCallbackScriptColor_word4"
-
 #define _USR_CUSTOMIZATION_SCRIPT_COLOR_BACKGROUND "customizationScriptColor_background"
 #define _USR_CUSTOMIZATION_SCRIPT_COLOR_SELECTION "customizationScriptColor_selection"
 #define _USR_CUSTOMIZATION_SCRIPT_COLOR_COMMENT "customizationScriptColor_comment"
@@ -219,20 +178,6 @@
 #define _USR_CUSTOMIZATION_SCRIPT_COLOR_WORD2 "customizationScriptColor_word2"
 #define _USR_CUSTOMIZATION_SCRIPT_COLOR_WORD3 "customizationScriptColor_word3"
 #define _USR_CUSTOMIZATION_SCRIPT_COLOR_WORD4 "customizationScriptColor_word4"
-
-#define _USR_ADD_ON_SCRIPT_COLOR_BACKGROUND "addOnScriptColor_background"
-#define _USR_ADD_ON_SCRIPT_COLOR_SELECTION "addOnScriptColor_selection"
-#define _USR_ADD_ON_SCRIPT_COLOR_COMMENT "addOnScriptColor_comment"
-#define _USR_ADD_ON_SCRIPT_COLOR_NUMBER "addOnScriptColor_number"
-#define _USR_ADD_ON_SCRIPT_COLOR_STRING "addOnScriptColor_string"
-#define _USR_ADD_ON_SCRIPT_COLOR_CHARACTER "addOnScriptColor_character"
-#define _USR_ADD_ON_SCRIPT_COLOR_OPERATOR "addOnScriptColor_operator"
-#define _USR_ADD_ON_SCRIPT_COLOR_PREPROCESSOR "addOnScriptColor_preprocessor"
-#define _USR_ADD_ON_SCRIPT_COLOR_IDENTIFIER "addOnScriptColor_identifier"
-#define _USR_ADD_ON_SCRIPT_COLOR_WORD "addOnScriptColor_word"
-#define _USR_ADD_ON_SCRIPT_COLOR_WORD2 "addOnScriptColor_word2"
-#define _USR_ADD_ON_SCRIPT_COLOR_WORD3 "addOnScriptColor_word3"
-#define _USR_ADD_ON_SCRIPT_COLOR_WORD4 "addOnScriptColor_word4"
 
 #define _USR_VISION_SENSORS_USE_GUI_WINDOWED "visionSensorsUseGuiThread_windowed"
 #define _USR_VISION_SENSORS_USE_GUI_HEADLESS "visionSensorsUseGuiThread_headless"
@@ -352,48 +297,6 @@ CUserSettings::CUserSettings()
     _setIntVector3(mainScriptColor_word3,220,80,20);
     _setIntVector3(mainScriptColor_word4,152,64,0);
 
-    _setIntVector3(jointCallbackScriptColor_background,190,190,190);
-    _setIntVector3(jointCallbackScriptColor_selection,128,128,255);
-    _setIntVector3(jointCallbackScriptColor_comment,0,140,0);
-    _setIntVector3(jointCallbackScriptColor_number,220,0,220);
-    _setIntVector3(jointCallbackScriptColor_string,255,255,0);
-    _setIntVector3(jointCallbackScriptColor_character,255,255,0);
-    _setIntVector3(jointCallbackScriptColor_operator,0,0,0);
-    _setIntVector3(jointCallbackScriptColor_preprocessor,0,128,128);
-    _setIntVector3(jointCallbackScriptColor_identifier,64,64,64);
-    _setIntVector3(jointCallbackScriptColor_word,0,0,255);
-    _setIntVector3(jointCallbackScriptColor_word2,152,0,0);
-    _setIntVector3(jointCallbackScriptColor_word3,220,80,20);
-    _setIntVector3(jointCallbackScriptColor_word4,152,64,0);
-
-    _setIntVector3(contactCallbackScriptColor_background,190,190,190);
-    _setIntVector3(contactCallbackScriptColor_selection,128,128,255);
-    _setIntVector3(contactCallbackScriptColor_comment,0,140,0);
-    _setIntVector3(contactCallbackScriptColor_number,220,0,220);
-    _setIntVector3(contactCallbackScriptColor_string,255,255,0);
-    _setIntVector3(contactCallbackScriptColor_character,255,255,0);
-    _setIntVector3(contactCallbackScriptColor_operator,0,0,0);
-    _setIntVector3(contactCallbackScriptColor_preprocessor,0,128,128);
-    _setIntVector3(contactCallbackScriptColor_identifier,64,64,64);
-    _setIntVector3(contactCallbackScriptColor_word,0,0,255);
-    _setIntVector3(contactCallbackScriptColor_word2,152,0,0);
-    _setIntVector3(contactCallbackScriptColor_word3,220,80,20);
-    _setIntVector3(contactCallbackScriptColor_word4,152,64,0);
-
-    _setIntVector3(generalCallbackScriptColor_background,190,190,190);
-    _setIntVector3(generalCallbackScriptColor_selection,128,128,255);
-    _setIntVector3(generalCallbackScriptColor_comment,0,140,0);
-    _setIntVector3(generalCallbackScriptColor_number,220,0,220);
-    _setIntVector3(generalCallbackScriptColor_string,255,255,0);
-    _setIntVector3(generalCallbackScriptColor_character,255,255,0);
-    _setIntVector3(generalCallbackScriptColor_operator,0,0,0);
-    _setIntVector3(generalCallbackScriptColor_preprocessor,0,128,128);
-    _setIntVector3(generalCallbackScriptColor_identifier,64,64,64);
-    _setIntVector3(generalCallbackScriptColor_word,0,0,255);
-    _setIntVector3(generalCallbackScriptColor_word2,152,0,0);
-    _setIntVector3(generalCallbackScriptColor_word3,220,80,20);
-    _setIntVector3(generalCallbackScriptColor_word4,152,64,0);
-
     _setIntVector3(customizationScriptColor_background,150,150,150);
     _setIntVector3(customizationScriptColor_selection,128,128,255);
     _setIntVector3(customizationScriptColor_comment,0,120,0);
@@ -407,20 +310,6 @@ CUserSettings::CUserSettings()
     _setIntVector3(customizationScriptColor_word2,152,0,0);
     _setIntVector3(customizationScriptColor_word3,220,80,20);
     _setIntVector3(customizationScriptColor_word4,152,64,0);
-
-    _setIntVector3(addOnScriptColor_background,240,240,240);
-    _setIntVector3(addOnScriptColor_selection,128,128,255);
-    _setIntVector3(addOnScriptColor_comment,0,164,0);
-    _setIntVector3(addOnScriptColor_number,220,0,220);
-    _setIntVector3(addOnScriptColor_string,205,205,0);
-    _setIntVector3(addOnScriptColor_character,205,205,0);
-    _setIntVector3(addOnScriptColor_operator,0,0,0);
-    _setIntVector3(addOnScriptColor_preprocessor,0,128,128);
-    _setIntVector3(addOnScriptColor_identifier,100,100,100);
-    _setIntVector3(addOnScriptColor_word,0,0,255);
-    _setIntVector3(addOnScriptColor_word2,152,0,0);
-    _setIntVector3(addOnScriptColor_word3,220,80,20);
-    _setIntVector3(addOnScriptColor_word4,152,64,0);
 
 
     // Directories section:
@@ -482,6 +371,8 @@ CUserSettings::CUserSettings()
     _supportOldApiNotation=true;
     enableOldMillObjects=false;
     enableOldMirrorObjects=false;
+    useOldCodeEditor=false;
+
 
 
 
@@ -792,48 +683,6 @@ void CUserSettings::saveUserSettings()
     c.addIntVector3(_USR_THREADED_CHILD_SCRIPT_COLOR_WORD3,threadedChildScriptColor_word3,"");
     c.addIntVector3(_USR_THREADED_CHILD_SCRIPT_COLOR_WORD4,threadedChildScriptColor_word4,"");
 
-    c.addIntVector3(_USR_JOINT_CALLBACK_SCRIPT_COLOR_BACKGROUND,jointCallbackScriptColor_background,"");
-    c.addIntVector3(_USR_JOINT_CALLBACK_SCRIPT_COLOR_SELECTION,jointCallbackScriptColor_selection,"");
-    c.addIntVector3(_USR_JOINT_CALLBACK_SCRIPT_COLOR_COMMENT,jointCallbackScriptColor_comment,"");
-    c.addIntVector3(_USR_JOINT_CALLBACK_SCRIPT_COLOR_NUMBER,jointCallbackScriptColor_number,"");
-    c.addIntVector3(_USR_JOINT_CALLBACK_SCRIPT_COLOR_STRING,jointCallbackScriptColor_string,"");
-    c.addIntVector3(_USR_JOINT_CALLBACK_SCRIPT_COLOR_CHARACTER,jointCallbackScriptColor_character,"");
-    c.addIntVector3(_USR_JOINT_CALLBACK_SCRIPT_COLOR_OPERATOR,jointCallbackScriptColor_operator,"");
-    c.addIntVector3(_USR_JOINT_CALLBACK_SCRIPT_COLOR_PREPROCESSOR,jointCallbackScriptColor_preprocessor,"");
-    c.addIntVector3(_USR_JOINT_CALLBACK_SCRIPT_COLOR_IDENTIFIER,jointCallbackScriptColor_identifier,"");
-    c.addIntVector3(_USR_JOINT_CALLBACK_SCRIPT_COLOR_WORD,jointCallbackScriptColor_word,"");
-    c.addIntVector3(_USR_JOINT_CALLBACK_SCRIPT_COLOR_WORD2,jointCallbackScriptColor_word2,"");
-    c.addIntVector3(_USR_JOINT_CALLBACK_SCRIPT_COLOR_WORD3,jointCallbackScriptColor_word3,"");
-    c.addIntVector3(_USR_JOINT_CALLBACK_SCRIPT_COLOR_WORD4,jointCallbackScriptColor_word4,"");
-
-    c.addIntVector3(_USR_CONTACT_CALLBACK_SCRIPT_COLOR_BACKGROUND,contactCallbackScriptColor_background,"");
-    c.addIntVector3(_USR_CONTACT_CALLBACK_SCRIPT_COLOR_SELECTION,contactCallbackScriptColor_selection,"");
-    c.addIntVector3(_USR_CONTACT_CALLBACK_SCRIPT_COLOR_COMMENT,contactCallbackScriptColor_comment,"");
-    c.addIntVector3(_USR_CONTACT_CALLBACK_SCRIPT_COLOR_NUMBER,contactCallbackScriptColor_number,"");
-    c.addIntVector3(_USR_CONTACT_CALLBACK_SCRIPT_COLOR_STRING,contactCallbackScriptColor_string,"");
-    c.addIntVector3(_USR_CONTACT_CALLBACK_SCRIPT_COLOR_CHARACTER,contactCallbackScriptColor_character,"");
-    c.addIntVector3(_USR_CONTACT_CALLBACK_SCRIPT_COLOR_OPERATOR,contactCallbackScriptColor_operator,"");
-    c.addIntVector3(_USR_CONTACT_CALLBACK_SCRIPT_COLOR_PREPROCESSOR,contactCallbackScriptColor_preprocessor,"");
-    c.addIntVector3(_USR_CONTACT_CALLBACK_SCRIPT_COLOR_IDENTIFIER,contactCallbackScriptColor_identifier,"");
-    c.addIntVector3(_USR_CONTACT_CALLBACK_SCRIPT_COLOR_WORD,contactCallbackScriptColor_word,"");
-    c.addIntVector3(_USR_CONTACT_CALLBACK_SCRIPT_COLOR_WORD2,contactCallbackScriptColor_word2,"");
-    c.addIntVector3(_USR_CONTACT_CALLBACK_SCRIPT_COLOR_WORD3,contactCallbackScriptColor_word3,"");
-    c.addIntVector3(_USR_CONTACT_CALLBACK_SCRIPT_COLOR_WORD4,contactCallbackScriptColor_word4,"");
-
-    c.addIntVector3(_USR_GENERAL_CALLBACK_SCRIPT_COLOR_BACKGROUND,generalCallbackScriptColor_background,"");
-    c.addIntVector3(_USR_GENERAL_CALLBACK_SCRIPT_COLOR_SELECTION,generalCallbackScriptColor_selection,"");
-    c.addIntVector3(_USR_GENERAL_CALLBACK_SCRIPT_COLOR_COMMENT,generalCallbackScriptColor_comment,"");
-    c.addIntVector3(_USR_GENERAL_CALLBACK_SCRIPT_COLOR_NUMBER,generalCallbackScriptColor_number,"");
-    c.addIntVector3(_USR_GENERAL_CALLBACK_SCRIPT_COLOR_STRING,generalCallbackScriptColor_string,"");
-    c.addIntVector3(_USR_GENERAL_CALLBACK_SCRIPT_COLOR_CHARACTER,generalCallbackScriptColor_character,"");
-    c.addIntVector3(_USR_GENERAL_CALLBACK_SCRIPT_COLOR_OPERATOR,generalCallbackScriptColor_operator,"");
-    c.addIntVector3(_USR_GENERAL_CALLBACK_SCRIPT_COLOR_PREPROCESSOR,generalCallbackScriptColor_preprocessor,"");
-    c.addIntVector3(_USR_GENERAL_CALLBACK_SCRIPT_COLOR_IDENTIFIER,generalCallbackScriptColor_identifier,"");
-    c.addIntVector3(_USR_GENERAL_CALLBACK_SCRIPT_COLOR_WORD,generalCallbackScriptColor_word,"");
-    c.addIntVector3(_USR_GENERAL_CALLBACK_SCRIPT_COLOR_WORD2,generalCallbackScriptColor_word2,"");
-    c.addIntVector3(_USR_GENERAL_CALLBACK_SCRIPT_COLOR_WORD3,generalCallbackScriptColor_word3,"");
-    c.addIntVector3(_USR_GENERAL_CALLBACK_SCRIPT_COLOR_WORD4,generalCallbackScriptColor_word4,"");
-
     c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_BACKGROUND,customizationScriptColor_background,"");
     c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_SELECTION,customizationScriptColor_selection,"");
     c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_COMMENT,customizationScriptColor_comment,"");
@@ -847,20 +696,6 @@ void CUserSettings::saveUserSettings()
     c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_WORD2,customizationScriptColor_word2,"");
     c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_WORD3,customizationScriptColor_word3,"");
     c.addIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_WORD4,customizationScriptColor_word4,"");
-
-    c.addIntVector3(_USR_ADD_ON_SCRIPT_COLOR_BACKGROUND,addOnScriptColor_background,"");
-    c.addIntVector3(_USR_ADD_ON_SCRIPT_COLOR_SELECTION,addOnScriptColor_selection,"");
-    c.addIntVector3(_USR_ADD_ON_SCRIPT_COLOR_COMMENT,addOnScriptColor_comment,"");
-    c.addIntVector3(_USR_ADD_ON_SCRIPT_COLOR_NUMBER,addOnScriptColor_number,"");
-    c.addIntVector3(_USR_ADD_ON_SCRIPT_COLOR_STRING,addOnScriptColor_string,"");
-    c.addIntVector3(_USR_ADD_ON_SCRIPT_COLOR_CHARACTER,addOnScriptColor_character,"");
-    c.addIntVector3(_USR_ADD_ON_SCRIPT_COLOR_OPERATOR,addOnScriptColor_operator,"");
-    c.addIntVector3(_USR_ADD_ON_SCRIPT_COLOR_PREPROCESSOR,addOnScriptColor_preprocessor,"");
-    c.addIntVector3(_USR_ADD_ON_SCRIPT_COLOR_IDENTIFIER,addOnScriptColor_identifier,"");
-    c.addIntVector3(_USR_ADD_ON_SCRIPT_COLOR_WORD,addOnScriptColor_word,"");
-    c.addIntVector3(_USR_ADD_ON_SCRIPT_COLOR_WORD2,addOnScriptColor_word2,"");
-    c.addIntVector3(_USR_ADD_ON_SCRIPT_COLOR_WORD3,addOnScriptColor_word3,"");
-    c.addIntVector3(_USR_ADD_ON_SCRIPT_COLOR_WORD4,addOnScriptColor_word4,"");
 
     c.addRandomLine("");
     c.addRandomLine("");
@@ -938,6 +773,8 @@ void CUserSettings::saveUserSettings()
     c.addBoolean(_USR_ENABLE_OLD_JOINT_CALLBACK_SCRIPT_EDITION,enableOldJointCallbackScriptEdition,"");
     c.addBoolean(_USR_ENABLE_OLD_MILL_OBJECTS,enableOldMillObjects,"");
     c.addBoolean(_USR_ENABLE_OLD_MIRROR_OBJECTS,enableOldMirrorObjects,"");
+    c.addBoolean(_USR_ENABLE_OLD_CODE_EDITOR,useOldCodeEditor,"");
+
 
     c.addRandomLine("");
     c.addRandomLine("");
@@ -1148,48 +985,6 @@ void CUserSettings::loadUserSettings()
     c.getIntVector3(_USR_THREADED_CHILD_SCRIPT_COLOR_WORD3,threadedChildScriptColor_word3);
     c.getIntVector3(_USR_THREADED_CHILD_SCRIPT_COLOR_WORD4,threadedChildScriptColor_word4);
 
-    c.getIntVector3(_USR_JOINT_CALLBACK_SCRIPT_COLOR_BACKGROUND,jointCallbackScriptColor_background);
-    c.getIntVector3(_USR_JOINT_CALLBACK_SCRIPT_COLOR_SELECTION,jointCallbackScriptColor_selection);
-    c.getIntVector3(_USR_JOINT_CALLBACK_SCRIPT_COLOR_COMMENT,jointCallbackScriptColor_comment);
-    c.getIntVector3(_USR_JOINT_CALLBACK_SCRIPT_COLOR_NUMBER,jointCallbackScriptColor_number);
-    c.getIntVector3(_USR_JOINT_CALLBACK_SCRIPT_COLOR_STRING,jointCallbackScriptColor_string);
-    c.getIntVector3(_USR_JOINT_CALLBACK_SCRIPT_COLOR_CHARACTER,jointCallbackScriptColor_character);
-    c.getIntVector3(_USR_JOINT_CALLBACK_SCRIPT_COLOR_OPERATOR,jointCallbackScriptColor_operator);
-    c.getIntVector3(_USR_JOINT_CALLBACK_SCRIPT_COLOR_PREPROCESSOR,jointCallbackScriptColor_preprocessor);
-    c.getIntVector3(_USR_JOINT_CALLBACK_SCRIPT_COLOR_IDENTIFIER,jointCallbackScriptColor_identifier);
-    c.getIntVector3(_USR_JOINT_CALLBACK_SCRIPT_COLOR_WORD,jointCallbackScriptColor_word);
-    c.getIntVector3(_USR_JOINT_CALLBACK_SCRIPT_COLOR_WORD2,jointCallbackScriptColor_word2);
-    c.getIntVector3(_USR_JOINT_CALLBACK_SCRIPT_COLOR_WORD3,jointCallbackScriptColor_word3);
-    c.getIntVector3(_USR_JOINT_CALLBACK_SCRIPT_COLOR_WORD4,jointCallbackScriptColor_word4);
-
-    c.getIntVector3(_USR_CONTACT_CALLBACK_SCRIPT_COLOR_BACKGROUND,contactCallbackScriptColor_background);
-    c.getIntVector3(_USR_CONTACT_CALLBACK_SCRIPT_COLOR_SELECTION,contactCallbackScriptColor_selection);
-    c.getIntVector3(_USR_CONTACT_CALLBACK_SCRIPT_COLOR_COMMENT,contactCallbackScriptColor_comment);
-    c.getIntVector3(_USR_CONTACT_CALLBACK_SCRIPT_COLOR_NUMBER,contactCallbackScriptColor_number);
-    c.getIntVector3(_USR_CONTACT_CALLBACK_SCRIPT_COLOR_STRING,contactCallbackScriptColor_string);
-    c.getIntVector3(_USR_CONTACT_CALLBACK_SCRIPT_COLOR_CHARACTER,contactCallbackScriptColor_character);
-    c.getIntVector3(_USR_CONTACT_CALLBACK_SCRIPT_COLOR_OPERATOR,contactCallbackScriptColor_operator);
-    c.getIntVector3(_USR_CONTACT_CALLBACK_SCRIPT_COLOR_PREPROCESSOR,contactCallbackScriptColor_preprocessor);
-    c.getIntVector3(_USR_CONTACT_CALLBACK_SCRIPT_COLOR_IDENTIFIER,contactCallbackScriptColor_identifier);
-    c.getIntVector3(_USR_CONTACT_CALLBACK_SCRIPT_COLOR_WORD,contactCallbackScriptColor_word);
-    c.getIntVector3(_USR_CONTACT_CALLBACK_SCRIPT_COLOR_WORD2,contactCallbackScriptColor_word2);
-    c.getIntVector3(_USR_CONTACT_CALLBACK_SCRIPT_COLOR_WORD3,contactCallbackScriptColor_word3);
-    c.getIntVector3(_USR_CONTACT_CALLBACK_SCRIPT_COLOR_WORD4,contactCallbackScriptColor_word4);
-
-    c.getIntVector3(_USR_GENERAL_CALLBACK_SCRIPT_COLOR_BACKGROUND,generalCallbackScriptColor_background);
-    c.getIntVector3(_USR_GENERAL_CALLBACK_SCRIPT_COLOR_SELECTION,generalCallbackScriptColor_selection);
-    c.getIntVector3(_USR_GENERAL_CALLBACK_SCRIPT_COLOR_COMMENT,generalCallbackScriptColor_comment);
-    c.getIntVector3(_USR_GENERAL_CALLBACK_SCRIPT_COLOR_NUMBER,generalCallbackScriptColor_number);
-    c.getIntVector3(_USR_GENERAL_CALLBACK_SCRIPT_COLOR_STRING,generalCallbackScriptColor_string);
-    c.getIntVector3(_USR_GENERAL_CALLBACK_SCRIPT_COLOR_CHARACTER,generalCallbackScriptColor_character);
-    c.getIntVector3(_USR_GENERAL_CALLBACK_SCRIPT_COLOR_OPERATOR,generalCallbackScriptColor_operator);
-    c.getIntVector3(_USR_GENERAL_CALLBACK_SCRIPT_COLOR_PREPROCESSOR,generalCallbackScriptColor_preprocessor);
-    c.getIntVector3(_USR_GENERAL_CALLBACK_SCRIPT_COLOR_IDENTIFIER,generalCallbackScriptColor_identifier);
-    c.getIntVector3(_USR_GENERAL_CALLBACK_SCRIPT_COLOR_WORD,generalCallbackScriptColor_word);
-    c.getIntVector3(_USR_GENERAL_CALLBACK_SCRIPT_COLOR_WORD2,generalCallbackScriptColor_word2);
-    c.getIntVector3(_USR_GENERAL_CALLBACK_SCRIPT_COLOR_WORD3,generalCallbackScriptColor_word3);
-    c.getIntVector3(_USR_GENERAL_CALLBACK_SCRIPT_COLOR_WORD4,generalCallbackScriptColor_word4);
-
     c.getIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_BACKGROUND,customizationScriptColor_background);
     c.getIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_SELECTION,customizationScriptColor_selection);
     c.getIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_COMMENT,customizationScriptColor_comment);
@@ -1203,20 +998,6 @@ void CUserSettings::loadUserSettings()
     c.getIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_WORD2,customizationScriptColor_word2);
     c.getIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_WORD3,customizationScriptColor_word3);
     c.getIntVector3(_USR_CUSTOMIZATION_SCRIPT_COLOR_WORD4,customizationScriptColor_word4);
-
-    c.getIntVector3(_USR_ADD_ON_SCRIPT_COLOR_BACKGROUND,addOnScriptColor_background);
-    c.getIntVector3(_USR_ADD_ON_SCRIPT_COLOR_SELECTION,addOnScriptColor_selection);
-    c.getIntVector3(_USR_ADD_ON_SCRIPT_COLOR_COMMENT,addOnScriptColor_comment);
-    c.getIntVector3(_USR_ADD_ON_SCRIPT_COLOR_NUMBER,addOnScriptColor_number);
-    c.getIntVector3(_USR_ADD_ON_SCRIPT_COLOR_STRING,addOnScriptColor_string);
-    c.getIntVector3(_USR_ADD_ON_SCRIPT_COLOR_CHARACTER,addOnScriptColor_character);
-    c.getIntVector3(_USR_ADD_ON_SCRIPT_COLOR_OPERATOR,addOnScriptColor_operator);
-    c.getIntVector3(_USR_ADD_ON_SCRIPT_COLOR_PREPROCESSOR,addOnScriptColor_preprocessor);
-    c.getIntVector3(_USR_ADD_ON_SCRIPT_COLOR_IDENTIFIER,addOnScriptColor_identifier);
-    c.getIntVector3(_USR_ADD_ON_SCRIPT_COLOR_WORD,addOnScriptColor_word);
-    c.getIntVector3(_USR_ADD_ON_SCRIPT_COLOR_WORD2,addOnScriptColor_word2);
-    c.getIntVector3(_USR_ADD_ON_SCRIPT_COLOR_WORD3,addOnScriptColor_word3);
-    c.getIntVector3(_USR_ADD_ON_SCRIPT_COLOR_WORD4,addOnScriptColor_word4);
 
     // Directories section:
     // *****************************
@@ -1276,6 +1057,7 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_ENABLE_OLD_JOINT_CALLBACK_SCRIPT_EDITION,enableOldJointCallbackScriptEdition);
     c.getBoolean(_USR_ENABLE_OLD_MILL_OBJECTS,enableOldMillObjects);
     c.getBoolean(_USR_ENABLE_OLD_MIRROR_OBJECTS,enableOldMirrorObjects);
+    c.getBoolean(_USR_ENABLE_OLD_CODE_EDITOR,useOldCodeEditor);
 
     // Various section:
     // *****************************

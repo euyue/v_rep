@@ -385,7 +385,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.handleAddOnScripts",_simHandleAddOnScripts,            "number count=sim.handleAddOnScripts(number callType)",true},
     {"sim.setScriptAttribute",_simSetScriptAttribute,            "number result=sim.setScriptAttribute(number scriptHandle,number attributeID,number/boolean attribute)",true},
     {"sim.getScriptAttribute",_simGetScriptAttribute,            "number/boolean attribute=sim.getScriptAttribute(number scriptHandle,number attributeID)",true},
-    {"sim.handleChildScripts",_simHandleChildScripts,            "number executedScriptCount=sim.handleChildScripts(number callType,...<objects to be passed>)",true},
+    {"sim.handleChildScripts",_simHandleChildScripts,            "number executedScriptCount=sim.handleChildScripts(number callType,...(objects to be passed))",true},
     {"sim.launchThreadedChildScripts",_simLaunchThreadedChildScripts,"number launchCount=sim.launchThreadedChildScripts()",true},
     {"sim.reorientShapeBoundingBox",_simReorientShapeBoundingBox,"number result=sim.reorientShapeBoundingBox(number shapeHandle,number relativeToHandle)",true},
     {"sim.handleVisionSensor",_simHandleVisionSensor,            "number detectionCount,table auxiliaryValuesPacket1,table auxiliaryValuesPacket2,etc.=sim.handleVisionSensor(number sensorHandle)",true},
@@ -465,12 +465,10 @@ const SLuaCommands simLuaCommands[]=
 
     {"sim.test",_simTest,                                        "test function - shouldn't be used",true},
 
-    {"sim.testCE_openModal",_simTestCE_openModal,                "string text,table_2 pos,table_2 size=sim.testCE_openModal(string initText,string properties)",true},
-    {"sim.testCE_open",_simTestCE_open,                          "number handle=sim.testCE_open(string initText,string properties)",true},
-    {"sim.testCE_setText",_simTestCE_setText,                    "number result=sim.testCE_setText(number handle,string text,int insertMode)",true},
-    {"sim.testCE_getText",_simTestCE_getText,                    "string text=sim.testCE_getText(number handle)",true},
-    {"sim.testCE_show",_simTestCE_show,                          "number result=sim.testCE_show(number handle,number showState)",true},
-    {"sim.testCE_close",_simTestCE_close,                        "number result,table_2 pos,table_2 size=sim.testCE_show(number handle)",true},
+    {"sim.textEditorOpen",_simTextEditorOpen,                    "number handle=sim.textEditorOpen(string initText,string properties)",true},
+    {"sim.textEditorClose",_simTextEditorClose,                  "string text,table_2 pos,table_2 size=sim.textEditorClose(number handle)",true},
+    {"sim.textEditorShow",_simTextEditorShow,                    "number res=sim.textEditorShow(number handle,boolean showState)",true},
+    {"sim.textEditorGetInfo",_simTextEditorGetInfo,              "string text,table_2 pos,table_2 size,boolean visible=sim.textEditorGetInfo(number handle)",true},
 
 
     // Add new commands here!
@@ -8523,6 +8521,16 @@ int _simTest(luaWrap_lua_State* L)
            luaWrap_lua_pushinteger(L,r);
            LUA_END(1);
         }
+        if (func==4)
+        {
+            int r=App::mainWindow->codeEditorContainer->openSimulationScript(luaWrap_lua_tointeger(L,2),getCurrentScriptID(L));
+            luaWrap_lua_pushinteger(L,r);
+            LUA_END(1);
+        }
+        if (func==5)
+        {
+            App::mainWindow->codeEditorContainer->close(luaWrap_lua_tointeger(L,2),nullptr,nullptr,nullptr);
+        }
     }
     LUA_END(0);
 }
@@ -8555,19 +8563,20 @@ int _simTestCE_openModal(luaWrap_lua_State* L)
     LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
     LUA_END(0);
 }
-int _simTestCE_open(luaWrap_lua_State* L)
+
+int _simTextEditorOpen(luaWrap_lua_State* L)
 {
     LUA_API_FUNCTION_DEBUG;
-    LUA_START("sim.testCE_open");
+    LUA_START("sim.textEditorOpen");
     int retVal=-1;
 
-    if (CPluginContainer::isCodeEditorPluginAvailable())
+    if (CPluginContainer::isCodeEditorPluginAvailable()&&(App::mainWindow!=nullptr))
     {
         if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_string,0))
         {
             const char* arg1=luaWrap_lua_tostring(L,1);
             const char* arg2=luaWrap_lua_tostring(L,2);
-            retVal=CPluginContainer::codeEditor_open(arg1,arg2);
+            retVal=App::mainWindow->codeEditorContainer->open(arg1,arg2,getCurrentScriptID(L));
         }
     }
     else
@@ -8577,92 +8586,23 @@ int _simTestCE_open(luaWrap_lua_State* L)
     luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
 }
-int _simTestCE_setText(luaWrap_lua_State* L)
+
+int _simTextEditorClose(luaWrap_lua_State* L)
 {
     LUA_API_FUNCTION_DEBUG;
-    LUA_START("sim.testCE_setText");
-    int retVal=-1;
+    LUA_START("sim.textEditorClose");
 
-    if (CPluginContainer::isCodeEditorPluginAvailable())
-    {
-        if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_string,0,lua_arg_number,0))
-        {
-            int handle=luaWrap_lua_tointeger(L,1);
-            const char* text=luaWrap_lua_tostring(L,2);
-            int insertMode=luaWrap_lua_tointeger(L,3);
-            retVal=CPluginContainer::codeEditor_setText(handle,text,insertMode);
-        }
-    }
-    else
-        errorString="Code Editor plugin was not found.";
-
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-int _simTestCE_getText(luaWrap_lua_State* L)
-{
-    LUA_API_FUNCTION_DEBUG;
-    LUA_START("sim.testCE_getText");
-
-    if (CPluginContainer::isCodeEditorPluginAvailable())
-    {
-        if (checkInputArguments(L,&errorString,lua_arg_number,0))
-        {
-            int handle=luaWrap_lua_tointeger(L,1);
-            std::string text;
-            if (CPluginContainer::codeEditor_getText(handle,text))
-            {
-                luaWrap_lua_pushstring(L,text.c_str());
-                LUA_END(1);
-            }
-        }
-    }
-    else
-        errorString="Code Editor plugin was not found.";
-
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
-    LUA_END(0);
-}
-int _simTestCE_show(luaWrap_lua_State* L)
-{
-    LUA_API_FUNCTION_DEBUG;
-    LUA_START("sim.testCE_show");
-    int retVal=-1;
-
-    if (CPluginContainer::isCodeEditorPluginAvailable())
-    {
-        if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-        {
-            int handle=luaWrap_lua_tointeger(L,1);
-            int showState=luaWrap_lua_tointeger(L,2);
-            retVal=CPluginContainer::codeEditor_show(handle,showState);
-        }
-    }
-    else
-        errorString="Code Editor plugin was not found.";
-
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
-    luaWrap_lua_pushinteger(L,retVal);
-    LUA_END(1);
-}
-int _simTestCE_close(luaWrap_lua_State* L)
-{
-    LUA_API_FUNCTION_DEBUG;
-    LUA_START("sim.testCE_close");
-    int retVal=-1;
-
-    if (CPluginContainer::isCodeEditorPluginAvailable())
+    if (CPluginContainer::isCodeEditorPluginAvailable()&&(App::mainWindow!=nullptr))
     {
         if (checkInputArguments(L,&errorString,lua_arg_number,0))
         {
             int handle=luaWrap_lua_tointeger(L,1);
             int posAndSize[4];
-            retVal=CPluginContainer::codeEditor_close(handle,posAndSize);
-            if (retVal>=0)
+            std::string txt;
+            if (App::mainWindow->codeEditorContainer->close(handle,posAndSize,&txt,nullptr))
             {
-                luaWrap_lua_pushinteger(L,retVal);
-                pushIntTableOntoStack(L,2,posAndSize);
+                luaWrap_lua_pushstring(L,txt.c_str());
+                pushIntTableOntoStack(L,2,posAndSize+0);
                 pushIntTableOntoStack(L,2,posAndSize+2);
                 LUA_END(3);
             }
@@ -8672,8 +8612,63 @@ int _simTestCE_close(luaWrap_lua_State* L)
         errorString="Code Editor plugin was not found.";
 
     LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simTextEditorShow(luaWrap_lua_State* L)
+{
+    LUA_API_FUNCTION_DEBUG;
+    LUA_START("sim.textEditorShow");
+    int retVal=-1;
+
+    if (CPluginContainer::isCodeEditorPluginAvailable()&&(App::mainWindow!=nullptr))
+    {
+        if (checkInputArguments(L,&errorString,lua_arg_number,0))
+        {
+            int handle=luaWrap_lua_tointeger(L,1);
+            bool showState=(luaWrap_lua_toboolean(L,2)!=0);
+            retVal=App::mainWindow->codeEditorContainer->showOrHide(handle,showState);
+            luaWrap_lua_pushinteger(L,retVal);
+            LUA_END(1);
+        }
+    }
+    else
+        errorString="Code Editor plugin was not found.";
+
+    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
     LUA_END(1);
+}
+
+int _simTextEditorGetInfo(luaWrap_lua_State* L)
+{
+    LUA_API_FUNCTION_DEBUG;
+    LUA_START("sim.textEditorGetInfo");
+
+    if (CPluginContainer::isCodeEditorPluginAvailable()&&(App::mainWindow!=nullptr))
+    {
+        if (checkInputArguments(L,&errorString,lua_arg_number,0))
+        {
+            int handle=luaWrap_lua_tointeger(L,1);
+            int state=App::mainWindow->codeEditorContainer->getShowState(handle);
+            if (state>=0)
+            {
+                int posAndSize[4];
+                std::string txt=App::mainWindow->codeEditorContainer->getText(handle,posAndSize);
+                luaWrap_lua_pushstring(L,txt.c_str());
+                pushIntTableOntoStack(L,2,posAndSize+0);
+                pushIntTableOntoStack(L,2,posAndSize+2);
+                luaWrap_lua_pushboolean(L,state!=0);
+                LUA_END(4);
+            }
+            LUA_END(0);
+        }
+    }
+    else
+        errorString="Code Editor plugin was not found.";
+
+    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_END(0);
 }
 
 
@@ -12884,8 +12879,12 @@ int _simAuxiliaryConsoleOpen(luaWrap_lua_State* L)
         CLuaScriptObject* itScrObj=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
         if ( (itScrObj->getScriptType()==sim_scripttype_mainscript)||(itScrObj->getScriptType()==sim_scripttype_childscript)||(itScrObj->getScriptType()==sim_scripttype_jointctrlcallback)||(itScrObj->getScriptType()==sim_scripttype_contactcallback) )//||(itScrObj->getScriptType()==sim_scripttype_generalcallback) )
         { // Add-ons and customization scripts do not have this restriction
-            if ((mode&1)==0)
-                mode++;
+            mode&=1;
+        }
+        if ( (itScrObj->getScriptType()!=sim_scripttype_sandboxscript)&&(itScrObj->getScriptType()!=sim_scripttype_addonscript) )
+        { // Add-ons and sandbox scripts do not have this restriction
+            mode|=16;
+            mode-=16;
         }
         int* p=NULL;
         int* s=NULL;
@@ -16981,15 +16980,14 @@ int _simOpenTextEditor(luaWrap_lua_State* L)
             int res=checkOneGeneralInputArgument(L,3,lua_arg_string,0,true,true,&errorString);
             if (res!=2)
             { // Modal dlg
-                int various[5];
-                various[0]=4;
+                int various[4];
                 char* outText=simOpenTextEditor_internal(initText.c_str(),_xml,various);
                 if (outText!=NULL)
                 {
                     luaWrap_lua_pushstring(L,outText);
                     delete[] outText;
-                    pushIntTableOntoStack(L,2,various+1);
-                    pushIntTableOntoStack(L,2,various+3);
+                    pushIntTableOntoStack(L,2,various+0);
+                    pushIntTableOntoStack(L,2,various+2);
                     LUA_END(3);
                 }
             }
@@ -17000,17 +16998,25 @@ int _simOpenTextEditor(luaWrap_lua_State* L)
                 if (it!=NULL)
                 {
                     std::string callbackFunction(luaWrap_lua_tostring(L,3));
-                    SUIThreadCommand cmdIn;
-                    SUIThreadCommand cmdOut;
-                    cmdIn.cmdId=OPEN_NONMODAL_USER_EDITOR_UITHREADCMD;
-                    cmdIn.stringParams.push_back(xml);
-                    cmdIn.stringParams.push_back(initText);
-                    cmdIn.stringParams.push_back(callbackFunction);
-                    cmdIn.intParams.push_back(it->getScriptID());
-                    cmdIn.intParams.push_back(App::ct->environment->getSceneUniqueID());
-                    cmdIn.boolParams.push_back(it->isSimulationScript());
-                    App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-                    handle=cmdOut.intParams[0];
+                    if (App::userSettings->useOldCodeEditor)
+                    {
+                        SUIThreadCommand cmdIn;
+                        SUIThreadCommand cmdOut;
+                        cmdIn.cmdId=OPEN_NONMODAL_USER_EDITOR_UITHREADCMD;
+                        cmdIn.stringParams.push_back(xml);
+                        cmdIn.stringParams.push_back(initText);
+                        cmdIn.stringParams.push_back(callbackFunction);
+                        cmdIn.intParams.push_back(it->getScriptID());
+                        cmdIn.intParams.push_back(App::ct->environment->getSceneUniqueID());
+                        cmdIn.boolParams.push_back(it->isSimulationScript());
+                        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+                        handle=cmdOut.intParams[0];
+                    }
+                    else
+                    {
+                        if (App::mainWindow!=nullptr)
+                            handle=App::mainWindow->codeEditorContainer->openTextEditor(initText.c_str(),xml.c_str(),callbackFunction.c_str(),it->getScriptID(),it->isSimulationScript());
+                    }
                 }
                 luaWrap_lua_pushinteger(L,handle);
                 LUA_END(1);
@@ -17031,22 +17037,40 @@ int _simCloseTextEditor(luaWrap_lua_State* L)
     {
         int h=luaWrap_lua_tointeger(L,1);
         bool ignoreCb=luaWrap_lua_toboolean(L,2);
-        SUIThreadCommand cmdIn;
-        SUIThreadCommand cmdOut;
-        cmdIn.cmdId=CLOSE_NONMODAL_USER_EDITOR_UITHREADCMD;
-        cmdIn.intParams.push_back(h);
-        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-        int res=cmdOut.intParams[0];
-        if (res>0)
+        int res=0;
+        std::string txt;
+        std::string cb;
+        int posAndSize[4];
+        if (App::userSettings->useOldCodeEditor)
+        {
+            SUIThreadCommand cmdIn;
+            SUIThreadCommand cmdOut;
+            cmdIn.cmdId=CLOSE_NONMODAL_USER_EDITOR_UITHREADCMD;
+            cmdIn.intParams.push_back(h);
+            App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+            res=cmdOut.intParams[0];
+            posAndSize[2]=cmdOut.intParams[1];
+            posAndSize[3]=cmdOut.intParams[2];
+            posAndSize[0]=cmdOut.intParams[3];
+            posAndSize[1]=cmdOut.intParams[4];
+            cb=cmdOut.stringParams[0];
+            txt=cmdOut.stringParams[1];
+        }
+        else
+        {
+            if (App::mainWindow->codeEditorContainer->close(h,posAndSize,&txt,&cb))
+                res=1;
+        }
+        if ( (res>0)&&(!ignoreCb) )
         {   // We call the callback directly from here:
             CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptID(L));
             if (it!=NULL)
             {
                 CInterfaceStack stack;
-                stack.pushStringOntoStack(cmdOut.stringParams[1].c_str(),cmdOut.stringParams[1].size());
-                stack.pushIntArrayTableOntoStack(&cmdOut.intParams[1],2);
-                stack.pushIntArrayTableOntoStack(&cmdOut.intParams[3],2);
-                it->callScriptFunctionEx(cmdOut.stringParams[0].c_str(),&stack);
+                stack.pushStringOntoStack(txt.c_str(),txt.size());
+                stack.pushIntArrayTableOntoStack(posAndSize+0,2);
+                stack.pushIntArrayTableOntoStack(posAndSize+2,2);
+                it->callScriptFunctionEx(cb.c_str(),&stack);
             }
         }
         luaWrap_lua_pushinteger(L,res);

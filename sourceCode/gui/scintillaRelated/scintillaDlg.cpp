@@ -134,57 +134,6 @@ void CScintillaDlg::setColorsAndMainStyles(int scriptType)
         colWord4=VRGBW(App::userSettings->threadedChildScriptColor_word4);
     }
 
-    if (scriptType==3)
-    { // joint callback script
-        colBackground=VRGBW(App::userSettings->jointCallbackScriptColor_background);
-        colSelection=VRGBW(App::userSettings->jointCallbackScriptColor_selection);
-        colComment=VRGBW(App::userSettings->jointCallbackScriptColor_comment);
-        colNumber=VRGBW(App::userSettings->jointCallbackScriptColor_number);
-        colString=VRGBW(App::userSettings->jointCallbackScriptColor_string);
-        colCharacter=VRGBW(App::userSettings->jointCallbackScriptColor_character);
-        colOperator=VRGBW(App::userSettings->jointCallbackScriptColor_operator);
-        colPreprocessor=VRGBW(App::userSettings->jointCallbackScriptColor_preprocessor);
-        colIdentifier=VRGBW(App::userSettings->jointCallbackScriptColor_identifier);
-        colWord=VRGBW(App::userSettings->jointCallbackScriptColor_word);
-        colWord2=VRGBW(App::userSettings->jointCallbackScriptColor_word2);
-        colWord3=VRGBW(App::userSettings->jointCallbackScriptColor_word3);
-        colWord4=VRGBW(App::userSettings->jointCallbackScriptColor_word4);
-    }
-
-    if (scriptType==4)
-    { // contact callback script
-        colBackground=VRGBW(App::userSettings->contactCallbackScriptColor_background);
-        colSelection=VRGBW(App::userSettings->contactCallbackScriptColor_selection);
-        colComment=VRGBW(App::userSettings->contactCallbackScriptColor_comment);
-        colNumber=VRGBW(App::userSettings->contactCallbackScriptColor_number);
-        colString=VRGBW(App::userSettings->contactCallbackScriptColor_string);
-        colCharacter=VRGBW(App::userSettings->contactCallbackScriptColor_character);
-        colOperator=VRGBW(App::userSettings->contactCallbackScriptColor_operator);
-        colPreprocessor=VRGBW(App::userSettings->contactCallbackScriptColor_preprocessor);
-        colIdentifier=VRGBW(App::userSettings->contactCallbackScriptColor_identifier);
-        colWord=VRGBW(App::userSettings->contactCallbackScriptColor_word);
-        colWord2=VRGBW(App::userSettings->contactCallbackScriptColor_word2);
-        colWord3=VRGBW(App::userSettings->contactCallbackScriptColor_word3);
-        colWord4=VRGBW(App::userSettings->contactCallbackScriptColor_word4);
-    }
-
-    if (scriptType==5)
-    { // general callback script
-        colBackground=VRGBW(App::userSettings->generalCallbackScriptColor_background);
-        colSelection=VRGBW(App::userSettings->generalCallbackScriptColor_selection);
-        colComment=VRGBW(App::userSettings->generalCallbackScriptColor_comment);
-        colNumber=VRGBW(App::userSettings->generalCallbackScriptColor_number);
-        colString=VRGBW(App::userSettings->generalCallbackScriptColor_string);
-        colCharacter=VRGBW(App::userSettings->generalCallbackScriptColor_character);
-        colOperator=VRGBW(App::userSettings->generalCallbackScriptColor_operator);
-        colPreprocessor=VRGBW(App::userSettings->generalCallbackScriptColor_preprocessor);
-        colIdentifier=VRGBW(App::userSettings->generalCallbackScriptColor_identifier);
-        colWord=VRGBW(App::userSettings->generalCallbackScriptColor_word);
-        colWord2=VRGBW(App::userSettings->generalCallbackScriptColor_word2);
-        colWord3=VRGBW(App::userSettings->generalCallbackScriptColor_word3);
-        colWord4=VRGBW(App::userSettings->generalCallbackScriptColor_word4);
-    }
-
     static SScintillaColors syntaxColors[]=
     {
         {SCE_LUA_COMMENT,colComment},

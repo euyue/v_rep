@@ -1825,12 +1825,12 @@ int CPluginContainer::codeEditor_setText(int handle,const char* text,int insertM
     return(retVal);
 }
 
-bool CPluginContainer::codeEditor_getText(int handle,std::string& text)
+bool CPluginContainer::codeEditor_getText(int handle,std::string& text,int* positionAndSize)
 {
     bool retVal=false;
     if (currentCodeEditor!=NULL)
     {
-        char* buffer=currentCodeEditor->_codeEditor_getText(handle);
+        char* buffer=currentCodeEditor->_codeEditor_getText(handle,positionAndSize);
         if (buffer!=NULL)
         {
             text=buffer;

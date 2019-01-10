@@ -303,6 +303,20 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
                 }
             }
+            if (cmd.cmdId==OPEN_SCRIPT_EDITOR_CMD)
+            {
+                if (App::getEditModeType()==NO_EDIT_MODE)
+                {
+                    CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(cmd.intParams[0]);
+                    if (it!=NULL)
+                    {
+                        if (it->getScriptType()==sim_scripttype_customizationscript)
+                            App::mainWindow->codeEditorContainer->openCustomizationScript(cmd.intParams[0],-1);
+                        else
+                            App::mainWindow->codeEditorContainer->openSimulationScript(cmd.intParams[0],-1);
+                    }
+                }
+            }
             if (cmd.cmdId==OPEN_MODAL_CUSTOMIZATION_SCRIPT_EDITOR_CMD)
             {
                 if (App::getEditModeType()==NO_EDIT_MODE)
