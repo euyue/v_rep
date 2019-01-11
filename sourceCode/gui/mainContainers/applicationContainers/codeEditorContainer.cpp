@@ -298,7 +298,7 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
             xml+=QString("<editor title=\"%1\"").arg(it->getDescriptiveName().c_str());
             xml+=QString(" position=\"%1 %2\" size=\"%3 %4\"").arg(posAndSize[0]).arg(posAndSize[1]).arg(posAndSize[2]).arg(posAndSize[3]);
             xml+=" resizable=\"true\" closeable=\"true\" placement=\"absolute\" font=\"Courier\" toolbar=\"true\" statusbar=\"false\" wrap-word=\"false\"";
-            if (it->getScriptType()==sim_scripttype_mainscript)
+            if ( (it->getScriptType()==sim_scripttype_mainscript)||it->getThreadedExecution() )
                 xml+=" can-restart=\"false\"";
             else
                 xml+=" can-restart=\"true\"";
@@ -654,7 +654,7 @@ void CCodeEditorContainer::restartScript(int handle) const
             CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(_allEditors[i].scriptHandle);
             if (CPluginContainer::codeEditor_getText(handle,txt,nullptr))
             {
-                if (it!=nullptr)
+                if ( (it!=nullptr)&&(!it->getThreadedExecution()) )
                 {
                     it->setScriptText(txt.c_str(),nullptr);
                     it->killLuaState();
