@@ -13,6 +13,7 @@ struct SCodeEditor {
     bool systemVisibility;
     bool userVisibility;
     bool closeAfterCallbackCalled;
+    bool restartScriptWhenClosing;
     std::string callbackFunction;
 };
 

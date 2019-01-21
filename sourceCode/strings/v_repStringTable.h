@@ -1234,10 +1234,6 @@
 #define IDS_PATH_GRAPH_POSITION_LINEAR_COMPONENT "Path: position, linear component only"
 #define IDS_PATH_GRAPH_POSITION_ANGULAR_COMPONENT "Path: position, angular component only"
 
-#define IDS_MILL_CUT_SURFACE    "Mill: cut surface"
-#define IDS_MILL_CUT_VOLUME     "Mill: cut volume"
-#define IDS_MILL_OVERALL_CUT_SURFACE "Mill: overall cut surface"
-#define IDS_MILL_OVERALL_CUT_VOLUME "Mill: overall cut volume"
 
 #define IDS_COLLISION_CALCULATION_TIME "Collision: calculation time"
 #define IDS_COLLISION_OVERALL_CALCULATION_TIME "Collision: overall calculation time"
@@ -1254,15 +1250,19 @@
 #define IDS_IK_CALCULATION_TIME "Inverse kinematics: calculation time"
 #define IDS_IK_OVERALL_CALCULATION_TIME "Inverse kinematics: overall calculation time"
 
-#define IDS_GCS_CALCULATION_TIME "Constraint solver: calculation time (deprecated)"
-#define IDS_GCS_OVERALL_CALCULATION_TIME "Constraint solver: overall calculation time (deprecated)"
+#define IDS_GCS_CALCULATION_TIME "Constraint solver (deprecated): calculation time"
+#define IDS_GCS_OVERALL_CALCULATION_TIME "Constraint solver (deprecated): overall calculation time"
 
-#define IDS_MILL_CALCULATION_TIME "Mill: calculation time"
-#define IDS_MILL_OVERALL_CALCULATION_TIME "Mill: overall calculation time"
+#define IDS_MILL_CUT_SURFACE    "Mill (deprecated): cut surface"
+#define IDS_MILL_CUT_VOLUME     "Mill (deprecated): cut volume"
+#define IDS_MILL_OVERALL_CUT_SURFACE "Mill (deprecated): overall cut surface"
+#define IDS_MILL_OVERALL_CUT_VOLUME "Mill (deprecated): overall cut volume"
+#define IDS_MILL_CALCULATION_TIME "Mill (deprecated): calculation time"
+#define IDS_MILL_OVERALL_CALCULATION_TIME "Mill (deprecated): overall calculation time"
 
 #define IDS_DYNAMICS_OVERALL_CALCULATION_TIME "Dynamics: overall calculation time"
 
-#define IDS_WORK_THREADS_EXECUTION_TIME "Work threads: execution time"
+#define IDS_WORK_THREADS_EXECUTION_TIME "Work threads (deprecated): execution time"
 
 #define IDS_RENDERING_TIME "Rendering: rendering time"
 

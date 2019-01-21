@@ -259,6 +259,7 @@ int CCodeEditorContainer::open(const char* initText,const char* xml,int callingS
             inf.systemVisibility=true;
             inf.userVisibility=true;
             inf.closeAfterCallbackCalled=false;
+            inf.restartScriptWhenClosing=false;
             inf.callbackFunction="";
             _allEditors.push_back(inf);
         }
@@ -381,6 +382,7 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
             inf.systemVisibility=true;
             inf.userVisibility=true;
             inf.closeAfterCallbackCalled=false;
+            inf.restartScriptWhenClosing=false;
             inf.callbackFunction="";
             _allEditors.push_back(inf);
         }
@@ -453,6 +455,7 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingSc
             inf.systemVisibility=true;
             inf.userVisibility=true;
             inf.closeAfterCallbackCalled=false;
+            inf.restartScriptWhenClosing=true;
             inf.callbackFunction="";
             _allEditors.push_back(inf);
         }
@@ -525,6 +528,8 @@ int CCodeEditorContainer::openConsole(const char* title,int maxLines,int mode,co
         inf.systemVisibility=true;
         inf.userVisibility=true;
         inf.closeAfterCallbackCalled=false;
+        inf.restartScriptWhenClosing=false;
+        inf.restartScriptWhenClosing=false;
         inf.callbackFunction="";
         _allEditors.push_back(inf);
     }
@@ -574,6 +579,7 @@ int CCodeEditorContainer::openTextEditor(const char* initText,const char* xml,co
         inf.systemVisibility=true;
         inf.userVisibility=true;
         inf.closeAfterCallbackCalled=true;
+        inf.restartScriptWhenClosing=false;
         inf.callbackFunction=callback;
         _allEditors.push_back(inf);
     }
@@ -597,7 +603,11 @@ bool CCodeEditorContainer::close(int handle,int posAndSize[4],std::string* txt,s
                 if (txt!=nullptr)
                     txt[0]=_txt;
                 if (it!=nullptr)
+                {
                     it->setScriptText(_txt.c_str(),nullptr);
+                    if (_allEditors[i].restartScriptWhenClosing)
+                        it->killLuaState();
+                }
             }
             int pas[4];
             CPluginContainer::codeEditor_close(handle,pas);

@@ -687,7 +687,6 @@ bool CGraphingRoutines::getDataName(int dataIndex,std::string& dataName)
     if (dataIndex==GRAPH_NOOBJECT_PROXSENSOR_OVERALL_CALCULATION_TIME)
         dataName=IDS_PROXSENSOR_OVERALL_CALCULATION_TIME;
 
-
     if (dataIndex==GRAPH_3DOBJECT_MILL_CUT_SURFACE)
         dataName=IDS_MILL_CUT_SURFACE;
     if (dataIndex==GRAPH_3DOBJECT_MILL_CUT_VOLUME)
@@ -700,7 +699,6 @@ bool CGraphingRoutines::getDataName(int dataIndex,std::string& dataName)
         dataName=IDS_MILL_OVERALL_CUT_VOLUME;
     if (dataIndex==GRAPH_NOOBJECT_MILL_OVERALL_CALCULATION_TIME)
         dataName=IDS_MILL_OVERALL_CALCULATION_TIME;
-
 
     if (dataIndex==GRAPH_3DOBJECT_VISIONSENSOR_MIN_RED)
         dataName=IDS_VISIONSENS_GRAPH_MIN_RED;
