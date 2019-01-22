@@ -2450,10 +2450,15 @@ bool CFileOperations::saveScene(const char* pathAndFilename,bool displayMessages
         if (App::isFullScreen())
             displayDialogs=false;
 
-        #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=NULL)
+#ifdef SIM_WITH_GUI
+        if (App::mainWindow!=NULL)
+        {
+            if (App::userSettings->useOldCodeEditor)
                 App::mainWindow->scintillaEditorContainer->applyChanges(true);
-        #endif
+            else
+                App::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();
+        }
+#endif
 
         void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scenesave,NULL,NULL,NULL);
         delete[] (char*)returnVal;
@@ -2537,10 +2542,15 @@ bool CFileOperations::saveModel(int modelBaseDummyID,const char* pathAndFilename
         else
             modelBBSize=C3Vector::zeroVector;
 
-        #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=NULL)
+#ifdef SIM_WITH_GUI
+        if (App::mainWindow!=NULL)
+        {
+            if (App::userSettings->useOldCodeEditor)
                 App::mainWindow->scintillaEditorContainer->applyChanges(true);
-        #endif
+            else
+                App::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();
+        }
+#endif
 
         if (sel.size()>0)
         {

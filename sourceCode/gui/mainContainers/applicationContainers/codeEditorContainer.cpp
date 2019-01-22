@@ -604,7 +604,7 @@ bool CCodeEditorContainer::close(int handle,int posAndSize[4],std::string* txt,s
                     txt[0]=_txt;
                 if (it!=nullptr)
                 {
-                    it->setScriptText(_txt.c_str(),nullptr);
+                    applyChanges(_allEditors[i].handle);
                     if (_allEditors[i].restartScriptWhenClosing)
                         it->killLuaState();
                 }
@@ -625,6 +625,27 @@ bool CCodeEditorContainer::close(int handle,int posAndSize[4],std::string* txt,s
     return(false);
 }
 
+void CCodeEditorContainer::applyChanges(int handle) const
+{
+    int sceneId=App::ct->environment->getSceneUniqueID();
+    for (size_t i=0;i<_allEditors.size();i++)
+    {
+        if (_allEditors[i].sceneUniqueId==sceneId)
+        {
+            if ( (_allEditors[i].handle==handle)||(handle==-1) )
+            {
+                std::string _txt;
+                CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(_allEditors[i].scriptHandle);
+                if (it!=nullptr)
+                {
+                    if (CPluginContainer::codeEditor_getText(_allEditors[i].handle,_txt,nullptr))
+                        it->setScriptText(_txt.c_str(),nullptr);
+                }
+            }
+        }
+    }
+}
+
 bool CCodeEditorContainer::closeFromScriptHandle(int scriptHandle,int posAndSize[4],bool ignoreChange)
 {
     for (size_t i=0;i<_allEditors.size();i++)
@@ -633,11 +654,8 @@ bool CCodeEditorContainer::closeFromScriptHandle(int scriptHandle,int posAndSize
         {
             std::string txt;
             CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptHandle);
-            if ((!ignoreChange)&&CPluginContainer::codeEditor_getText(_allEditors[i].handle,txt,nullptr))
-            {
-                if (it!=nullptr)
-                    it->setScriptText(txt.c_str(),nullptr);
-            }
+            if (!ignoreChange)
+                applyChanges(_allEditors[i].handle);
             int pas[4];
             CPluginContainer::codeEditor_close(_allEditors[i].handle,pas);
             if (it!=nullptr)
@@ -666,7 +684,7 @@ void CCodeEditorContainer::restartScript(int handle) const
             {
                 if ( (it!=nullptr)&&(!it->getThreadedExecution()) )
                 {
-                    it->setScriptText(txt.c_str(),nullptr);
+                    applyChanges(_allEditors[i].handle);
                     it->killLuaState();
                 }
             }
@@ -754,11 +772,7 @@ void CCodeEditorContainer::simulationAboutToStart() const
         {
             CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(_allEditors[i].scriptHandle);
             if ( (it!=nullptr)&&((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript)||(it->getScriptType()==sim_scripttype_contactcallback)||(it->getScriptType()==sim_scripttype_generalcallback)||(it->getScriptType()==sim_scripttype_jointctrlcallback)) )
-            {
-                std::string txt;
-                if (CPluginContainer::codeEditor_getText(_allEditors[i].handle,txt,nullptr))
-                    it->setScriptText(txt.c_str(),nullptr);
-            }
+                applyChanges(_allEditors[i].handle);
         }
     }
 }
@@ -775,6 +789,11 @@ void CCodeEditorContainer::simulationAboutToEnd()
             i--;
         }
     }
+}
+
+void CCodeEditorContainer::saveOrCopyOperationAboutToHappen() const
+{
+    applyChanges(-1);
 }
 
 bool CCodeEditorContainer::areSceneEditorsOpen() const

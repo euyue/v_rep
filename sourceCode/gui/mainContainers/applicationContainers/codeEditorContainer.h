@@ -35,12 +35,14 @@ public:
     std::string openModalTextEditor(const char* initText,const char* xml,int windowSizeAndPos[4]) const;
     int openTextEditor(const char* initText,const char* xml,const char* callback,int callingScriptHandle,bool isSimulationScript);
     bool close(int handle,int posAndSize[4],std::string* txt,std::string* callback);
+    void applyChanges(int handle) const;
     bool closeFromScriptHandle(int scriptHandle,int posAndSize[4],bool ignoreChange);
     void restartScript(int handle) const;
     int getCallingScriptHandle(int handle) const;
     bool getCloseAfterCallbackCalled(int handle) const;
     void simulationAboutToStart() const;
     void simulationAboutToEnd();
+    void saveOrCopyOperationAboutToHappen() const;
     bool setText(int handle,const char* txt) const;
     std::string getText(int handle,int posAndSize[4]) const;
     bool isHandleValid(int handle) const;

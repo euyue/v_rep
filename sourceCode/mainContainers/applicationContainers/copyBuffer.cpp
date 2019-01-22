@@ -340,6 +340,10 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
     if (sel->size()==0)
         return;
 
+#ifdef SIM_WITH_GUI
+        if (App::mainWindow!=NULL)
+            App::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();
+#endif
     clearBuffer();
     _bufferIsFromLockedScene=fromLockedScene;
     std::vector<C3DObject*> selObj;

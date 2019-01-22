@@ -168,8 +168,16 @@ bool CUndoBufferCont::memorizeState()
     static int tooLongExecutionCount=0;
     int startTime=VDateTime::getTimeInMs();
 
-    if ( (App::mainWindow!=NULL)&&(App::mainWindow->scintillaEditorContainer!=NULL) )
-        App::mainWindow->scintillaEditorContainer->applyChanges(false);
+    if (App::mainWindow!=NULL)
+    {
+        if (App::userSettings->useOldCodeEditor)
+        {
+            if (App::mainWindow->scintillaEditorContainer!=NULL)
+                App::mainWindow->scintillaEditorContainer->applyChanges(true);
+        }
+        else
+            App::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();
+    }
 
     std::vector<char> newBuff;
     CSer serObj(newBuff);
