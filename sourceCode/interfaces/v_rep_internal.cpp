@@ -1123,16 +1123,12 @@ simChar* simGetCollectionName_internal(simInt collectionHandle)
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(NULL);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesCollectionExist(__func__,collectionHandle))
-        {
             return(NULL);
-        }
         CRegCollection* it=App::ct->collections->getCollection(collectionHandle);
         char* retVal=new char[it->getCollectionName().length()+1];
         for (unsigned int i=0;i<it->getCollectionName().length();i++)
@@ -1149,16 +1145,12 @@ simInt simSetCollectionName_internal(simInt collectionHandle,const simChar* coll
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
         if (!doesCollectionExist(__func__,collectionHandle))
-        {
             return(-1);
-        }
         CRegCollection* it=App::ct->collections->getCollection(collectionHandle);
         std::string originalText(collectionName);
         if (originalText.length()>127)
@@ -1174,9 +1166,7 @@ simInt simSetCollectionName_internal(simInt collectionHandle,const simChar* coll
             return(-1);
         }
         if (it->getCollectionName().compare(text)==0)
-        {
             return(1);
-        }
         if (App::ct->collections->getCollection(text)!=NULL)
         {
             CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_ILLEGAL_COLLECTION_NAME);
@@ -1235,16 +1225,12 @@ simInt simSetObjectMatrix_internal(simInt objectHandle,simInt relativeToObjectHa
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
-        {
             return(-1);
-        }
         C3DObject* it=App::ct->objCont->getObject(objectHandle);
         if (relativeToObjectHandle==sim_handle_parent)
         {
@@ -1256,9 +1242,7 @@ simInt simSetObjectMatrix_internal(simInt objectHandle,simInt relativeToObjectHa
         if (relativeToObjectHandle!=-1)
         {
             if (!doesObjectExist(__func__,relativeToObjectHandle))
-            {
                 return(-1);
-            }
         }
         if (it->getObjectType()==sim_object_shape_type)
         {
@@ -1289,16 +1273,12 @@ simInt simGetObjectPosition_internal(simInt objectHandle,simInt relativeToObject
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
-        {
             return(-1);
-        }
         C3DObject* it=App::ct->objCont->getObject(objectHandle);
         if (relativeToObjectHandle==sim_handle_parent)
         {
@@ -1310,9 +1290,7 @@ simInt simGetObjectPosition_internal(simInt objectHandle,simInt relativeToObject
         if (relativeToObjectHandle!=-1)
         {
             if (!doesObjectExist(__func__,relativeToObjectHandle))
-            {
                 return(-1);
-            }
         }
         C7Vector tr;
         if (relativeToObjectHandle==-1)
@@ -1320,8 +1298,15 @@ simInt simGetObjectPosition_internal(simInt objectHandle,simInt relativeToObject
         else
         {
             C3DObject* relObj=App::ct->objCont->getObject(relativeToObjectHandle);
-            C7Vector relTr(relObj->getCumulativeTransformationPart1());
-            tr=relTr.getInverse()*it->getCumulativeTransformationPart1();
+            if (it->getParent()==relObj)
+            { // special here, in order to not lose precision in a series of get/set
+                tr=it->getLocalTransformationPart1();
+            }
+            else
+            {
+                C7Vector relTr(relObj->getCumulativeTransformationPart1());
+                tr=relTr.getInverse()*it->getCumulativeTransformationPart1();
+            }
         }
         tr.X.copyTo(position);
         return(1);
@@ -1335,16 +1320,12 @@ simInt simSetObjectPosition_internal(simInt objectHandle,simInt relativeToObject
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
-        {
             return(-1);
-        }
         C3DObject* it=App::ct->objCont->getObject(objectHandle);
         if (relativeToObjectHandle==sim_handle_parent)
         {
@@ -1356,9 +1337,7 @@ simInt simSetObjectPosition_internal(simInt objectHandle,simInt relativeToObject
         if (relativeToObjectHandle!=-1)
         {
             if (!doesObjectExist(__func__,relativeToObjectHandle))
-            {
                 return(-1);
-            }
         }
         if (it->getObjectType()==sim_object_shape_type)
         {
@@ -1373,12 +1352,21 @@ simInt simSetObjectPosition_internal(simInt objectHandle,simInt relativeToObject
         else
         {
             C3DObject* relObj=App::ct->objCont->getObject(relativeToObjectHandle);
-            C7Vector absTr(it->getCumulativeTransformationPart1());
-            C7Vector relTr(relObj->getCumulativeTransformationPart1());
-            C7Vector x(relTr.getInverse()*absTr);
-            x.X.set(position);
-            absTr=relTr*x;
-            App::ct->objCont->setAbsolutePosition(it->getID(),absTr.X);
+            if (it->getParent()==relObj)
+            { // special here, in order to not lose precision in a series of get/set
+                C7Vector tr(it->getLocalTransformationPart1());
+                tr.X=position;
+                it->setLocalTransformation(tr);
+            }
+            else
+            {
+                C7Vector absTr(it->getCumulativeTransformationPart1());
+                C7Vector relTr(relObj->getCumulativeTransformationPart1());
+                C7Vector x(relTr.getInverse()*absTr);
+                x.X.set(position);
+                absTr=relTr*x;
+                App::ct->objCont->setAbsolutePosition(it->getID(),absTr.X);
+            }
         }
         return(1);
     }
@@ -1391,16 +1379,12 @@ simInt simGetObjectOrientation_internal(simInt objectHandle,simInt relativeToObj
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
-        {
             return(-1);
-        }
         C3DObject* it=App::ct->objCont->getObject(objectHandle);
         if (relativeToObjectHandle==sim_handle_parent)
         {
@@ -1412,9 +1396,7 @@ simInt simGetObjectOrientation_internal(simInt objectHandle,simInt relativeToObj
         if (relativeToObjectHandle!=-1)
         {
             if (!doesObjectExist(__func__,relativeToObjectHandle))
-            {
                 return(-1);
-            }
         }
         C7Vector tr;
         if (relativeToObjectHandle==-1)
@@ -1437,16 +1419,12 @@ simInt simSetObjectOrientation_internal(simInt objectHandle,simInt relativeToObj
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
-        {
             return(-1);
-        }
         C3DObject* it=App::ct->objCont->getObject(objectHandle);
         if (relativeToObjectHandle==sim_handle_parent)
         {
@@ -1458,9 +1436,7 @@ simInt simSetObjectOrientation_internal(simInt objectHandle,simInt relativeToObj
         if (relativeToObjectHandle!=-1)
         {
             if (!doesObjectExist(__func__,relativeToObjectHandle))
-            {
                 return(-1);
-            }
         }
         if (it->getObjectType()==sim_object_shape_type)
         {
@@ -1493,20 +1469,14 @@ simInt simGetJointPosition_internal(simInt objectHandle,simFloat* position)
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
-        {
             return(-1);
-        }
         if (!isJoint(__func__,objectHandle))
-        {
             return(-1);
-        }
         CJoint* it=App::ct->objCont->getJoint(objectHandle);
         if (it->getJointType()==sim_joint_spherical_subtype)
         {
@@ -1525,20 +1495,14 @@ simInt simSetJointPosition_internal(simInt objectHandle,simFloat position)
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
-        {
             return(-1);
-        }
         if (!isJoint(__func__,objectHandle))
-        {
             return(-1);
-        }
         CJoint* it=App::ct->objCont->getJoint(objectHandle);
         if (it->getJointType()==sim_joint_spherical_subtype)
         {
@@ -1557,20 +1521,14 @@ simInt simSetJointTargetPosition_internal(simInt objectHandle,simFloat targetPos
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
-        {
             return(-1);
-        }
         if (!isJoint(__func__,objectHandle))
-        {
             return(-1);
-        }
         CJoint* it=App::ct->objCont->getJoint(objectHandle);
         if (it->getJointType()==sim_joint_spherical_subtype)
         {
@@ -1595,20 +1553,14 @@ simInt simGetJointTargetPosition_internal(simInt objectHandle,simFloat* targetPo
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
-        {
             return(-1);
-        }
         if (!isJoint(__func__,objectHandle))
-        {
             return(-1);
-        }
         CJoint* it=App::ct->objCont->getJoint(objectHandle);
         if (it->getJointType()==sim_joint_spherical_subtype)
         {
@@ -1627,20 +1579,14 @@ simInt simSetJointForce_internal(simInt objectHandle,simFloat forceOrTorque)
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
-        {
             return(-1);
-        }
         if (!isJoint(__func__,objectHandle))
-        {
             return(-1);
-        }
         CJoint* it=App::ct->objCont->getJoint(objectHandle);
         it->setDynamicMotorMaximumForce(forceOrTorque);
         return(1);
@@ -1654,20 +1600,14 @@ simInt simGetPathPosition_internal(simInt objectHandle,simFloat* position)
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
-        {
             return(-1);
-        }
         if (!isPath(__func__,objectHandle))
-        {
             return(-1);
-        }
         CPath* it=App::ct->objCont->getPath(objectHandle);
         position[0]=float(it->pathContainer->getPosition());
         return(1);
@@ -1681,20 +1621,14 @@ simInt simSetPathPosition_internal(simInt objectHandle,simFloat position)
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
-        {
             return(-1);
-        }
         if (!isPath(__func__,objectHandle))
-        {
             return(-1);
-        }
         CPath* it=App::ct->objCont->getPath(objectHandle);
         it->pathContainer->setPosition(position);
         return(1);
@@ -1708,20 +1642,14 @@ simInt simGetPathLength_internal(simInt objectHandle,simFloat* length)
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
-        {
             return(-1);
-        }
         if (!isPath(__func__,objectHandle))
-        {
             return(-1);
-        }
         CPath* it=App::ct->objCont->getPath(objectHandle);
         length[0]=it->pathContainer->getBezierVirtualPathLength();
         return(1);
@@ -13605,16 +13533,12 @@ simInt simGetObjectQuaternion_internal(simInt objectHandle,simInt relativeToObje
     // V-REP quaternion, at interfaces: x y z w
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
-        {
             return(-1);
-        }
         C3DObject* it=App::ct->objCont->getObject(objectHandle);
         if (relativeToObjectHandle==sim_handle_parent)
         {
@@ -13626,9 +13550,7 @@ simInt simGetObjectQuaternion_internal(simInt objectHandle,simInt relativeToObje
         if (relativeToObjectHandle!=-1)
         {
             if (!doesObjectExist(__func__,relativeToObjectHandle))
-            {
                 return(-1);
-            }
         }
         C7Vector tr;
         if (relativeToObjectHandle==-1)
@@ -13636,8 +13558,15 @@ simInt simGetObjectQuaternion_internal(simInt objectHandle,simInt relativeToObje
         else
         {
             C3DObject* relObj=App::ct->objCont->getObject(relativeToObjectHandle);
-            C7Vector relTr(relObj->getCumulativeTransformationPart1());
-            tr=relTr.getInverse()*it->getCumulativeTransformationPart1();
+            if (it->getParent()==relObj)
+            { // special here, in order to not lose precision in a series of get/set
+                tr=it->getLocalTransformationPart1();
+            }
+            else
+            {
+                C7Vector relTr(relObj->getCumulativeTransformationPart1());
+                tr=relTr.getInverse()*it->getCumulativeTransformationPart1();
+            }
         }
         quaternion[0]=tr.Q(1);
         quaternion[1]=tr.Q(2);
@@ -13656,16 +13585,12 @@ simInt simSetObjectQuaternion_internal(simInt objectHandle,simInt relativeToObje
     // V-REP quaternion, at interfaces: x y z w
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesObjectExist(__func__,objectHandle))
-        {
             return(-1);
-        }
         C3DObject* it=App::ct->objCont->getObject(objectHandle);
         if (relativeToObjectHandle==sim_handle_parent)
         {
@@ -13677,9 +13602,7 @@ simInt simSetObjectQuaternion_internal(simInt objectHandle,simInt relativeToObje
         if (relativeToObjectHandle!=-1)
         {
             if (!doesObjectExist(__func__,relativeToObjectHandle))
-            {
                 return(-1);
-            }
         }
         if (it->getObjectType()==sim_object_shape_type)
         {
@@ -13701,15 +13624,27 @@ simInt simSetObjectQuaternion_internal(simInt objectHandle,simInt relativeToObje
         else
         {
             C3DObject* relObj=App::ct->objCont->getObject(relativeToObjectHandle);
-            C7Vector absTr(it->getCumulativeTransformationPart1());
-            C7Vector relTr(relObj->getCumulativeTransformationPart1());
-            C7Vector x(relTr.getInverse()*absTr);
-            x.Q(0)=quaternion[3];
-            x.Q(1)=quaternion[0];
-            x.Q(2)=quaternion[1];
-            x.Q(3)=quaternion[2];
-            absTr=relTr*x;
-            App::ct->objCont->setAbsoluteAngles(it->getID(),absTr.Q.getEulerAngles());
+            if (it->getParent()==relObj)
+            { // special here, in order to not lose precision in a series of get/set
+                C7Vector tr(it->getLocalTransformationPart1());
+                tr.Q(0)=quaternion[3];
+                tr.Q(1)=quaternion[0];
+                tr.Q(2)=quaternion[1];
+                tr.Q(3)=quaternion[2];
+                it->setLocalTransformation(tr);
+            }
+            else
+            {
+                C7Vector absTr(it->getCumulativeTransformationPart1());
+                C7Vector relTr(relObj->getCumulativeTransformationPart1());
+                C7Vector x(relTr.getInverse()*absTr);
+                x.Q(0)=quaternion[3];
+                x.Q(1)=quaternion[0];
+                x.Q(2)=quaternion[1];
+                x.Q(3)=quaternion[2];
+                absTr=relTr*x;
+                App::ct->objCont->setAbsoluteAngles(it->getID(),absTr.Q.getEulerAngles());
+            }
         }
         return(1);
     }
