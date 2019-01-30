@@ -169,9 +169,16 @@ CMainWindow::CMainWindow() : QMainWindow()
             FUNCTION_INSIDE_DEBUG("OpenGL: could not enable stereo.");
         }
     }
+    #ifdef LIN_VREP
+        printf("If V-REP crashes now, try to install libgl1-mesa-dev on your system:\n");
+        printf(">sudo apt install libgl1-mesa-dev\n");
+    #endif
     #ifndef USING_QOPENGLWIDGET
         openglWidget->makeCurrent();
         initGl_ifNeeded();
+    #endif
+    #ifdef LIN_VREP
+    printf("...did not crash.\n");
     #endif
 // -----------
 
