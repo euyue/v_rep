@@ -47,7 +47,7 @@ void CAuxLibVideo::loadLibrary(bool headless)
             cmd.intParams.push_back(sim_msgbox_type_info);
             cmd.stringParams.push_back("Video compression library");
             #ifdef LIN_VREP
-            cmd.stringParams.push_back("Could not find or correctly load the video compression library.\n\nTry following:\n\n>sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev");
+            cmd.stringParams.push_back("Could not find or correctly load the video compression library.\n\nTry following:\n\n>sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev\nif above fails, try first:\nsudo apt-get -f install");
             #else
             cmd.stringParams.push_back("Could not find or correctly load the video compression library.");
             #endif
@@ -58,6 +58,8 @@ void CAuxLibVideo::loadLibrary(bool headless)
             printf("Try following:\n");
             printf("\n");
             printf(">sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev\n");
+            printf("if above fails, try first:\n");
+            printf(">sudo apt-get -f install\n");
             printf("\n");
             #endif
         }
