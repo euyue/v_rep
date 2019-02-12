@@ -139,7 +139,7 @@ bool CSimAndUiThreadSync::uiThread_tryToLockForUiEventRead(int maxTime)
     int to=1;
     if (maxTime==0)
         to=0;
-    while (VDateTime::getTimeDiffInMs(startTime)<=maxTime)
+    while (true)
     {
         if (_uiReadPermission.tryLock(VSimUiMutex::ui,to))
         { // the lock succeeded.
@@ -148,6 +148,8 @@ bool CSimAndUiThreadSync::uiThread_tryToLockForUiEventRead(int maxTime)
             break;
         }
         if (maxTime==0)
+            break;
+        if ( (maxTime==0)||(VDateTime::getTimeDiffInMs(startTime)>maxTime) )
             break;
 
         // Following instruction can be important (but not critical if not present, because the lock will simply fail):

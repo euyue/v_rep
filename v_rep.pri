@@ -113,6 +113,8 @@ clang* {
     QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-but-set-variable
     QMAKE_CXXFLAGS_WARN_ON += -Wno-unused-local-typedefs
     QMAKE_CXXFLAGS_WARN_ON += -Wno-narrowing
+    QMAKE_CFLAGS += -mmacosx-version-min=10.7
+    QMAKE_CXXFLAGS += -mmacosx-version-min=10.7
 
     DEFINES += VREP_COMPILER_STR=\\\"Clang\\\"
 }
