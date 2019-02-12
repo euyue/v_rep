@@ -147,8 +147,6 @@ bool CSimAndUiThreadSync::uiThread_tryToLockForUiEventRead(int maxTime)
             _ui_readLevel++;
             break;
         }
-        if (maxTime==0)
-            break;
         if ( (maxTime==0)||(VDateTime::getTimeDiffInMs(startTime)>maxTime) )
             break;
 
