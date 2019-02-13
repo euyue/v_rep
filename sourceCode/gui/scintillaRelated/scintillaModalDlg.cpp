@@ -82,7 +82,7 @@ bool CScintillaModalDlg::initialize(int scriptId,const char* titleText,bool read
     resize(posAndSize[2],posAndSize[3]);
 
     setWindowTitle(titleText);
-    _scintillaObject->SendScintilla(QsciScintillaBase::SCI_SETTEXT,(unsigned long)0,it->getScriptText(&_tempFoldingThing));
+    _scintillaObject->SendScintilla(QsciScintillaBase::SCI_SETTEXT,(unsigned long)0,it->getScriptText());
     _scintillaObject->SendScintilla(QsciScintillaBase::SCI_EMPTYUNDOBUFFER); // Make sure the undo buffer is empty (otherwise the first undo will remove the whole script --> a bit confusing)
     if (readOnly)
         _scintillaObject->SendScintilla(QsciScintillaBase::SCI_SETREADONLY,(int)1);
@@ -180,10 +180,7 @@ void CScintillaModalDlg::makeDialogModal()
     char* buff=new char[l+1];
     _scintillaObject->SendScintilla(QsciScintillaBase::SCI_GETTEXT,(unsigned long)l+1,buff);
 
-    std::vector<int> foldLev=_unfold();
-    _fold(foldLev);
-
-    it->setScriptText(buff,&foldLev);
+    it->setScriptText(buff);
 
     int posAndSize[4];
     QRect geom(geometry());
@@ -285,13 +282,6 @@ void CScintillaModalDlg::_updateUi(int updated)
         delete[] txt;
     }
 
-    if (_tempFoldingThing.size()!=0)
-    { // When the window is opened, then we first scroll to the end of the document (in the init2 phase), otherwise the folding doesn't always work somehow
-        std::vector<int> tmp(_tempFoldingThing);
-        _tempFoldingThing.clear();
-        _fold(tmp);
-        _scintillaObject->SendScintilla(QsciScintillaBase::SCI_GOTOLINE,(int)0); // scroll back to the beginning of the document
-    }
 }
 
 void CScintillaModalDlg::_onFind()
@@ -352,75 +342,6 @@ void CScintillaModalDlg::_findText(const char* txt,bool caseSensitive)
     }
 }
 
-
-std::vector<int> CScintillaModalDlg::_unfold()
-{
-    int totLines=_scintillaObject->SendScintilla(QsciScintillaBase::SCI_GETLINECOUNT);
-    std::vector<int> retV(totLines,0);
-    for (int i=0;i<totLines;i++)
-    {
-        if (_scintillaObject->SendScintilla(QsciScintillaBase::SCI_GETLINEVISIBLE,(int)i)==0)
-        {
-            std::vector<int> before(totLines,0);
-            for (int j=i;j<totLines;j++)
-                before[j]=_scintillaObject->SendScintilla(QsciScintillaBase::SCI_GETLINEVISIBLE,(int)j);
-            _scintillaObject->foldLine(i-1); // unfold this section (we actually unfold the previous line that is already visible)
-            int lastChangedLine=i;
-            for (int j=i;j<totLines;j++)
-            {
-                int isVisible=_scintillaObject->SendScintilla(QsciScintillaBase::SCI_GETLINEVISIBLE,(int)j);
-                if (isVisible!=before[j])
-                    lastChangedLine=j;
-            }
-
-            for (int j=i;j<=lastChangedLine;j++)
-                retV[j]++;
-        }
-    }
-    return(retV);
-}
-
-void CScintillaModalDlg::_fold(const std::vector<int>& foldingSt)
-{
-    std::vector<int> foldingState(foldingSt);
-    int totLines=_scintillaObject->SendScintilla(QsciScintillaBase::SCI_GETLINECOUNT);
-    if (totLines>int(foldingState.size()))
-        return;
-    int index=_fold_getHighestIndex(foldingState);
-    while (index!=-1)
-    {
-        _scintillaObject->foldLine(index-1); // fold this section (we actually fold the previous line that will remain visible)
-        _fold_overwriteFromIndex(foldingState,index,foldingState[index-1]);
-        index=_fold_getHighestIndex(foldingState);
-    }
-}
-
-int CScintillaModalDlg::_fold_getHighestIndex(std::vector<int>& foldingState)
-{
-    int highest=0;
-    int index=-1;
-    for (int i=0;i<int(foldingState.size());i++)
-    {
-        if (foldingState[i]>highest)
-        {
-            highest=foldingState[i];
-            index=i;
-        }
-    }
-    return(index);
-}
-
-void CScintillaModalDlg::_fold_overwriteFromIndex(std::vector<int>& foldingState,int index,int newValue)
-{
-    int v=foldingState[index];
-    for (int i=index;i<int(foldingState.size());i++)
-    {
-        if (foldingState[i]==v)
-            foldingState[i]=newValue;
-        else
-            break;
-    }
-}
 
 void CScintillaModalDlg::_charAdded(int charAdded)
 {

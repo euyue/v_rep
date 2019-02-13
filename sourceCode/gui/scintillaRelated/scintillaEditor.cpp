@@ -64,37 +64,30 @@ bool CScintillaEditor::initialize(int scriptID)
         return(false);
     }
 
-    if (App::userSettings->useBuiltInScriptEditor())
-    {
-        int scriptType=-1;
-        bool scriptIsThreaded=false;
-        CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptID);
-        if (it!=NULL)
-        {
-            scriptType=it->getScriptType();
-            scriptIsThreaded=it->getThreadedExecution();
-        }
-        _dlg=new CScintillaDlg(scriptType,scriptIsThreaded,App::mainWindow);
-        if (_dlg==NULL)
-            return(false);
-    }
+    int scriptType=-1;
+    bool scriptIsThreaded=false;
     CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptID);
+    if (it!=NULL)
+    {
+        scriptType=it->getScriptType();
+        scriptIsThreaded=it->getThreadedExecution();
+    }
+    _dlg=new CScintillaDlg(scriptType,scriptIsThreaded,App::mainWindow);
+    if (_dlg==NULL)
+        return(false);
     if (it==NULL)
     {
-        if (App::userSettings->useBuiltInScriptEditor())
-            _closeDlgWindow(true);
+        _closeDlgWindow(true);
         return(false);
     }
-    if (App::userSettings->useBuiltInScriptEditor())
-        _dlg->setScriptID(scriptID);
+    _dlg->setScriptID(scriptID);
     if (it->getScriptType()==sim_scripttype_mainscript)
     { 
         if (it->isDefaultMainScript())
         { // Display warning
             if (VMESSAGEBOX_REPLY_YES!=App::uiThread->messageBox_warning(App::mainWindow,strTranslate("Main script"),strTranslate(IDS_MAINSCRIPT_EDITION_WARNING),VMESSAGEBOX_YES_NO))
             {
-                if (App::userSettings->useBuiltInScriptEditor())
-                    _closeDlgWindow(false);
+                _closeDlgWindow(false);
                 return(false);
             }
             // Have have to make the main script a default main script!
@@ -102,29 +95,25 @@ bool CScintillaEditor::initialize(int scriptID)
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // **************** UNDO THINGY ****************
         }
     }
-    if (App::userSettings->useBuiltInScriptEditor())
+    int posAndSize[4];
+    it->getPreviousEditionWindowPosAndSize(posAndSize);
+    _dlg->initPhase1(posAndSize);
+    _scriptID=scriptID;
+    updateWindowExceptContentText();
+    if (it->getScriptType()==sim_scripttype_mainscript)
+        _dlg->setColorsAndMainStyles(0);
+    if (it->getScriptType()==sim_scripttype_childscript)
     {
-        int posAndSize[4];
-        it->getPreviousEditionWindowPosAndSize(posAndSize);
-        _dlg->initPhase1(posAndSize);
-        _scriptID=scriptID;
-        updateWindowExceptContentText();
-        if (it->getScriptType()==sim_scripttype_mainscript)
-            _dlg->setColorsAndMainStyles(0);
-        if (it->getScriptType()==sim_scripttype_childscript)
-        {
-            if (it->getThreadedExecution())
-                _dlg->setColorsAndMainStyles(2);
-            else
-                _dlg->setColorsAndMainStyles(1);
-        }
-        if (it->getScriptType()==sim_scripttype_jointctrlcallback)
-            _dlg->setColorsAndMainStyles(3);
-        if (it->getScriptType()==sim_scripttype_generalcallback)
-            _dlg->setColorsAndMainStyles(5);
-        std::vector<int> foldingThing;
-        _dlg->initPhase2(it->getScriptText(&foldingThing),&foldingThing);
+        if (it->getThreadedExecution())
+            _dlg->setColorsAndMainStyles(2);
+        else
+            _dlg->setColorsAndMainStyles(1);
     }
+    if (it->getScriptType()==sim_scripttype_jointctrlcallback)
+        _dlg->setColorsAndMainStyles(3);
+    if (it->getScriptType()==sim_scripttype_generalcallback)
+        _dlg->setColorsAndMainStyles(5);
+    _dlg->initPhase2(it->getScriptText());
     return(true);
 }
 
@@ -169,7 +158,7 @@ void CScintillaEditor::_closeDlgWindow(bool announceChange)
 { // announceChange is true by default!
     if (_dlg==NULL)
         return;
-    bool changed=applyChanges(true);
+    bool changed=applyChanges();
     delete _dlg;
     _dlg=NULL;
     _scriptID=-1;
@@ -180,7 +169,7 @@ void CScintillaEditor::_closeDlgWindow(bool announceChange)
     }
 }
 
-bool CScintillaEditor::applyChanges(bool getFoldingInfo)
+bool CScintillaEditor::applyChanges()
 {
     FUNCTION_DEBUG;
     if (_dlg==NULL)
@@ -193,7 +182,7 @@ bool CScintillaEditor::applyChanges(bool getFoldingInfo)
     _dlg->_scintillaObject->SendScintilla(QsciScintillaBase::SCI_GETTEXT,(unsigned long)l+1,buff);
 
     bool changed=false;
-    const char* originalBuff=it->getScriptText(NULL);
+    const char* originalBuff=it->getScriptText();
     if (int(strlen(originalBuff))==l)
     {
         for (int i=0;i<l;i++)
@@ -208,13 +197,7 @@ bool CScintillaEditor::applyChanges(bool getFoldingInfo)
     else
         changed=true;
 
-    if (getFoldingInfo)
-    {
-        std::vector<int> foldingInfo(_dlg->getFoldingInfo());
-        it->setScriptText(buff,&foldingInfo);
-    }
-    else
-        it->setScriptText(buff,NULL);
+    it->setScriptText(buff);
     delete[] buff;
     return(changed);
 }

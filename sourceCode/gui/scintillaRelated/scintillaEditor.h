@@ -16,7 +16,7 @@ public:
     void newSceneProcedure();
     int getScriptID();
     bool updateWindowExceptContentText();
-    bool applyChanges(bool getFoldingInfo);
+    bool applyChanges();
     void requestClosing(void* dialogPointer);
 
     void showEditorButDontOpenIt();

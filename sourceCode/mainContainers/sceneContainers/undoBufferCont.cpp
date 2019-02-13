@@ -173,7 +173,7 @@ bool CUndoBufferCont::memorizeState()
         if (App::userSettings->useOldCodeEditor)
         {
             if (App::mainWindow->scintillaEditorContainer!=NULL)
-                App::mainWindow->scintillaEditorContainer->applyChanges(true);
+                App::mainWindow->scintillaEditorContainer->applyChanges();
         }
         else
             App::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();

@@ -5155,7 +5155,7 @@ simInt simSetScriptText_internal(simInt scriptHandle,const simChar* scriptText)
                 if (App::userSettings->useOldCodeEditor)
                 {
                     bool wasOpen=App::mainWindow->scintillaEditorContainer->closeEditor(scriptHandle);
-                    it->setScriptText(scriptText,NULL);
+                    it->setScriptText(scriptText);
                     if (wasOpen)
                         App::mainWindow->scintillaEditorContainer->openEditorForScript(scriptHandle);
                 }
@@ -5164,7 +5164,7 @@ simInt simSetScriptText_internal(simInt scriptHandle,const simChar* scriptText)
             }
             else
 #endif
-                it->setScriptText(scriptText,NULL);
+                it->setScriptText(scriptText);
             it->killLuaState();
             return(1);
         }
@@ -5203,7 +5203,7 @@ const simChar* simGetScriptText_internal(simInt scriptHandle)
             if (App::userSettings->useOldCodeEditor)
             {
                 bool wasOpen=App::mainWindow->scintillaEditorContainer->closeEditor(scriptHandle);
-                retVal=it->getScriptText(NULL);
+                retVal=it->getScriptText();
                 if (wasOpen)
                     App::mainWindow->scintillaEditorContainer->openEditorForScript(scriptHandle);
             }
@@ -5212,7 +5212,7 @@ const simChar* simGetScriptText_internal(simInt scriptHandle)
         }
         else
 #endif
-            retVal=it->getScriptText(NULL);
+            retVal=it->getScriptText();
         return(retVal);
     }
     CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);

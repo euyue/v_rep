@@ -32,7 +32,6 @@ public:
     int getScriptUniqueID() const;
     void setScriptID(int newID);
     bool isSceneScript() const;
-    std::string getIncludeScriptFilePathAndName() const;
 
     std::string getDescriptiveName() const;
     std::string getShortDescriptiveName() const;
@@ -52,8 +51,8 @@ public:
     void setObjectIDThatScriptIsAttachedTo_customization(int newObjectID); // for customization scripts
 
 
-    void setScriptText(const char* scriptTxt,const std::vector<int>* scriptFoldingInfo);
-    const char* getScriptText(std::vector<int>* scriptFoldingInfo);
+    void setScriptText(const char* scriptTxt);
+    const char* getScriptText();
 
     void setCalledInThisSimulationStep(bool c);
     bool getCalledInThisSimulationStep() const;
@@ -154,18 +153,12 @@ public:
 
     static bool emergencyStopButtonPressed;
 
-    void fromFileToBuffer(); // when using an external editor
-    void fromBufferToFile();
-
     void setInsideCustomLuaFunction(bool inside);
     bool getInsideCustomLuaFunction() const;
 
     bool getContainsJointCallbackFunction() const;
     bool getContainsContactCallbackFunction() const;
     bool getContainsDynCallbackFunction() const;
-
-
-    std::string getFilenameForExternalScriptEditor() const;
 
     VTHREAD_ID_TYPE getThreadedScriptThreadId() const;
 
@@ -228,7 +221,6 @@ protected:
     std::string _scriptTextExec; // the one getting executed!
     bool _externalScriptText;
 
-    std::vector<int> _scriptFoldingInfo;
     CLuaScriptParameters* scriptParameters;
     COutsideCommandQueueForScript* _outsideCommandQueue;
     CCustomData* _customObjectData;
@@ -262,7 +254,6 @@ protected:
     std::string _addOnName;
     int _addOn_executionState;
     std::mt19937 _randGen;
-    std::string _filenameForExternalScriptEditor;
 
 
     std::vector<char*> _userData;

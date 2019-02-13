@@ -781,7 +781,7 @@ bool CJoint::getEnableDynamicMotorControlLoop()
     return(_dynamicMotorControlLoopEnabled);
 }
 
-void CJoint::setEnableDynamicMotorCustomControl_OLD(bool c,const char* scriptContent,const std::vector<int>* foldingInfo)
+void CJoint::setEnableDynamicMotorCustomControl_OLD(bool c,const char* scriptContent)
 {
     _dynamicMotorCustomControl_OLD=c;
 
@@ -794,7 +794,7 @@ void CJoint::setEnableDynamicMotorCustomControl_OLD(bool c,const char* scriptCon
     { // we have to add a script
         CLuaScriptObject* script=new CLuaScriptObject(sim_scripttype_jointctrlcallback);
         if (scriptContent)
-            script->setScriptText(scriptContent,foldingInfo);
+            script->setScriptText(scriptContent);
         App::ct->luaScriptContainer->insertScript(script);
         script->setObjectIDThatScriptIsAttachedTo_callback_OLD(getID());
     }

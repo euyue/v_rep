@@ -369,7 +369,7 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
             xml+=">";
             xml+=getKeywords(it->getScriptType(),it->getThreadedExecution());
             xml+"</editor>";
-            retVal=CPluginContainer::codeEditor_open(it->getScriptText(nullptr),xml.toStdString().c_str());
+            retVal=CPluginContainer::codeEditor_open(it->getScriptText(),xml.toStdString().c_str());
             SCodeEditor inf;
             inf.handle=retVal;
             inf.scriptHandle=scriptHandle;
@@ -442,7 +442,7 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingSc
             xml+=">";
             xml+=getKeywords(it->getScriptType(),it->getThreadedExecution());
             xml+"</editor>";
-            retVal=CPluginContainer::codeEditor_open(it->getScriptText(nullptr),xml.toStdString().c_str());
+            retVal=CPluginContainer::codeEditor_open(it->getScriptText(),xml.toStdString().c_str());
             SCodeEditor inf;
             inf.handle=retVal;
             inf.scriptHandle=scriptHandle;
@@ -637,7 +637,7 @@ void CCodeEditorContainer::applyChanges(int handle) const
                 if (it!=nullptr)
                 {
                     if (CPluginContainer::codeEditor_getText(_allEditors[i].handle,_txt,nullptr))
-                        it->setScriptText(_txt.c_str(),nullptr);
+                        it->setScriptText(_txt.c_str());
                 }
             }
         }
@@ -696,7 +696,7 @@ void CCodeEditorContainer::killLuaState(int scriptHandle) const
     CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptHandle);
     if ( (it!=nullptr)&&it->killLuaState() )
     {
-        std::string msg(it->getShortDescriptiveName());
+        std::string msg(it->getDescriptiveName());
         msg+=" was reset.";
         App::addStatusbarMessage(msg,false);
     }

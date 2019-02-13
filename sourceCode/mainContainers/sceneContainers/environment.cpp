@@ -355,7 +355,7 @@ int CEnvironment::setEnableCustomContactHandlingViaScript(bool c,const char* scr
     { // we have to add a script
         CLuaScriptObject* script=new CLuaScriptObject(sim_scripttype_contactcallback);
         if (scriptContent)
-            script->setScriptText(scriptContent,NULL);
+            script->setScriptText(scriptContent);
         retVal=App::ct->luaScriptContainer->insertScript(script);
     }
     return(retVal);
@@ -380,7 +380,7 @@ int CEnvironment::setEnableGeneralCallbackScript_OLD(bool c,const char* scriptCo
     { // we have to add a script
         CLuaScriptObject* script=new CLuaScriptObject(sim_scripttype_generalcallback);
         if (scriptContent)
-            script->setScriptText(scriptContent,NULL);
+            script->setScriptText(scriptContent);
         retVal=App::ct->luaScriptContainer->insertScript(script);
     }
     return(retVal);

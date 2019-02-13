@@ -85,8 +85,6 @@ CLuaScriptObject::CLuaScriptObject(int scriptTypeOrMinusOneForSerialization)
         _nextIdForExternalScriptEditor=(VDateTime::getOSTimeInMs()&0xffff)*1000;
     }
 
-    _filenameForExternalScriptEditor="embScript_"+tt::FNb(_nextIdForExternalScriptEditor++)+".lua";
-
     if (_scriptType==sim_scripttype_sandboxscript)
     {
         scriptID=SIM_IDSTART_SANDBOXSCRIPT;
@@ -108,17 +106,6 @@ CLuaScriptObject::~CLuaScriptObject()
     delete _outsideCommandQueue;
     delete _customObjectData;
     delete _customObjectData_tempData;
-    if (!App::userSettings->useBuiltInScriptEditor())
-    {
-        if ( (_scriptType==sim_scripttype_mainscript)||(_scriptType==sim_scripttype_childscript)||(_scriptType==sim_scripttype_jointctrlcallback)||(_scriptType==sim_scripttype_contactcallback)||(_scriptType==sim_scripttype_generalcallback) )
-        {       
-            // destroy file
-            std::string fname=App::directories->extScriptEditorTempFileDirectory+VREP_SLASH;
-            fname.append(_filenameForExternalScriptEditor);
-            if (VFile::doesFileExist(fname))
-                VFile::eraseFile(fname);
-        }
-    }
 }
 
 std::string CLuaScriptObject::getSystemCallbackString(int calltype,bool callTips)
@@ -692,69 +679,6 @@ int CLuaScriptObject::getAddOnExecutionState() const
     return(_addOn_executionState);
 }
 
-std::string CLuaScriptObject::getFilenameForExternalScriptEditor() const
-{
-    std::string fname=App::directories->extScriptEditorTempFileDirectory+VREP_SLASH;
-    fname.append(_filenameForExternalScriptEditor);
-    return(fname);
-}
-
-void CLuaScriptObject::fromFileToBuffer()
-{
-    if (!App::userSettings->useBuiltInScriptEditor())
-    { // read file
-        _scriptFoldingInfo.clear();
-        if ( (_scriptType==sim_scripttype_mainscript)||(_scriptType==sim_scripttype_childscript)||(_scriptType==sim_scripttype_jointctrlcallback)||(_scriptType==sim_scripttype_contactcallback)||(_scriptType==sim_scripttype_generalcallback) )
-        {
-            std::string fname=App::directories->extScriptEditorTempFileDirectory+VREP_SLASH;
-            fname.append(_filenameForExternalScriptEditor);
-
-            VFile myFile(fname.c_str(),VFile::READ|VFile::SHARE_DENY_NONE,true);
-            if (myFile.getFile()!=NULL)
-            {
-                VArchive arW(&myFile,VArchive::LOAD);
-                unsigned int archiveLength=(unsigned int)myFile.getLength();
-
-                _scriptText.resize(archiveLength,' ');
-                for (unsigned int i=0;i<archiveLength;i++)
-                    arW >> _scriptText[i];
-
-                arW.close();
-                myFile.close();
-            }
-        }
-    }
-}
-
-void CLuaScriptObject::fromBufferToFile()
-{
-    if (!App::userSettings->useBuiltInScriptEditor())
-    { // write file
-        _scriptFoldingInfo.clear();
-        if ((App::ct->environment==NULL)||(!App::ct->environment->getSceneLocked()))
-        {
-            if ( (_scriptType==sim_scripttype_mainscript)||(_scriptType==sim_scripttype_childscript)||(_scriptType==sim_scripttype_jointctrlcallback)||(_scriptType==sim_scripttype_contactcallback)||(_scriptType==sim_scripttype_generalcallback) )
-            {
-                std::string fname=App::directories->extScriptEditorTempFileDirectory+VREP_SLASH;
-                fname.append(_filenameForExternalScriptEditor);
-
-                VFile myFile(fname.c_str(),VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE,true);
-                if (myFile.getFile()!=NULL)
-                {
-                    VArchive arW(&myFile,VArchive::STORE);
-                    if (_scriptText.size()>0)
-                    {
-                        for (size_t i=0;i<_scriptText.size();i++)
-                            arW << _scriptText[i];
-                    }
-                    arW.close();
-                    myFile.close();
-                }
-            }
-        }
-    }
-}
-
 void CLuaScriptObject::setExecuteJustOnce(bool justOnce)
 {
     _executeJustOnce=justOnce;
@@ -977,28 +901,17 @@ void CLuaScriptObject::setAddOnScriptAutoRun()
     _addOn_executionState=-1;
 }
 
-void CLuaScriptObject::setScriptText(const char* scriptTxt,const std::vector<int>* scriptFoldingInfo)
+void CLuaScriptObject::setScriptText(const char* scriptTxt)
 {
     EASYLOCK(_localMutex);
 
     _scriptText="";
     if (scriptTxt!=NULL)
         _scriptText=scriptTxt;
-
-    if (scriptFoldingInfo!=NULL)
-        _scriptFoldingInfo.assign(scriptFoldingInfo[0].begin(),scriptFoldingInfo[0].end());
-    else
-        _scriptFoldingInfo.clear();
-    if ( (_scriptType==sim_scripttype_mainscript)||(_scriptType==sim_scripttype_childscript)||(_scriptType==sim_scripttype_jointctrlcallback)||(_scriptType==sim_scripttype_contactcallback)||(_scriptType==sim_scripttype_generalcallback) )
-        fromBufferToFile();
 }
 
-const char* CLuaScriptObject::getScriptText(std::vector<int>* scriptFoldingInfo)
+const char* CLuaScriptObject::getScriptText()
 {
-    if (scriptFoldingInfo!=NULL)
-        scriptFoldingInfo[0].assign(_scriptFoldingInfo.begin(),_scriptFoldingInfo.end());
-    if ( (_scriptType==sim_scripttype_mainscript)||(_scriptType==sim_scripttype_childscript)||(_scriptType==sim_scripttype_jointctrlcallback)||(_scriptType==sim_scripttype_contactcallback)||(_scriptType==sim_scripttype_generalcallback) )
-        fromFileToBuffer();
     return(_scriptText.c_str());
 }
 
@@ -1022,60 +935,9 @@ bool CLuaScriptObject::isSceneScript() const
     return ( (_scriptType==sim_scripttype_mainscript)||(_scriptType==sim_scripttype_childscript)||(_scriptType==sim_scripttype_jointctrlcallback)||(_scriptType==sim_scripttype_contactcallback)||(_scriptType==sim_scripttype_generalcallback)||(_scriptType==sim_scripttype_customizationscript) );
 }
 
-std::string CLuaScriptObject::getIncludeScriptFilePathAndName() const
-{ // Will return a non-empty string only with script contents similar to following example:
-
-    //sim.include('/BlueWorkforce/modelScripts/ragnar_child.lua')
-
-    std::string stt(_scriptText);
-
-    size_t le=stt.find(")");
-    if ( (stt.compare(0,11,"sim.include")==0)&&(le!=std::string::npos) )
-    {
-        std::string filename(_scriptText.begin()+13,_scriptText.begin()+le-1);
-        filename=App::directories->executableDirectory+filename;
-        return(filename);
-    }
-
-
-    // Following is for backward compatibility:
-
-    //require('utils')
-    //include('/BlueWorkforce/modelScripts/ragnar_child.lua')
-    //-- Do not add any code in here and leave above 2 lines in position
-
-    size_t line2Start=stt.find('\n')+1;
-    if ((line2Start!=std::string::npos))
-    {
-        std::string line1(_scriptText.begin(),_scriptText.begin()+line2Start);
-        size_t line2End=stt.find(')',line2Start);
-        if ((line2End!=std::string::npos)&&(line1.compare(0,7,"require")==0)&&(line2End-line2Start>8))
-        {
-            std::string line2(_scriptText.begin()+line2Start,_scriptText.begin()+line2End);
-            size_t fileStart=stt.find('(',line2Start);
-            if ((line2.compare(0,7,"include")==0)&&(fileStart!=std::string::npos)&&(fileStart<line2End))
-            {
-                std::string filename(_scriptText.begin()+fileStart+2,_scriptText.begin()+line2End-1);
-                filename=App::directories->executableDirectory+filename;
-                return(filename);
-            }
-        }
-    }
-    return("");
-}
-
 std::string CLuaScriptObject::getDescriptiveName() const
 { // Cannot put following strings to resources since they are also used in openGL!!!
     std::string pref;
-    if ( (_scriptType==sim_scripttype_mainscript)||(_scriptType==sim_scripttype_childscript) )
-    {
-        if (!App::userSettings->useBuiltInScriptEditor())
-        {
-            pref="[";
-            pref+=_filenameForExternalScriptEditor;
-            pref+="] ";
-        }
-    }
 
     if (_scriptType==sim_scripttype_mainscript)
     {
@@ -1170,15 +1032,6 @@ std::string CLuaScriptObject::getDescriptiveName() const
 std::string CLuaScriptObject::getShortDescriptiveName() const
 { // since 2/10/2012 (because if the name is too long, it is truncated when an error message mentions it)
     std::string pref;
-    if ( (_scriptType==sim_scripttype_mainscript)||(_scriptType==sim_scripttype_childscript) )
-    {
-        if (!App::userSettings->useBuiltInScriptEditor())
-        {
-            pref="[";
-            pref+=_filenameForExternalScriptEditor;
-            pref+="] ";
-        }
-    }
 
     if (_scriptType==sim_scripttype_mainscript)
         return(strTranslate(pref+"MAIN SCRIPT"));
@@ -1453,10 +1306,7 @@ int CLuaScriptObject::runMainScript(int optionalCallType,const CInterfaceStack* 
     }
 
     if (_scriptTextExec.size()==0)
-    {
-        fromFileToBuffer();
         _scriptTextExec.assign(_scriptText.begin(),_scriptText.end());
-    }
     int startT=VDateTime::getTimeInMs();
     retVal=_runMainScript(optionalCallType,inStack,outStack);
     App::ct->calcInfo->setMainScriptExecutionTime(VDateTime::getTimeInMs()-startT);
@@ -1523,10 +1373,7 @@ int CLuaScriptObject::runNonThreadedChildScript(int callType,const CInterfaceSta
     FUNCTION_DEBUG;
 
     if (_scriptTextExec.size()==0)
-    {
-        fromFileToBuffer();
         _scriptTextExec.assign(_scriptText.begin(),_scriptText.end());
-    }
 
     return(_runNonThreadedChildScript(callType,inStack,outStack));
 }
@@ -1571,10 +1418,7 @@ bool CLuaScriptObject::launchThreadedChildScript()
         return(false); // this script is being executed by another thread!
 
     if (_scriptTextExec.size()==0)
-    {
-        fromFileToBuffer();
         _scriptTextExec.assign(_scriptText.begin(),_scriptText.end());
-    }
 
     if (_executeJustOnce&&(_numberOfPasses>0))
         return(false);
@@ -2593,8 +2437,7 @@ CLuaScriptObject* CLuaScriptObject::copyYourself()
     it->_treeTraversalDirection=_treeTraversalDirection;
     it->_disableCustomizationScriptWithError=_disableCustomizationScriptWithError;
     it->_customizationScriptIsTemporarilyDisabled=_customizationScriptIsTemporarilyDisabled;
-    std::vector<int> foldingThing;
-    it->setScriptText(getScriptText(&foldingThing),&foldingThing);
+    it->setScriptText(getScriptText());
 
     delete it->scriptParameters;
     it->scriptParameters=scriptParameters->copyYourself();
@@ -2769,37 +2612,6 @@ void CLuaScriptObject::serialize(CSer& ar)
         ar.flush();
 
         std::string stt(_scriptText);
-        bool storeAlsoFoldingInfo=true;
-        if (!App::ct->undoBufferContainer->isUndoSavingOrRestoringUnderWay())
-        { // normal serialization (i.e. no undo/redo serialization):
-            if (App::ct->luaScriptContainer->getSaveIncludeScriptFiles())
-            {
-                std::string filename(getIncludeScriptFilePathAndName());
-                if (VFile::doesFileExist(filename))
-                {
-                    storeAlsoFoldingInfo=false;
-                    try
-                    {
-                        VFile file(filename,VFile::READ|VFile::SHARE_DENY_NONE);
-                        VArchive archive(&file,VArchive::LOAD);
-                        stt.clear();
-                        size_t archiveLength=(size_t)file.getLength();
-                        char chr;
-                        for (size_t fl=0;fl<archiveLength;fl++)
-                        {
-                            archive >> chr;
-                            stt.push_back(chr);
-                        }
-                        stt.push_back('\0');
-                        archive.close();
-                        file.close();
-                    }
-                    catch(VFILE_EXCEPTION_TYPE e)
-                    {
-                    }
-                }
-            }
-        }
 
         // We store scripts in a light encoded way:
         ar.storeDataName("Ste");
@@ -2807,16 +2619,6 @@ void CLuaScriptObject::serialize(CSer& ar)
         for (size_t i=0;i<stt.length();i++)
             ar << stt[i];
         ar.flush();
-
-        if (storeAlsoFoldingInfo)
-        {
-            ar.storeDataName("Sfi");
-            ar << int(_scriptFoldingInfo.size());
-            for (int i=0;i<int(_scriptFoldingInfo.size());i++)
-                ar << _scriptFoldingInfo[i];
-            ar.flush();
-        }
-
 
         ar.storeDataName("Prm");
         ar.setCountingMode();
@@ -2884,17 +2686,6 @@ void CLuaScriptObject::serialize(CSer& ar)
                     noHit=false;
                     ar >> byteQuantity;
                     ar >> _executionOrder;
-                }
-
-                if (theName.compare("Sfi")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int q;
-                    ar >> q;
-                    _scriptFoldingInfo.resize(q);
-                    for (int i=0;i<q;i++)
-                        ar >> _scriptFoldingInfo[i];
                 }
 
                 if (theName.compare("Ste")==0)
@@ -3024,8 +2815,6 @@ void CLuaScriptObject::serialize(CSer& ar)
         handleVerSpec_adjustScriptText8(this,App::userSettings->changeScriptCodeForNewApiNotation);
         handleVerSpec_adjustScriptText9(this);
         handleVerSpec_adjustScriptText10(this,ar.getVrepVersionThatWroteThisFile()<30401);
-
-        fromBufferToFile();
     }
 }
 

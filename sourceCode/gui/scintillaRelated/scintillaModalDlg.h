@@ -22,10 +22,6 @@ public:
     void makeDialogModal();
 
 protected:
-    std::vector<int> _unfold();
-    void _fold(const std::vector<int>& foldingState);
-    int _fold_getHighestIndex(std::vector<int>& foldingState);
-    void _fold_overwriteFromIndex(std::vector<int>& foldingState,int index,int newValue);
 
     void _findText(const char* txt,bool caseSensitive);
     void _setColorsAndMainStyles();
@@ -42,7 +38,6 @@ protected:
 
     QsciScintilla* _scintillaObject;
 
-    std::vector<int> _tempFoldingThing;
 public slots:
     void _onFind();
     void _charAdded(int charAdded);

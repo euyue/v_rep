@@ -22,6 +22,5 @@ public:
     std::string textureDirectory;
     std::string videoDirectory;
     std::string otherFilesDirectory;
-    std::string extScriptEditorTempFileDirectory;
     std::string remoteApiFileTransferDirectory;
 };

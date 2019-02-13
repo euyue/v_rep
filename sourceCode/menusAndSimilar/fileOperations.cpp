@@ -305,11 +305,6 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     if (sel.size()!=0)
                     {
                         int modelBase=App::ct->objCont->getLastSelectionID();
-                        if (App::userSettings->askToIncludeScriptFiles&&App::ct->luaScriptContainer->hasModelIncludeScripts(modelBase))
-                        {
-                            if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_question(App::mainWindow,strTranslate(IDSN_SAVE),strTranslate(IDS_INCLUDE_SCRIPT_FILES_QUESTION),VMESSAGEBOX_YES_NO))
-                                App::ct->luaScriptContainer->setSaveIncludeScriptFiles(true);
-                        }
 
                         // Display a warning if needed
                         CPersistentDataContainer cont(FILENAME_OF_USER_SETTINGS_IN_BINARY_FILE);
@@ -379,8 +374,6 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         }
                         else
                             App::addStatusbarMessage(IDSNS_ABORTED);
-                        App::ct->luaScriptContainer->setSaveIncludeScriptFiles(false);
-
                     }
                     else
                         App::addStatusbarMessage(IDSNS_CANNOT_PROCEED_SELECTION_IS_EMPTY);
@@ -2454,7 +2447,7 @@ bool CFileOperations::saveScene(const char* pathAndFilename,bool displayMessages
         if (App::mainWindow!=NULL)
         {
             if (App::userSettings->useOldCodeEditor)
-                App::mainWindow->scintillaEditorContainer->applyChanges(true);
+                App::mainWindow->scintillaEditorContainer->applyChanges();
             else
                 App::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();
         }
@@ -2546,7 +2539,7 @@ bool CFileOperations::saveModel(int modelBaseDummyID,const char* pathAndFilename
         if (App::mainWindow!=NULL)
         {
             if (App::userSettings->useOldCodeEditor)
-                App::mainWindow->scintillaEditorContainer->applyChanges(true);
+                App::mainWindow->scintillaEditorContainer->applyChanges();
             else
                 App::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();
         }
@@ -2988,13 +2981,6 @@ bool CFileOperations::_saveSceneAsWithDialogAndEverything(bool vrepFormat)
             if (App::ct->environment->getRequestFinalSave())
                 App::ct->environment->setSceneLocked();
 
-            if (App::userSettings->askToIncludeScriptFiles&&App::ct->luaScriptContainer->hasSceneIncludeScripts())
-            {
-                if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_question(App::mainWindow,strTranslate(IDSN_SAVE),strTranslate(IDS_INCLUDE_SCRIPT_FILES_QUESTION),VMESSAGEBOX_YES_NO))
-                    App::ct->luaScriptContainer->setSaveIncludeScriptFiles(true);
-            }
-
-
             std::string infoPrintOut(IDSN_SAVING_SCENE);
             infoPrintOut+="...";
             App::addStatusbarMessage(infoPrintOut.c_str());
@@ -3020,7 +3006,6 @@ bool CFileOperations::_saveSceneAsWithDialogAndEverything(bool vrepFormat)
     }
     else
         App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_SCENE),strTranslate(IDS_SCENE_IS_LOCKED_WARNING),VMESSAGEBOX_OKELI);
-    App::ct->luaScriptContainer->setSaveIncludeScriptFiles(false);
     return(retVal);
 }
 #endif

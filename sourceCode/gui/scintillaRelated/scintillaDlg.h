@@ -23,7 +23,7 @@ public:
     void setOperational();
     void setShowWindow(bool show);
     void initPhase1(int posAndSize[4]);
-    void initPhase2(const char* scriptText,const std::vector<int>* foldingInfo);
+    void initPhase2(const char* scriptText);
     void setWindowTitleText(const std::string& title);
 
     void setColorsAndMainStyles(int scriptType);
@@ -42,18 +42,11 @@ public:
     bool _operational;
     void InitialiseEditor();
     void _findText(const char* txt,bool caseSensitive);
-    std::vector<int> _unfold();
-    void _fold(const std::vector<int>& foldingSt);
-    int _fold_getHighestIndex(std::vector<int>& foldingState);
-    void _fold_overwriteFromIndex(std::vector<int>& foldingState,int index,int newValue);
-    std::vector<int> getFoldingInfo();
 
 
     void getWindowPosAndSize(int posAndSize[4]);
 
     std::string _autoCompletionList;
-
-    std::vector<int> _tempFoldingThing;
 
     QsciScintilla* _scintillaObject;
 

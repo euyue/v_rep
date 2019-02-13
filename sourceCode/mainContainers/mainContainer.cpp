@@ -100,7 +100,7 @@ void CMainContainer::simulationAboutToStart()
     if (App::mainWindow!=NULL)
     {
         if (App::userSettings->useOldCodeEditor)
-            App::mainWindow->scintillaEditorContainer->applyChanges(false);
+            App::mainWindow->scintillaEditorContainer->applyChanges();
         else
             App::mainWindow->codeEditorContainer->simulationAboutToStart();
     }

@@ -30,31 +30,22 @@ void CScintillaEditorContainer::executeCommand(SUIThreadCommand* cmdIn,SUIThread
     if (cmdIn->cmdId==SCINTILLA_EDITOR_UPDATE_SEUITHREADCMD)
         updateWindowsExceptContentText();
     if (cmdIn->cmdId==SCINTILLA_EDITOR_APPLY_CHANGES_SEUITHREADCMD)
-        applyChanges(cmdIn->boolParams[0]);
+        applyChanges();
 }
 
 bool CScintillaEditorContainer::openEditorForScript(int scriptID)
 {
     if (VThread::isCurrentThreadTheUiThread())
     { // we are in the UI thread. We execute the command now:
-        if (App::userSettings->useBuiltInScriptEditor())
+        for (size_t i=0;i<_allEditors.size();i++)
         {
-            for (size_t i=0;i<_allEditors.size();i++)
-            {
-                if (_allEditors[i]->getScriptID()==scriptID)
-                    return(true); // already open!
-            }
+            if (_allEditors[i]->getScriptID()==scriptID)
+                return(true); // already open!
         }
         CScintillaEditor* editor=new CScintillaEditor();
         if (editor->initialize(scriptID))
         {
-            if (App::userSettings->useBuiltInScriptEditor())
-                _allEditors.push_back(editor);
-            else
-            {
-                delete editor;
-                VVarious::executeExternalApplication(App::userSettings->externalScriptEditor,App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptID)->getFilenameForExternalScriptEditor().c_str(),App::directories->executableDirectory,VVARIOUS_SHOWNORMAL); // executable directory needed because otherwise the shellExecute command might switch directories!
-            }
+            _allEditors.push_back(editor);
             return(true);
         }
         delete editor;
@@ -127,27 +118,18 @@ void CScintillaEditorContainer::requestClosing(void* dialogPointer)
         _allEditors[i]->requestClosing(dialogPointer);
 }
 
-void CScintillaEditorContainer::applyChanges(bool getFoldingInfo)
+void CScintillaEditorContainer::applyChanges()
 {
     if (VThread::isCurrentThreadTheUiThread())
     { // we are in the UI thread. We execute the command now:
-        if (App::userSettings->useBuiltInScriptEditor())
-        {
-            for (int i=0;i<int(_allEditors.size());i++)
-                _allEditors[i]->applyChanges(getFoldingInfo);
-        }
-        else
-        {
-            for (int i=0;i<int(App::ct->luaScriptContainer->allScripts.size());i++)
-                App::ct->luaScriptContainer->allScripts[i]->fromFileToBuffer();
-        }
+        for (size_t i=0;i<_allEditors.size();i++)
+            _allEditors[i]->applyChanges();
     }
     else
     { // We are NOT in the UI thread. We execute the command via the UI thread:
         SUIThreadCommand cmdIn;
         SUIThreadCommand cmdOut;
         cmdIn.cmdId=SCINTILLA_EDITOR_APPLY_CHANGES_SEUITHREADCMD;
-        cmdIn.boolParams.push_back(getFoldingInfo);
         App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     }
 }

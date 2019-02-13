@@ -187,7 +187,7 @@ public:
     void setEnableDynamicMotorControlLoop(bool p);
     bool getEnableDynamicMotorControlLoop();
 
-    void setEnableDynamicMotorCustomControl_OLD(bool c,const char* scriptContent,const std::vector<int>* foldingInfo);
+    void setEnableDynamicMotorCustomControl_OLD(bool c,const char* scriptContent);
     bool getEnableDynamicMotorCustomControl_OLD();
 
     void handleDynJointControl(bool init,int loopCnt,int totalLoops,float currentPos,float effort,float dynStepSize,float errorV,float& velocity,float& forceTorque);

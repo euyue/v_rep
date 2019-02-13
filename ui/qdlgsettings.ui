@@ -266,22 +266,6 @@
      <string>Adjust OpenGL settings</string>
     </property>
    </widget>
-   <widget class="QCheckBox" name="qqAskWithIncludedScriptFiles">
-    <property name="geometry">
-     <rect>
-      <x>180</x>
-      <y>80</y>
-      <width>171</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::StrongFocus</enum>
-    </property>
-    <property name="text">
-     <string>Ask to include script files</string>
-    </property>
-   </widget>
    <widget class="QCheckBox" name="qqHideHierarchy">
     <property name="geometry">
      <rect>
@@ -326,7 +310,6 @@
   <tabstop>qqAutoSave</tabstop>
   <tabstop>hideConsole</tabstop>
   <tabstop>qqHideHierarchy</tabstop>
-  <tabstop>qqAskWithIncludedScriptFiles</tabstop>
   <tabstop>qqAdjustOpenGl</tabstop>
  </tabstops>
  <resources/>

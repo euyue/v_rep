@@ -41,7 +41,6 @@ void CQDlgSettings::refresh()
     ui->undoRedo->setEnabled(noEditModeAndNoSim);
     ui->qqAutoSave->setEnabled(noEditModeAndNoSim);
     ui->qqAdjustOpenGl->setEnabled(noEditModeAndNoSim);
-    ui->qqAskWithIncludedScriptFiles->setEnabled(noEditModeAndNoSim);
 
     ui->translationStepSize->clear();
     ui->translationStepSize->addItem(tt::getFString(false,0.001f,3).c_str(),QVariant(1));
@@ -79,8 +78,6 @@ void CQDlgSettings::refresh()
     ui->undoRedo->setChecked(App::userSettings->getUndoRedoEnabled());
     ui->hideConsole->setChecked(!App::userSettings->alwaysShowConsole);
     ui->qqAutoSave->setChecked(App::userSettings->autoSaveDelay!=0);
-
-    ui->qqAskWithIncludedScriptFiles->setChecked(App::userSettings->askToIncludeScriptFiles);
 
     ui->qqAdjustOpenGl->setEnabled(App::ct->simulation->isSimulationStopped());
 }
@@ -232,12 +229,6 @@ int CQDlgSettings::_getIndexOfComboboxItemWithData(QComboBox* theBox,int itemDat
             return(i);
     }
     return(-1);
-}
-
-void CQDlgSettings::on_qqAskWithIncludedScriptFiles_clicked()
-{
-    App::appendSimulationThreadCommand(TOGGLE_ASKTOINCLUDESCRIPTFILES_USERSETTINGSGUITRIGGEREDCMD);
-    App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
 }
 
 

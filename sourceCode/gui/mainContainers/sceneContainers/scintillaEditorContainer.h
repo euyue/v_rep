@@ -21,7 +21,7 @@ public:
     void showOrHideAllEditors(bool show);
     bool closeEditor(int scriptID);
     void updateWindowsExceptContentText();
-    void applyChanges(bool getFoldingInfo);
+    void applyChanges();
     void requestClosing(void* dialogPointer);
     bool areWindowsOpen(); // needed by undo/redo
 

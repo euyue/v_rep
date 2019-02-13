@@ -57,16 +57,11 @@ public:
 
     std::vector<CLuaScriptObject*> allScripts;
 
-    bool hasSceneIncludeScripts() const;
-    bool hasModelIncludeScripts(int modelBase) const;
-
     int getScriptSimulationParameter_mainAndChildScriptsOnly(int scriptHandle,const char* parameterName,std::string& parameterValue) const;
     int setScriptSimulationParameter_mainAndChildScriptsOnly(int scriptHandle,const char* parameterName,const char* parameterValue,int parameterValueLength);
 
     CBroadcastDataContainer broadcastDataContainer;
 
-    static bool getSaveIncludeScriptFiles();
-    static void setSaveIncludeScriptFiles(bool save);
 
 protected:
     int _getScriptsToExecute(int scriptType,std::vector<CLuaScriptObject*>& scripts,std::vector<int>& uniqueIds) const;
@@ -76,5 +71,4 @@ protected:
 
     std::vector<SScriptCallBack*> _callbackStructureToDestroyAtEndOfSimulation_new;
     std::vector<SLuaCallBack*> _callbackStructureToDestroyAtEndOfSimulation_old;
-    static bool _saveIncludeScriptFiles;
 };

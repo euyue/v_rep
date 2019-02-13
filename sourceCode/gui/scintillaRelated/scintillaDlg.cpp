@@ -216,7 +216,7 @@ void CScintillaDlg::initPhase1(int posAndSize[4])
     resize(posAndSize[2],posAndSize[3]);
 }
 
-void CScintillaDlg::initPhase2(const char* scriptText,const std::vector<int>* foldingInfo)
+void CScintillaDlg::initPhase2(const char* scriptText)
 {
     show();
     raise();
@@ -224,13 +224,6 @@ void CScintillaDlg::initPhase2(const char* scriptText,const std::vector<int>* fo
     _scintillaObject->SendScintilla(QsciScintillaBase::SCI_SETTEXT,(unsigned long)0,scriptText);
     _scintillaObject->SendScintilla(QsciScintillaBase::SCI_EMPTYUNDOBUFFER); // Make sure the undo buffer is empty (otherwise the first undo will remove the whole script --> a bit confusing)
     setOperational();
-    if (foldingInfo!=NULL)
-    {
-        _tempFoldingThing.assign(foldingInfo->begin(),foldingInfo->end());
-        // When the window is opened, we first scroll to the end of the document, otherwise the folding doesn't always work somehow. Folding happens later, in _updateUi
-        int totLines=_scintillaObject->SendScintilla(QsciScintillaBase::SCI_GETLINECOUNT);
-        _scintillaObject->SendScintilla(QsciScintillaBase::SCI_GOTOLINE,(int)totLines);
-    }
 }
 
 void CScintillaDlg::setWindowTitleText(const std::string& title)
@@ -336,13 +329,6 @@ void CScintillaDlg::_updateUi(int updated)
         }
         delete[] txt;
     }
-    if (_tempFoldingThing.size()!=0)
-    { // When the window is opened, then we first scroll to the end of the document (in the init2 phase), otherwise the folding doesn't always work somehow
-        std::vector<int> tmp(_tempFoldingThing);
-        _tempFoldingThing.clear();
-        _fold(tmp);
-        _scintillaObject->SendScintilla(QsciScintillaBase::SCI_GOTOLINE,(int)0); // scroll back to the beginning of the document
-    }
 }
 
 void CScintillaDlg::_onFind()
@@ -401,87 +387,6 @@ void CScintillaDlg::_findText(const char* txt,bool caseSensitive)
 
         _scintillaObject->SendScintilla(QsciScintillaBase::SCI_SETSEL,(unsigned long)p,(long)p+txtL);
     }
-}
-
-std::vector<int> CScintillaDlg::_unfold()
-{
-    FUNCTION_DEBUG;
-    int totLines=_scintillaObject->SendScintilla(QsciScintillaBase::SCI_GETLINECOUNT);
-    std::vector<int> retV(totLines,0);
-    for (int i=0;i<totLines;i++)
-    {
-        if (_scintillaObject->SendScintilla(QsciScintillaBase::SCI_GETLINEVISIBLE,(int)i)==0)
-        {
-            std::vector<int> before(totLines,0);
-            for (int j=i;j<totLines;j++)
-                before[j]=_scintillaObject->SendScintilla(QsciScintillaBase::SCI_GETLINEVISIBLE,(int)j);
-            _scintillaObject->foldLine(i-1); // unfold this section (we actually unfold the previous line that is already visible)
-            int lastChangedLine=i;
-            for (int j=i;j<totLines;j++)
-            {
-                int isVisible=_scintillaObject->SendScintilla(QsciScintillaBase::SCI_GETLINEVISIBLE,(int)j);
-                if (isVisible!=before[j])
-                    lastChangedLine=j;
-            }
-
-            for (int j=i;j<=lastChangedLine;j++)
-                retV[j]++;
-        }
-    }
-    return(retV);
-}
-
-void CScintillaDlg::_fold(const std::vector<int>& foldingSt)
-{
-    FUNCTION_DEBUG;
-    std::vector<int> foldingState(foldingSt);
-    int totLines=_scintillaObject->SendScintilla(QsciScintillaBase::SCI_GETLINECOUNT);
-    if (totLines>int(foldingState.size()))
-        return;
-    int index=_fold_getHighestIndex(foldingState);
-    while (index!=-1)
-    {
-        _scintillaObject->foldLine(index-1); // fold this section (we actually fold the previous line that will remain visible)
-        _fold_overwriteFromIndex(foldingState,index,foldingState[index-1]);
-        index=_fold_getHighestIndex(foldingState);
-    }
-}
-
-int CScintillaDlg::_fold_getHighestIndex(std::vector<int>& foldingState)
-{
-    FUNCTION_DEBUG;
-    int highest=0;
-    int index=-1;
-    for (int i=0;i<int(foldingState.size());i++)
-    {
-        if (foldingState[i]>highest)
-        {
-            highest=foldingState[i];
-            index=i;
-        }
-    }
-    return(index);
-}
-
-void CScintillaDlg::_fold_overwriteFromIndex(std::vector<int>& foldingState,int index,int newValue)
-{
-    FUNCTION_DEBUG;
-    int v=foldingState[index];
-    for (int i=index;i<int(foldingState.size());i++)
-    {
-        if (foldingState[i]==v)
-            foldingState[i]=newValue;
-        else
-            break;
-    }
-}
-
-std::vector<int> CScintillaDlg::getFoldingInfo()
-{
-    FUNCTION_DEBUG;
-    std::vector<int> retVal(_unfold());
-    _fold(retVal);
-    return(retVal);
 }
 
 void CScintillaDlg::_charAdded(int charAdded)

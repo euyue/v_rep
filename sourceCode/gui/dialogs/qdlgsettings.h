@@ -46,8 +46,6 @@ private slots:
 
     void on_qqAdjustOpenGl_clicked();
 
-    void on_qqAskWithIncludedScriptFiles_clicked();
-
     void on_qqHideHierarchy_clicked();
 
 private:

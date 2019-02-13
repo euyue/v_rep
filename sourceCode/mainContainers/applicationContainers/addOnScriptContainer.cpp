@@ -93,7 +93,7 @@ int CAddOnScriptContainer::insertAddOnScripts()
                     script[archiveLength]=0;
                     CLuaScriptObject* defScript=new CLuaScriptObject(sim_scripttype_addonscript);
                     insertScript(defScript);
-                    defScript->setScriptText(script,NULL);
+                    defScript->setScriptText(script);
 
                     std::string nm(foundItem->name);
                     nm.erase(nm.begin(),nm.begin()+strlen(ADDON_SCRIPT_PREFIX_AUTOSTART));
@@ -153,7 +153,7 @@ int CAddOnScriptContainer::insertAddOnScripts()
                 script[archiveLength]=0;
                 CLuaScriptObject* defScript=new CLuaScriptObject(sim_scripttype_addonscript);
                 insertScript(defScript);
-                defScript->setScriptText(script,NULL);
+                defScript->setScriptText(script);
 
                 defScript->setAddOnName(fileName_noExtension.c_str());
                 defScript->setThreadedExecution(false);
@@ -297,7 +297,7 @@ bool CAddOnScriptContainer::processCommand(int commandID)
                         script[archiveLength]=0;
                         CLuaScriptObject* defScript=new CLuaScriptObject(sim_scripttype_addonfunction);
                         int scriptID=insertScript(defScript);
-                        defScript->setScriptText(script,NULL);
+                        defScript->setScriptText(script);
                         defScript->setAddOnName(allAddOnFunctionNames[index].c_str());
                         defScript->setThreadedExecution(false);
                         defScript->runAddOn(sim_syscb_init,NULL,NULL);

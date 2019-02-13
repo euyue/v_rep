@@ -75,7 +75,6 @@
 #define _USR_SCENEHIERARCHY_HIDDEN_DURING_SIMULATION "sceneHierarchyHiddenDuringSimulation"
 #define _USR_AUTO_SAVE_DELAY "autoSaveDelay"
 #define _USR_BULLET_SERIALIZATION_BUFFER "bulletSerializationBuffer"
-#define _USR_ASK_TO_INCLUDE_SCRIPT_FILES "askToIncludeScriptFiles"
 #define _USR_TIME_FOR_UNDO_REDO_TOO_LONG_WARNING "timeInMsForUndoRedoTooLongWarning"
 #define _USR_MIDDLE_MOUSE_BUTTON_SWITCHES_MODES "middleMouseButtonSwitchesModes"
 #define _USR_NAVIGATION_BACKWARD_COMPATIBILITY_MODE "navigationBackwardCompatibility"
@@ -97,8 +96,6 @@
 #define _USR_ABORT_SCRIPT_EXECUTION_BUTTON "abortScriptExecutionButton"
 #define _USR_RENDERING_SURFACE_VERTICAL_SHIFT "renderingSurfaceVShift"
 #define _USR_RENDERING_SURFACE_VERTICAL_RESIZE "renderingSurfaceVResize"
-#define _USR_USE_EXTERNAL_SCRIPT_EDITOR "useExternalScriptEditor"
-#define _USR_EXTERNAL_SCRIPT_EDITOR "externalScriptEditor"
 #define _USR_ADDITIONAL_LUA_PATH "additionalLuaPath"
 
 #define _USR_DIRECTORY_FOR_SCENES "defaultDirectoryForScenes"
@@ -331,7 +328,6 @@ CUserSettings::CUserSettings()
     packIndices=true;
     fileDialogs=-1; // default
     bulletSerializationBuffer=10000000;
-    askToIncludeScriptFiles=false; // this one is however not put to / read from usrset.txt
 
 
 
@@ -385,10 +381,6 @@ CUserSettings::CUserSettings()
     freeServerPortStart=20000;
     _nextfreeServerPortToUse=freeServerPortStart;
     freeServerPortRange=2000;
-    _useExternalScriptEditor=false;
-    externalScriptEditor="c:/Program Files (x86)/Notepad++/notepad++";
-    _useExternalScriptEditorToSave=_useExternalScriptEditor;
-    externalScriptEditorToSave=externalScriptEditor;
     _abortScriptExecutionButton=3;
     triCountInOBB=8; // gave best results in 2009/07/21
     identicalVerticesCheck=true;
@@ -419,21 +411,6 @@ CUserSettings::CUserSettings()
 
 CUserSettings::~CUserSettings()
 {
-}
-
-bool CUserSettings::useBuiltInScriptEditor()
-{
-    return(!_useExternalScriptEditor);
-}
-
-void CUserSettings::setUseBuiltInScriptEditorToSave(bool u)
-{
-    _useExternalScriptEditorToSave=!u;
-}
-
-bool CUserSettings::getUseBuiltInScriptEditorToSave()
-{
-    return(!_useExternalScriptEditorToSave);
 }
 
 void CUserSettings::setTranslationStepSize(float s)
@@ -724,7 +701,6 @@ void CUserSettings::saveUserSettings()
     c.addBoolean(_USR_PACK_INDICES,packIndices,"");
     c.addInteger(_USR_FILE_DIALOGS_NATIVE,fileDialogs,"recommended to keep -1 (-1=default, 0=native dialogs, 1=Qt dialogs).");
     c.addInteger(_USR_BULLET_SERIALIZATION_BUFFER,bulletSerializationBuffer,"");
-// this one is not put to / read from usrset.txt    c.addBoolean(_USR_ASK_TO_INCLUDE_SCRIPT_FILES,askToIncludeScriptFiles,"recommended to keep false.");
 
 
     c.addRandomLine("");
@@ -788,8 +764,6 @@ void CUserSettings::saveUserSettings()
     c.addInteger(_USR_PROCESSOR_CORE_AFFINITY,CThreadPool::getProcessorCoreAffinity(),"recommended to keep 0 (-1:os default, 0:all threads on same core, m: affinity mask (bit1=core1, bit2=core2, etc.))");
     c.addInteger(_USR_FREE_SERVER_PORT_START,freeServerPortStart,"");
     c.addInteger(_USR_FREE_SERVER_PORT_RANGE,freeServerPortRange,"");
-    c.addBoolean(_USR_USE_EXTERNAL_SCRIPT_EDITOR,_useExternalScriptEditorToSave,"");
-    c.addString(_USR_EXTERNAL_SCRIPT_EDITOR,externalScriptEditorToSave,"");
     c.addInteger(_USR_ABORT_SCRIPT_EXECUTION_BUTTON,_abortScriptExecutionButton,"in seconds. Zero to disable.");
     c.addInteger(_USR_TRIANGLE_COUNT_IN_OBB,triCountInOBB,"");
     c.addBoolean(_USR_REMOVE_IDENTICAL_VERTICES,identicalVerticesCheck,"");
@@ -1017,7 +991,7 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_PACK_INDICES,packIndices);
     c.getInteger(_USR_FILE_DIALOGS_NATIVE,fileDialogs);
     c.getInteger(_USR_BULLET_SERIALIZATION_BUFFER,bulletSerializationBuffer);
-// this one is not put to / read from usrset.txt    c.getBoolean(_USR_ASK_TO_INCLUDE_SCRIPT_FILES,askToIncludeScriptFiles);
+
 
     // Undo/redo section:
     // *****************************
@@ -1073,10 +1047,6 @@ void CUserSettings::loadUserSettings()
     c.getInteger(_USR_FREE_SERVER_PORT_START,freeServerPortStart);
     _nextfreeServerPortToUse=freeServerPortStart;
     c.getInteger(_USR_FREE_SERVER_PORT_RANGE,freeServerPortRange);
-    c.getBoolean(_USR_USE_EXTERNAL_SCRIPT_EDITOR,_useExternalScriptEditor);
-    _useExternalScriptEditorToSave=_useExternalScriptEditor;
-    c.getString(_USR_EXTERNAL_SCRIPT_EDITOR,externalScriptEditor);
-    externalScriptEditorToSave=externalScriptEditor;
     c.getInteger(_USR_ABORT_SCRIPT_EXECUTION_BUTTON,_abortScriptExecutionButton);
     c.getInteger(_USR_TRIANGLE_COUNT_IN_OBB,triCountInOBB);
     c.getBoolean(_USR_REMOVE_IDENTICAL_VERTICES,identicalVerticesCheck);

@@ -27,9 +27,6 @@ public:
     float getTranslationStepSize();
     void setRotationStepSize(float s);
     float getRotationStepSize();
-    bool useBuiltInScriptEditor();
-    bool getUseBuiltInScriptEditorToSave();
-    void setUseBuiltInScriptEditorToSave(bool u);
     int getIdleFps();
     void setIdleFps(int fps);
     int getAbortScriptExecutionTiming();
@@ -75,7 +72,6 @@ public:
     float dialogTransparencyFactor;
     int autoSaveDelay;
     int bulletSerializationBuffer;
-    bool askToIncludeScriptFiles;
     int timeInMsForUndoRedoTooLongWarning;
 
     bool middleMouseButtonSwitchesModes;
@@ -125,12 +121,7 @@ public:
     std::string auxConsoleFont;
     int auxConsoleFontSize;
 
-    std::string externalScriptEditor;
-    bool _useExternalScriptEditor;
     std::string additionalLuaPath;
-
-    std::string externalScriptEditorToSave;
-    bool _useExternalScriptEditorToSave;
 
     int guiFontSize_Win;
     int guiFontSize_Mac;

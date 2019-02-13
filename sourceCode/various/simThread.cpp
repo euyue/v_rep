@@ -3345,12 +3345,11 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if ( (last!=NULL)&&((last->getJointMode()==sim_jointmode_force)||last->getHybridFunctionality()) )
             {
                 const char* callbackScriptText=NULL;
-                std::vector<int> foldingInfo;
                 if (last->getEnableDynamicMotorCustomControl_OLD())
                 {
                     CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(last->getID());
                     if (script)
-                        callbackScriptText=script->getScriptText(&foldingInfo);
+                        callbackScriptText=script->getScriptText();
                 }
                 for (size_t i=1;i<cmd.intParams.size();i++)
                 {
@@ -3367,9 +3366,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         last->getDynamicMotorSpringControlParameters(kp,cp);
                         it->setDynamicMotorSpringControlParameters(kp,cp);
                         it->setDynamicMotorPositionControlTargetPosition(last->getDynamicMotorPositionControlTargetPosition());
-                        it->setEnableDynamicMotorCustomControl_OLD(false,NULL,NULL);
+                        it->setEnableDynamicMotorCustomControl_OLD(false,NULL);
                         if (last->getEnableDynamicMotorCustomControl_OLD())
-                            it->setEnableDynamicMotorCustomControl_OLD(true,callbackScriptText,&foldingInfo);
+                            it->setEnableDynamicMotorCustomControl_OLD(true,callbackScriptText);
                     }
                 }
             }
@@ -3378,14 +3377,14 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CJoint* it=App::ct->objCont->getJoint(cmd.intParams[0]);
             if ((it!=NULL)&&(!it->getEnableDynamicMotorCustomControl_OLD()))
-                it->setEnableDynamicMotorCustomControl_OLD(true,cmd.stringParams[0].c_str(),NULL);
+                it->setEnableDynamicMotorCustomControl_OLD(true,cmd.stringParams[0].c_str());
         }
         if (cmd.cmdId==SELECT_PIDCTRL_JOINTDYNGUITRIGGEREDCMD)
         {
             CJoint* it=App::ct->objCont->getJoint(cmd.intParams[0]);
             if (it!=NULL)
             {
-                it->setEnableDynamicMotorCustomControl_OLD(false,NULL,NULL);
+                it->setEnableDynamicMotorCustomControl_OLD(false,NULL);
                 it->setEnableTorqueModulation(false);
             }
         }
@@ -3394,7 +3393,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CJoint* it=App::ct->objCont->getJoint(cmd.intParams[0]);
             if (it!=NULL)
             {
-                it->setEnableDynamicMotorCustomControl_OLD(false,NULL,NULL);
+                it->setEnableDynamicMotorCustomControl_OLD(false,NULL);
                 it->setEnableTorqueModulation(true);
             }
         }
@@ -3749,7 +3748,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         if (it->getObjectType()==sim_object_joint_type)
                         {
                             CJoint* joint=(CJoint*)it;
-                            joint->setEnableDynamicMotorCustomControl_OLD(false,NULL,NULL);
+                            joint->setEnableDynamicMotorCustomControl_OLD(false,NULL);
                         }
                     }
                     else
@@ -3808,7 +3807,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     scriptInitText="Default customization script file could not be found!"; // do not use comments ("--"), we want to cause an execution error!
 
                 CLuaScriptObject* script=new CLuaScriptObject(sim_scripttype_customizationscript);
-                script->setScriptText(scriptInitText.c_str(),NULL);
+                script->setScriptText(scriptInitText.c_str());
                 newScriptID=App::ct->luaScriptContainer->insertScript(script);
             }
             if (scriptT==sim_scripttype_contactcallback)
@@ -3818,7 +3817,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             if (scriptT==sim_scripttype_jointctrlcallback)
             {
                 CLuaScriptObject* script=new CLuaScriptObject(sim_scripttype_jointctrlcallback);
-                script->setScriptText("Default joint custom control script file could not be found!",NULL);
+                script->setScriptText("Default joint custom control script file could not be found!");
                 newScriptID=App::ct->luaScriptContainer->insertScript(script);
             }
             // Now select the new collection in the UI. We need to post it so that it arrives after the dialog refresh!:
@@ -3925,9 +3924,9 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                                 if (theOldJ!=NULL)
                                 {
                                     it->setObjectIDThatScriptIsAttachedTo_callback_OLD(-1);
-                                    theOldJ->setEnableDynamicMotorCustomControl_OLD(false,NULL,NULL);
+                                    theOldJ->setEnableDynamicMotorCustomControl_OLD(false,NULL);
                                 }
-                                theNewJ->setEnableDynamicMotorCustomControl_OLD(true,NULL,NULL);
+                                theNewJ->setEnableDynamicMotorCustomControl_OLD(true,NULL);
                                 it->setObjectIDThatScriptIsAttachedTo_callback_OLD(objID);
                             }
                         }
@@ -3937,7 +3936,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         if (theOldJ!=NULL)
                         {
                             it->setObjectIDThatScriptIsAttachedTo_callback_OLD(-1);
-                            theOldJ->setEnableDynamicMotorCustomControl_OLD(false,NULL,NULL);
+                            theOldJ->setEnableDynamicMotorCustomControl_OLD(false,NULL);
                         }
                     }
                 }
@@ -5796,10 +5795,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 App::userSettings->autoSaveDelay=2; // 2 minutes
             App::userSettings->saveUserSettings();
         }
-        if (cmd.cmdId==TOGGLE_ASKTOINCLUDESCRIPTFILES_USERSETTINGSGUITRIGGEREDCMD)
-        {
-            App::userSettings->askToIncludeScriptFiles=!App::userSettings->askToIncludeScriptFiles;
-        }
         if (cmd.cmdId==SET_OPENGLSETTINGS_USERSETTINGSGUITRIGGEREDCMD)
         {
             App::userSettings->offscreenContextType=cmd.intParams[0];
@@ -6086,8 +6081,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 App::directories->textureDirectory=cmd.stringParams[0];
             if (cmd.intParams[0]==DIRECTORY_ID_OTHER)
                 App::directories->otherFilesDirectory=cmd.stringParams[0];
-            if (cmd.intParams[0]==DIRECTORY_ID_EXTSCRIPTEDITORTMPFILE)
-                App::directories->extScriptEditorTempFileDirectory=cmd.stringParams[0];
             if (cmd.intParams[0]==DIRECTORY_ID_REMOTEAPIFILETRANSFER)
                 App::directories->remoteApiFileTransferDirectory=cmd.stringParams[0];
         }

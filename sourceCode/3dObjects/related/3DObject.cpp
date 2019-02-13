@@ -1546,7 +1546,7 @@ void C3DObject::setEnableCustomizationScript(bool c,const char* scriptContent)
     { // we have to add a script
         CLuaScriptObject* script=new CLuaScriptObject(sim_scripttype_customizationscript);
         if (scriptContent)
-            script->setScriptText(scriptContent,NULL);
+            script->setScriptText(scriptContent);
         App::ct->luaScriptContainer->insertScript(script);
         script->setObjectIDThatScriptIsAttachedTo_customization(getID());
     }

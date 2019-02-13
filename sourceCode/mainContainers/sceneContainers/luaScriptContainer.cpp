@@ -11,18 +11,6 @@
 #include "vDateTime.h"
 #include "funcDebug.h"
 
-bool CLuaScriptContainer::_saveIncludeScriptFiles=false;
-
-bool CLuaScriptContainer::getSaveIncludeScriptFiles()
-{
-   return(_saveIncludeScriptFiles);
-}
-
-void CLuaScriptContainer::setSaveIncludeScriptFiles(bool save)
-{
-    _saveIncludeScriptFiles=save;
-}
-
 CLuaScriptContainer::CLuaScriptContainer()
 {
     _inMainScriptNow=0;
@@ -37,35 +25,6 @@ CLuaScriptContainer::~CLuaScriptContainer()
     for (size_t i=0;i<_callbackStructureToDestroyAtEndOfSimulation_old.size();i++)
         delete _callbackStructureToDestroyAtEndOfSimulation_old[i];
     broadcastDataContainer.removeAllObjects();
-}
-
-bool CLuaScriptContainer::hasSceneIncludeScripts() const
-{
-    for (size_t i=0;i<allScripts.size();i++)
-    {
-        CLuaScriptObject* it=allScripts[i];
-        if (it->isSceneScript()&&(it->getIncludeScriptFilePathAndName().length()>0))
-            return(true);
-    }
-    return(false);
-}
-
-bool CLuaScriptContainer::hasModelIncludeScripts(int modelBase) const
-{
-    C3DObject* modelBaseObject=App::ct->objCont->getObject(modelBase);
-    std::vector<C3DObject*> objects;
-    modelBaseObject->getAllObjectsRecursive(&objects,true,true);
-    for (size_t i=0;i<objects.size();i++)
-    {
-        std::vector<CLuaScriptObject*> scripts;
-        getScriptsFromObjectAttachedTo(objects[i]->getID(),scripts);
-        for (size_t j=0;j<scripts.size();j++)
-        {
-            if (scripts[j]->getIncludeScriptFilePathAndName().length()>0)
-                return(true);
-        }
-    }
-    return(false);
 }
 
 void CLuaScriptContainer::simulationAboutToStart()
@@ -389,7 +348,7 @@ int CLuaScriptContainer::insertDefaultScript_mainAndChildScriptsOnly(int scriptT
             defaultScript[archiveLength]=0;
             CLuaScriptObject* defScript=new CLuaScriptObject(scriptType);
             retVal=insertScript(defScript);
-            defScript->setScriptText(defaultScript,NULL);
+            defScript->setScriptText(defaultScript);
             defScript->setThreadedExecution(threaded);
             if (threaded)
                 defScript->setExecuteJustOnce(true);
@@ -403,7 +362,7 @@ int CLuaScriptContainer::insertDefaultScript_mainAndChildScriptsOnly(int scriptT
             char defaultMessage[]="Default script file could not be found!"; // do not use comments ("--"), we want to cause an execution error!
             CLuaScriptObject* defScript=new CLuaScriptObject(scriptType);
             retVal=insertScript(defScript);
-            defScript->setScriptText(defaultMessage,NULL);
+            defScript->setScriptText(defaultMessage);
             defScript->setThreadedExecution(threaded);
         }
     }
@@ -412,7 +371,7 @@ int CLuaScriptContainer::insertDefaultScript_mainAndChildScriptsOnly(int scriptT
         char defaultMessage[]="Default script file could not be found!"; // do not use comments ("--"), we want to cause an execution error!
         CLuaScriptObject* defScript=new CLuaScriptObject(scriptType);
         retVal=insertScript(defScript);
-        defScript->setScriptText(defaultMessage,NULL);
+        defScript->setScriptText(defaultMessage);
         defScript->setThreadedExecution(threaded);
     }
     App::setLightDialogRefreshFlag();
