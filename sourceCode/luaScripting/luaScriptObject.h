@@ -77,13 +77,14 @@ public:
 
     void _displayScriptError(const char* errMsg,int errorType);
 
-    void killLuaState();
+    bool killLuaState();
     bool hasLuaState() const;
     bool isSimulationScript() const;
     int getNumberOfPasses() const;
     void setNumberOfPasses(int p);
     int setUserData(char* data);
     char* getUserData(int id) const;
+    std::string getLuaSearchPath() const;
     void releaseUserData(int id);
     void clearAllUserData();
     void setThreadedExecution(bool threadedExec);

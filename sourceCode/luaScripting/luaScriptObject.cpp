@@ -2457,8 +2457,9 @@ bool CLuaScriptObject::isSimulationScript() const
     return( (_scriptType==sim_scripttype_mainscript)||(_scriptType==sim_scripttype_childscript) );
 }
 
-void CLuaScriptObject::killLuaState()
+bool CLuaScriptObject::killLuaState()
 {
+    bool retVal=(L!=NULL);
     if (L!=NULL)
     {
         CApiErrors::pushLocation(scriptID); // for correct error handling (i.e. assignement to the correct script and output)
@@ -2522,6 +2523,7 @@ void CLuaScriptObject::killLuaState()
     _containsContactCallbackFunction=false;
     _containsDynCallbackFunction=false;
     _flaggedForDestruction=false;
+    return(retVal);
 }
 
 int CLuaScriptObject::setUserData(char* data)
@@ -2548,6 +2550,11 @@ char* CLuaScriptObject::getUserData(int id) const
             return(_userData[i]);
     }
     return(NULL);
+}
+
+std::string CLuaScriptObject::getLuaSearchPath() const
+{
+    return(getAdditionalLuaSearchPath());
 }
 
 void CLuaScriptObject::releaseUserData(int id)

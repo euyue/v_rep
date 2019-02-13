@@ -31,6 +31,7 @@ struct SLuaVariables
 
 
 luaWrap_lua_State* initializeNewLuaState(const char* scriptSuffixNumberString,int debugLevel);
+std::string getAdditionalLuaSearchPath();
 void registerTableFunction(luaWrap_lua_State* L,char const* const tableName,char const* const functionName,luaWrap_lua_CFunction functionCallback);
 void registerNewLuaFunctions(luaWrap_lua_State* L);
 void prepareNewLuaVariables_onlyRequire(luaWrap_lua_State* L);

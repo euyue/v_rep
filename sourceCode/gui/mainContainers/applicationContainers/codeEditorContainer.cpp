@@ -245,9 +245,6 @@ int CCodeEditorContainer::open(const char* initText,const char* xml,int callingS
     {
         if (it!=NULL)
         {
-            if ( (it->getScriptType()==sim_scripttype_sandboxscript)||(it->getScriptType()==sim_scripttype_addonscript) )
-            {
-            }
             retVal=CPluginContainer::codeEditor_open(initText,xml);
             SCodeEditor inf;
             inf.handle=retVal;
@@ -304,6 +301,7 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
             else
                 xml+=" can-restart=\"true\"";
             xml+=" max-lines=\"0\" activate=\"true\" editable=\"true\" searchable=\"true\" line-numbers=\"true\" tab-width=\"4\" is-lua=\"true\"";
+            xml+=QString(" lua-search-paths=\"%1\"").arg(it->getLuaSearchPath().c_str());
             int fontSize=12;
             #ifdef MAC_VREP
                 fontSize=16; // bigger fonts here
@@ -424,9 +422,9 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingSc
             if (App::sc>1)
                 fontSize*=2;
             #endif
+            xml+=QString(" lua-search-paths=\"%1\"").arg(it->getLuaSearchPath().c_str());
             xml+=QString(" font-size=\"%1\"").arg(fontSize);
             xml+=getXmlColorString("text-col",0,0,0);
-
             xml+=getXmlColorString("background-col",App::userSettings->customizationScriptColor_background);
             xml+=getXmlColorString("selection-col",App::userSettings->customizationScriptColor_selection);
             xml+=getXmlColorString("comment-col",App::userSettings->customizationScriptColor_comment);
@@ -606,7 +604,7 @@ bool CCodeEditorContainer::close(int handle,int posAndSize[4],std::string* txt,s
                 {
                     applyChanges(_allEditors[i].handle);
                     if (_allEditors[i].restartScriptWhenClosing)
-                        it->killLuaState();
+                        killLuaState(_allEditors[i].scriptHandle);
                 }
             }
             int pas[4];
@@ -685,11 +683,22 @@ void CCodeEditorContainer::restartScript(int handle) const
                 if ( (it!=nullptr)&&(!it->getThreadedExecution()) )
                 {
                     applyChanges(_allEditors[i].handle);
-                    it->killLuaState();
+                    killLuaState(_allEditors[i].scriptHandle);
                 }
             }
             break;
         }
+    }
+}
+
+void CCodeEditorContainer::killLuaState(int scriptHandle) const
+{
+    CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptHandle);
+    if ( (it!=nullptr)&&it->killLuaState() )
+    {
+        std::string msg(it->getShortDescriptiveName());
+        msg+=" was reset.";
+        App::addStatusbarMessage(msg,false);
     }
 }
 

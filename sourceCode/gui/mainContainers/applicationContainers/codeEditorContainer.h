@@ -28,16 +28,17 @@ public:
     void showOrHideAll(bool showState);
 
     // From sim thread:
-    int open(const char* initText,const char* xml,int callingScriptHandle);
-    int openSimulationScript(int scriptHandle,int callingScriptHandle);
-    int openCustomizationScript(int scriptHandle,int callingScriptHandle);
+    int open(const char* initText,const char* xml,int callingScriptHandle); // func. sim.textEditorOpen
+    int openSimulationScript(int scriptHandle,int callingScriptHandle); // main and child scripts
+    int openCustomizationScript(int scriptHandle,int callingScriptHandle); // customization scripts
     int openConsole(const char* title,int maxLines,int mode,const int position[2],const int size[2],const int textColor[3],const int backColor[3],int callingScriptHandle);
-    std::string openModalTextEditor(const char* initText,const char* xml,int windowSizeAndPos[4]) const;
-    int openTextEditor(const char* initText,const char* xml,const char* callback,int callingScriptHandle,bool isSimulationScript);
+    std::string openModalTextEditor(const char* initText,const char* xml,int windowSizeAndPos[4]) const; // modal C func. sim.openTextEditor
+    int openTextEditor(const char* initText,const char* xml,const char* callback,int callingScriptHandle,bool isSimulationScript); // deprec. func. sim.openTextEditor
     bool close(int handle,int posAndSize[4],std::string* txt,std::string* callback);
     void applyChanges(int handle) const;
     bool closeFromScriptHandle(int scriptHandle,int posAndSize[4],bool ignoreChange);
     void restartScript(int handle) const;
+    void killLuaState(int scriptHandle) const;
     int getCallingScriptHandle(int handle) const;
     bool getCloseAfterCallbackCalled(int handle) const;
     void simulationAboutToStart() const;

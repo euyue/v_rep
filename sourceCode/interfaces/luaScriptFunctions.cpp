@@ -3295,6 +3295,40 @@ void getScriptChain(luaWrap_lua_State* L,bool selfIncluded,bool mainIncluded,std
     }
 }
 
+std::string getAdditionalLuaSearchPath()
+{
+    std::string retVal;
+    retVal+=App::directories->executableDirectory;
+#ifdef MAC_VREP
+    // We are inside of the package!!!
+    retVal+="/../../../lua/?.lua";
+#else
+    retVal+="/lua/?.lua";
+#endif
+    retVal+=";";
+    retVal+=App::directories->executableDirectory;
+#ifdef MAC_VREP
+    // We are inside of the package!!!
+    retVal+="/../../../BlueWorkforce/?.lua";
+#else
+    retVal+="/BlueWorkforce/?.lua";
+#endif
+    if (App::ct->mainSettings->getScenePathAndName().compare("")!=0)
+    {
+        retVal+=";";
+        retVal+=App::ct->mainSettings->getScenePath();
+        retVal+="/?.lua";
+    }
+    if (App::userSettings->additionalLuaPath.length()>0)
+    {
+        retVal+=";";
+        retVal+=App::userSettings->additionalLuaPath;
+        retVal+="/?.lua";
+    }
+    return(retVal);
+}
+
+
 luaWrap_lua_State* initializeNewLuaState(const char* scriptSuffixNumberString,int debugLevel)
 {
     luaWrap_lua_State* L=luaWrap_luaL_newstate();
@@ -3304,37 +3338,12 @@ luaWrap_lua_State* initializeNewLuaState(const char* scriptSuffixNumberString,in
     // append some paths to the Lua path variable:
     luaWrap_lua_getglobal(L,"package");
     luaWrap_lua_getfield(L,-1,"path");
-    std::string cur_path=luaWrap_lua_tostring(L,-1);
+    QString cur_path=luaWrap_lua_tostring(L,-1);
     cur_path+=";";
-    cur_path+=App::directories->executableDirectory;
-#ifdef MAC_VREP
-    // We are inside of the package!!!
-    cur_path+="/../../../lua/?.lua";
-#else
-    cur_path+="/lua/?.lua";
-#endif
-    cur_path+=";";
-    cur_path+=App::directories->executableDirectory;
-#ifdef MAC_VREP
-    // We are inside of the package!!!
-    cur_path+="/../../../BlueWorkforce/?.lua";
-#else
-    cur_path+="/BlueWorkforce/?.lua";
-#endif
-    if (App::ct->mainSettings->getScenePathAndName().compare("")!=0)
-    {
-        cur_path+=";";
-        cur_path+=App::ct->mainSettings->getScenePath();
-        cur_path+="/?.lua";
-    }
-    if (App::userSettings->additionalLuaPath.length()>0)
-    {
-        cur_path+=";";
-        cur_path+=App::userSettings->additionalLuaPath;
-        cur_path+="/?.lua";
-    }
+    cur_path+=getAdditionalLuaSearchPath().c_str();
+    cur_path.replace("\\","/");
     luaWrap_lua_pop(L,1);
-    luaWrap_lua_pushstring(L,cur_path.c_str());
+    luaWrap_lua_pushstring(L,cur_path.toStdString().c_str());
     luaWrap_lua_setfield(L,-2,"path");
     luaWrap_lua_pop(L,1);
     // --------------------------------------------
