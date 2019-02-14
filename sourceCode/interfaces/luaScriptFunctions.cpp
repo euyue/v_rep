@@ -3298,12 +3298,14 @@ void getScriptChain(luaWrap_lua_State* L,bool selfIncluded,bool mainIncluded,std
 std::string getAdditionalLuaSearchPath()
 {
     std::string retVal;
+    retVal+=App::directories->executableDirectory;
 #ifdef MAC_VREP
     // We are inside of the package!!!
-    retVal+=App::directories->executableDirectory;
     retVal+="/../../../?.lua";
-    retVal+=";";
+#else
+    retVal+="/?.lua";
 #endif
+    retVal+=";";
     retVal+=App::directories->executableDirectory;
 #ifdef MAC_VREP
     // We are inside of the package!!!
