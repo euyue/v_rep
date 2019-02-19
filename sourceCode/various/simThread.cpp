@@ -6430,7 +6430,12 @@ void CSimThread::_displayVariousWaningMessagesDuringSimulation()
     }
 
     if (App::ct->dynamicsContainer->displayVortexPluginIsDemoRequired())
-        App::uiThread->messageBox_information(App::mainWindow,strTranslate(IDSN_PHYSICS_ENGINE),strTranslate(IDS_WARNING_WITH_VORTEX_DEMO_PLUGIN),VMESSAGEBOX_OKELI);
+#ifdef WIN_VREP
+        App::uiThread->messageBox_information(App::mainWindow,strTranslate(IDSN_PHYSICS_ENGINE),strTranslate(IDS_WARNING_WITH_VORTEX_DEMO_PLUGIN_WINDOWS),VMESSAGEBOX_OKELI);
+#endif
+#ifdef LIN_VREP
+        App::uiThread->messageBox_information(App::mainWindow,strTranslate(IDSN_PHYSICS_ENGINE),strTranslate(IDS_WARNING_WITH_VORTEX_DEMO_PLUGIN_LINUX),VMESSAGEBOX_OKELI);
+#endif
 
     if (displayNonPureNonConvexShapeUseWarning)
     {
