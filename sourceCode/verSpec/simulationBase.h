@@ -2,14 +2,16 @@
 #pragma once
 
 #ifndef SIM_WITHOUT_QT_AT_ALL
+#ifdef SIM_WITH_GUI
     #include "vMenubar.h"
+#endif
     #include "app.h"
 #endif
 
 class CSimulationBase
 {
 public:
-#ifndef SIM_WITHOUT_QT_AT_ALL
+#ifdef SIM_WITH_GUI
     static void handleVerSpec_addMenu(VMenu* menu)
     {
         bool noEditMode=(App::getEditModeType()==NO_EDIT_MODE);
