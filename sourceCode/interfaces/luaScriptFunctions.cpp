@@ -8,6 +8,7 @@
 #include "linMotionRoutines.h"
 #include "pluginContainer.h"
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string/replace.hpp>
 #include "vVarious.h"
 #include "vDateTime.h"
 #include "app.h"
@@ -17,7 +18,6 @@
 #include "ttUtil.h"
 #include "imgLoaderSaver.h"
 #include "sceneObjectOperations.h"
-#include <algorithm>
 
 #define LUA_START(funcName) \
     CApiErrors::clearCSideGeneratedLuaError(); \
@@ -3350,7 +3350,7 @@ luaWrap_lua_State* initializeNewLuaState(const char* scriptSuffixNumberString,in
     std::string cur_path=luaWrap_lua_tostring(L,-1);
     cur_path+=";";
     cur_path+=getAdditionalLuaSearchPath().c_str();
-    std::replace(cur_path.begin(),cur_path.end(),"\\","/");
+    boost::replace_all(cur_path,"\\","/");
     luaWrap_lua_pop(L,1);
     luaWrap_lua_pushstring(L,cur_path.c_str());
     luaWrap_lua_setfield(L,-2,"path");
