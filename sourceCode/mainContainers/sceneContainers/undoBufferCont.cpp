@@ -168,11 +168,11 @@ bool CUndoBufferCont::memorizeState()
     static int tooLongExecutionCount=0;
     int startTime=VDateTime::getTimeInMs();
 
-    if (App::mainWindow!=NULL)
+    if (App::mainWindow!=nullptr)
     {
         if (App::userSettings->useOldCodeEditor)
         {
-            if (App::mainWindow->scintillaEditorContainer!=NULL)
+            if (App::mainWindow->scintillaEditorContainer!=nullptr)
                 App::mainWindow->scintillaEditorContainer->applyChanges();
         }
         else
@@ -319,7 +319,7 @@ void CUndoBufferCont::undo()
 #ifdef SIM_WITH_GUI
     if (_inUndoRoutineNow)
         return;
-    if (App::mainWindow==NULL)
+    if (App::mainWindow==nullptr)
         return; // we are in headless mode
 
     if (App::userSettings->useOldCodeEditor)
@@ -404,7 +404,7 @@ void CUndoBufferCont::redo()
 #ifdef SIM_WITH_GUI
     if (_currentStateIndex>(int(_buffers.size())-2))
         return; // nothing to redo
-    if (App::mainWindow==NULL)
+    if (App::mainWindow==nullptr)
         return; // we are in headless mode
     if (App::userSettings->useOldCodeEditor)
     {

@@ -2444,7 +2444,7 @@ bool CFileOperations::saveScene(const char* pathAndFilename,bool displayMessages
             displayDialogs=false;
 
 #ifdef SIM_WITH_GUI
-        if (App::mainWindow!=NULL)
+        if (App::mainWindow!=nullptr)
         {
             if (App::userSettings->useOldCodeEditor)
                 App::mainWindow->scintillaEditorContainer->applyChanges();
@@ -2536,7 +2536,7 @@ bool CFileOperations::saveModel(int modelBaseDummyID,const char* pathAndFilename
             modelBBSize=C3Vector::zeroVector;
 
 #ifdef SIM_WITH_GUI
-        if (App::mainWindow!=NULL)
+        if (App::mainWindow!=nullptr)
         {
             if (App::userSettings->useOldCodeEditor)
                 App::mainWindow->scintillaEditorContainer->applyChanges();

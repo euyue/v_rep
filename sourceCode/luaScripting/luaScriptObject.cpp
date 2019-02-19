@@ -1206,7 +1206,7 @@ bool CLuaScriptObject::announce3DObjectWillBeErased(int objectID,bool copyBuffer
         if (closeCodeEditor)
         {
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=NULL)
+            if (App::mainWindow!=nullptr)
             {
                 if (App::userSettings->useOldCodeEditor)
                     App::mainWindow->scintillaEditorContainer->closeEditor(scriptID);
@@ -1222,7 +1222,7 @@ bool CLuaScriptObject::announce3DObjectWillBeErased(int objectID,bool copyBuffer
 int CLuaScriptObject::flagScriptForRemoval()
 { // retVal: 0--> cannot be removed, 1 --> will be removed in a delayed manner, 2--> can be removed now
 #ifdef SIM_WITH_GUI
-    if (App::mainWindow!=NULL)
+    if (App::mainWindow!=nullptr)
     {
         if (App::userSettings->useOldCodeEditor)
             App::mainWindow->scintillaEditorContainer->closeEditor(scriptID);

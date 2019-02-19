@@ -68,8 +68,11 @@ void CSimThread::executeMessages()
         }
     }
 
-    if (App::mainWindow->scintillaUserNonModalDlgContainer!=NULL)
-        App::mainWindow->scintillaUserNonModalDlgContainer->handleCallbacks();
+    if (App::mainWindow!=nullptr)
+    {
+        if (App::mainWindow->scintillaUserNonModalDlgContainer!=nullptr)
+            App::mainWindow->scintillaUserNonModalDlgContainer->handleCallbacks();
+    }
 
 #endif
 
@@ -308,7 +311,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 if (App::getEditModeType()==NO_EDIT_MODE)
                 {
                     CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(cmd.intParams[0]);
-                    if (it!=NULL)
+                    if ((it!=NULL)&&(App::mainWindow!=nullptr))
                     {
                         if (it->getScriptType()==sim_scripttype_customizationscript)
                             App::mainWindow->codeEditorContainer->openCustomizationScript(cmd.intParams[0],-1);

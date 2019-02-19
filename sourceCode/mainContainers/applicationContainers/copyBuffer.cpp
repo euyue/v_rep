@@ -341,7 +341,7 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
         return;
 
 #ifdef SIM_WITH_GUI
-        if (App::mainWindow!=NULL)
+        if (App::mainWindow!=nullptr)
             App::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();
 #endif
     clearBuffer();

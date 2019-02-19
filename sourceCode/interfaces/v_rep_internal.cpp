@@ -5147,29 +5147,19 @@ simInt simSetScriptText_internal(simInt scriptHandle,const simChar* scriptText)
             return(-1);
         }
 
-        if ( (it->getScriptType()!=sim_scripttype_childscript)||(!it->getThreadedExecution())||App::ct->simulation->isSimulationStopped() )
-        {
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=NULL)
-            {
-                if (App::userSettings->useOldCodeEditor)
-                {
-                    bool wasOpen=App::mainWindow->scintillaEditorContainer->closeEditor(scriptHandle);
-                    it->setScriptText(scriptText);
-                    if (wasOpen)
-                        App::mainWindow->scintillaEditorContainer->openEditorForScript(scriptHandle);
-                }
-                else
-                    App::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptHandle,nullptr,true);
-            }
+        if (App::mainWindow!=nullptr)
+        {
+            if (App::userSettings->useOldCodeEditor)
+                App::mainWindow->scintillaEditorContainer->closeEditor(scriptHandle);
             else
-#endif
-                it->setScriptText(scriptText);
-            it->killLuaState();
-            return(1);
+                App::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptHandle,nullptr,true);
         }
-        else
-            return(0);
+#endif
+        it->setScriptText(scriptText);
+        if ( (it->getScriptType()!=sim_scripttype_childscript)||(!it->getThreadedExecution())||App::ct->simulation->isSimulationStopped() )
+            it->killLuaState();
+        return(1);
     }
     CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
@@ -5198,7 +5188,7 @@ const simChar* simGetScriptText_internal(simInt scriptHandle)
         const char* retVal=NULL;
 
 #ifdef SIM_WITH_GUI
-        if (App::mainWindow!=NULL)
+        if (App::mainWindow!=nullptr)
         {
             if (App::userSettings->useOldCodeEditor)
             {
@@ -9385,7 +9375,7 @@ simInt simAuxiliaryConsoleOpen_internal(const simChar* title,simInt maxLines,sim
     {
         int retVal=1; // in headless mode, we just return a random handle
 #ifdef SIM_WITH_GUI
-        if (App::mainWindow!=NULL)
+        if (App::mainWindow!=nullptr)
         {
             if (App::userSettings->useOldCodeEditor)
             {
@@ -9429,12 +9419,12 @@ simInt simAuxiliaryConsoleClose_internal(simInt consoleHandle)
 #ifdef SIM_WITH_GUI
         if (App::userSettings->useOldCodeEditor)
         {
-            if ( (App::mainWindow!=NULL)&&(App::mainWindow->scintillaConsoleContainer->removeConsole(consoleHandle)) )
+            if ( (App::mainWindow!=nullptr)&&(App::mainWindow->scintillaConsoleContainer->removeConsole(consoleHandle)) )
                 return(1);
         }
         else
         {
-            if ( (App::mainWindow!=NULL)&&(App::mainWindow->codeEditorContainer->close(consoleHandle,nullptr,nullptr,nullptr)) )
+            if ( (App::mainWindow!=nullptr)&&(App::mainWindow->codeEditorContainer->close(consoleHandle,nullptr,nullptr,nullptr)) )
                 return(1);
         }
 #endif
@@ -9460,12 +9450,12 @@ simInt simAuxiliaryConsoleShow_internal(simInt consoleHandle,simBool showState)
         { // we just wanna now if the console is still open
             if (App::userSettings->useOldCodeEditor)
             {
-                if ( (App::mainWindow!=NULL)&&(App::mainWindow->scintillaConsoleContainer->isConsoleHandleValid(handle)) )
+                if ( (App::mainWindow!=nullptr)&&(App::mainWindow->scintillaConsoleContainer->isConsoleHandleValid(handle)) )
                     return(1);
             }
             else
             {
-                if ( (App::mainWindow!=NULL)&&(App::mainWindow->codeEditorContainer->isHandleValid(handle)) )
+                if ( (App::mainWindow!=nullptr)&&(App::mainWindow->codeEditorContainer->isHandleValid(handle)) )
                     return(1);
             }
         }
@@ -9473,12 +9463,12 @@ simInt simAuxiliaryConsoleShow_internal(simInt consoleHandle,simBool showState)
         { // normal operation
             if (App::userSettings->useOldCodeEditor)
             {
-                if ( (App::mainWindow!=NULL)&&(App::mainWindow->scintillaConsoleContainer->consoleSetShowState(handle,showState!=0)) )
+                if ( (App::mainWindow!=nullptr)&&(App::mainWindow->scintillaConsoleContainer->consoleSetShowState(handle,showState!=0)) )
                     return(1);
             }
             else
             {
-                if (App::mainWindow!=NULL)
+                if (App::mainWindow!=nullptr)
                     return(App::mainWindow->codeEditorContainer->showOrHide(handle,showState!=0));
             }
         }
@@ -9499,7 +9489,7 @@ simInt simAuxiliaryConsolePrint_internal(simInt consoleHandle,const simChar* tex
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
 #ifdef SIM_WITH_GUI
-        if (App::mainWindow!=NULL)
+        if (App::mainWindow!=nullptr)
         {
             if (App::userSettings->useOldCodeEditor)
             {
@@ -18796,7 +18786,7 @@ simInt simEventNotification_internal(const simChar* event)
                     const char* msg=rootElement->Attribute("msg");
                     const char* handle=rootElement->Attribute("handle");
                     const char* data=rootElement->Attribute("data");
-                    if ((msg!=nullptr)&&(handle!=nullptr)&&(data!=nullptr))
+                    if ((msg!=nullptr)&&(handle!=nullptr)&&(data!=nullptr)&&(App::mainWindow!=nullptr))
                     {
                         if (strcmp(msg,"closeEditor")==0)
                         {

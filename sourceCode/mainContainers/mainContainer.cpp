@@ -97,7 +97,7 @@ void CMainContainer::simulationAboutToStart()
     _savedMouseMode=App::getMouseMode();
 
 #ifdef SIM_WITH_GUI
-    if (App::mainWindow!=NULL)
+    if (App::mainWindow!=nullptr)
     {
         if (App::userSettings->useOldCodeEditor)
             App::mainWindow->scintillaEditorContainer->applyChanges();
@@ -207,7 +207,7 @@ void CMainContainer::simulationAboutToEnd()
     luaScriptContainer->simulationAboutToEnd(); // will call a last time the main and all non-threaded child scripts, then reset them
 
 #ifdef SIM_WITH_GUI
-    if (App::mainWindow!=NULL)
+    if (App::mainWindow!=nullptr)
         App::mainWindow->codeEditorContainer->simulationAboutToEnd();
 #endif
 }
@@ -518,7 +518,7 @@ int CMainContainer::destroyCurrentInstance()
     }
 
 #ifdef SIM_WITH_GUI
-    if (App::mainWindow!=NULL)
+    if (App::mainWindow!=nullptr)
         App::mainWindow->codeEditorContainer->sceneClosed(environment->getSceneUniqueID());
 
     SUIThreadCommand cmdIn;
@@ -709,7 +709,7 @@ void CMainContainer::emptyScene(bool notCalledFromUndoFunction)
         undoBufferContainer->emptySceneProcedure();
 
 #ifdef SIM_WITH_GUI
-    if (App::mainWindow!=NULL)
+    if (App::mainWindow!=nullptr)
         App::mainWindow->codeEditorContainer->sceneClosed(environment->getSceneUniqueID());
 #endif
     environment->setSceneIsClosingFlag(true); // so that attached scripts can react to it

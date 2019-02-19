@@ -8540,13 +8540,17 @@ int _simTest(luaWrap_lua_State* L)
         }
         if (func==4)
         {
-            int r=App::mainWindow->codeEditorContainer->openSimulationScript(luaWrap_lua_tointeger(L,2),getCurrentScriptID(L));
-            luaWrap_lua_pushinteger(L,r);
-            LUA_END(1);
+            if (App::mainWindow!=nullptr)
+            {
+                int r=App::mainWindow->codeEditorContainer->openSimulationScript(luaWrap_lua_tointeger(L,2),getCurrentScriptID(L));
+                luaWrap_lua_pushinteger(L,r);
+                LUA_END(1);
+            }
         }
         if (func==5)
         {
-            App::mainWindow->codeEditorContainer->close(luaWrap_lua_tointeger(L,2),nullptr,nullptr,nullptr);
+            if (App::mainWindow!=nullptr)
+                App::mainWindow->codeEditorContainer->close(luaWrap_lua_tointeger(L,2),nullptr,nullptr,nullptr);
         }
     }
     LUA_END(0);
@@ -17906,8 +17910,11 @@ int _simCloseTextEditor(luaWrap_lua_State* L)
         }
         else
         {
-            if (App::mainWindow->codeEditorContainer->close(h,posAndSize,&txt,&cb))
-                res=1;
+            if (App::mainWindow!=nullptr)
+            {
+                if (App::mainWindow->codeEditorContainer->close(h,posAndSize,&txt,&cb))
+                    res=1;
+            }
         }
         if ( (res>0)&&(!ignoreCb) )
         {   // We call the callback directly from here:
