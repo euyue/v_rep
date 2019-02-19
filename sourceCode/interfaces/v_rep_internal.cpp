@@ -18060,6 +18060,7 @@ simChar* simOpenTextEditor_internal(const simChar* initText,const simChar* xml,s
     }
     else
     {
+#ifdef SIM_WITH_GUI
         if (App::mainWindow!=nullptr)
         {
             std::string txt=App::mainWindow->codeEditorContainer->openModalTextEditor(initText,xml,various);
@@ -18068,6 +18069,7 @@ simChar* simOpenTextEditor_internal(const simChar* initText,const simChar* xml,s
                 retVal[i]=txt[i];
             retVal[txt.size()]=0;
         }
+#endif
     }
     return(retVal);
 }
@@ -18786,6 +18788,7 @@ simInt simEventNotification_internal(const simChar* event)
                     const char* msg=rootElement->Attribute("msg");
                     const char* handle=rootElement->Attribute("handle");
                     const char* data=rootElement->Attribute("data");
+#ifdef SIM_WITH_GUI
                     if ((msg!=nullptr)&&(handle!=nullptr)&&(data!=nullptr)&&(App::mainWindow!=nullptr))
                     {
                         if (strcmp(msg,"closeEditor")==0)
@@ -18818,6 +18821,7 @@ simInt simEventNotification_internal(const simChar* event)
                                 App::mainWindow->codeEditorContainer->restartScript(h);
                         }
                     }
+#endif
                 }
             }
         }
