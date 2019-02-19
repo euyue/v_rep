@@ -2,9 +2,11 @@ TARGET = v_rep
 TEMPLATE = lib
 
 CONFIG += shared debug_and_release
-CONFIG += WITH_GUI
-CONFIG += WITH_OPENGL # comment only if above line is commented
-CONFIG += WITH_QT # comment only if above 2 lines are commented. Without Qt uses some sub-optimal routines for now, check TODO_SIM_WITHOUT_QT_AT_ALL
+!HEADLESS_TEST {
+    CONFIG += WITH_GUI
+    CONFIG += WITH_OPENGL # comment only if above line is commented
+    CONFIG += WITH_QT # comment only if above 2 lines are commented. Without Qt uses some sub-optimal routines for now, check TODO_SIM_WITHOUT_QT_AT_ALL
+}
 CONFIG += WITH_SERIAL
 CONFIG(debug,debug|release) {
     CONFIG += force_debug_info
