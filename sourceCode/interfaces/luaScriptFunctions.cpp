@@ -17,6 +17,7 @@
 #include "ttUtil.h"
 #include "imgLoaderSaver.h"
 #include "sceneObjectOperations.h"
+#include <algorithm>
 
 #define LUA_START(funcName) \
     CApiErrors::clearCSideGeneratedLuaError(); \
@@ -3346,12 +3347,12 @@ luaWrap_lua_State* initializeNewLuaState(const char* scriptSuffixNumberString,in
     // append some paths to the Lua path variable:
     luaWrap_lua_getglobal(L,"package");
     luaWrap_lua_getfield(L,-1,"path");
-    QString cur_path=luaWrap_lua_tostring(L,-1);
+    std::string cur_path=luaWrap_lua_tostring(L,-1);
     cur_path+=";";
     cur_path+=getAdditionalLuaSearchPath().c_str();
-    cur_path.replace("\\","/");
+    std::replace(cur_path.begin(),cur_path.end(),"\\","/");
     luaWrap_lua_pop(L,1);
-    luaWrap_lua_pushstring(L,cur_path.toStdString().c_str());
+    luaWrap_lua_pushstring(L,cur_path.c_str());
     luaWrap_lua_setfield(L,-2,"path");
     luaWrap_lua_pop(L,1);
     // --------------------------------------------
@@ -8538,20 +8539,19 @@ int _simTest(luaWrap_lua_State* L)
            luaWrap_lua_pushinteger(L,r);
            LUA_END(1);
         }
-        if (func==4)
+#ifdef SIM_WITH_GUI
+        if (App::mainWindow!=nullptr)
         {
-            if (App::mainWindow!=nullptr)
+            if (func==4)
             {
-                int r=App::mainWindow->codeEditorContainer->openSimulationScript(luaWrap_lua_tointeger(L,2),getCurrentScriptID(L));
-                luaWrap_lua_pushinteger(L,r);
-                LUA_END(1);
+                    int r=App::mainWindow->codeEditorContainer->openSimulationScript(luaWrap_lua_tointeger(L,2),getCurrentScriptID(L));
+                    luaWrap_lua_pushinteger(L,r);
+                    LUA_END(1);
             }
-        }
-        if (func==5)
-        {
-            if (App::mainWindow!=nullptr)
+            if (func==5)
                 App::mainWindow->codeEditorContainer->close(luaWrap_lua_tointeger(L,2),nullptr,nullptr,nullptr);
         }
+#endif
     }
     LUA_END(0);
 }
@@ -8591,6 +8591,7 @@ int _simTextEditorOpen(luaWrap_lua_State* L)
     LUA_START("sim.textEditorOpen");
     int retVal=-1;
 
+#ifdef SIM_WITH_GUI
     if (CPluginContainer::isCodeEditorPluginAvailable()&&(App::mainWindow!=nullptr))
     {
         if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_string,0))
@@ -8602,6 +8603,7 @@ int _simTextEditorOpen(luaWrap_lua_State* L)
     }
     else
         errorString="Code Editor plugin was not found.";
+#endif
 
     LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
@@ -8613,6 +8615,7 @@ int _simTextEditorClose(luaWrap_lua_State* L)
     LUA_API_FUNCTION_DEBUG;
     LUA_START("sim.textEditorClose");
 
+#ifdef SIM_WITH_GUI
     if (CPluginContainer::isCodeEditorPluginAvailable()&&(App::mainWindow!=nullptr))
     {
         if (checkInputArguments(L,&errorString,lua_arg_number,0))
@@ -8631,6 +8634,7 @@ int _simTextEditorClose(luaWrap_lua_State* L)
     }
     else
         errorString="Code Editor plugin was not found.";
+#endif
 
     LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
     LUA_END(0);
@@ -8642,6 +8646,7 @@ int _simTextEditorShow(luaWrap_lua_State* L)
     LUA_START("sim.textEditorShow");
     int retVal=-1;
 
+#ifdef SIM_WITH_GUI
     if (CPluginContainer::isCodeEditorPluginAvailable()&&(App::mainWindow!=nullptr))
     {
         if (checkInputArguments(L,&errorString,lua_arg_number,0))
@@ -8655,6 +8660,7 @@ int _simTextEditorShow(luaWrap_lua_State* L)
     }
     else
         errorString="Code Editor plugin was not found.";
+#endif
 
     LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
     luaWrap_lua_pushinteger(L,retVal);
@@ -8666,6 +8672,7 @@ int _simTextEditorGetInfo(luaWrap_lua_State* L)
     LUA_API_FUNCTION_DEBUG;
     LUA_START("sim.textEditorGetInfo");
 
+#ifdef SIM_WITH_GUI
     if (CPluginContainer::isCodeEditorPluginAvailable()&&(App::mainWindow!=nullptr))
     {
         if (checkInputArguments(L,&errorString,lua_arg_number,0))
@@ -8687,6 +8694,7 @@ int _simTextEditorGetInfo(luaWrap_lua_State* L)
     }
     else
         errorString="Code Editor plugin was not found.";
+#endif
 
     LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
     LUA_END(0);
@@ -17866,8 +17874,10 @@ int _simOpenTextEditor(luaWrap_lua_State* L)
                     }
                     else
                     {
+#ifdef SIM_WITH_GUI
                         if (App::mainWindow!=nullptr)
                             handle=App::mainWindow->codeEditorContainer->openTextEditor(initText.c_str(),xml.c_str(),callbackFunction.c_str(),it->getScriptID(),it->isSimulationScript());
+#endif
                     }
                 }
                 luaWrap_lua_pushinteger(L,handle);
@@ -17910,11 +17920,13 @@ int _simCloseTextEditor(luaWrap_lua_State* L)
         }
         else
         {
+#ifdef SIM_WITH_GUI
             if (App::mainWindow!=nullptr)
             {
                 if (App::mainWindow->codeEditorContainer->close(h,posAndSize,&txt,&cb))
                     res=1;
             }
+#endif
         }
         if ( (res>0)&&(!ignoreCb) )
         {   // We call the callback directly from here:
