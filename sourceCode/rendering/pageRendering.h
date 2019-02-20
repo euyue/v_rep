@@ -2,7 +2,7 @@
 #include "app.h"
 #include "rendering.h"
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 void _drawSeparationLines(int _pageType,const int* _pageSize);
 #endif
 

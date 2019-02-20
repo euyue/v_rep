@@ -382,7 +382,6 @@ void App::postExitRequest()
 { // call only from sim thread!
     // Important to remove all objects before we destroy the main window,
     // since some of them might be linked it:
-
     uiThread->showOrHideEmergencyStop(false,"");
     uiThread->showOrHideProgressBar(true,-1,"Leaving...");
     while (ct->getInstanceCount()>1)

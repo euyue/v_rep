@@ -23,10 +23,12 @@ void displayView(CSView* view,C3DObject* it,int mainWindowXPos,bool clipWithMain
         glScissor(xMax,_viewPosition[1],xSize,_viewSize[1]);
         if (xSize>0) // to avoid strange effects!
         {
+#ifdef SIM_WITH_GUI
             if (it->getObjectType()==sim_object_camera_type)
                 ((CCamera*)it)->lookIn(NULL,view,drawText,passiveSubView);
             if (it->getObjectType()==sim_object_graph_type)
                 ((CGraph*)it)->lookAt(NULL,view,view->getTimeGraph(),drawText,passiveSubView,true);
+#endif
             if (it->getObjectType()==sim_object_visionsensor_type)
                 ((CVisionSensor*)it)->lookAt(view);
         }

@@ -219,7 +219,7 @@ bool VMutex::_areThreadIDsSame(VTHREAD_ID_TYPE threadA,VTHREAD_ID_TYPE threadB)
 VTHREAD_ID_TYPE VMutex::_getCurrentThreadId()
 {
 #ifdef WIN_VREP
-    return(GetCurrentThreadId();
+    return(GetCurrentThreadId());
 #else // WIN_VREP
     return(pthread_self());
 #endif // WIN_VREP

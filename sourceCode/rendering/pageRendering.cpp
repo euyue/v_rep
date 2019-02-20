@@ -1,7 +1,7 @@
 
 #include "pageRendering.h"
 
-#ifdef SIM_WITH_OPENGL
+#ifdef SIM_WITH_GUI
 
 #define FLOATING_VIEW_MIN_SIZE 80
 const int auxViewsBtSize=12;

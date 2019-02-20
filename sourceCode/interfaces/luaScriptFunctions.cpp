@@ -17173,7 +17173,7 @@ int _simAuxFunc(luaWrap_lua_State* L)
         std::string cmd(luaWrap_lua_tostring(L,1));
         if (cmd.compare("activateMainWindow")==0)
         {
-#ifndef SIM_WITHOUT_QT_AT_ALL
+#ifdef SIM_WITH_GUI
             if (App::mainWindow!=NULL)
                 App::mainWindow->activateMainWindow();
 #endif
