@@ -4314,11 +4314,14 @@ simInt simSaveModel_internal(int baseOfModelHandle,const simChar* filename)
     }
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
+        std::vector<int> initSelection;
+        App::ct->objCont->getSelectedObjects(initSelection);
         if (!CFileOperations::saveModel(baseOfModelHandle,filename,false,false,false))
         {
             CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_MODEL_COULD_NOT_BE_SAVED);
             return(-1);
         }
+        App::ct->objCont->setSelectedObjects(initSelection);
         return(1);
     }
     CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);

@@ -368,7 +368,10 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         {
                             std::string filenameAndPath=CFileOperationsBase::handleVerSpec_saveModel(cmd.cmdId);
                             if (filenameAndPath.length()!=0)
+                            {
                                 saveModel(modelBase,filenameAndPath.c_str(),true,true,true);
+                                App::ct->objCont->deselectObjects();
+                            }
                             else
                                 App::addStatusbarMessage(IDSNS_ABORTED);
                         }

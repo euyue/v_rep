@@ -470,20 +470,15 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
             unselected.push_back(App::ct->objCont->objectList[i]);
     }
 //----------------------------------------------------------------------------------------- 
-
     // Now we make sure the linked info is consistent: we announce to the selected objects
     // (in the copy buffer) that all unselected objects will be erased:
     // This will in turn also erase general objects (which might trigger other object erase)
     for (size_t i=0;i<unselected.size();i++)
         _announceObjectWillBeErased(unselected[i]);
-
-    // We deselect all objects and refresh the dialogs:
-    App::ct->objCont->deselectObjects();
-    App::setFullDialogRefreshFlag();
 }
 
 void CCopyBuffer::serializeCurrentSelection(CSer &ar,std::vector<int>* sel,C7Vector& modelTr,C3Vector& modelBBSize,float modelNonDefaultTranslationStepSize)
-{   // There is an equivalent XML serialization routine further down
+{
 
     // This is used when saving a model. When saving a model, we basically perform
     // the same operations as for copying a selection. Since we will make use of the

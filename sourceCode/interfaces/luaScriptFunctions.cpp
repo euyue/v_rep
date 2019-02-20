@@ -8099,6 +8099,8 @@ int _simSaveModel(luaWrap_lua_State* L)
                     {
                         if (it->getModelBase())
                         {
+                            std::vector<int> initSelection;
+                            App::ct->objCont->getSelectedObjects(initSelection);
                             std::vector<char> buffer;
                             if (CFileOperations::saveModel(model,NULL,false,false,false,&buffer))
                             {
@@ -8107,6 +8109,7 @@ int _simSaveModel(luaWrap_lua_State* L)
                             }
                             else
                                 errorString=SIM_ERROR_MODEL_COULD_NOT_BE_SAVED;
+                            App::ct->objCont->setSelectedObjects(initSelection);
                         }
                         else
                             errorString=SIM_ERROR_OBJECT_NOT_MODEL_BASE;
