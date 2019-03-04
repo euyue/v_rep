@@ -15,6 +15,7 @@ CPlugin::CPlugin(const char* filename,const char* pluginName)
     v_repMesh_createCollisionInformationStructure=nullptr;
     _codeEditor_openModal=nullptr;
     _customUi_msgBox=nullptr;
+    _assimp_importShapes=nullptr;
     _loadCount=1;
     extendedVersionInt=-1;
 }
