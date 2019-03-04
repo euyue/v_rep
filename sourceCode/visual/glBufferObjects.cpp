@@ -80,14 +80,14 @@ bool CGlBufferObjects::_checkIfBuffersAreSupported()
 }
 
 void CGlBufferObjects::drawTriangles(const float* vertices,int verticesCnt,const int* indices,int indicesCnt,const float* normals,const float* textureCoords,int* vertexBufferId,int* normalBufferId,int* texCoordBufferId)
-{   // textureCoords can be NULL, in which case texCoordBufferId can also be NULL
+{   // textureCoords can be nullptr, in which case texCoordBufferId can also be nullptr
     // Can only be called by the GUI thread!
     _buffersAreSupported=_checkIfBuffersAreSupported();
 
     int currentTimeInMs=VDateTime::getTimeInMs();
     bool forceNotUsingBuffers=true;
 #ifdef SIM_WITH_GUI
-    forceNotUsingBuffers=(App::userSettings->vboOperation==0)||(App::mainWindow==NULL); // in headless mode: we don't use VBO's for now (crash)
+    forceNotUsingBuffers=(App::userSettings->vboOperation==0)||(App::mainWindow==nullptr); // in headless mode: we don't use VBO's for now (crash)
 #endif
 
     static int lastTimeInMs=currentTimeInMs;
@@ -107,17 +107,17 @@ void CGlBufferObjects::drawTriangles(const float* vertices,int verticesCnt,const
     }
 
     SBuffwid* theNormalBuff=_bindNormalBuffer(normalBufferId[0],currentTimeInMs);
-    if (theNormalBuff==NULL)
+    if (theNormalBuff==nullptr)
     {
         normalBufferId[0]=_buildNormalBuffer(normals,indicesCnt);
         theNormalBuff=_bindNormalBuffer(normalBufferId[0],currentTimeInMs);
     }
 
-    SBuffwid* theTexCoordBuff=NULL;
-    if (textureCoords!=NULL)
+    SBuffwid* theTexCoordBuff=nullptr;
+    if (textureCoords!=nullptr)
     {
         theTexCoordBuff=_bindTexCoordBuffer(texCoordBufferId[0],currentTimeInMs);
-        if (theTexCoordBuff==NULL)
+        if (theTexCoordBuff==nullptr)
         {
             texCoordBufferId[0]=_buildTexCoordBuffer(textureCoords,indicesCnt);
             theTexCoordBuff=_bindTexCoordBuffer(texCoordBufferId[0],currentTimeInMs);
@@ -126,7 +126,7 @@ void CGlBufferObjects::drawTriangles(const float* vertices,int verticesCnt,const
 
     int individualVerticesCnt=0;
     SBuffwid* theVertexBuff=_bindVertexBuffer(vertexBufferId[0],individualVerticesCnt,currentTimeInMs);
-    if (theVertexBuff==NULL)
+    if (theVertexBuff==nullptr)
     {
         std::vector<float> individualVertices;
         _fromSharedToIndividualVertices(vertices,verticesCnt,indices,indicesCnt,individualVertices);
@@ -146,13 +146,13 @@ void CGlBufferObjects::drawTriangles(const float* vertices,int verticesCnt,const
         glDrawArrays(GL_TRIANGLES,0,individualVerticesCnt);
         //      glDrawElements(GL_TRIANGLES,individualVerticesCnt,GL_UNSIGNED_INT,0);
         _unbindVertexBuffer(vertexBufferId[0]);
-        if (textureCoords!=NULL)
+        if (textureCoords!=nullptr)
             _unbindTexCoordBuffer(texCoordBufferId[0]);
         _unbindNormalBuffer(normalBufferId[0]);
     }
     else
     {
-        if (textureCoords==NULL)
+        if (textureCoords==nullptr)
         {
             glBegin(GL_TRIANGLES);
             for (int i=0;i<individualVerticesCnt;i++)
@@ -210,7 +210,7 @@ bool CGlBufferObjects::drawEdges(const float* vertices,int verticesCnt,const int
     int currentTimeInMs=VDateTime::getTimeInMs();
     bool forceNotUsingBuffers=true;
 #ifdef SIM_WITH_GUI
-    forceNotUsingBuffers=(App::userSettings->vboOperation==0)||(App::mainWindow==NULL); // in headless mode: we don't use VBO's for now (crash)
+    forceNotUsingBuffers=(App::userSettings->vboOperation==0)||(App::mainWindow==nullptr); // in headless mode: we don't use VBO's for now (crash)
 #endif
     static int lastTimeInMs=currentTimeInMs;
     static bool previousForceNotUsingBuffer=forceNotUsingBuffers;
@@ -230,7 +230,7 @@ bool CGlBufferObjects::drawEdges(const float* vertices,int verticesCnt,const int
 
     int individualVerticesCnt=0;
     SBuffwid* theEdgeBuff=_bindEdgeBuffer(edgeBufferId[0],individualVerticesCnt,currentTimeInMs);
-    if (theEdgeBuff==NULL)
+    if (theEdgeBuff==nullptr)
     {
         std::vector<float> individualVertices;
         _fromSharedToIndividualEdges(vertices,verticesCnt,indices,indicesCnt,edges,individualVertices);
@@ -336,7 +336,7 @@ int CGlBufferObjects::_buildVertexBuffer(const float* individualVertices,int ind
 
     bool forceNotUsingBuffers=true;
 #ifdef SIM_WITH_GUI
-    forceNotUsingBuffers=(App::userSettings->vboOperation==0)||(App::mainWindow==NULL); // in headless mode: we don't use VBO's for now (crash)
+    forceNotUsingBuffers=(App::userSettings->vboOperation==0)||(App::mainWindow==nullptr); // in headless mode: we don't use VBO's for now (crash)
 #endif
     if (_buffersAreSupported&&(!forceNotUsingBuffers))
     {
@@ -382,7 +382,7 @@ int CGlBufferObjects::_buildNormalBuffer(const float* normals,int normalsCnt)
 
     bool forceNotUsingBuffers=true;
 #ifdef SIM_WITH_GUI
-    forceNotUsingBuffers=(App::userSettings->vboOperation==0)||(App::mainWindow==NULL); // in headless mode: we don't use VBO's for now (crash)
+    forceNotUsingBuffers=(App::userSettings->vboOperation==0)||(App::mainWindow==nullptr); // in headless mode: we don't use VBO's for now (crash)
 #endif
     if (_buffersAreSupported&&(!forceNotUsingBuffers))
     {
@@ -528,10 +528,10 @@ void CGlBufferObjects::_unbindEdgeBuffer(int edgeBufferId)
 SBuffwid* CGlBufferObjects::_bindVertexBuffer(int vertexBufferId,int& verticesCnt,int currentTimeInMs)
 { // Can only be called by the GUI thread!
     if (vertexBufferId==-1)
-        return(NULL);
+        return(nullptr);
     std::map<int,SBuffwid>::iterator it=_vertexBuffers.find(vertexBufferId);
     if (it==_vertexBuffers.end())
-        return(NULL);
+        return(nullptr);
 
     if (it->second.qglBufferInitialized)
     {
@@ -548,10 +548,10 @@ SBuffwid* CGlBufferObjects::_bindVertexBuffer(int vertexBufferId,int& verticesCn
 SBuffwid* CGlBufferObjects::_bindNormalBuffer(int normalBufferId,int currentTimeInMs)
 { // Can only be called by the GUI thread!
     if (normalBufferId==-1)
-        return(NULL);
+        return(nullptr);
     std::map<int,SBuffwid>::iterator it=_normalBuffers.find(normalBufferId);
     if (it==_normalBuffers.end())
-        return(NULL);
+        return(nullptr);
 
     if (it->second.qglBufferInitialized)
     {
@@ -567,10 +567,10 @@ SBuffwid* CGlBufferObjects::_bindNormalBuffer(int normalBufferId,int currentTime
 SBuffwid* CGlBufferObjects::_bindTexCoordBuffer(int texCoordBufferId,int currentTimeInMs)
 { // Can only be called by the GUI thread!
     if (texCoordBufferId==-1)
-        return(NULL);
+        return(nullptr);
     std::map<int,SBuffwid>::iterator it=_texCoordBuffers.find(texCoordBufferId);
     if (it==_texCoordBuffers.end())
-        return(NULL);
+        return(nullptr);
 
     if (it->second.qglBufferInitialized)
     {
@@ -586,10 +586,10 @@ SBuffwid* CGlBufferObjects::_bindTexCoordBuffer(int texCoordBufferId,int current
 SBuffwid* CGlBufferObjects::_bindEdgeBuffer(int edgeBufferId,int& verticesCnt,int currentTimeInMs)
 { // Can only be called by the GUI thread!
     if (edgeBufferId==-1)
-        return(NULL);
+        return(nullptr);
     std::map<int,SBuffwid>::iterator it=_edgeBuffers.find(edgeBufferId);
     if (it==_edgeBuffers.end())
-        return(NULL);
+        return(nullptr);
 
     if (it->second.qglBufferInitialized)
     {

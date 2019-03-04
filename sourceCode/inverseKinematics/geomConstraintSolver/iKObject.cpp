@@ -7,7 +7,7 @@
 
 CIKObject::CIKObject()
 {
-    parent=NULL;
+    parent=nullptr;
     data=-1;
 }
 
@@ -62,7 +62,7 @@ C7Vector CIKObject::getCumulativeTransformationPart1(bool useTempVals)
 }
 C7Vector CIKObject::getParentCumulativeTransformation(bool useTempVals)
 {
-    if (parent==NULL)
+    if (parent==nullptr)
     {
         C7Vector tr;
         tr.setIdentity();

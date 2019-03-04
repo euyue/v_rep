@@ -36,7 +36,7 @@ void CQDlgCollections::initializationEvent()
 
 void CQDlgCollections::dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut)
 {
-    if ( (cmdIn!=NULL)&&(cmdIn->intParams[0]==_dlgType) )
+    if ( (cmdIn!=nullptr)&&(cmdIn->intParams[0]==_dlgType) )
     {
         if (cmdIn->intParams[1]==0)
             selectGroup(cmdIn->intParams[2]);
@@ -85,7 +85,7 @@ int CQDlgCollections::getAllowedOpType(int desiredOp)
     int selSize=App::ct->objCont->getSelSize();
     bool grSizeZero=true;
     CRegCollection* it=App::ct->collections->getCollection(selGrp);
-    if (it!=NULL)
+    if (it!=nullptr)
         grSizeZero=(it->collectionObjects.size()==0);
     int opType=desiredOp;
     int impossibleTypes=0;
@@ -131,23 +131,23 @@ void CQDlgCollections::refreshSubGroupList()
 
     CRegCollection* it=App::ct->collections->getCollection(getSelectedGroupID());
     ui->qqElementList->clear();
-    ui->qqOverride->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqElementList->setEnabled((it!=NULL)&&noEditModeNoSim);
-    if (it!=NULL)
+    ui->qqOverride->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqElementList->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    if (it!=nullptr)
     {
         for (int i=0;i<int(it->subCollectionList.size());i++)
         {
             CRegCollectionEl* it2=it->subCollectionList[i];
-            if (it2!=NULL)
+            if (it2!=nullptr)
             {
                 std::string signChar="+";
                 if (!it2->isAdditive())
                     signChar="-";
                 std::string objName=" [";
-                C3DObject* theObj=App::ct->objCont->getObject(it2->getMainObject());
-                if (theObj!=NULL)
+                C3DObject* theObj=App::ct->objCont->getObjectFromHandle(it2->getMainObject());
+                if (theObj!=nullptr)
                 {
-                    objName=objName.append(theObj->getName());
+                    objName=objName.append(theObj->getObjectName());
                     objName=objName.append("]");
                 }
                 else
@@ -191,7 +191,7 @@ void CQDlgCollections::selectGroup(int groupID)
     for (int i=0;i<ui->qqCollectionList->count();i++)
     {
         QListWidgetItem* it=ui->qqCollectionList->item(i);
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             if (it->data(Qt::UserRole).toInt()==groupID)
             {
@@ -273,7 +273,7 @@ void CQDlgCollections::onDeletePressed()
             if (grpID!=-1)
             {
                 CRegCollection* theGroup=App::ct->collections->getCollection(grpID);
-                if (theGroup!=NULL)
+                if (theGroup!=nullptr)
                 {
                     QList<QListWidgetItem*> sel=ui->qqElementList->selectedItems();
                     SSimulationThreadCommand cmd;
@@ -312,16 +312,16 @@ void CQDlgCollections::on_qqCollectionList_itemChanged(QListWidgetItem *item)
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (item!=NULL)
+        if (item!=nullptr)
         {
             std::string newName(item->text().toStdString());
             CRegCollection* it=App::ct->collections->getCollection(item->data(Qt::UserRole).toInt());
-            if ( (it!=NULL)&&(newName!="") )
+            if ( (it!=nullptr)&&(newName!="") )
             {
                 if (it->getCollectionName()!=newName)
                 {
                     tt::removeIllegalCharacters(newName,true);
-                    if (App::ct->collections->getCollection(newName)==NULL)
+                    if (App::ct->collections->getCollection(newName)==nullptr)
                     {
                         App::appendSimulationThreadCommand(RENAME_COLLECTION_COLLECTIONGUITRIGGEREDCMD,it->getCollectionID(),-1,0.0,0.0,newName.c_str());
                         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -415,7 +415,7 @@ void CQDlgCollections::doTheOperation(int opType,bool additive)
         if (currentlySelGroup!=-1)
         { // Only one item is selected
             CRegCollection* it=App::ct->collections->getCollection(currentlySelGroup);
-            if (it!=NULL)
+            if (it!=nullptr)
             { // Just in case
                 if (opType==0)
                 {
@@ -439,12 +439,12 @@ void CQDlgCollections::doTheOperation(int opType,bool additive)
                 if (opType==2)
                 {
                     C3DObject* lastSel=App::ct->objCont->getLastSelection_object();
-                    if (lastSel==NULL)
+                    if (lastSel==nullptr)
                         return;
                     SSimulationThreadCommand cmd;
                     cmd.cmdId=ADD_COLLECTION_ITEM_FROMBASE_COLLECTIONGUITRIGGEREDCMD;
                     cmd.intParams.push_back(it->getCollectionID());
-                    cmd.intParams.push_back(lastSel->getID());
+                    cmd.intParams.push_back(lastSel->getObjectHandle());
                     cmd.boolParams.push_back(additive);
                     cmd.boolParams.push_back(baseInclusive);
                     App::appendSimulationThreadCommand(cmd);
@@ -453,12 +453,12 @@ void CQDlgCollections::doTheOperation(int opType,bool additive)
                 if (opType==3)
                 {
                     C3DObject* lastSel=App::ct->objCont->getLastSelection_object();
-                    if (lastSel==NULL)
+                    if (lastSel==nullptr)
                         return;
                     SSimulationThreadCommand cmd;
                     cmd.cmdId=ADD_COLLECTION_ITEM_FROMTIP_COLLECTIONGUITRIGGEREDCMD;
                     cmd.intParams.push_back(it->getCollectionID());
-                    cmd.intParams.push_back(lastSel->getID());
+                    cmd.intParams.push_back(lastSel->getObjectHandle());
                     cmd.boolParams.push_back(additive);
                     cmd.boolParams.push_back(tipInclusive);
                     App::appendSimulationThreadCommand(cmd);

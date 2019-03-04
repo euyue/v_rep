@@ -88,7 +88,7 @@ bool CScintillaEditorContainer::closeEditor(int scriptID)
             if (_allEditors[i]->getScriptID()==scriptID)
             {
                 CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptID);
-                if (it!=NULL)
+                if (it!=nullptr)
                 {
                     int posAndSize[4];
                     _allEditors[i]->getWindowPosAndSize(posAndSize);

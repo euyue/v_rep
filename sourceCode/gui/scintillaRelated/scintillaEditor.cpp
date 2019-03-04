@@ -14,7 +14,7 @@
 
 CScintillaEditor::CScintillaEditor()
 {
-    _dlg=NULL;
+    _dlg=nullptr;
     _scriptID=-1;
     _closeRequest=false;
     _currentWindowTitle="";
@@ -37,7 +37,7 @@ void CScintillaEditor::showEditorButDontOpenIt()
         _hideLevel--;
     if (_hideLevel==0)
     {
-        if (_dlg!=NULL)
+        if (_dlg!=nullptr)
             _dlg->setShowWindow(true);
     }
 }
@@ -47,7 +47,7 @@ void CScintillaEditor::hideEditorButDontCloseIt()
     _hideLevel++;
     if (_hideLevel==1)
     {
-        if (_dlg!=NULL)
+        if (_dlg!=nullptr)
             _dlg->setShowWindow(false);
     }
 }
@@ -67,15 +67,15 @@ bool CScintillaEditor::initialize(int scriptID)
     int scriptType=-1;
     bool scriptIsThreaded=false;
     CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptID);
-    if (it!=NULL)
+    if (it!=nullptr)
     {
         scriptType=it->getScriptType();
         scriptIsThreaded=it->getThreadedExecution();
     }
     _dlg=new CScintillaDlg(scriptType,scriptIsThreaded,App::mainWindow);
-    if (_dlg==NULL)
+    if (_dlg==nullptr)
         return(false);
-    if (it==NULL)
+    if (it==nullptr)
     {
         _closeDlgWindow(true);
         return(false);
@@ -126,10 +126,10 @@ void CScintillaEditor::getWindowPosAndSize(int posAndSize[4])
 bool CScintillaEditor::updateWindowExceptContentText()
 { // return value means true means we need to close the editor
     FUNCTION_DEBUG;
-    if (_dlg==NULL)
+    if (_dlg==nullptr)
         return(true);
     CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(_scriptID);
-    if ( (it==NULL)||_closeRequest )
+    if ( (it==nullptr)||_closeRequest )
         return(true);
 
     std::string tmp(it->getDescriptiveName());
@@ -156,11 +156,11 @@ void CScintillaEditor::requestClosing(void* dialogPointer)
 
 void CScintillaEditor::_closeDlgWindow(bool announceChange)
 { // announceChange is true by default!
-    if (_dlg==NULL)
+    if (_dlg==nullptr)
         return;
     bool changed=applyChanges();
     delete _dlg;
-    _dlg=NULL;
+    _dlg=nullptr;
     _scriptID=-1;
     _currentWindowTitle="";
     if (announceChange&&changed)
@@ -172,10 +172,10 @@ void CScintillaEditor::_closeDlgWindow(bool announceChange)
 bool CScintillaEditor::applyChanges()
 {
     FUNCTION_DEBUG;
-    if (_dlg==NULL)
+    if (_dlg==nullptr)
         return(false);
     CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(_scriptID);
-    if (it==NULL)
+    if (it==nullptr)
         return(false);
     int l=_dlg->_scintillaObject->SendScintilla(QsciScintillaBase::SCI_GETLENGTH);
     char* buff=new char[l+1];

@@ -40,34 +40,34 @@ void CQDlgPathShaping::refresh()
     int sectionType=0;
     CPath* it=App::ct->objCont->getLastSelection_path();
     bool en=false;
-    if (it!=NULL)
+    if (it!=nullptr)
     {
         it=App::ct->objCont->getLastSelection_path();
         en=it->getShapingEnabled();
         sectionType=it->getShapingType();
     }
 
-    ui->qqEnabled->setEnabled(noEditModeNoSim&&(it!=NULL));
+    ui->qqEnabled->setEnabled(noEditModeNoSim&&(it!=nullptr));
 
-    ui->qqFollowOrientation->setEnabled(noEditModeNoSim&&(it!=NULL)&&en);
-//  ui->qqConvexHull->setEnabled(noEditModeNoSim&&(it!=NULL)&&en);
-    ui->qqAdjustColor->setEnabled(noEditModeNoSim&&(it!=NULL)&&en);
-    ui->qqGenerateShape->setEnabled(noEditModeNoSim&&(it!=NULL)&&en);
-    ui->qqMaxLength->setEnabled(noEditModeNoSim&&(it!=NULL)&&en);
+    ui->qqFollowOrientation->setEnabled(noEditModeNoSim&&(it!=nullptr)&&en);
+//  ui->qqConvexHull->setEnabled(noEditModeNoSim&&(it!=nullptr)&&en);
+    ui->qqAdjustColor->setEnabled(noEditModeNoSim&&(it!=nullptr)&&en);
+    ui->qqGenerateShape->setEnabled(noEditModeNoSim&&(it!=nullptr)&&en);
+    ui->qqMaxLength->setEnabled(noEditModeNoSim&&(it!=nullptr)&&en);
 
-    ui->qqTypeCombo->setEnabled(noEditModeNoSim&&(it!=NULL)&&en);
-    ui->qqCyclic->setEnabled(noEditModeNoSim&&(it!=NULL)&&en&&(sectionType==0));
-    ui->qqScalingFactor->setEnabled(noEditModeNoSim&&(it!=NULL)&&en);
-    ui->qqCoordinates->setEnabled(noEditModeNoSim&&(it!=NULL)&&en&&(sectionType==0));
+    ui->qqTypeCombo->setEnabled(noEditModeNoSim&&(it!=nullptr)&&en);
+    ui->qqCyclic->setEnabled(noEditModeNoSim&&(it!=nullptr)&&en&&(sectionType==0));
+    ui->qqScalingFactor->setEnabled(noEditModeNoSim&&(it!=nullptr)&&en);
+    ui->qqCoordinates->setEnabled(noEditModeNoSim&&(it!=nullptr)&&en&&(sectionType==0));
 
-    ui->qqEnabled->setChecked(noEditModeNoSim&&(it!=NULL)&&it->getShapingEnabled());
-    ui->qqFollowOrientation->setChecked((it!=NULL)&&it->getShapingFollowFullOrientation());
-//  ui->qqConvexHull->setChecked((it!=NULL)&&it->getShapingThroughConvexHull());
+    ui->qqEnabled->setChecked(noEditModeNoSim&&(it!=nullptr)&&it->getShapingEnabled());
+    ui->qqFollowOrientation->setChecked((it!=nullptr)&&it->getShapingFollowFullOrientation());
+//  ui->qqConvexHull->setChecked((it!=nullptr)&&it->getShapingThroughConvexHull());
 
     ui->qqTypeCombo->clear();
-    ui->qqCyclic->setChecked((it!=NULL)&&it->getShapingSectionClosed());
+    ui->qqCyclic->setChecked((it!=nullptr)&&it->getShapingSectionClosed());
 
-    if (it!=NULL)
+    if (it!=nullptr)
     {
         ui->qqMaxLength->setText(tt::getFString(false,it->getShapingElementMaxLength(),3).c_str());
         ui->qqScalingFactor->setText(tt::getFString(false,it->getShapingScaling(),3).c_str());
@@ -140,7 +140,7 @@ void CQDlgPathShaping::on_qqConvexHull_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CPath* it=App::ct->objCont->getLastSelection_path();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             if (!it->getShapingThroughConvexHull())
                 App::appendSimulationThreadCommand(SHOW_PROGRESSDLGGUITRIGGEREDCMD,-1,-1,0.0,0.0,"Recomputing the path geometry...");

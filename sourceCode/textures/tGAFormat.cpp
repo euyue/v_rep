@@ -31,7 +31,7 @@ unsigned char* CTGAFormat::getRGB(std::istream* inputStream,int size,bool& isRgb
         rgb[i]=rgb[i+2];
         rgb[i+2]=tmp;
     }
-    if (invisibleColor==NULL)
+    if (invisibleColor==nullptr)
     {
         isRgba=false;
         return(rgb);
@@ -62,7 +62,7 @@ unsigned char* CTGAFormat::getImageData(std::string name,int& resX,int& resY,boo
     {
         printf("Texture could not be loaded! (getImageData#1)\n");
         delete fileStream;
-        return(NULL);
+        return(nullptr);
     }
     unsigned char* retVal=getImageData(fileStream,resX,resY,isRgba,invisibleColor,bitsPerPixel);
     delete fileStream;
@@ -73,7 +73,7 @@ unsigned char* CTGAFormat::getImageData(std::istream* inputStream,int& resX,int&
 {
     unsigned char type[4];
     unsigned char info[7];
-    unsigned char *imageData=NULL;
+    unsigned char *imageData=nullptr;
     int imageBits,size;
 
     inputStream->read((char*)type,3);
@@ -81,7 +81,7 @@ unsigned char* CTGAFormat::getImageData(std::istream* inputStream,int& resX,int&
     inputStream->read((char*)info,6);
 
     if (type[1]!=0||type[2]!=2)
-        return(NULL);
+        return(nullptr);
 
     resX=info[0]+info[1]*256;
     resY=info[2]+info[3]*256;
@@ -89,7 +89,7 @@ unsigned char* CTGAFormat::getImageData(std::istream* inputStream,int& resX,int&
     size=resX*resY;
 
     if (imageBits!=32&&imageBits!=24)
-        return(NULL);
+        return(nullptr);
     if (imageBits==32)
     {
         imageData=getRGBA(inputStream,size);
@@ -97,7 +97,7 @@ unsigned char* CTGAFormat::getImageData(std::istream* inputStream,int& resX,int&
     }
     else if (imageBits==24)
         imageData=getRGB(inputStream,size,isRgba,invisibleColor);
-    if (bitsPerPixel!=NULL)
+    if (bitsPerPixel!=nullptr)
         bitsPerPixel[0]=imageBits;
     return(imageData);
 }
@@ -130,7 +130,7 @@ unsigned char* CTGAFormat::getV_RGB(VArchive& inputStream,int size,bool& isRgba,
         rgb[i+2]=tmp;
     }
 
-    if (invisibleColor==NULL)
+    if (invisibleColor==nullptr)
     {
         isRgba=false;
         return(rgb);
@@ -158,7 +158,7 @@ unsigned char* CTGAFormat::getV_ImageData(VArchive& inputStream,int& resX,int& r
 {
     unsigned char type[4];
     unsigned char info[7];
-    unsigned char *imageData=NULL;
+    unsigned char *imageData=nullptr;
     int imageBits,size;
 
     for (int i=0;i<3;i++)
@@ -172,7 +172,7 @@ unsigned char* CTGAFormat::getV_ImageData(VArchive& inputStream,int& resX,int& r
         inputStream >> ((char*)info)[i];
 
     if (type[1]!=0||type[2]!=2)
-        return(NULL);
+        return(nullptr);
 
     resX=info[0]+info[1]*256;
     resY=info[2]+info[3]*256;
@@ -180,7 +180,7 @@ unsigned char* CTGAFormat::getV_ImageData(VArchive& inputStream,int& resX,int& r
     size=resX*resY;
 
     if (imageBits!=32 && imageBits!=24)
-        return(NULL);
+        return(nullptr);
 
     if (imageBits==32)
     {
@@ -189,14 +189,14 @@ unsigned char* CTGAFormat::getV_ImageData(VArchive& inputStream,int& resX,int& r
     }
     else if (imageBits==24)
         imageData=getV_RGB(inputStream,size,isRgba,invisibleColor);
-    if (bitsPerPixel!=NULL)
+    if (bitsPerPixel!=nullptr)
         bitsPerPixel[0]=imageBits;
     return(imageData);
 }
 
 unsigned char* CTGAFormat::getQ_ImageData(const std::string& fileAndPathName,int& resX,int& resY,bool& isRgba,unsigned char invisibleColor[3],int bitsPerPixel[1])
 {
-    unsigned char* retVal=NULL;
+    unsigned char* retVal=nullptr;
     try
     {
         VFile file(fileAndPathName.c_str(),VFile::READ|VFile::SHARE_DENY_NONE);

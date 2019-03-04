@@ -116,9 +116,9 @@ void CQDlgProximitySensors::refresh()
         {
             CShape* it=App::ct->objCont->getShape(App::ct->objCont->shapeList[i]);
             std::string name(tt::decorateString("[",strTranslate(IDSN_SHAPE),"] "));
-            name+=it->getName();
+            name+=it->getObjectName();
             names.push_back(name);
-            ids.push_back(it->getID());
+            ids.push_back(it->getObjectHandle());
         }
         tt::orderStrings(names,ids);
         for (int i=0;i<int(names.size());i++)
@@ -132,9 +132,9 @@ void CQDlgProximitySensors::refresh()
         {
             CDummy* it=App::ct->objCont->getDummy(App::ct->objCont->dummyList[i]);
             std::string name(tt::decorateString("[",strTranslate(IDSN_DUMMY),"] "));
-            name+=it->getName();
+            name+=it->getObjectName();
             names.push_back(name);
-            ids.push_back(it->getID());
+            ids.push_back(it->getObjectHandle());
         }
         tt::orderStrings(names,ids);
         for (int i=0;i<int(names.size());i++)
@@ -233,11 +233,11 @@ void CQDlgProximitySensors::on_qqApplyMain_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CProxSensor* last=App::ct->objCont->getLastSelection_proxSensor();
-        if ((last!=NULL)&&(App::ct->objCont->getProxSensorNumberInSelection()>=2))
+        if ((last!=nullptr)&&(App::ct->objCont->getProxSensorNumberInSelection()>=2))
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId=APPLY_DETECTIONVOLUMEGUITRIGGEREDCMD;
-            cmd.intParams.push_back(last->getID());
+            cmd.intParams.push_back(last->getObjectHandle());
             for (int i=0;i<App::ct->objCont->getSelSize()-1;i++)
                 cmd.intParams.push_back(App::ct->objCont->getSelID(i));
             App::appendSimulationThreadCommand(cmd);
@@ -266,13 +266,13 @@ void CQDlgProximitySensors::on_qqEntityToDetect_currentIndexChanged(int index)
         {
             CProxSensor* it=App::ct->objCont->getLastSelection_proxSensor();
             int objID=ui->qqEntityToDetect->itemData(ui->qqEntityToDetect->currentIndex()).toInt();
-            if ((objID!=-1)&&(it!=NULL))
+            if ((objID!=-1)&&(it!=nullptr))
             {
                 bool displayWarning=false;
                 if ((objID<SIM_IDSTART_COLLECTION)&&(objID>=0))
                 {
-                    C3DObject* it2=App::ct->objCont->getObject(objID);
-                    if (it2!=NULL)
+                    C3DObject* it2=App::ct->objCont->getObjectFromHandle(objID);
+                    if (it2!=nullptr)
                         displayWarning|=((it2->getLocalObjectSpecialProperty()&sim_objectspecialproperty_detectable_all)==0);
                 }
                 if (displayWarning)
@@ -290,7 +290,7 @@ void CQDlgProximitySensors::on_qqAdjustDetectionParams_clicked()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         CProxSensor* it=App::ct->objCont->getLastSelection_proxSensor();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             CQDlgProxSensDetectionParam theDialog(this);
             theDialog.frontFace=it->getFrontFaceDetection();
@@ -310,7 +310,7 @@ void CQDlgProximitySensors::on_qqAdjustDetectionParams_clicked()
             {
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=SET_DETECTIONPARAMS_PROXSENSORGUITRIGGEREDCMD;
-                cmd.intParams.push_back(it->getID());
+                cmd.intParams.push_back(it->getObjectHandle());
                 cmd.boolParams.push_back(theDialog.frontFace);
                 cmd.boolParams.push_back(theDialog.backFace);
                 cmd.boolParams.push_back(!theDialog.fast);

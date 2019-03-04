@@ -21,7 +21,7 @@ public:
     static std::string getLightEncodedString(const std::string& ss);
     static std::string getLightDecodedString(const std::string& ss);
     static bool removeSpacesAtBeginningAndEnd(std::string& line);
-    static std::string getFormattedString(const char* a=NULL,const char* b=NULL,const char* c=NULL,const char* d=NULL,const char* e=NULL,const char* f=NULL,const char* g=NULL,const char* h=NULL);
+    static std::string getFormattedString(const char* a=nullptr,const char* b=nullptr,const char* c=nullptr,const char* d=nullptr,const char* e=nullptr,const char* f=nullptr,const char* g=nullptr,const char* h=nullptr);
     static std::string formatString(const std::string fmt, ...);
     static std::string getLowerCaseString(const char* str);
     static void scaleLightDown_(float& r,float& g,float& b);

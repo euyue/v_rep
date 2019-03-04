@@ -42,7 +42,7 @@ public:
     virtual void scaleObjectNonIsometrically(float x,float y,float z);
     virtual void serialize(CSer& ar);
     virtual void serializeWExtIk(CExtIkSer& ar);
-    virtual bool announceObjectWillBeErased(int objID,bool copyBuffer);
+    virtual bool announceObjectWillBeErased(int objHandle,bool copyBuffer);
     virtual void announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer);
     virtual void announceCollectionWillBeErased(int collectionID,bool copyBuffer);
     virtual void announceCollisionWillBeErased(int collisionID,bool copyBuffer);
@@ -85,7 +85,7 @@ public:
     void simulationEndedMain();
     void initializeInitialValuesMain(bool simulationIsRunning);
 
-    bool announceObjectWillBeErasedMain(int objID,bool copyBuffer);
+    bool announceObjectWillBeErasedMain(int objHandle,bool copyBuffer);
     void announceIkObjectWillBeErasedMain(int ikGroupID,bool copyBuffer);
     void announceCollectionWillBeErasedMain(int collectionID,bool copyBuffer);
     void announceCollisionWillBeErasedMain(int collisionID,bool copyBuffer);
@@ -139,7 +139,7 @@ public:
     bool getGlobalMarkingBoundingBox(const C7Vector& baseCoordInv,C3Vector& min,C3Vector& max,bool& minMaxNotYetDefined,bool first,bool guiIsRendering);
     void getBoundingBoxEncompassingBoundingBox(const C7Vector& baseCoordInv,C3Vector& min,C3Vector& max,bool guiIsRendering);
 
-    int getModelSelectionID(bool firstObject=true);
+    int getModelSelectionHandle(bool firstObject=true);
 
     void setLocalObjectProperty(int p);
     int getLocalObjectProperty();
@@ -292,18 +292,18 @@ public:
     C7Vector getCumulativeTransformationPart1(bool useTempValues=false) const;
     C7Vector getLocalTransformationPart1(bool useTempValues=false) const;
 
-    int getID() const;
-    void setID(int newID);
-    void setName(std::string newName);
-    std::string getName() const;
-    void setAltName(std::string newAltName);
-    std::string getAltName() const;
+    int getObjectHandle() const;
+    void setObjectHandle(int newObjectHandle);
+    void setObjectName_objectNotYetInScene(std::string newName);
+    std::string getObjectName() const;
+    void setObjectAltName_objectNotYetInScene(std::string newAltName);
+    std::string getObjectAltName() const;
     std::string getDisplayName() const;
-    C3DObject* getParent() const;
+    C3DObject* getParentObject() const;
     bool isObjectParentedWith(C3DObject* thePotentialParent) const;
-    int getParentIdentifierLoading() const;
-    void setParentIdentifierLoading(int pID);
-    void setParent(C3DObject* newParent,bool actualizeInfo=true);
+    int getParentHandle_loading() const;
+    void setParentHandleLoading(int pHandle);
+    void setParentObject(C3DObject* newParent,bool actualizeInfo=true);
     int getObjectType() const;
     int getFirstModelRelatives(std::vector<C3DObject*>& firstModelRelatives,bool visibleModelsOnly) const;
     int countFirstModelRelatives(bool visibleModelsOnly) const;
@@ -331,14 +331,14 @@ protected:
     std::string _uniquePersistentIdString;
 
     C7Vector _transformation; // Quaternion and position
-    int _objectID;
+    int _objectHandle;
     std::string _objectName;
     std::string _objectAltName;
     // Keep parent stored as pointer. Very important!!! If we would use a simple
     // parent identifier, an object and its copy in the copy buffer would have
     // the exact same parent (which would be retrieved via 'CObjCont::getObject()')
     C3DObject* _parentObject;
-    int _parentID;
+    int _parentHandle;
     int _objectType;
 
     int _localObjectProperty;

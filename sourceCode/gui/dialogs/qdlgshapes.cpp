@@ -233,9 +233,9 @@ void CQDlgShapes::on_qqDirtTexture_clicked()
                 if (n<3)
                 {
                     delete[] data;
-                    data=NULL;
+                    data=nullptr;
                 }
-                if (data==NULL)
+                if (data==nullptr)
                     App::uiThread->messageBox_critical(App::mainWindow,strTranslate("Texture"),strTranslate(IDS_TEXTURE_FILE_COULD_NOT_BE_LOADED),VMESSAGEBOX_OKELI);
                 else
                 {

@@ -18,7 +18,7 @@ void displayContour(CRegCollision* coll,int countourWidth)
             glPointSize(3.0f);
             ogl::buffer.clear();
             ogl::addBuffer3DPoints(&intersections[6*i]);
-            ogl::drawRandom3dPoints(&ogl::buffer[0],1,NULL);
+            ogl::drawRandom3dPoints(&ogl::buffer[0],1,nullptr);
             ogl::buffer.clear();
             glPointSize(1.0f);
         }
@@ -28,7 +28,7 @@ void displayContour(CRegCollision* coll,int countourWidth)
             ogl::buffer.clear();
             ogl::addBuffer3DPoints(&intersections[6*i+0]);
             ogl::addBuffer3DPoints(&intersections[6*i+3]);
-            ogl::drawRandom3dLines(&ogl::buffer[0],2,false,NULL);
+            ogl::drawRandom3dLines(&ogl::buffer[0],2,false,nullptr);
             ogl::buffer.clear();
             glLineWidth(1.0f);
         }

@@ -8,7 +8,6 @@
 #include "path.h"
 #include "customData.h"
 #include "visionSensor.h"
-#include "shapeComponent.h"
 #include "mill.h"
 #include "light.h"
 #include "gV.h"
@@ -31,9 +30,9 @@ int C3DObject::_modelPropertyValidityNumber=0;
 
 C3DObject::C3DObject()
 {
-    _parentObject=NULL;
-    _parentID=-1;
-    _objectID=0;
+    _parentObject=nullptr;
+    _parentHandle=-1;
+    _objectHandle=0;
     _transformation.setIdentity();
     generateDnaString();
     _assemblingLocalTransformation.setIdentity();
@@ -77,8 +76,8 @@ C3DObject::C3DObject()
     _objectManipulationRotationRelativeTo=2; // relative to own frame by default
     _objectRotationNonDefaultStepSize=0.0f; // 0.0 means: use the default
 
-    _customObjectData=NULL;
-    _customObjectData_tempData=NULL;
+    _customObjectData=nullptr;
+    _customObjectData_tempData=nullptr;
     _localObjectSpecialProperty=0;
     _localModelProperty=0; // By default, the main properties are not overriden! (0 means we inherit from parents)
     _cumulativeModelProperty=0;
@@ -260,7 +259,7 @@ bool C3DObject::getShouldObjectBeDisplayed(int viewableHandle,int displayAttrib)
                         else
                         {
                             CRegCollection* gr=App::ct->collections->getCollection(_authorizedViewableObjects);
-                            if (gr!=NULL)
+                            if (gr!=nullptr)
                                 display=gr->isObjectInCollection(viewableHandle);
                             else
                                 display=false; // should normally never happen
@@ -342,9 +341,9 @@ void C3DObject::getSizeValues(float s[3]) const
 
 int C3DObject::getParentCount() const
 {
-    if (getParent()==NULL)
+    if (getParentObject()==nullptr)
         return(0);
-    return(1+getParent()->getParentCount());
+    return(1+getParentObject()->getParentCount());
 }
 
 int C3DObject::getUniqueID() const
@@ -385,7 +384,7 @@ bool C3DObject::getExportableMeshAtIndex(int index,std::vector<float>& vertices,
 
 C3DObject* C3DObject::copyYourself() 
 {
-    return(NULL);
+    return(nullptr);
 }
 
 void C3DObject::removeSceneDependencies()
@@ -543,11 +542,11 @@ int C3DObject::getCumulativeModelProperty()
     int vn=_modelPropertyValidityNumber;
     if (vn!=_cumulativeModelPropertyValidityNumber)
     { // the cumulative value is not up-to-date
-        if (getParent()==NULL)
+        if (getParentObject()==nullptr)
             _cumulativeModelProperty=_localModelProperty;
         else
         {
-            int parentCumul=getParent()->getCumulativeModelProperty();
+            int parentCumul=getParentObject()->getCumulativeModelProperty();
             _cumulativeModelProperty=_localModelProperty|parentCumul;
         }
         if (_dynamicsTemporarilyDisabled)
@@ -583,8 +582,8 @@ int C3DObject::getTreeDynamicProperty() // combination of sim_objdynprop_dynamic
 
 void C3DObject::getChildScriptsToRun_OLD(std::vector<int>& childScriptIDs)
 {
-    CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(getID());
-    if (it!=NULL)
+    CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(getObjectHandle());
+    if (it!=nullptr)
         childScriptIDs.push_back(it->getScriptID());
     else
     { // we have to explore the children:
@@ -593,35 +592,35 @@ void C3DObject::getChildScriptsToRun_OLD(std::vector<int>& childScriptIDs)
     }
 }
 
-int C3DObject::getModelSelectionID(bool firstObject)
+int C3DObject::getModelSelectionHandle(bool firstObject)
 { // firstObject is true by default
     if (CMiscBase::handleVerSpec_canCtrlShiftSelectObjects())
-        return(getID());
+        return(getObjectHandle());
 
     if (_modelBase)
     {
         if ( ((_localObjectProperty&sim_objectproperty_selectmodelbaseinstead)==0) )
-            return(getID());
-        if (getParent()==NULL)
-            return(getID());
-        int retV=getParent()->getModelSelectionID(false);
+            return(getObjectHandle());
+        if (getParentObject()==nullptr)
+            return(getObjectHandle());
+        int retV=getParentObject()->getModelSelectionHandle(false);
         if (retV==-1)
-            retV=getID();
+            retV=getObjectHandle();
         return(retV);
     }
     else
     {
-        if (getParent()==NULL)
+        if (getParentObject()==nullptr)
         {
             if (firstObject)
-                return(getID());
+                return(getObjectHandle());
             return(-1);
         }
-        int retV=getParent()->getModelSelectionID(false);
+        int retV=getParentObject()->getModelSelectionHandle(false);
         if (retV!=-1)
             return(retV);
         if (firstObject)
-            return(getID());
+            return(getObjectHandle());
         return(-1);
     }
 }
@@ -646,7 +645,7 @@ void C3DObject::scaleObjectMain(float scalingFactor)
     _sizeValues[1]*=scalingFactor;
     _sizeValues[2]*=scalingFactor;
     incrementMemorizedConfigurationValidCounter();
-    App::ct->drawingCont->adjustForScaling(_objectID,scalingFactor,scalingFactor,scalingFactor);
+    App::ct->drawingCont->adjustForScaling(_objectHandle,scalingFactor,scalingFactor,scalingFactor);
     App::ct->setModificationFlag(256); // object scaled
 }
 
@@ -657,7 +656,7 @@ void C3DObject::scaleObjectNonIsometricallyMain(float x,float y,float z)
     _sizeValues[1]*=y;
     _sizeValues[2]*=z;
     incrementMemorizedConfigurationValidCounter();
-    App::ct->drawingCont->adjustForScaling(_objectID,x,y,z);
+    App::ct->drawingCont->adjustForScaling(_objectHandle,x,y,z);
     App::ct->setModificationFlag(256); // object scaled
 }
 
@@ -1029,8 +1028,8 @@ void C3DObject::getChain(std::vector<C3DObject*>& objectList,bool tipIncluded,bo
     // Returns the chain with this object as tip
     if (tipIncluded||(!start))
         objectList.push_back((C3DObject*)this);
-    if (getParent()!=NULL)
-        getParent()->getChain(objectList,true,false);
+    if (getParentObject()!=nullptr)
+        getParentObject()->getChain(objectList,true,false);
 }
 
 void C3DObject::setObjectType(int theNewType)
@@ -1040,9 +1039,9 @@ void C3DObject::setObjectType(int theNewType)
 
 C3DObject* C3DObject::getFirstParentInSelection(const std::vector<C3DObject*>* sel) const
 {
-    C3DObject* it=getParent();
-    if (it==NULL) 
-        return(NULL);
+    C3DObject* it=getParentObject();
+    if (it==nullptr) 
+        return(nullptr);
     for (size_t i=0;i<sel->size();i++)
     {
         if (sel->at(i)==it) 
@@ -1053,9 +1052,9 @@ C3DObject* C3DObject::getFirstParentInSelection(const std::vector<C3DObject*>* s
 
 C3DObject* C3DObject::getLastParentInSelection(const std::vector<C3DObject*>* sel) const
 {
-    C3DObject* it=getParent();
-    C3DObject* retVal=NULL;
-    while (it!=NULL)
+    C3DObject* it=getParentObject();
+    C3DObject* retVal=nullptr;
+    while (it!=nullptr)
     {
         for (size_t i=0;i<sel->size();i++)
         {
@@ -1065,7 +1064,7 @@ C3DObject* C3DObject::getLastParentInSelection(const std::vector<C3DObject*>* se
                 break;
             }
         }
-        it=it->getParent();
+        it=it->getParentObject();
     }
     return(retVal);
 }
@@ -1080,7 +1079,7 @@ C3DObject* C3DObject::copyYourselfMain()
 { // This routine should be called in the very first line of function
   // "copyYourself" in every joint, camera, etc. !
 
-    C3DObject* theNewObject=NULL;
+    C3DObject* theNewObject=nullptr;
     if (getObjectType()==sim_object_shape_type)
         theNewObject=new CShape();
     if (getObjectType()==sim_object_octree_type)
@@ -1113,14 +1112,14 @@ C3DObject* C3DObject::copyYourselfMain()
     theNewObject->_authorizedViewableObjects=_authorizedViewableObjects;
     theNewObject->layer=layer;
     theNewObject->_transformation=_transformation;
-    theNewObject->_objectID=_objectID;
+    theNewObject->_objectHandle=_objectHandle;
     theNewObject->_objectName=_objectName;
     theNewObject->_objectAltName=_objectAltName;
     theNewObject->_localObjectProperty=_localObjectProperty;
     theNewObject->_hierarchyColorIndex=_hierarchyColorIndex;
     theNewObject->_collectionSelfCollisionIndicator=_collectionSelfCollisionIndicator;
     theNewObject->_modelBase=_modelBase;
-    theNewObject->_parentID=_parentID;
+    theNewObject->_parentHandle=_parentHandle;
     theNewObject->_objectType=_objectType;
     theNewObject->_localObjectSpecialProperty=_localObjectSpecialProperty;
     theNewObject->_localModelProperty=_localModelProperty;
@@ -1155,13 +1154,13 @@ C3DObject* C3DObject::copyYourselfMain()
     theNewObject->_transparentObjectDistanceOffset=_transparentObjectDistanceOffset;
 
     delete theNewObject->_customObjectData;
-    theNewObject->_customObjectData=NULL;
-    if (_customObjectData!=NULL)
+    theNewObject->_customObjectData=nullptr;
+    if (_customObjectData!=nullptr)
         theNewObject->_customObjectData=_customObjectData->copyYourself();
 
     delete theNewObject->_customObjectData_tempData;
-    theNewObject->_customObjectData_tempData=NULL;
-    if (_customObjectData_tempData!=NULL)
+    theNewObject->_customObjectData_tempData=nullptr;
+    if (_customObjectData_tempData!=nullptr)
         theNewObject->_customObjectData_tempData=_customObjectData_tempData->copyYourself();
 
     theNewObject->_customReferencedHandles.assign(_customReferencedHandles.begin(),_customReferencedHandles.end());
@@ -1169,59 +1168,59 @@ C3DObject* C3DObject::copyYourselfMain()
 
 
     // The following line is important to properly copy the copy buffer!!!
-    theNewObject->setParentIdentifierLoading(getParentIdentifierLoading());
+    theNewObject->setParentHandleLoading(getParentHandle_loading());
 
     return(theNewObject);
 }
 
 void C3DObject::setObjectCustomData(int header,const char* data,int dataLength)
 {
-    if (_customObjectData==NULL)
+    if (_customObjectData==nullptr)
         _customObjectData=new CCustomData();
     _customObjectData->setData(header,data,dataLength);
 }
 int C3DObject::getObjectCustomDataLength(int header)
 {
-    if (_customObjectData==NULL)
+    if (_customObjectData==nullptr)
         return(0);
     return(_customObjectData->getDataLength(header));
 }
 void C3DObject::getObjectCustomData(int header,char* data)
 {
-    if (_customObjectData==NULL)
+    if (_customObjectData==nullptr)
         return;
     _customObjectData->getData(header,data);
 }
 
 bool C3DObject::getObjectCustomDataHeader(int index,int& header)
 {
-    if (_customObjectData==NULL)
+    if (_customObjectData==nullptr)
         return(false);
     return(_customObjectData->getHeader(index,header));
 }
 
 void C3DObject::setObjectCustomData_tempData(int header,const char* data,int dataLength)
 {
-    if (_customObjectData_tempData==NULL)
+    if (_customObjectData_tempData==nullptr)
         _customObjectData_tempData=new CCustomData();
     _customObjectData_tempData->setData(header,data,dataLength);
 }
 int C3DObject::getObjectCustomDataLength_tempData(int header)
 {
-    if (_customObjectData_tempData==NULL)
+    if (_customObjectData_tempData==nullptr)
         return(0);
     return(_customObjectData_tempData->getDataLength(header));
 }
 void C3DObject::getObjectCustomData_tempData(int header,char* data)
 {
-    if (_customObjectData_tempData==NULL)
+    if (_customObjectData_tempData==nullptr)
         return;
     _customObjectData_tempData->getData(header,data);
 }
 
 bool C3DObject::getObjectCustomDataHeader_tempData(int index,int& header)
 {
-    if (_customObjectData_tempData==NULL)
+    if (_customObjectData_tempData==nullptr)
         return(false);
     return(_customObjectData_tempData->getHeader(index,header));
 }
@@ -1440,8 +1439,8 @@ void C3DObject::initializeInitialValuesMain(bool simulationIsRunning)
         _initialConfigurationMemorized=true;
         _initialMemorizedConfigurationValidCounter=_memorizedConfigurationValidCounter;
         _initialParentUniqueID=-1; // -1 means there was no parent at begin
-        C3DObject* p=getParent();
-        if (p!=NULL)
+        C3DObject* p=getParentObject();
+        if (p!=nullptr)
             _initialParentUniqueID=p->getUniqueID();
         _initialLocalTransformationPart1=_transformation;
         //********************************
@@ -1461,14 +1460,14 @@ void C3DObject::simulationEndedMain()
             if (_initialMemorizedConfigurationValidCounter==_memorizedConfigurationValidCounter)
             { // the object wasn't resized/didn't change frame
                 int puid=-1;
-                C3DObject* p=getParent();
-                if (p!=NULL)
+                C3DObject* p=getParentObject();
+                if (p!=nullptr)
                     puid=p->getUniqueID();
                 // Changed following on 24/04/2011 (because we also wanna reset the parenting to the initial state!)
                 if (puid!=_initialParentUniqueID)
                 { // Not sure following instructions are not problematic here.
                     C3DObject* oldParent=App::ct->objCont->getObjectWithUniqueID(_initialParentUniqueID);
-                    if ( (oldParent!=NULL)||(_initialParentUniqueID==-1) )
+                    if ( (oldParent!=nullptr)||(_initialParentUniqueID==-1) )
                     {
                         // Inverted following 2 lines on 24/2/2012:
                         App::ct->objCont->makeObjectChildOf(this,oldParent);
@@ -1538,7 +1537,7 @@ void C3DObject::setEnableCustomizationScript(bool c,const char* scriptContent)
     // _customizationScriptEnabled=c;
 
     // We remove a script that might be associated:
-    CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(getID());
+    CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(getObjectHandle());
     if (script)
         App::ct->luaScriptContainer->removeScript(script->getScriptID());
 
@@ -1548,13 +1547,13 @@ void C3DObject::setEnableCustomizationScript(bool c,const char* scriptContent)
         if (scriptContent)
             script->setScriptText(scriptContent);
         App::ct->luaScriptContainer->insertScript(script);
-        script->setObjectIDThatScriptIsAttachedTo_customization(getID());
+        script->setObjectIDThatScriptIsAttachedTo_customization(getObjectHandle());
     }
 }
 
 bool C3DObject::getEnableCustomizationScript()
 {
-    return(App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(getID())!=NULL);
+    return(App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(getObjectHandle())!=nullptr);
 //  return(_customizationScriptEnabled);
 }
 
@@ -1664,14 +1663,14 @@ int C3DObject::getScriptExecutionOrder(int scriptType) const
 {
     if (scriptType==sim_scripttype_customizationscript)
     {
-        CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(_objectID);
-        if (it!=NULL)
+        CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(_objectHandle);
+        if (it!=nullptr)
             return(it->getExecutionOrder());
     }
     else if ((scriptType&sim_scripttype_childscript)!=0)
     {
-        CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(_objectID);
-        if (it!=NULL)
+        CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(_objectHandle);
+        if (it!=nullptr)
         {
             if ( it->getThreadedExecution()==((scriptType&sim_scripttype_threaded)!=0) )
                 return(it->getExecutionOrder());
@@ -1683,20 +1682,20 @@ int C3DObject::getScriptExecutionOrder(int scriptType) const
 int C3DObject::getScriptsToExecute(int scriptType,int parentTraversalDirection,std::vector<CLuaScriptObject*>& scripts,std::vector<int>& uniqueIds)
 {
     int cnt=0;
-    CLuaScriptObject* attachedScript=NULL;
+    CLuaScriptObject* attachedScript=nullptr;
     if (scriptType==sim_scripttype_customizationscript)
-        attachedScript=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(_objectID);
+        attachedScript=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(_objectHandle);
     else if ((scriptType&sim_scripttype_childscript)!=0)
     {
-        attachedScript=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(_objectID);
-        if (attachedScript!=NULL)
+        attachedScript=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(_objectHandle);
+        if (attachedScript!=nullptr)
         {
             if ( attachedScript->getThreadedExecution()!=((scriptType&sim_scripttype_threaded)!=0) )
-                attachedScript=NULL;
+                attachedScript=nullptr;
         }
     }
     int traversalDir=parentTraversalDirection;
-    if (attachedScript!=NULL)
+    if (attachedScript!=nullptr)
     {
         int tdir=attachedScript->getTreeTraversalDirection();
         if (tdir!=sim_scripttreetraversal_parent)
@@ -1705,7 +1704,7 @@ int C3DObject::getScriptsToExecute(int scriptType,int parentTraversalDirection,s
 
     if ((getCumulativeModelProperty()&sim_modelproperty_scripts_inactive)==0)
     {
-        if ( (traversalDir==sim_scripttreetraversal_forward)&&(attachedScript!=NULL)&&(!attachedScript->getScriptIsDisabled()) )
+        if ( (traversalDir==sim_scripttreetraversal_forward)&&(attachedScript!=nullptr)&&(!attachedScript->getScriptIsDisabled()) )
         {
             cnt++;
             scripts.push_back(attachedScript);
@@ -1730,7 +1729,7 @@ int C3DObject::getScriptsToExecute(int scriptType,int parentTraversalDirection,s
                 cnt+=toHandle[i]->at(j)->getScriptsToExecute(scriptType,traversalDir,scripts,uniqueIds);
         }
 
-        if ( (traversalDir==sim_scripttreetraversal_reverse)&&(attachedScript!=NULL)&&(!attachedScript->getScriptIsDisabled()) )
+        if ( (traversalDir==sim_scripttreetraversal_reverse)&&(attachedScript!=nullptr)&&(!attachedScript->getScriptIsDisabled()) )
         {
             cnt++;
             scripts.push_back(attachedScript);
@@ -1773,9 +1772,9 @@ void C3DObject::serializeMain(CSer& ar)
 
         ar.storeDataName("Ids");
         int parentID=-1;
-        if (getParent()!=NULL)
-            parentID=getParent()->getID();
-        ar << _objectID << parentID;
+        if (getParentObject()!=nullptr)
+            parentID=getParentObject()->getObjectHandle();
+        ar << _objectHandle << parentID;
         ar.flush();
 
         ar.storeDataName("Anm"); // keep this before "Nme"
@@ -1860,7 +1859,7 @@ void C3DObject::serializeMain(CSer& ar)
         ar << _sizeValues[0] << _sizeValues[1] << _sizeValues[2];
         ar.flush();
 
-        if (_customObjectData!=NULL)
+        if (_customObjectData!=nullptr)
         {
             ar.storeDataName("Cod");
             ar.setCountingMode();
@@ -2015,8 +2014,8 @@ void C3DObject::serializeMain(CSer& ar)
                 {
                     noHit=false;
                     ar >> byteQuantity;
-                    ar >> _objectID >> _parentID;
-                    _parentObject=NULL;
+                    ar >> _objectHandle >> _parentHandle;
+                    _parentObject=nullptr;
                 }
                 if (theName.compare("Anm")==0)
                 {
@@ -2282,9 +2281,9 @@ void C3DObject::serializeWExtIkMain(CExtIkSer& ar)
     ar.writeFloat(tr.X(2));
     
     int parentID=-1;
-    if (getParent()!=NULL)
-        parentID=getParent()->getID();
-    ar.writeInt(_objectID);
+    if (getParentObject()!=nullptr)
+        parentID=getParentObject()->getObjectHandle();
+    ar.writeInt(_objectHandle);
     ar.writeInt(parentID);
 
     ar.writeString(_objectName.c_str());
@@ -2298,8 +2297,8 @@ void C3DObject::performObjectLoadingMapping(std::vector<int>* map,bool loadingAm
 
 void C3DObject::performObjectLoadingMappingMain(std::vector<int>* map,bool loadingAmodel)
 {
-    int newParentID=App::ct->objCont->getLoadingMapping(map,_parentID);
-    setParent(App::ct->objCont->getObject(newParentID));
+    int newParentID=App::ct->objCont->getLoadingMapping(map,_parentHandle);
+    setParentObject(App::ct->objCont->getObjectFromHandle(newParentID));
 
     if ( (_authorizedViewableObjects>=0)&&(_authorizedViewableObjects<SIM_IDSTART_COLLECTION) )
         _authorizedViewableObjects=App::ct->objCont->getLoadingMapping(map,_authorizedViewableObjects);
@@ -2319,20 +2318,20 @@ void C3DObject::performObjectLoadingMappingMain(std::vector<int>* map,bool loadi
     }
 }
 
-std::string C3DObject::getName() const
+std::string C3DObject::getObjectName() const
 {
     return(_objectName);
 }
-void C3DObject::setName(std::string newName)
+void C3DObject::setObjectName_objectNotYetInScene(std::string newName)
 { 
     _objectName=newName;
 }
 
-std::string C3DObject::getAltName() const
+std::string C3DObject::getObjectAltName() const
 {
     return(_objectAltName);
 }
-void C3DObject::setAltName(std::string newAltName)
+void C3DObject::setObjectAltName_objectNotYetInScene(std::string newAltName)
 {
     _objectAltName=newAltName;
 }
@@ -2343,7 +2342,7 @@ std::string C3DObject::getDisplayName() const
     return(_objectName);
 }
 
-bool C3DObject::announceObjectWillBeErased(int objID,bool copyBuffer)
+bool C3DObject::announceObjectWillBeErased(int objHandle,bool copyBuffer)
 {
     return(false);
 }
@@ -2351,35 +2350,35 @@ void C3DObject::announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer)
 {
 }
 
-bool C3DObject::announceObjectWillBeErasedMain(int objID,bool copyBuffer)
+bool C3DObject::announceObjectWillBeErasedMain(int objHandle,bool copyBuffer)
 { 
     // This routine can be called for objCont-objects, but also for objects
     // in the copy-buffer!! So never make use of any 
-    // 'ct::objCont->getObject(id)'-call or similar
+    // 'ct::objCont->getObject(objHandle)'-call or similar
     // Return value true means this needs to be destroyed
 #ifdef SIM_WITH_GUI
     // if we are in edit mode, we leave edit mode:
     if ( (App::getEditModeType()!=NO_EDIT_MODE)&&(!copyBuffer) )
     {
-        if (App::mainWindow->editModeContainer->getEditModeObjectID()==objID)
-            App::mainWindow->editModeContainer->processCommand(ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD,NULL); // This is if we destroy the object being edited (shouldn't normally happen!)
+        if (App::mainWindow->editModeContainer->getEditModeObjectID()==objHandle)
+            App::mainWindow->editModeContainer->processCommand(ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD,nullptr); // This is if we destroy the object being edited (shouldn't normally happen!)
     }
 #endif
 
-    if (_authorizedViewableObjects==objID)
+    if (_authorizedViewableObjects==objHandle)
         _authorizedViewableObjects=-2; // not visible anymore!
 
     // If the object's parent will be erased, make the object child of its grand-parents
-    if ( (getParent()!=NULL)&&(!copyBuffer) )
+    if ( (getParentObject()!=nullptr)&&(!copyBuffer) )
     {
-        if (getParent()->getID()==objID)
-            App::ct->objCont->makeObjectChildOf(this,getParent()->getParent());
+        if (getParentObject()->getObjectHandle()==objHandle)
+            App::ct->objCont->makeObjectChildOf(this,getParentObject()->getParentObject());
     }
     for (size_t i=0;i<_customReferencedHandles.size();i++)
     {
         if (_customReferencedHandles[i].generalObjectType==sim_appobj_object_type)
         {
-            if (_customReferencedHandles[i].generalObjectHandle==objID)
+            if (_customReferencedHandles[i].generalObjectHandle==objHandle)
                 _customReferencedHandles[i].generalObjectHandle=-1;
         }
     }
@@ -2389,7 +2388,7 @@ bool C3DObject::announceObjectWillBeErasedMain(int objID,bool copyBuffer)
         {
             if (_customReferencedOriginalHandles[i].generalObjectType==sim_appobj_object_type)
             {
-                if (_customReferencedOriginalHandles[i].generalObjectHandle==objID)
+                if (_customReferencedOriginalHandles[i].generalObjectHandle==objHandle)
                     _customReferencedOriginalHandles[i].generalObjectHandle=-1;
             }
         }
@@ -2432,31 +2431,31 @@ void C3DObject::setReferencedHandles(int cnt,const int* handles)
         r.generalObjectHandle=-1;
         if (handles[i]>=0)
         {
-            if (App::ct->objCont->getObject(handles[i])!=NULL)
+            if (App::ct->objCont->getObjectFromHandle(handles[i])!=nullptr)
                 r.generalObjectHandle=handles[i];
             else
             {
-                if (App::ct->collisions->getObject(handles[i])!=NULL)
+                if (App::ct->collisions->getObject(handles[i])!=nullptr)
                 {
                     r.generalObjectType=sim_appobj_collision_type;
                     r.generalObjectHandle=handles[i];
                 }
-                if (App::ct->distances->getObject(handles[i])!=NULL)
+                if (App::ct->distances->getObject(handles[i])!=nullptr)
                 {
                     r.generalObjectType=sim_appobj_distance_type;
                     r.generalObjectHandle=handles[i];
                 }
-                if (App::ct->ikGroups->getIkGroup(handles[i])!=NULL)
+                if (App::ct->ikGroups->getIkGroup(handles[i])!=nullptr)
                 {
                     r.generalObjectType=sim_appobj_ik_type;
                     r.generalObjectHandle=handles[i];
                 }
-                if (App::ct->constraintSolver->getObject(handles[i])!=NULL)
+                if (App::ct->constraintSolver->getObject(handles[i])!=nullptr)
                 {
                     r.generalObjectType=sim_appobj_constraintsolver_type;
                     r.generalObjectHandle=handles[i];
                 }
-                if (App::ct->collections->getCollection(handles[i])!=NULL)
+                if (App::ct->collections->getCollection(handles[i])!=nullptr)
                 {
                     r.generalObjectType=sim_appobj_collection_type;
                     r.generalObjectHandle=handles[i];
@@ -2490,32 +2489,32 @@ void C3DObject::setReferencedOriginalHandles(int cnt,const int* handles)
         r.generalObjectHandle=-1;
         if (handles[i]>=0)
         {
-            if (App::ct->objCont->getObject(handles[i])!=NULL)
+            if (App::ct->objCont->getObjectFromHandle(handles[i])!=nullptr)
             {
                 r.generalObjectHandle=handles[i];
-                r.uniquePersistentIdString=App::ct->objCont->getObject(handles[i])->getUniquePersistentIdString();
+                r.uniquePersistentIdString=App::ct->objCont->getObjectFromHandle(handles[i])->getUniquePersistentIdString();
             }
             else
             {
-                if (App::ct->collisions->getObject(handles[i])!=NULL)
+                if (App::ct->collisions->getObject(handles[i])!=nullptr)
                 {
                     r.generalObjectType=sim_appobj_collision_type;
                     r.generalObjectHandle=handles[i];
                     r.uniquePersistentIdString=App::ct->collisions->getObject(handles[i])->getUniquePersistentIdString();
                 }
-                if (App::ct->distances->getObject(handles[i])!=NULL)
+                if (App::ct->distances->getObject(handles[i])!=nullptr)
                 {
                     r.generalObjectType=sim_appobj_distance_type;
                     r.generalObjectHandle=handles[i];
                     r.uniquePersistentIdString=App::ct->distances->getObject(handles[i])->getUniquePersistentIdString();
                 }
-                if (App::ct->ikGroups->getIkGroup(handles[i])!=NULL)
+                if (App::ct->ikGroups->getIkGroup(handles[i])!=nullptr)
                 {
                     r.generalObjectType=sim_appobj_ik_type;
                     r.generalObjectHandle=handles[i];
                     r.uniquePersistentIdString=App::ct->ikGroups->getIkGroup(handles[i])->getUniquePersistentIdString();
                 }
-                if (App::ct->collections->getCollection(handles[i])!=NULL)
+                if (App::ct->collections->getCollection(handles[i])!=nullptr)
                 {
                     r.generalObjectType=sim_appobj_collection_type;
                     r.generalObjectHandle=handles[i];
@@ -2566,39 +2565,39 @@ void C3DObject::getCumulativeTransformationMatrixPart1(float m[4][4],bool useTem
 
 C7Vector C3DObject::getParentCumulativeTransformation(bool useTempValues) const
 { // useTempValues is false by default. This is used by the IK-routine
-    if (getParent()==NULL)
+    if (getParentObject()==nullptr)
     {
         C7Vector retV;
         retV.setIdentity();
         return(retV);
     }
     else
-        return(getParent()->getCumulativeTransformation(useTempValues));
+        return(getParentObject()->getCumulativeTransformation(useTempValues));
 }
 
 C7Vector C3DObject::getParentCumulativeTransformation_forDisplay(bool guiIsRendering) const
 {
-    if (getParent()==NULL)
+    if (getParentObject()==nullptr)
     {
         C7Vector retV;
         retV.setIdentity();
         return(retV);
     }
     else
-        return(getParent()->getCumulativeTransformation_forDisplay(guiIsRendering));
+        return(getParentObject()->getCumulativeTransformation_forDisplay(guiIsRendering));
 }
 
 
 C7Vector C3DObject::getCumulativeTransformation(bool useTempValues) const
 { // useTempValues is false by default. This is used by the IK-routine
-    if (getParent()==NULL)
+    if (getParentObject()==nullptr)
         return(getLocalTransformation(useTempValues));
     else
         return(getParentCumulativeTransformation(useTempValues)*getLocalTransformation(useTempValues));
 }
 C7Vector C3DObject::getCumulativeTransformation_forDisplay(bool guiIsRendering) const
 {
-    if (getParent()==NULL)
+    if (getParentObject()==nullptr)
         return(getLocalTransformation_forDisplay(guiIsRendering));
     else
         return(getParentCumulativeTransformation_forDisplay(guiIsRendering)*getLocalTransformation_forDisplay(guiIsRendering));
@@ -2707,7 +2706,7 @@ C7Vector C3DObject::getCumulativeTransformationPart1(bool useTempValues) const
 { // useTempValues is false by default. This is used by the IK-routine
     if (getObjectType()==sim_object_joint_type)
     {
-        if (getParent()==NULL)
+        if (getParentObject()==nullptr)
             return(getLocalTransformationPart1(useTempValues));
         else
             return(getParentCumulativeTransformation(useTempValues)*getLocalTransformationPart1(useTempValues));
@@ -2720,7 +2719,7 @@ C7Vector C3DObject::getCumulativeTransformationPart1_forDisplay(bool guiIsRender
 { 
     if (getObjectType()==sim_object_joint_type)
     {
-        if (getParent()==NULL)
+        if (getParentObject()==nullptr)
             return(getLocalTransformationPart1_forDisplay(guiIsRendering));
         else
             return(getParentCumulativeTransformation_forDisplay(guiIsRendering)*getLocalTransformationPart1_forDisplay(guiIsRendering));
@@ -2771,35 +2770,36 @@ void C3DObject::setAbsoluteTransformation(const C3Vector& x)
     _transformation.X=pInv*x;
 }
 
-int C3DObject::getID() const
+int C3DObject::getObjectHandle() const
 {
-    return(_objectID);
+    return(_objectHandle);
 }
-void C3DObject::setID(int newID)
+
+void C3DObject::setObjectHandle(int newObjectHandle)
 { // Be very careful with this function!!!
-    _objectID=newID;
+    _objectHandle=newObjectHandle;
 }
 
 bool C3DObject::isObjectParentedWith(C3DObject* thePotentialParent) const
 {
-    if (getParent()==NULL)
+    if (getParentObject()==nullptr)
         return(false);
-    if (getParent()==thePotentialParent) 
+    if (getParentObject()==thePotentialParent)
         return(true);
-    return(getParent()->isObjectParentedWith(thePotentialParent));
+    return(getParentObject()->isObjectParentedWith(thePotentialParent));
 }
 
-int C3DObject::getParentIdentifierLoading() const
+int C3DObject::getParentHandle_loading() const
 {
-    return(_parentID);
+    return(_parentHandle);
 }
 
-void C3DObject::setParentIdentifierLoading(int pID)
+void C3DObject::setParentHandleLoading(int pHandle)
 { // Be very careful with this function!!!
-    _parentID=pID;
+    _parentHandle=pHandle;
 }
 
-void C3DObject::setParent(C3DObject* newParent,bool actualizeInfo)
+void C3DObject::setParentObject(C3DObject* newParent,bool actualizeInfo)
 { // actualizeInfo is true by default
     if (newParent==this)
         return;
@@ -2809,7 +2809,7 @@ void C3DObject::setParent(C3DObject* newParent,bool actualizeInfo)
         App::ct->objCont->actualizeObjectInformation();
 }
 
-C3DObject* C3DObject::getParent() const
+C3DObject* C3DObject::getParentObject() const
 {
     return(_parentObject);
 }
@@ -3102,19 +3102,19 @@ void C3DObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay)
         // Now the moving part:
         glLineWidth(3.0f);
         float h2=halfSize*0.8f;
-        ogl::drawSingle3dLine(-h,0.0f,0.0f,h,0.0f,0.0f,NULL);
-        ogl::drawSingle3dLine(h,0.0f,0.0f,cos(0.1f)*h2,sin(0.1f)*h2,0.0f,NULL);
-        ogl::drawSingle3dLine(h,0.0f,0.0f,cos(-0.1f)*h2,sin(-0.1f)*h2,0.0f,NULL);
+        ogl::drawSingle3dLine(-h,0.0f,0.0f,h,0.0f,0.0f,nullptr);
+        ogl::drawSingle3dLine(h,0.0f,0.0f,cos(0.1f)*h2,sin(0.1f)*h2,0.0f,nullptr);
+        ogl::drawSingle3dLine(h,0.0f,0.0f,cos(-0.1f)*h2,sin(-0.1f)*h2,0.0f,nullptr);
         std::string s(gv::getAngleStr(true,_objectManipulationModeTotalRotation));
         float h3=halfSize*1.1f;
 
         if (transparentAndOverlay)
             ogl::setBlending(false);
-        ogl::drawBitmapTextTo3dPosition(h3,0.0f,halfSize*0.05f,s.c_str(),NULL);
+        ogl::drawBitmapTextTo3dPosition(h3,0.0f,halfSize*0.05f,s.c_str(),nullptr);
         if (transparentAndOverlay)
             ogl::setBlending(true,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
-        ogl::drawSingle3dLine(0.0f,-h,0.0f,0.0f,h,0.0f,NULL);
+        ogl::drawSingle3dLine(0.0f,-h,0.0f,0.0f,h,0.0f,nullptr);
         glLineWidth(1.0f);
     }
     else
@@ -3219,7 +3219,7 @@ void C3DObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay)
                 break;
         }
         if (ogl::buffer.size()!=0)
-            ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,false,NULL);
+            ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,false,nullptr);
         ogl::buffer.clear();
 
         // Now the moving part:
@@ -3241,7 +3241,7 @@ void C3DObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay)
             ogl::addBuffer3DPoints(v(0)+s(0),v(1)+s(1),v(2)+s(2));
             ogl::addBuffer3DPoints(v(0)-w(0),v(1)-w(1),v(2)-w(2));
             std::string st(gv::getSizeStr(true,totTransl(axis),0));
-            ogl::drawBitmapTextTo3dPosition(v(0)+s(0)*2.0f+w(0)*2.0f,v(1)+s(1)*2.0f+w(1)*2.0f,v(2)+s(2)*2.0f+w(2)*2.0f,st.c_str(),NULL);
+            ogl::drawBitmapTextTo3dPosition(v(0)+s(0)*2.0f+w(0)*2.0f,v(1)+s(1)*2.0f+w(1)*2.0f,v(2)+s(2)*2.0f+w(2)*2.0f,st.c_str(),nullptr);
             if (xAxisOnly)
                 break;
         }
@@ -3249,7 +3249,7 @@ void C3DObject::displayManipulationModeOverlayGrid(bool transparentAndOverlay)
             ogl::setBlending(true,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
         glLineWidth(3.0f);
         if (ogl::buffer.size()!=0)
-            ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,false,NULL);
+            ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,false,nullptr);
         ogl::buffer.clear();
         glLineWidth(1.0f);
     }
@@ -3277,7 +3277,7 @@ bool C3DObject::setLocalTransformationFromObjectRotationMode(const C4X4Matrix& c
         return(false);
     }
     static int  otherAxisMemorized=0;
-    bool ctrlKeyDown=((App::mainWindow!=NULL)&&(App::mainWindow->getKeyDownState()&1))&&(!_objectRotationSettingsLocked);
+    bool ctrlKeyDown=((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&1))&&(!_objectRotationSettingsLocked);
     if ( (!ctrlKeyDown)&&((getObjectManipulationModePermissions()&56)==0) )
     { // This is special so that, when no manip is allowed but we held down the ctrl key and released it, the green manip disc doesn't appear
         _objectManipulationModeAxisIndex=-1;
@@ -3354,7 +3354,7 @@ bool C3DObject::setLocalTransformationFromObjectRotationMode(const C4X4Matrix& c
     float ss=getNonDefaultRotationStepSize();
     if (ss==0.0f)
         ss=App::userSettings->getRotationStepSize();
-    if ((App::mainWindow!=NULL)&&(App::mainWindow->getKeyDownState()&2))
+    if ((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&2))
     {
         ss=0.1f*degToRad_f;
         rotationAmount/=5.0f;
@@ -3411,7 +3411,7 @@ bool C3DObject::setLocalTransformationFromObjectTranslationMode(const C4X4Matrix
     if (getObjectManipulationTranslationRelativeTo()==2)
         objAbs.M=getCumulativeTransformationPart1().getMatrix().M;
     static int  otherAxisMemorized=0;
-    bool ctrlKeyDown=((App::mainWindow!=NULL)&&(App::mainWindow->getKeyDownState()&1))&&(!_objectTranslationSettingsLocked);
+    bool ctrlKeyDown=((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&1))&&(!_objectTranslationSettingsLocked);
     if ( (!ctrlKeyDown)&&((getObjectManipulationModePermissions()&7)==0) )
     { // This is special so that, when no manip is allowed but we held down the ctrl key and released it, the green manip bars don't appear
         _objectManipulationModeAxisIndex=-1;
@@ -3607,7 +3607,7 @@ bool C3DObject::setLocalTransformationFromObjectTranslationMode(const C4X4Matrix
         float ss=getNonDefaultTranslationStepSize();
         if (ss==0.0f)
             ss=App::userSettings->getTranslationStepSize();
-        if ((App::mainWindow!=NULL)&&(App::mainWindow->getKeyDownState()&2))
+        if ((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&2))
             ss=0.001f;
         float w=fmod(_objectManipulationModeSubTranslation(i),ss);
         v(i)=_objectManipulationModeSubTranslation(i)-w;

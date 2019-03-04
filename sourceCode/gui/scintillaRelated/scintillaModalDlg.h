@@ -15,7 +15,7 @@ class CScintillaModalDlg : public QDialog
     Q_OBJECT
 
 public:
-    CScintillaModalDlg(int scriptType,bool scriptIsThreaded,QWidget* pParent = NULL, Qt::WindowFlags f= 0);
+    CScintillaModalDlg(int scriptType,bool scriptIsThreaded,QWidget* pParent = nullptr, Qt::WindowFlags f= 0);
     virtual ~CScintillaModalDlg();
 
     bool initialize(int scriptId,const char* titleText,bool readOnly,bool ignoreSceneLock);

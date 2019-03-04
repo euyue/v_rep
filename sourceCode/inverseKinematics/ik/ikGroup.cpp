@@ -22,7 +22,7 @@ CikGroup::CikGroup()
     avoidanceWeight=1.0f;
     _calcTimeInMs=0;
     _initialValuesInitialized=false;
-    _lastJacobian=NULL;
+    _lastJacobian=nullptr;
     _explicitHandling=false;
     dlsFactor=0.1f;
     calculationMethod=sim_ik_pseudo_inverse_method;
@@ -131,14 +131,14 @@ void CikGroup::setDoOnPerformed(bool turnOn)
 bool CikGroup::addIkElement(CikEl* anElement)
 { // If return value if false, the calling function has to destroy anElement (invalid)
     // We check if anElement is valid:
-    if (App::ct->objCont->getDummy(anElement->getTooltip())==NULL)
+    if (App::ct->objCont->getDummy(anElement->getTooltip())==nullptr)
         return(false); // invalid
     
     // SINCE 14/12/2011 we are authorized to add several times an IK element with the same tip dummy!!
 
     // We look for a free id:
     int newID=0;
-    while (getIkElement(newID)!=NULL)
+    while (getIkElement(newID)!=nullptr)
         newID++;
     anElement->setObjectID(newID);
     ikElements.push_back(anElement);
@@ -515,8 +515,8 @@ void CikGroup::getCollisionPartners(std::vector<C3DObject*>* partners,
     gr2.clear();
     if (_avoidanceRobotEntity<SIM_IDSTART_COLLECTION)
     {
-        C3DObject* it=App::ct->objCont->getObject(_avoidanceRobotEntity);
-        if ( (it!=NULL)&&(it->getCumulativeObjectSpecialProperty()&sim_objectspecialproperty_measurable) ) // we check the measurable property here (special!!)
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(_avoidanceRobotEntity);
+        if ( (it!=nullptr)&&(it->getCumulativeObjectSpecialProperty()&sim_objectspecialproperty_measurable) ) // we check the measurable property here (special!!)
             gr1.push_back(it);
     }
     else
@@ -525,8 +525,8 @@ void CikGroup::getCollisionPartners(std::vector<C3DObject*>* partners,
     {
         if (_avoidanceObstacleEntity!=-1)
         {
-            C3DObject* it=App::ct->objCont->getObject(_avoidanceObstacleEntity);
-            if (it!=NULL)
+            C3DObject* it=App::ct->objCont->getObjectFromHandle(_avoidanceObstacleEntity);
+            if (it!=nullptr)
                 gr2.push_back(it);
         }
         else
@@ -551,8 +551,8 @@ void CikGroup::getCollisionPartners(std::vector<C3DObject*>* partners,
         {
             C3DObject* grObj=gr1[i];
             // Now we check that this object has only bottomJoint as listed joint parent:
-            C3DObject* iterat=grObj->getParent();
-            while (iterat!=NULL)
+            C3DObject* iterat=grObj->getParentObject();
+            while (iterat!=nullptr)
             {
                 if (iterat==bottomJoint)
                 { // We can add this element (dummy or shape)
@@ -573,7 +573,7 @@ void CikGroup::getCollisionPartners(std::vector<C3DObject*>* partners,
                     if (listed)
                         break;
                 }
-                iterat=iterat->getParent();
+                iterat=iterat->getParentObject();
             }
         }
         for (int i=0;i<int(gr2.size());i++)
@@ -793,19 +793,19 @@ CikEl* CikGroup::getIkElement(int ikElementID)
         if (ikElements[i]->getObjectID()==ikElementID)
             return(ikElements[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 CikEl* CikGroup::getIkElementWithTooltipID(int tooltipID)
 { 
     if (tooltipID==-1)
-        return(NULL);
+        return(nullptr);
     for (int i=0;i<int(ikElements.size());i++)
     {
         if (ikElements[i]->getTooltip()==tooltipID)
             return(ikElements[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 int CikGroup::getObjectID()
@@ -854,11 +854,11 @@ void CikGroup::getAllActiveJoints(std::vector<CJoint*>& jointList)
     {
         CikEl* element=ikElements[elementNumber];
         CDummy* tooltip=App::ct->objCont->getDummy(element->getTooltip());
-        C3DObject* base=App::ct->objCont->getObject(element->getBase());
+        C3DObject* base=App::ct->objCont->getObjectFromHandle(element->getBase());
         bool valid=true;
         if (!element->getActive())
             valid=false;
-        if (tooltip==NULL)
+        if (tooltip==nullptr)
             valid=false;
         // We check that tooltip is parented with base and has at least one joint in-between:
         if (valid)
@@ -867,16 +867,16 @@ void CikGroup::getAllActiveJoints(std::vector<CJoint*>& jointList)
             bool jointPresent=false;
             bool baseOk=false;
             C3DObject* iterat=tooltip;
-            while ( (iterat!=base)&&(iterat!=NULL) )
+            while ( (iterat!=base)&&(iterat!=nullptr) )
             {
-                iterat=iterat->getParent();
+                iterat=iterat->getParentObject();
                 if (iterat==base)
                 {
                     baseOk=true;
                     if (jointPresent)
                         valid=true;
                 }
-                if ( (iterat!=base)&&(iterat!=NULL)&&(iterat->getObjectType()==sim_object_joint_type) )
+                if ( (iterat!=base)&&(iterat!=nullptr)&&(iterat->getObjectType()==sim_object_joint_type) )
                     jointPresent=true;
             }
             if (!valid)
@@ -889,14 +889,14 @@ void CikGroup::getAllActiveJoints(std::vector<CJoint*>& jointList)
         if (valid)
         { // We add all joint between tooltip and base which are not yet present:
             C3DObject* iterat=tooltip;
-            while ( (iterat!=base)&&(iterat!=NULL) )
+            while ( (iterat!=base)&&(iterat!=nullptr) )
             {
                 if (iterat->getObjectType()==sim_object_joint_type)
                 {
                     if (std::find(jointList.begin(),jointList.end(),iterat)==jointList.end())
                         jointList.push_back((CJoint*)iterat);
                 }
-                iterat=iterat->getParent();
+                iterat=iterat->getParentObject();
             }
         }
     }
@@ -909,13 +909,13 @@ void CikGroup::getTipAndTargetLists(std::vector<CDummy*>& tipList,std::vector<CD
         CikEl* element=ikElements[elementNumber];
         CDummy* tooltip=App::ct->objCont->getDummy(element->getTooltip());
         CDummy* target=App::ct->objCont->getDummy(element->getTarget());
-        C3DObject* base=App::ct->objCont->getObject(element->getBase());
+        C3DObject* base=App::ct->objCont->getObjectFromHandle(element->getBase());
         bool valid=true;
         if (!element->getActive())
             valid=false;
-        if (tooltip==NULL)
+        if (tooltip==nullptr)
             valid=false;
-        if (target==NULL)
+        if (target==nullptr)
             valid=false;
         // We check that tooltip is parented with base and has at least one joint in-between:
         if (valid)
@@ -924,16 +924,16 @@ void CikGroup::getTipAndTargetLists(std::vector<CDummy*>& tipList,std::vector<CD
             bool jointPresent=false;
             bool baseOk=false;
             C3DObject* iterat=tooltip;
-            while ( (iterat!=base)&&(iterat!=NULL) )
+            while ( (iterat!=base)&&(iterat!=nullptr) )
             {
-                iterat=iterat->getParent();
+                iterat=iterat->getParentObject();
                 if (iterat==base)
                 {
                     baseOk=true;
                     if (jointPresent)
                         valid=true;
                 }
-                if ( (iterat!=base)&&(iterat!=NULL)&&(iterat->getObjectType()==sim_object_joint_type) )
+                if ( (iterat!=base)&&(iterat!=nullptr)&&(iterat->getObjectType()==sim_object_joint_type) )
                     jointPresent=true;
             }
             if (!valid)
@@ -962,11 +962,11 @@ bool CikGroup::computeOnlyJacobian(int options)
     {
         CikEl* element=ikElements[elementNumber];
         CDummy* tooltip=App::ct->objCont->getDummy(element->getTooltip());
-        C3DObject* base=App::ct->objCont->getObject(element->getBase());
+        C3DObject* base=App::ct->objCont->getObjectFromHandle(element->getBase());
         bool valid=true;
         if (!element->getActive())
             valid=false;
-        if (tooltip==NULL)
+        if (tooltip==nullptr)
             valid=false; // should normally never happen!
         // We check that tooltip is parented with base and has at least one joint in-between:
         if (valid)
@@ -975,16 +975,16 @@ bool CikGroup::computeOnlyJacobian(int options)
             bool jointPresent=false;
             bool baseOk=false;
             C3DObject* iterat=tooltip;
-            while ( (iterat!=base)&&(iterat!=NULL) )
+            while ( (iterat!=base)&&(iterat!=nullptr) )
             {
-                iterat=iterat->getParent();
+                iterat=iterat->getParentObject();
                 if (iterat==base)
                 {
                     baseOk=true;
                     if (jointPresent)
                         valid=true;
                 }
-                if ( (iterat!=base)&&(iterat!=NULL)&&(iterat->getObjectType()==sim_object_joint_type) )
+                if ( (iterat!=base)&&(iterat!=nullptr)&&(iterat->getObjectType()==sim_object_joint_type) )
                 {
                     if ( (((CJoint*)iterat)->getJointMode()==sim_jointmode_ik)||(((CJoint*)iterat)->getJointMode()==sim_jointmode_reserved_previously_ikdependent)||(((CJoint*)iterat)->getJointMode()==sim_jointmode_dependent) )
                         jointPresent=true;
@@ -1020,7 +1020,7 @@ int CikGroup::computeGroupIk(bool forMotionPlanning)
         if (doOnFailOrSuccessOf!=-1)
         { // Conditional execution part:
             CikGroup* it=App::ct->ikGroups->getIkGroup(doOnFailOrSuccessOf);
-            if (it!=NULL)
+            if (it!=nullptr)
             {
                 if (doOnPerformed)
                 {
@@ -1057,11 +1057,11 @@ int CikGroup::computeGroupIk(bool forMotionPlanning)
     {
         CikEl* element=ikElements[elementNumber];
         CDummy* tooltip=App::ct->objCont->getDummy(element->getTooltip());
-        C3DObject* base=App::ct->objCont->getObject(element->getBase());
+        C3DObject* base=App::ct->objCont->getObjectFromHandle(element->getBase());
         bool valid=true;
         if (!element->getActive())
             valid=false;
-        if (tooltip==NULL)
+        if (tooltip==nullptr)
             valid=false; // should normally never happen!
         // We check that tooltip is parented with base and has at least one joint in-between:
         if (valid)
@@ -1070,16 +1070,16 @@ int CikGroup::computeGroupIk(bool forMotionPlanning)
             bool jointPresent=false;
             bool baseOk=false;
             C3DObject* iterat=tooltip;
-            while ( (iterat!=base)&&(iterat!=NULL) )
+            while ( (iterat!=base)&&(iterat!=nullptr) )
             {
-                iterat=iterat->getParent();
+                iterat=iterat->getParentObject();
                 if (iterat==base)
                 {
                     baseOk=true;
                     if (jointPresent)
                         valid=true;
                 }
-                if ( (iterat!=base)&&(iterat!=NULL)&&(iterat->getObjectType()==sim_object_joint_type) )
+                if ( (iterat!=base)&&(iterat!=nullptr)&&(iterat->getObjectType()==sim_object_joint_type) )
                 { 
                     if ( (((CJoint*)iterat)->getJointMode()==sim_jointmode_ik)||(((CJoint*)iterat)->getJointMode()==sim_jointmode_reserved_previously_ikdependent)||(((CJoint*)iterat)->getJointMode()==sim_jointmode_dependent) )
                         jointPresent=true;
@@ -1249,7 +1249,7 @@ int CikGroup::performOnePass(std::vector<CikEl*>* validElements,bool& limitOrAvo
             bool present=false;
             for (int j=0;j<int(allJoints.size());j++)
             {
-                if ( (allJoints[j]->getID()==current)&&(allJointStages[j]==currentStage) )
+                if ( (allJoints[j]->getObjectHandle()==current)&&(allJointStages[j]==currentStage) )
                 {
                     present=true;
                     break;
@@ -1292,7 +1292,7 @@ int CikGroup::performOnePass(std::vector<CikEl*>* validElements,bool& limitOrAvo
             bool activateAvoidanceForThatJointStage=false;
             std::vector<C3DObject*>* coll=collPartners[jointCounter];
             std::vector<float>* tresh=collTreshholds[jointCounter];
-            C3DObject* avoidingObject=NULL;
+            C3DObject* avoidingObject=nullptr;
             // Now we first search for the smallest distance among these partners:
             float importance=0;
             float ray[7];
@@ -1309,7 +1309,7 @@ int CikGroup::performOnePass(std::vector<CikEl*>* validElements,bool& limitOrAvo
                 // *****************************************************************************
                 int dummyCache[2]={-1,-1};
 //              if (CDistanceRoutine::getObjectObstacleDistanceIfSmaller(object,obstacle,distTmp,rayTmp,true,true))
-                if (CDistanceRoutine::getDistanceBetweenEntitiesIfSmaller(object->getID(),obstacle->getID(),distTmp,rayTmp,dummyCache,dummyCache,true,true))
+                if (CDistanceRoutine::getDistanceBetweenEntitiesIfSmaller(object->getObjectHandle(),obstacle->getObjectHandle(),distTmp,rayTmp,dummyCache,dummyCache,true,true))
                 {   // The measured distance is under the treshhold!!
                     // Now we check if the importance is bigger than a previously
                     // detected treshhold violation (treshholds can vary from partner
@@ -1337,9 +1337,9 @@ int CikGroup::performOnePass(std::vector<CikEl*>* validElements,bool& limitOrAvo
                 if ((dist/currentTreshhold)<0.95f)
                     limitOrAvoidanceNeedMoreCalculation=true;
                 // First we have to find a base. Base will be the first joint (from
-                // avoidingObject) which is not listed in allJoints or NULL.
-                C3DObject* base=avoidingObject->getParent();
-                while (base!=NULL)
+                // avoidingObject) which is not listed in allJoints or nullptr.
+                C3DObject* base=avoidingObject->getParentObject();
+                while (base!=nullptr)
                 {
                     if (base->getObjectType()==sim_object_joint_type)
                     { // We check if this joint is listed:
@@ -1355,7 +1355,7 @@ int CikGroup::performOnePass(std::vector<CikEl*>* validElements,bool& limitOrAvo
                         if (!listed)
                             break;
                     }
-                    base=base->getParent();
+                    base=base->getParentObject();
                 }
                 // We have the base now!
                 // We find the closestPoint on avoidingObject and compute its
@@ -1377,7 +1377,7 @@ int CikGroup::performOnePass(std::vector<CikEl*>* validElements,bool& limitOrAvo
                 // We compute the error vector (relative to the chosen base):
                 C3Vector pt1(ray+0);
                 C3Vector pt2(ray+3);
-                if (base!=NULL)
+                if (base!=nullptr)
                 {
                     C7Vector baseAbs(base->getCumulativeTransformation(true).getInverse());
                     pt1*=baseAbs;
@@ -1556,7 +1556,7 @@ int CikGroup::performOnePass(std::vector<CikEl*>* validElements,bool& limitOrAvo
                 int jointID=element->rowJointIDs->at(j);
                 int stage=element->rowJointStages->at(j);
                 int index=0;
-                while ( (allJoints[index]->getID()!=jointID)||(allJointStages[index]!=stage) )
+                while ( (allJoints[index]->getObjectHandle()!=jointID)||(allJointStages[index]!=stage) )
                     index++;
                 mainMatrix(currentRow,index)=(*element->matrix)(i,j);
                 mainMatrix_correctJacobian(currentRow,index)=(*element->matrix_correctJacobian)(i,j);
@@ -1588,7 +1588,7 @@ int CikGroup::performOnePass(std::vector<CikEl*>* validElements,bool& limitOrAvo
             // We search for the right entry
             int jointID=avIDs->at(j);
             int index=0;
-            while (allJoints[index]->getID()!=jointID)
+            while (allJoints[index]->getObjectHandle()!=jointID)
                 index++;
             mainMatrix(currentRow,index)=(*avMatr)(0,j);
             mainMatrix_correctJacobian(currentRow,index)=(*avMatr)(0,j);
@@ -1619,7 +1619,7 @@ int CikGroup::performOnePass(std::vector<CikEl*>* validElements,bool& limitOrAvo
                 int j;
                 for (j=0;j<int(allJoints.size());j++)
                 {
-                    if (allJoints[j]->getID()==dependenceID)
+                    if (allJoints[j]->getObjectHandle()==dependenceID)
                     {
                         found=true;
                         break;
@@ -1641,7 +1641,7 @@ int CikGroup::performOnePass(std::vector<CikEl*>* validElements,bool& limitOrAvo
                 {   // joint of dependenceID is not part of this group calculation:
                     // therefore we take its current value --> WRONG! Since all temp params are initialized!
                     CJoint* dependentJoint=App::ct->objCont->getJoint(dependenceID);
-                    if (dependentJoint!=NULL)
+                    if (dependentJoint!=nullptr)
                     {
                         float coeff=allJoints[i]->getDependencyJointCoeff();
                         float fact=allJoints[i]->getDependencyJointFact();
@@ -1772,7 +1772,7 @@ bool CikGroup::performOnePass_jacobianOnly(std::vector<CikEl*>* validElements,in
             bool present=false;
             for (int j=0;j<int(allJoints.size());j++)
             {
-                if ( (allJoints[j]->getID()==current)&&(allJointStages[j]==currentStage) )
+                if ( (allJoints[j]->getObjectHandle()==current)&&(allJointStages[j]==currentStage) )
                 {
                     present=true;
                     break;
@@ -1820,7 +1820,7 @@ bool CikGroup::performOnePass_jacobianOnly(std::vector<CikEl*>* validElements,in
                 int jointID=element->rowJointIDs->at(j);
                 int stage=element->rowJointStages->at(j);
                 int index=0;
-                while ( (allJoints[index]->getID()!=jointID)||(allJointStages[index]!=stage) )
+                while ( (allJoints[index]->getObjectHandle()!=jointID)||(allJointStages[index]!=stage) )
                     index++;
                 mainMatrix(currentRow,index)=(*element->matrix)(i,j);
                 mainMatrix_correctJacobian(currentRow,index)=(*element->matrix_correctJacobian)(i,j);
@@ -1842,7 +1842,7 @@ bool CikGroup::performOnePass_jacobianOnly(std::vector<CikEl*>* validElements,in
                 int j;
                 for (j=0;j<int(allJoints.size());j++)
                 {
-                    if (allJoints[j]->getID()==dependenceID)
+                    if (allJoints[j]->getObjectHandle()==dependenceID)
                     {
                         found=true;
                         break;
@@ -1864,7 +1864,7 @@ bool CikGroup::performOnePass_jacobianOnly(std::vector<CikEl*>* validElements,in
                 {   // joint of dependenceID is not part of this group calculation:
                     // therefore we take its current value --> WRONG! Since all temp params are initialized!
                     CJoint* dependentJoint=App::ct->objCont->getJoint(dependenceID);
-                    if (dependentJoint!=NULL)
+                    if (dependentJoint!=nullptr)
                     {
                         float coeff=allJoints[i]->getDependencyJointCoeff();
                         float fact=allJoints[i]->getDependencyJointFact();
@@ -1910,8 +1910,8 @@ bool CikGroup::performOnePass_jacobianOnly(std::vector<CikEl*>* validElements,in
 
 float*  CikGroup::getLastJacobianData(int matrixSize[2])
 {
-    if (_lastJacobian==NULL)
-        return(NULL);
+    if (_lastJacobian==nullptr)
+        return(nullptr);
     matrixSize[0]=_lastJacobian->cols;
     matrixSize[1]=_lastJacobian->rows;
     return(_lastJacobian->data);
@@ -1921,8 +1921,8 @@ float*  CikGroup::getLastJacobianData(int matrixSize[2])
 float*  CikGroup::getLastManipulabilityValue(int matrixSize[2])
 {
     static float v;
-    if (_lastJacobian==NULL)
-        return(NULL);
+    if (_lastJacobian==nullptr)
+        return(nullptr);
     matrixSize[0]=1;
     matrixSize[1]=1;
 
@@ -1934,15 +1934,15 @@ float*  CikGroup::getLastManipulabilityValue(int matrixSize[2])
     JT.transpose();
     CMatrix JJT(_lastJacobian[0]*JT);
 
-    v=sqrt(getDeterminant(JJT,NULL,NULL));
+    v=sqrt(getDeterminant(JJT,nullptr,nullptr));
 
     return(&v);
 }
 
 float CikGroup::getDeterminant(const CMatrix& m,const std::vector<int>* activeRows,const std::vector<int>* activeColumns)
-{ // activeRows and activeColumns are NULL by default (--> all rows and columns are active)
+{ // activeRows and activeColumns are nullptr by default (--> all rows and columns are active)
     // Routine is recursive! (i.e. Laplace expansion, which is not efficient for large matrices!)
-    if (activeRows==NULL)
+    if (activeRows==nullptr)
     { // First call goes here:
         std::vector<int> actR;
         std::vector<int> actC;

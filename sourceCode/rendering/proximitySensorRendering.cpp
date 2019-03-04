@@ -15,15 +15,15 @@ void displayProximitySensor(CProxSensor* proxSensor,CViewableBase* renderingObje
     C3Vector normalVectorForLinesAndPoints(proxSensor->getCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
 
     // Display the object:
-    if (proxSensor->getShouldObjectBeDisplayed(renderingObject->getID(),displayAttrib))
+    if (proxSensor->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
     {
-        _enableAuxClippingPlanes(proxSensor->getID());
+        _enableAuxClippingPlanes(proxSensor->getObjectHandle());
         if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE)==0)
         {
             if (proxSensor->getLocalObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
-                glLoadName(proxSensor->getModelSelectionID());
+                glLoadName(proxSensor->getModelSelectionHandle());
             else
-                glLoadName(proxSensor->getID());
+                glLoadName(proxSensor->getObjectHandle());
         }
         else
             glLoadName(-1);

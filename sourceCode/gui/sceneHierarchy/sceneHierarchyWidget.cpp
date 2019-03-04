@@ -67,7 +67,7 @@ void CSceneHierarchyWidget::rebuild()
         removeAll();
         for (size_t i=0;i<App::ct->objCont->orphanList.size();i++)
         {
-            C3DObject* it=App::ct->objCont->getObject(App::ct->objCont->orphanList[i]);
+            C3DObject* it=App::ct->objCont->getObjectFromHandle(App::ct->objCont->orphanList[i]);
             QTreeWidgetItem* itm=_buildObjectWithHierarchy(it);
             insertTopLevelItem((int)i,itm);
         }
@@ -88,7 +88,7 @@ void CSceneHierarchyWidget::rebuild()
         {
             int id=it->first;
             QTreeWidgetItem* item=it->second;
-            if (App::ct->objCont->getObject(id)!=NULL)
+            if (App::ct->objCont->getObjectFromHandle(id)!=nullptr)
                 _allTreeItems[it->first]=item;
             else
             {
@@ -96,7 +96,7 @@ void CSceneHierarchyWidget::rebuild()
                 QList<QTreeWidgetItem*> children=item->takeChildren();
                 if (children.size()>0)
                 {
-                    if (previousParent==NULL)
+                    if (previousParent==nullptr)
                         addTopLevelItems(children);
                     else
                         previousParent->addChildren(children);
@@ -110,7 +110,7 @@ void CSceneHierarchyWidget::rebuild()
         std::vector<C3DObject*> toExplore;
         for (size_t i=0;i<App::ct->objCont->orphanList.size();i++)
         {
-            C3DObject* obj=App::ct->objCont->getObject(App::ct->objCont->orphanList[i]);
+            C3DObject* obj=App::ct->objCont->getObjectFromHandle(App::ct->objCont->orphanList[i]);
             toExplore.push_back(obj);
         }
         while (toExplore.size()>0)
@@ -122,18 +122,18 @@ void CSceneHierarchyWidget::rebuild()
                 C3DObject* child=obj->childList[i];
                 toExplore.push_back(child);
             }
-            int id=obj->getID();
+            int id=obj->getObjectHandle();
             std::map<int,QTreeWidgetItem*>::iterator it=_allTreeItems.find(id);
             if (it==_allTreeItems.end())
             { // that object is new
                 QTreeWidgetItem* item=_buildObject(obj);
                 _allTreeItems[id]=item;
-                C3DObject* parent=obj->getParent();
-                if (parent==NULL)
+                C3DObject* parent=obj->getParentObject();
+                if (parent==nullptr)
                     addTopLevelItem(item);
                 else
                 {
-                    std::map<int,QTreeWidgetItem*>::iterator treeParent=_allTreeItems.find(parent->getID());
+                    std::map<int,QTreeWidgetItem*>::iterator treeParent=_allTreeItems.find(parent->getObjectHandle());
                     treeParent->second->addChild(item);
                 }
                 _allTreeItems[id]=item;
@@ -158,34 +158,34 @@ void CSceneHierarchyWidget::rebuild()
             if (present==handledLeaves.end())
             { // ok, item not yet handled
                 handledLeaves[id]=true;
-                C3DObject* obj=App::ct->objCont->getObject(id);
-                C3DObject* parentObj=obj->getParent();
+                C3DObject* obj=App::ct->objCont->getObjectFromHandle(id);
+                C3DObject* parentObj=obj->getParentObject();
                 QTreeWidgetItem* parentItem=item->parent();
-                if ( (parentObj!=NULL)||(parentItem!=NULL) )
+                if ( (parentObj!=nullptr)||(parentItem!=nullptr) )
                 {
-                    if (parentItem!=NULL)
+                    if (parentItem!=nullptr)
                         theLeafItems.push_back(parentItem);
-                    if (parentObj==NULL)
+                    if (parentObj==nullptr)
                     { // object has no parent, but item has parent
                         parentItem->removeChild(item);
                         addTopLevelItem(item);
                     }
                     else
                     { // object has a parent
-                        if (parentItem==NULL)
+                        if (parentItem==nullptr)
                         { // item has no parent
                             int ind=indexOfTopLevelItem(item);
                             takeTopLevelItem(ind);
-                            std::map<int,QTreeWidgetItem*>::iterator newParentItem=_allTreeItems.find(parentObj->getID());
+                            std::map<int,QTreeWidgetItem*>::iterator newParentItem=_allTreeItems.find(parentObj->getObjectHandle());
                             newParentItem->second->addChild(item);
                         }
                         else
                         { // item has a parent
                             int parentItemStoredId=parentItem->data(0,Qt::UserRole+1).toInt();
-                            if (parentItemStoredId!=parentObj->getID())
+                            if (parentItemStoredId!=parentObj->getObjectHandle())
                             { // the parents are different!
                                 parentItem->removeChild(item);
-                                std::map<int,QTreeWidgetItem*>::iterator newParentItem=_allTreeItems.find(parentObj->getID());
+                                std::map<int,QTreeWidgetItem*>::iterator newParentItem=_allTreeItems.find(parentObj->getObjectHandle());
                                 newParentItem->second->addChild(item);
                             }
                         }
@@ -213,8 +213,8 @@ void CSceneHierarchyWidget::refresh()
     _inRefreshRoutine=true;
     for (std::map<int,QTreeWidgetItem*>::iterator it=_allTreeItems.begin();it!=_allTreeItems.end();it++)
     {
-        C3DObject* obj=App::ct->objCont->getObject(it->first);
-        if (obj!=NULL)
+        C3DObject* obj=App::ct->objCont->getObjectFromHandle(it->first);
+        if (obj!=nullptr)
         {
             int data=0;
             if (App::ct->objCont->isObjectSelected(it->first))
@@ -270,15 +270,15 @@ void CSceneHierarchyWidget::removeAll()
 
 QTreeWidgetItem* CSceneHierarchyWidget::_buildObject(C3DObject* it)
 {
-    QTreeWidgetItem* item=new QTreeWidgetItem((QTreeWidget*)0,QStringList(it->getName().c_str()));
-    _allTreeItems[it->getID()]=item;
+    QTreeWidgetItem* item=new QTreeWidgetItem((QTreeWidget*)0,QStringList(it->getObjectName().c_str()));
+    _allTreeItems[it->getObjectHandle()]=item;
     item->setIcon(0,*(new QIcon(":/toolbarFiles/cameraShift.png")));
 //    QPixmap pix(16,16);
 //    QIcon* icn=new QIcon(pix);
 //    item->setIcon(2,*icn);
 //    item->setIcon(2,*(new QIcon(":/toolbarFiles/camera.png")));
     item->setData(0,Qt::UserRole,QVariant(0));
-    item->setData(0,Qt::UserRole+1,QVariant(it->getID()));
+    item->setData(0,Qt::UserRole+1,QVariant(it->getObjectHandle()));
     item->setData(1,Qt::UserRole,QVariant(0));
     item->setData(2,Qt::UserRole,QVariant(0));
     item->setData(3,Qt::UserRole,QVariant(0));
@@ -288,7 +288,7 @@ QTreeWidgetItem* CSceneHierarchyWidget::_buildObject(C3DObject* it)
 QTreeWidgetItem* CSceneHierarchyWidget::_buildObjectWithHierarchy(C3DObject* it)
 {
     QTreeWidgetItem* item=_buildObject(it);
-    _allTreeItems[it->getID()]=item;
+    _allTreeItems[it->getObjectHandle()]=item;
 
     for (size_t i=0;i<it->childList.size();i++)
     {
@@ -345,7 +345,7 @@ void CSceneHierarchyWidget::mouseDoubleClickEvent(QMouseEvent* aEvent)
     QTreeWidget::mouseDoubleClickEvent(aEvent);
     const QPoint clickedPosition=aEvent->pos();
     QTreeWidgetItem* item=itemAt(clickedPosition);
-    if (item!=NULL)
+    if (item!=nullptr)
     {
         int data=item->data(0,Qt::UserRole).toInt();
         int objHandle=item->data(0,Qt::UserRole+1).toInt();

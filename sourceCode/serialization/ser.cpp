@@ -20,8 +20,7 @@ int CSer::SER_SERIALIZATION_VERSION=21; // 9 since 2008/09/01,
                                         // 21 since 2017/05/26 (New API notation)
 
 int CSer::SER_MIN_SERIALIZATION_VERSION_THAT_CAN_READ_THIS=18; // means: files written with this can be read by older v-rep with serialization THE_NUMBER
-int CSer::SER_MIN_SERIALIZATION_VERSION_THAT_THIS_CAN_READ=15; // means: this executable can read versions >=THE_NUMBER
-                                                                // Above raised from 10 to 14 on 2010/03/02 (to be able to clean up all serialization routines soon)
+int CSer::SER_MIN_SERIALIZATION_VERSION_THAT_THIS_CAN_READ=16; // means: this executable can read versions >=THE_NUMBER
 
 CSer::CSer(VArchive& ar)
 { // When reading: if serializationVersion==-1 --> not recognized
@@ -43,8 +42,8 @@ CSer::~CSer()
 
 void CSer::_commonInit()
 {
-    theArchive=NULL;
-    _bufferArchive=NULL;
+    theArchive=nullptr;
+    _bufferArchive=nullptr;
     countingMode=0;
     counter=0;
     _coutingModeDisabledExceptForExceptions=false;
@@ -64,13 +63,13 @@ void CSer::writeClose(bool compress)
     // We write the header:
     for (int i=0;i<int(strlen(SER_VREP_HEADER));i++)
     {
-        if (theArchive!=NULL)
+        if (theArchive!=nullptr)
             (*theArchive) << SER_VREP_HEADER[i];
         else
             (*_bufferArchive).push_back(SER_VREP_HEADER[i]);
     }
     // We write the serialization version:
-    if (theArchive!=NULL)
+    if (theArchive!=nullptr)
     {
         (*theArchive) << ((char*)&SER_SERIALIZATION_VERSION)[0];
         (*theArchive) << ((char*)&SER_SERIALIZATION_VERSION)[1];
@@ -86,7 +85,7 @@ void CSer::writeClose(bool compress)
     }
 
     // We write the minimum sim. version that can read this:
-    if (theArchive!=NULL)
+    if (theArchive!=nullptr)
     {
         (*theArchive) << ((char*)&SER_MIN_SERIALIZATION_VERSION_THAT_CAN_READ_THIS)[0];
         (*theArchive) << ((char*)&SER_MIN_SERIALIZATION_VERSION_THAT_CAN_READ_THIS)[1];
@@ -104,14 +103,14 @@ void CSer::writeClose(bool compress)
     char compressionMethod=0; 
     if (compress)
         compressionMethod=1; // 1 for Huffman
-    if (theArchive!=NULL)
+    if (theArchive!=nullptr)
         (*theArchive) << char(compressionMethod); 
     else
         (*_bufferArchive).push_back(char(compressionMethod));
 
     // We write the uncompressed data length:
     int l=(int)_fileBuffer.size();
-    if (theArchive!=NULL)
+    if (theArchive!=nullptr)
     {
         (*theArchive) << ((char*)&l)[0];
         (*theArchive) << ((char*)&l)[1];
@@ -129,7 +128,7 @@ void CSer::writeClose(bool compress)
     // We write the compilation version: (since ser ver 13 (2009/07/21))
     int compilVer=VREP_COMPILATION_VERSION;
 
-    if (theArchive!=NULL)
+    if (theArchive!=nullptr)
     {
         (*theArchive) << ((char*)&compilVer)[0];
         (*theArchive) << ((char*)&compilVer)[1];
@@ -145,7 +144,7 @@ void CSer::writeClose(bool compress)
     }
 
     // We write the license version that wrote this file and the V-REP version:
-    if (theArchive!=NULL)
+    if (theArchive!=nullptr)
     {
         unsigned short v=VREP_PROGRAM_VERSION_NB;
         (*theArchive) << ((char*)&v)[0];
@@ -173,7 +172,7 @@ void CSer::writeClose(bool compress)
     }
 
     // We write the revision number:
-    if (theArchive!=NULL)
+    if (theArchive!=nullptr)
         (*theArchive) << (char)VREP_PROGRAM_REVISION_NB;
     else
         (*_bufferArchive).push_back(VREP_PROGRAM_REVISION_NB);
@@ -181,7 +180,7 @@ void CSer::writeClose(bool compress)
     // We write 1000-7 bytes for future use:
     for (int i=0;i<993;i++)
     {
-        if (theArchive!=NULL)
+        if (theArchive!=nullptr)
             (*theArchive) << (char)0;
         else
             (*_bufferArchive).push_back((char)0);
@@ -197,7 +196,7 @@ void CSer::writeClose(bool compress)
         // Hufmann:
         unsigned char* writeBuff=new unsigned char[_fileBuffer.size()+400]; // actually 384
         int outSize=Huffman_Compress(&_fileBuffer[0],writeBuff,(int)_fileBuffer.size());
-        if (theArchive!=NULL)
+        if (theArchive!=nullptr)
         {
             for (int i=0;i<outSize;i++)
                 (*theArchive) << writeBuff[i];
@@ -212,7 +211,7 @@ void CSer::writeClose(bool compress)
     else
     { // no compression
         int l=int(_fileBuffer.size());
-        if (theArchive!=NULL)
+        if (theArchive!=nullptr)
         {
             for (int i=0;i<l;i++)
                 (*theArchive) << _fileBuffer[i];
@@ -236,7 +235,7 @@ int CSer::readOpen(int& serializationVersion,unsigned short& vrepVersionThatWrot
     int compilationVersion=-1;
 
     // We try to read the new header:
-    if (theArchive!=NULL)
+    if (theArchive!=nullptr)
     {
         VFile* theFile=theArchive->getFile();
         if (theFile->getLength()<strlen(SER_VREP_HEADER))
@@ -254,7 +253,7 @@ int CSer::readOpen(int& serializationVersion,unsigned short& vrepVersionThatWrot
     for (int i=0;i<int(strlen(SER_VREP_HEADER));i++)
     {
         char tmp;
-        if (theArchive!=NULL)
+        if (theArchive!=nullptr)
             (*theArchive) >> tmp;
         else
             tmp=(*_bufferArchive)[bufferArchivePointer++];
@@ -266,7 +265,7 @@ int CSer::readOpen(int& serializationVersion,unsigned short& vrepVersionThatWrot
     else
     { // We have the correct header!
         // We read the serialization version:
-        if (theArchive!=NULL)
+        if (theArchive!=nullptr)
         {
             (*theArchive) >> ((char*)&serializationVersion)[0];
             (*theArchive) >> ((char*)&serializationVersion)[1];
@@ -290,12 +289,12 @@ int CSer::readOpen(int& serializationVersion,unsigned short& vrepVersionThatWrot
         }
         _serializationVersionThatWroteThisFile=serializationVersion;
         // We read the compression method:
-        if (theArchive!=NULL)
+        if (theArchive!=nullptr)
             (*theArchive) >> compressMethod;
         else
             compressMethod=(*_bufferArchive)[bufferArchivePointer++];
         // We read the uncompressed data size:
-        if (theArchive!=NULL)
+        if (theArchive!=nullptr)
         {
             (*theArchive) >> ((char*)&originalDataSize)[0];
             (*theArchive) >> ((char*)&originalDataSize)[1];
@@ -313,7 +312,7 @@ int CSer::readOpen(int& serializationVersion,unsigned short& vrepVersionThatWrot
         alreadyReadDataCount=17; // this is for ser version 12, ser version 13 has additional 1004!! (added a bit further down)
         if (serializationVersion>12)
         { // for serialization version 13 and above! (2009/07/21)
-            if (theArchive!=NULL)
+            if (theArchive!=nullptr)
             {
                 (*theArchive) >> ((char*)&compilationVersion)[0];
                 (*theArchive) >> ((char*)&compilationVersion)[1];
@@ -329,7 +328,7 @@ int CSer::readOpen(int& serializationVersion,unsigned short& vrepVersionThatWrot
             }
 
             // We read the license version that wrote this file and the V-REP version:
-            if (theArchive!=NULL)
+            if (theArchive!=nullptr)
             {
                 (*theArchive) >> ((char*)&vrepVersionThatWroteThis)[0];
                 (*theArchive) >> ((char*)&vrepVersionThatWroteThis)[1];
@@ -353,7 +352,7 @@ int CSer::readOpen(int& serializationVersion,unsigned short& vrepVersionThatWrot
             }
 
             // We read the revision number:
-            if (theArchive!=NULL)
+            if (theArchive!=nullptr)
                 (*theArchive) >> revNumber;
             else
                 revNumber=(*_bufferArchive)[bufferArchivePointer++];
@@ -361,7 +360,7 @@ int CSer::readOpen(int& serializationVersion,unsigned short& vrepVersionThatWrot
             char dummy;
             for (int i=0;i<993;i++)
             { // for future use!
-                if (theArchive!=NULL)
+                if (theArchive!=nullptr)
                     (*theArchive) >> dummy; // not used for now
                 else
                     dummy=(*_bufferArchive)[bufferArchivePointer++];
@@ -388,7 +387,7 @@ int CSer::readOpen(int& serializationVersion,unsigned short& vrepVersionThatWrot
     }
 
     // We read the whole file:
-    if (theArchive!=NULL)
+    if (theArchive!=nullptr)
     {
         unsigned long l=(unsigned long)theArchive->getFile()->getLength()-alreadyReadDataCount;
         char dummy;
@@ -432,7 +431,7 @@ void CSer::readClose()
 
 bool CSer::isStoring()
 {
-    if (theArchive!=NULL)
+    if (theArchive!=nullptr)
         return(theArchive->isStoring()!=0);
     else
         return(_bufferArchive->size()==0);

@@ -146,7 +146,7 @@ void CSimulation::simulationAboutToStart()
     _desiredFasterOrSlowerSpeed=0;
     _stopRequestCounterAtSimulationStart=_stopRequestCounter;
     #ifdef SIM_WITH_GUI
-        if ( (App::mainWindow!=NULL) && App::userSettings->sceneHierarchyHiddenDuringSimulation )
+        if ( (App::mainWindow!=nullptr) && App::userSettings->sceneHierarchyHiddenDuringSimulation )
         {
             _hierarchyWasEnabledBeforeSimulation=App::mainWindow->oglSurface->isHierarchyEnabled();
             App::mainWindow->dlgCont->processCommand(CLOSE_HIERARCHY_DLG_CMD);
@@ -163,7 +163,7 @@ void CSimulation::simulationEnded()
     #endif
     _dynamicContentVisualizationOnly=false;
     #ifdef SIM_WITH_GUI
-        if (App::mainWindow!=NULL)
+        if (App::mainWindow!=nullptr)
             App::mainWindow->simulationRecorder->stopRecording(false);
     #endif
     if (_initialValuesInitialized)
@@ -179,7 +179,7 @@ void CSimulation::simulationEnded()
     _desiredFasterOrSlowerSpeed=0;
 
     #ifdef SIM_WITH_GUI
-        if ( (App::mainWindow!=NULL) && _hierarchyWasEnabledBeforeSimulation && App::userSettings->sceneHierarchyHiddenDuringSimulation)
+        if ( (App::mainWindow!=nullptr) && _hierarchyWasEnabledBeforeSimulation && App::userSettings->sceneHierarchyHiddenDuringSimulation)
             App::mainWindow->dlgCont->processCommand(OPEN_HIERARCHY_DLG_CMD);
     #endif
 }
@@ -709,7 +709,7 @@ bool CSimulation::setSpeedModifierIndexOffset(int offset)
 bool CSimulation::canToggleThreadedRendering()
 {
     #ifdef SIM_WITH_GUI
-        if (App::mainWindow!=NULL)
+        if (App::mainWindow!=nullptr)
         {
             if (App::mainWindow->simulationRecorder->getIsRecording())
                 return(false);
@@ -721,7 +721,7 @@ bool CSimulation::canToggleThreadedRendering()
 void CSimulation::toggleThreadedRendering(bool noWarningMessage)
 { // should only be called by the NON-UI thread
     #ifdef SIM_WITH_GUI
-        if (App::mainWindow==NULL)
+        if (App::mainWindow==nullptr)
             noWarningMessage=true;
     #else
         noWarningMessage=true;
@@ -730,7 +730,7 @@ void CSimulation::toggleThreadedRendering(bool noWarningMessage)
     if (getThreadedRenderingIfSimulationWasRunning())
     {
         #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=NULL)
+            if (App::mainWindow!=nullptr)
                 App::mainWindow->simulationRecorder->setRecorderEnabled(false); // video recorder not compatible with threaded rendering!
         #endif
     }
@@ -871,7 +871,7 @@ bool CSimulation::processCommand(int commandID)
     }
     if (commandID==SIMULATION_COMMANDS_THREADED_RENDERING_SCCMD)
     {
-        if (App::mainWindow!=NULL)
+        if (App::mainWindow!=nullptr)
         {
             if (!App::mainWindow->simulationRecorder->getIsRecording())
             {
@@ -911,7 +911,7 @@ bool CSimulation::processCommand(int commandID)
         {
             if (!VThread::isCurrentThreadTheUiThread())
             { // we are NOT in the UI thread. We execute the command now:
-                App::ct->simulatorMessageQueue->addCommand(sim_message_simulation_start_resume_request,0,0,0,0,NULL,0);
+                App::ct->simulatorMessageQueue->addCommand(sim_message_simulation_start_resume_request,0,0,0,0,nullptr,0);
             }
             else
             { // We are in the UI thread. Execute the command via the main thread:
@@ -926,7 +926,7 @@ bool CSimulation::processCommand(int commandID)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::ct->simulatorMessageQueue->addCommand(sim_message_simulation_pause_request,0,0,0,0,NULL,0);
+            App::ct->simulatorMessageQueue->addCommand(sim_message_simulation_pause_request,0,0,0,0,nullptr,0);
         }
         else
         { // We are in the UI thread. Execute the command via the main thread:
@@ -941,7 +941,7 @@ bool CSimulation::processCommand(int commandID)
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             CThreadPool::forceAutomaticThreadSwitch_simulationEnding(); // 21/6/2014
-            App::ct->simulatorMessageQueue->addCommand(sim_message_simulation_stop_request,0,0,0,0,NULL,0);
+            App::ct->simulatorMessageQueue->addCommand(sim_message_simulation_stop_request,0,0,0,0,nullptr,0);
             incrementStopRequestCounter();
         }
         else
@@ -1028,7 +1028,7 @@ bool CSimulation::processCommand(int commandID)
     {
         if (VThread::isCurrentThreadTheUiThread())
         {
-            if (App::mainWindow!=NULL)
+            if (App::mainWindow!=nullptr)
                 App::mainWindow->dlgCont->toggle(SIMULATION_DLG);
         }
         return(true);
@@ -1250,7 +1250,7 @@ void CSimulation::serialize(CSer& ar)
 void CSimulation::showAndHandleEmergencyStopButton(bool showState,const char* scriptName)
 {
     FUNCTION_DEBUG;
-    if (App::mainWindow!=NULL)
+    if (App::mainWindow!=nullptr)
     { // make sure we are not in headless mode
         bool res=App::uiThread->showOrHideEmergencyStop(showState,scriptName);
         if (showState&&res)

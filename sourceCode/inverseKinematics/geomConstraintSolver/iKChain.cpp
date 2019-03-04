@@ -14,7 +14,7 @@ CIKChain::CIKChain(CIKDummy* tip,float interpolFact,int jointNbToExclude)
     C4X4Matrix oldMatr;
     int theConstraints=tip->constraints;
     tip->baseReorient.setIdentity();
-    CMatrix* Ja=NULL;
+    CMatrix* Ja=nullptr;
 
     if (tip->loopClosureDummy)
     {
@@ -28,13 +28,13 @@ CIKChain::CIKChain(CIKDummy* tip,float interpolFact,int jointNbToExclude)
         // here we reorient tip and targetCumulativeMatrix
         // 1. We find the first revolute joint:
         CIKObject* iterat=tip->parent;
-        while (iterat!=NULL)
+        while (iterat!=nullptr)
         {
             if ( (iterat->objectType==IK_JOINT_TYPE)&&((CIKJoint*)iterat)->revolute&&((CIKJoint*)iterat)->active )
                 break;
             iterat=iterat->parent;
         }
-        if (iterat!=NULL)
+        if (iterat!=nullptr)
         { // We have the first revolute joint from tip
             orDimensions=1;
             CIKObject* firstJoint=iterat;
@@ -43,7 +43,7 @@ CIKChain::CIKChain(CIKDummy* tip,float interpolFact,int jointNbToExclude)
             C3Vector normalVect;
             // We search for a second revolute joint which is not aligned with the first one:
             iterat=iterat->parent;
-            while (iterat!=NULL)
+            while (iterat!=nullptr)
             {
                 if ( (iterat->objectType==IK_JOINT_TYPE)&&((CIKJoint*)iterat)->revolute&&((CIKJoint*)iterat)->active )
                 {
@@ -60,12 +60,12 @@ CIKChain::CIKChain(CIKDummy* tip,float interpolFact,int jointNbToExclude)
                 }
                 iterat=iterat->parent;
             }
-            if (iterat!=NULL)
+            if (iterat!=nullptr)
             {
                 orDimensions=2;
                 // We search for a third revolute joint which is not orthogonal with normalVect:
                 iterat=iterat->parent;
-                while (iterat!=NULL)
+                while (iterat!=nullptr)
                 {
                     if ( (iterat->objectType==IK_JOINT_TYPE)&&((CIKJoint*)iterat)->revolute&&((CIKJoint*)iterat)->active )
                     {
@@ -175,7 +175,7 @@ CIKChain::CIKChain(CIKDummy* tip,float interpolFact,int jointNbToExclude)
     else
         Ja=getJacobian(tip,oldMatr,rowJoints,jointNbToExclude);
 
-    if (Ja==NULL)
+    if (Ja==nullptr)
     { // Error or not enough joints (effJoint=joints-jointNbToExclude) to get a Jacobian
         delete Ja;
         // We create dummy objects (so that we don't get an error when destroyed)
@@ -314,10 +314,10 @@ CMatrix* CIKChain::getJacobian(CIKDummy* tooltip,C4X4Matrix& tooltipTransf,std::
     // We check the number of degrees of freedom and prepare the theRowJoints vector:
     CIKObject* iterat=tooltip;
     int doF=0;
-    while (iterat!=NULL)
+    while (iterat!=nullptr)
     {
         iterat=iterat->parent;
-        if ( (iterat!=NULL)&&(iterat->objectType==IK_JOINT_TYPE) )
+        if ( (iterat!=nullptr)&&(iterat->objectType==IK_JOINT_TYPE) )
         {
             if (((CIKJoint*)iterat)->active)
             {
@@ -334,7 +334,7 @@ CMatrix* CIKChain::getJacobian(CIKDummy* tooltip,C4X4Matrix& tooltipTransf,std::
         if (doF<1)
         { // Impossible to get a Jacobian in that case!
             theRowJoints.clear();
-            return(NULL); 
+            return(nullptr); 
         }
         theRowJoints.erase(theRowJoints.end()-jointNbToExclude,theRowJoints.end());
     }
@@ -360,9 +360,9 @@ CMatrix* CIKChain::getJacobian(CIKDummy* tooltip,C4X4Matrix& tooltipTransf,std::
     C4X4FullMatrix d0;
     C4X4FullMatrix dp;
     C4X4FullMatrix paramPart;
-    CIKJoint* lastJoint=NULL;
+    CIKJoint* lastJoint=nullptr;
     int jointCounter=0;
-    while (iterat!=NULL)
+    while (iterat!=nullptr)
     {
         C7Vector local;
 
@@ -370,14 +370,14 @@ CMatrix* CIKChain::getJacobian(CIKDummy* tooltip,C4X4Matrix& tooltipTransf,std::
             local=iterat->getLocalTransformationPart1(true);
         else
             local=iterat->getLocalTransformation(true);
-        if ( (iterat!=NULL)&&(iterat->objectType==IK_JOINT_TYPE)&&((CIKJoint*)iterat)->active )
+        if ( (iterat!=nullptr)&&(iterat->objectType==IK_JOINT_TYPE)&&((CIKJoint*)iterat)->active )
             jointCounter++;
 
 
         buff=C4X4FullMatrix(local.getMatrix())*buff;
         iterat=iterat->parent;
 
-        if ( (iterat==NULL)||((iterat->objectType==IK_JOINT_TYPE)&&((CIKJoint*)iterat)->active&&(positionCounter<doF)) )
+        if ( (iterat==nullptr)||((iterat->objectType==IK_JOINT_TYPE)&&((CIKJoint*)iterat)->active&&(positionCounter<doF)) )
         {
             if (positionCounter==0)
             {   // Here we have the first part (from tooltip to first joint)
@@ -445,25 +445,25 @@ CMatrix* CIKChain::getJacobian(CIKDummy* tooltip,C4X4Matrix& tooltipTransf,std::
     for (int i=0;i<int(theRowJoints.size());i++)
     {
         CIKJoint* aJoint=theRowJoints[i];
-        if (aJoint!=NULL)
+        if (aJoint!=nullptr)
         {
             for (int j=i+1;j<int(theRowJoints.size());j++)
             {
                 CIKJoint* bJoint=theRowJoints[j];
-                if (bJoint!=NULL)
+                if (bJoint!=nullptr)
                 {
                     if (aJoint==bJoint->avatarParent)
                     {           
                         for (int k=0;k<J->rows;k++)
                             (*J)(k,i)+=(*J)(k,j);
-                        theRowJoints[j]=NULL; // We remove that joint
+                        theRowJoints[j]=nullptr; // We remove that joint
                         break;
                     }
                     if (bJoint==aJoint->avatarParent)
                     {           
                         for (int k=0;k<J->rows;k++)
                             (*J)(k,j)+=(*J)(k,i);
-                        theRowJoints[i]=NULL; // We remove that joint
+                        theRowJoints[i]=nullptr; // We remove that joint
                         break;
                     }
                 }
@@ -476,7 +476,7 @@ CMatrix* CIKChain::getJacobian(CIKDummy* tooltip,C4X4Matrix& tooltipTransf,std::
     theRowJoints.clear();
     for (int i=0;i<int(rowJointsCopy.size());i++)
     {
-        if (rowJointsCopy[i]!=NULL)
+        if (rowJointsCopy[i]!=nullptr)
             colNb++;
     }
     CMatrix* oldMatrix=J;
@@ -484,7 +484,7 @@ CMatrix* CIKChain::getJacobian(CIKDummy* tooltip,C4X4Matrix& tooltipTransf,std::
     int horizPos=0;
     for (int i=0;i<oldMatrix->cols;i++)
     {
-        if (rowJointsCopy[i]!=NULL)
+        if (rowJointsCopy[i]!=nullptr)
         {
             for (int j=0;j<oldMatrix->rows;j++)
                 (*J)(j,horizPos)=(*oldMatrix)(j,i);

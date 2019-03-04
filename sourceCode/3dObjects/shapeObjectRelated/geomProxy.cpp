@@ -45,7 +45,7 @@ CGeomProxy::CGeomProxy(const std::vector<float>& allHeights,int xSize,int ySize,
             ind.push_back((i+1)*xSize+(j+0));
         }
     }
-    acceptNewGeometry(vert,ind,NULL,NULL);
+    acceptNewGeometry(vert,ind,nullptr,nullptr);
 
     geomInfo->setPurePrimitiveType(sim_pure_primitive_heightfield,float(xSize-1)*dx,float(ySize-1)*dx,zSize);
     std::vector<float> heightsInCorrectOrder;
@@ -64,9 +64,9 @@ CGeomProxy::CGeomProxy(const C7Vector* transformation,const std::vector<float>& 
 {
     _commonInit();
     
-    std::vector<float>* norms=NULL;
+    std::vector<float>* norms=nullptr;
     std::vector<float> _norms;
-    if (normals!=NULL)
+    if (normals!=nullptr)
     {
         norms=&_norms;
         _norms.assign(normals->begin(),normals->end());
@@ -81,7 +81,7 @@ CGeomProxy::CGeomProxy(const C7Vector* transformation,const std::vector<float>& 
         }
     }
 
-    if (transformation==NULL)
+    if (transformation==nullptr)
         acceptNewGeometry(vert,ind,textCoord,norms);
     else
     {
@@ -115,12 +115,12 @@ CGeomProxy::CGeomProxy(const C7Vector& transformation,CGeomWrap* newGeomInfo)
     geomInfo=newGeomInfo;
     std::vector<float> wvert;
     std::vector<int> wind;
-    geomInfo->getCumulativeMeshes(wvert,&wind,NULL);
+    geomInfo->getCumulativeMeshes(wvert,&wind,nullptr);
 
     // We align the bounding box:
     if (wvert.size()!=0)
     {
-        _creationTransf=CAlgos::alignAndCenterGeometryAndGetTransformation(&wvert[0],(int)wvert.size(),&wind[0],(int)wind.size(),NULL,0,true);
+        _creationTransf=CAlgos::alignAndCenterGeometryAndGetTransformation(&wvert[0],(int)wvert.size(),&wind[0],(int)wind.size(),nullptr,0,true);
         geomInfo->preMultiplyAllVerticeLocalFrames(_creationTransf.getInverse());
     }
     else
@@ -138,8 +138,8 @@ CGeomProxy::~CGeomProxy()
 
 void CGeomProxy::_commonInit()
 {
-    collInfo=NULL;
-    geomInfo=NULL;
+    collInfo=nullptr;
+    geomInfo=nullptr;
     _creationTransf.setIdentity();
     _dynamicsFullRefreshFlag=true;
     _geomDataModificationCounter=0;
@@ -148,10 +148,10 @@ void CGeomProxy::_commonInit()
 void CGeomProxy::removeCollisionInformation()
 {
     FUNCTION_DEBUG;
-    if (collInfo!=NULL)
+    if (collInfo!=nullptr)
     {
         CPluginContainer::mesh_destroyCollisionInformationStructure(collInfo);
-        collInfo=NULL;
+        collInfo=nullptr;
     }
 }
 
@@ -162,7 +162,7 @@ C3Vector CGeomProxy::getBoundingBoxHalfSizes()
 
 void CGeomProxy::invertFrontBack()
 {
-    if (geomInfo!=NULL)
+    if (geomInfo!=nullptr)
     {
         geomInfo->flipFaces();
         removeCollisionInformation();// proximity sensors might check for the side!
@@ -171,30 +171,30 @@ void CGeomProxy::invertFrontBack()
 
 void CGeomProxy::perform3DObjectLoadingMapping(std::vector<int>* map)
 {
-    if (geomInfo!=NULL)
+    if (geomInfo!=nullptr)
         geomInfo->perform3DObjectLoadingMapping(map);
 }
 
 void CGeomProxy::performTextureObjectLoadingMapping(std::vector<int>* map)
 {
-    if (geomInfo!=NULL)
+    if (geomInfo!=nullptr)
         geomInfo->performTextureObjectLoadingMapping(map);
 }
 
 void CGeomProxy::announce3DObjectWillBeErased(int objectID)
 {
-    if (geomInfo!=NULL)
+    if (geomInfo!=nullptr)
         geomInfo->announce3DObjectWillBeErased(objectID);
 }
 
 void CGeomProxy::initializeCalculationStructureIfNeeded()
 {
     C_API_FUNCTION_DEBUG;
-    if ((collInfo==NULL)&&(geomInfo!=NULL))
+    if ((collInfo==nullptr)&&(geomInfo!=nullptr))
     {
         std::vector<float> wvert;
         std::vector<int> wind;
-        geomInfo->getCumulativeMeshes(wvert,&wind,NULL);
+        geomInfo->getCumulativeMeshes(wvert,&wind,nullptr);
         float maxTriSize=App::ct->environment->getCalculationMaxTriangleSize();
         float minTriSize=(SIM_MAX(SIM_MAX(_boundingBoxHalfSizes(0),_boundingBoxHalfSizes(1)),_boundingBoxHalfSizes(2)))*2.0f*App::ct->environment->getCalculationMinRelTriangleSize();
         if (maxTriSize<minTriSize)
@@ -206,14 +206,14 @@ void CGeomProxy::initializeCalculationStructureIfNeeded()
 bool CGeomProxy::isCollisionInformationInitialized()
 {
     bool retVal;
-    retVal=(collInfo!=NULL);
+    retVal=(collInfo!=nullptr);
     return(retVal);
 }
 
 void CGeomProxy::computeBoundingBox()
 { // Only the bounding box is recomputed. 
     std::vector<float> visibleVertices;
-    geomInfo->getCumulativeMeshes(visibleVertices,NULL,NULL);
+    geomInfo->getCumulativeMeshes(visibleVertices,nullptr,nullptr);
     for (int i=0;i<int(visibleVertices.size())/3;i++)
     {
         if (i==0)
@@ -262,7 +262,7 @@ void CGeomProxy::scale(float x,float y,float z,float& xp,float& yp,float& zp)
     }
 
     // Scale collision info if we have an isometric scaling:
-    if ((x==y)&&(x==z)&&(collInfo!=NULL))
+    if ((x==y)&&(x==z)&&(collInfo!=nullptr))
         CPluginContainer::mesh_scaleCollisionInformationStructure(collInfo,x);
     else
         removeCollisionInformation(); // we have to recompute it!
@@ -295,7 +295,7 @@ int CGeomProxy::getGeomDataModificationCounter()
 
 void CGeomProxy::setTextureDependencies(int shapeID)
 {
-    if (geomInfo!=NULL)
+    if (geomInfo!=nullptr)
         geomInfo->setTextureDependencies(shapeID);
 }
 
@@ -316,11 +316,11 @@ C7Vector CGeomProxy::recomputeOrientation(C7Vector& m,bool alignWithMainAxis)
     // 3. We calculate the new orientation:
     std::vector<float> visibleVertices;
     std::vector<int> visibleIndices;
-    geomInfo->getCumulativeMeshes(visibleVertices,&visibleIndices,NULL);
+    geomInfo->getCumulativeMeshes(visibleVertices,&visibleIndices,nullptr);
     C7Vector tr;
     if (visibleVertices.size()!=0)
     {
-        tr=CAlgos::alignAndCenterGeometryAndGetTransformation(&visibleVertices[0],(int)visibleVertices.size(),&visibleIndices[0],(int)visibleIndices.size(),NULL,0,alignWithMainAxis);
+        tr=CAlgos::alignAndCenterGeometryAndGetTransformation(&visibleVertices[0],(int)visibleVertices.size(),&visibleIndices[0],(int)visibleIndices.size(),nullptr,0,alignWithMainAxis);
     }
     else
         tr.setIdentity();
@@ -350,7 +350,7 @@ C7Vector CGeomProxy::recomputeTubeOrCuboidOrientation(C7Vector& m,bool tube,bool
     geomInfo->preMultiplyAllVerticeLocalFrames(m);
     std::vector<float> visibleVertices;
     std::vector<int> visibleIndices;
-    geomInfo->getCumulativeMeshes(visibleVertices,&visibleIndices,NULL);
+    geomInfo->getCumulativeMeshes(visibleVertices,&visibleIndices,nullptr);
 
     // 1. We calculate the new orientation, based on the copy:
     bool success;
@@ -703,13 +703,13 @@ CGeomProxy* CGeomProxy::copyYourself()
     newGeom->_creationTransf=_creationTransf;
 
     delete newGeom->geomInfo;
-    newGeom->geomInfo=NULL;
-    if (geomInfo!=NULL)
+    newGeom->geomInfo=nullptr;
+    if (geomInfo!=nullptr)
         newGeom->geomInfo=geomInfo->copyYourself();
 
     newGeom->_boundingBoxHalfSizes=_boundingBoxHalfSizes;
 
-    if (collInfo!=NULL)
+    if (collInfo!=nullptr)
         newGeom->collInfo=CPluginContainer::mesh_copyCollisionInformationStructure(collInfo);
     return(newGeom);
 }
@@ -736,7 +736,7 @@ void CGeomProxy::acceptNewGeometry(const std::vector<float>& vert,const std::vec
     // 2. We set-up the new geometry:
     CGeometric* newGeomInfo=new CGeometric();
 
-    if (textCoord!=NULL)
+    if (textCoord!=nullptr)
         newGeomInfo->textureCoords_notCopiedNorSerialized.assign(textCoord->begin(),textCoord->end());
     CMeshManip::removeNonReferencedVertices(wwert,wwind);
     newGeomInfo->setMesh(wwert,wwind,norm,C7Vector::identityTransformation); // will do the convectivity test
@@ -749,7 +749,7 @@ void CGeomProxy::acceptNewGeometry(const std::vector<float>& vert,const std::vec
         0.6f+0.4f*(float)(rand()/(float)RAND_MAX),
         sim_colorcomponent_ambient_diffuse);
 
-    if (geomInfo!=NULL)
+    if (geomInfo!=nullptr)
     { // copy a few properties (not all)
         //newGeomInfo->setDynMaterialId(geomInfo->getDynMaterialId());
         //geomInfo->copyEnginePropertiesTo(newGeomInfo);
@@ -766,7 +766,7 @@ void CGeomProxy::acceptNewGeometry(const std::vector<float>& vert,const std::vec
     {
         std::vector<float> dummyVert(wwert);
         std::vector<int> dummyInd(wwind);
-        _creationTransf=CAlgos::alignAndCenterGeometryAndGetTransformation(&dummyVert[0],(int)dummyVert.size(),&dummyInd[0],(int)dummyInd.size(),NULL,0,true);
+        _creationTransf=CAlgos::alignAndCenterGeometryAndGetTransformation(&dummyVert[0],(int)dummyVert.size(),&dummyInd[0],(int)dummyInd.size(),nullptr,0,true);
         geomInfo->preMultiplyAllVerticeLocalFrames(_creationTransf.getInverse());
     }
     else
@@ -780,7 +780,7 @@ void CGeomProxy::acceptNewGeometry(const std::vector<float>& vert,const std::vec
 bool CGeomProxy::applyCuttingChanges(const C7Vector& shapeCTM)
 { // return value true means: this shape has to be destroyed!
     FUNCTION_DEBUG;
-    if (collInfo==NULL)
+    if (collInfo==nullptr)
         return(true);
     int options=0;
     if (App::userSettings->identicalVerticesCheck)
@@ -800,7 +800,7 @@ bool CGeomProxy::applyCuttingChanges(const C7Vector& shapeCTM)
         CPluginContainer::mesh_releaseBuffer(vertices);
         CPluginContainer::mesh_releaseBuffer(indices);
         removeCollisionInformation();
-        acceptNewGeometry(vert,ind,NULL,NULL);
+        acceptNewGeometry(vert,ind,nullptr,nullptr);
         return(false);
     }
     return(true);
@@ -895,7 +895,7 @@ void CGeomProxy::serialize(CSer& ar)
                     }
                     std::vector<float> wvert;
                     std::vector<int> wind;
-                    geomInfo->getCumulativeMeshes(wvert,&wind,NULL);
+                    geomInfo->getCumulativeMeshes(wvert,&wind,nullptr);
                     collInfo=CPluginContainer::mesh_getCollisionInformationStructureFromSerializationData(&data[0],&wvert[0],(int)wvert.size(),&wind[0],(int)wind.size());
                 }
                 if (noHit)

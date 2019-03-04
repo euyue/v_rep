@@ -35,7 +35,7 @@ CDrawingObject2D::CDrawingObject2D(int theObjectType,float* vertices,float col[3
     }
     if (t==sim_drawing2d_text)
     {
-        if (txt!=NULL)
+        if (txt!=nullptr)
             _txt=txt;
     }
 }

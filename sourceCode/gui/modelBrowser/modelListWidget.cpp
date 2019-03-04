@@ -105,7 +105,7 @@ void CModelListWidget::_addThumbnailItemToList(int index)
 CThumbnail* CModelListWidget::loadModelThumbnail(const char* pathAndFilename,int& result,C7Vector& modelTr,C3Vector& modelBoundingBoxSize,float& modelNonDefaultTranslationStepSize)
 { // result: -1=model not recognized, 0=model has no thumbnail, 1=model has thumbnail
     result=-1;
-    CThumbnail* retThumbnail=NULL;
+    CThumbnail* retThumbnail=nullptr;
     if (VFile::doesFileExist(pathAndFilename))
     {
         VFile file(pathAndFilename,VFile::READ|VFile::SHARE_DENY_NONE);
@@ -129,7 +129,7 @@ CThumbnail* CModelListWidget::loadModelThumbnail(const char* pathAndFilename,int
             retThumbnail=App::ct->environment->modelThumbnail_notSerializedHere.copyYourself();
             App::ct->environment->modelThumbnail_notSerializedHere.copyFrom(thumbO);
             delete thumbO;
-            if (retThumbnail->getPointerToUncompressedImage()!=NULL)
+            if (retThumbnail->getPointerToUncompressedImage()!=nullptr)
                 result=1;
             serObj.readClose();
         }
@@ -144,7 +144,7 @@ void CModelListWidget::setFolder(const char* folderPath)
     clearAll();
     std::vector<int> initialSelection;
     App::ct->objCont->getSelectedObjects(initialSelection);
-    if (folderPath!=NULL)
+    if (folderPath!=nullptr)
     {
         _folderPath=folderPath;
         // 1. Get all files and their info from the folder:
@@ -156,7 +156,7 @@ void CModelListWidget::setFolder(const char* folderPath)
         finder.searchFilesOrFolders(folderPath);
         int index=0;
         SFileOrFolder* foundItem=finder.getFoundItem(index++);
-        while (foundItem!=NULL)
+        while (foundItem!=nullptr)
         {
             if (foundItem->isFile)
             { // Files
@@ -260,11 +260,11 @@ void CModelListWidget::setFolder(const char* folderPath)
                 { // we have a folder here!
                     int xres,yres;
                     bool rgba;
-                    unsigned char* thumbnail=CImageLoaderSaver::loadQTgaImageData(":/targaFiles/128x128folder.tga",xres,yres,rgba,NULL);
+                    unsigned char* thumbnail=CImageLoaderSaver::loadQTgaImageData(":/targaFiles/128x128folder.tga",xres,yres,rgba,nullptr);
                     CThumbnail* foldThumb=new CThumbnail();
                     foldThumb->setUncompressedThumbnailImage((char*)thumbnail,true,false);
                     delete[] thumbnail;
-                    addThumbnail(foldThumb,allModelNames[i].c_str(),allModelCreationTimes[i],0,true,NULL,NULL,NULL);
+                    addThumbnail(foldThumb,allModelNames[i].c_str(),allModelCreationTimes[i],0,true,nullptr,nullptr,nullptr);
                 }
             }
             // 4. Serialize the thumbnail file for fast access in future:
@@ -480,7 +480,7 @@ void CModelListWidget::serializePart2(CSer& ar)
 QMimeData* CModelListWidget::mimeData(const QList<QListWidgetItem *> items) const
 {
     if (items.size()!=1)
-        return(NULL);
+        return(nullptr);
     QListWidgetItem* item=items[0];
     int index=item->data(Qt::UserRole).toInt();
     QMimeData* data=new QMimeData();
@@ -498,14 +498,14 @@ SModelThumbnailInfo* CModelListWidget::getThumbnailInfoFromModelName(const char*
     {
         if (_allThumbnailsInfo[i].nameWithExtension.compare(nameWithExtension)==0)
         {
-            if (index!=NULL)
+            if (index!=nullptr)
                 index[0]=(int)i;
             return(&_allThumbnailsInfo[i]);
         }
     }
-    if (index!=NULL)
+    if (index!=nullptr)
         index[0]=-1;
-    return(NULL);
+    return(nullptr);
 }
 
 void CModelListWidget::onItemClicked(QListWidgetItem* item)

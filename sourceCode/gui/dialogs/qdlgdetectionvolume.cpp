@@ -44,7 +44,7 @@ void CQDlgDetectionVolume::refresh()
         ssel=(App::ct->objCont->getProxSensorNumberInSelection()>1);
     if (mill)
         ssel=(App::ct->objCont->getMillNumberInSelection()>1);
-    CConvexVolume* cv=NULL;
+    CConvexVolume* cv=nullptr;
     CProxSensor* proxIt=App::ct->objCont->getLastSelection_proxSensor();
     CMill* millIt=App::ct->objCont->getLastSelection_mill();
     if (prox)
@@ -462,12 +462,12 @@ void CQDlgDetectionVolume::refresh()
 
 CConvexVolume* CQDlgDetectionVolume::getCurrentConvexVolume()
 {
-    CConvexVolume* cv=NULL;
+    CConvexVolume* cv=nullptr;
     CProxSensor* proxIt=App::ct->objCont->getLastSelection_proxSensor();
     CMill* millIt=App::ct->objCont->getLastSelection_mill();
-    if (proxIt!=NULL)
+    if (proxIt!=nullptr)
         cv=proxIt->convexVolume;
-    if (millIt!=NULL)
+    if (millIt!=nullptr)
         cv=millIt->convexVolume;
     return(cv);
 }
@@ -479,14 +479,14 @@ void CQDlgDetectionVolume::on_qqType_currentIndexChanged(int index)
         IF_UI_EVENT_CAN_WRITE_DATA
         {
             CConvexVolume* cv=getCurrentConvexVolume();
-            if (cv!=NULL)
+            if (cv!=nullptr)
             {
                 int index=ui->qqType->currentIndex();
                 CProxSensor* proxIt=App::ct->objCont->getLastSelection_proxSensor();
                 CMill* millIt=App::ct->objCont->getLastSelection_mill();
                 int theType=-1;
                 bool randomized=false;
-                if (proxIt!=NULL)
+                if (proxIt!=nullptr)
                 {
                     if ((index==0)||(index==1))
                     {
@@ -537,7 +537,7 @@ void CQDlgDetectionVolume::on_qqOffset_editingFinished()
         CConvexVolume* cv=getCurrentConvexVolume();
         bool ok;
         float newVal=ui->qqOffset->text().toFloat(&ok);
-        if (ok&&cv&&(proxSensor!=NULL))
+        if (ok&&cv&&(proxSensor!=nullptr))
         {
             // special here:
             if ( (proxSensor->getSensorType()==sim_proximitysensor_ray_subtype)&&proxSensor->getRandomizedDetection() )
@@ -546,7 +546,7 @@ void CQDlgDetectionVolume::on_qqOffset_editingFinished()
                 App::appendSimulationThreadCommand(SET_OFFSET_DETECTIONVOLUMEGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),-1,newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
-        if (ok&&cv&&(mill!=NULL))
+        if (ok&&cv&&(mill!=nullptr))
         {
             App::appendSimulationThreadCommand(SET_OFFSET_DETECTIONVOLUMEGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),-1,newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -745,7 +745,7 @@ void CQDlgDetectionVolume::on_qqSubdivisions_editingFinished()
         CConvexVolume* cv=getCurrentConvexVolume();
         bool ok;
         int newVal=ui->qqSubdivisions->text().toInt(&ok);
-        if (ok&&cv&&(proxSensor!=NULL))
+        if (ok&&cv&&(proxSensor!=nullptr))
         {
             App::appendSimulationThreadCommand(SET_SUBDIVISIONS_DETECTIONVOLUMEGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -764,7 +764,7 @@ void CQDlgDetectionVolume::on_qqInsideGap_editingFinished()
         CConvexVolume* cv=getCurrentConvexVolume();
         bool ok;
         float newVal=ui->qqInsideGap->text().toFloat(&ok);
-        if (ok&&cv&&(proxSensor!=NULL))
+        if (ok&&cv&&(proxSensor!=nullptr))
         {
             App::appendSimulationThreadCommand(SET_INSIDEGAP_DETECTIONVOLUMEGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),-1,newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -797,7 +797,7 @@ void CQDlgDetectionVolume::on_qqApplyAll_clicked()
     {
         CProxSensor* proxSensor=App::ct->objCont->getLastSelection_proxSensor();
         CMill* mill=App::ct->objCont->getLastSelection_mill();
-        if ( (proxSensor!=NULL)||(mill!=NULL) )
+        if ( (proxSensor!=nullptr)||(mill!=nullptr) )
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId=APPLY_DETECTIONVOLUMEGUITRIGGEREDCMD;

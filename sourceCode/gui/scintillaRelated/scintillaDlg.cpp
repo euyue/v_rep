@@ -393,7 +393,7 @@ void CScintillaDlg::_charAdded(int charAdded)
 {
     FUNCTION_DEBUG;
     CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(_scriptID);
-    if (it!=NULL)
+    if (it!=nullptr)
     {
         if (it->getScriptType()==sim_scripttype_mainscript)
             setColorsAndMainStyles(0);

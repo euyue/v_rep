@@ -38,7 +38,7 @@ CDrawingObject* CDrawingContainer::getObject(int objectID)
         if (_allObjects[i]->getObjectID()==objectID)
             return(_allObjects[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 
@@ -47,7 +47,7 @@ int CDrawingContainer::addObject(CDrawingObject* it)
     EASYLOCK(_objectMutex);
     int newID=0;
     newID++;
-    while (getObject(newID)!=NULL)
+    while (getObject(newID)!=nullptr)
         newID++;
     it->setObjectID(newID);
     _allObjects.push_back(it);

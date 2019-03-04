@@ -13,8 +13,8 @@ CButtonBlockContainer::CButtonBlockContainer(bool mainContainer)
 {
     FUNCTION_DEBUG;
     newSceneProcedurePasses=0;
-    infoBox=NULL;
-    copyOfBlock_forEditMode=NULL;
+    infoBox=nullptr;
+    copyOfBlock_forEditMode=nullptr;
     _lastBlockIdInFront=-1;
     for (int i=0;i<INFO_BOX_ROW_COUNT*2;i++)
         infoBoxButtonHandlers[i]=1+i;
@@ -26,7 +26,7 @@ CButtonBlockContainer::CButtonBlockContainer(bool mainContainer)
 CButtonBlockContainer::~CButtonBlockContainer()
 {
     removeAllBlocks(true);
-    if (copyOfBlock_forEditMode!=NULL)
+    if (copyOfBlock_forEditMode!=nullptr)
         delete copyOfBlock_forEditMode;
 }
 
@@ -71,9 +71,9 @@ void CButtonBlockContainer::emptySceneProcedure(bool mainContainer)
                 std::string fullPathAndFilename=App::directories->systemDirectory+VREP_SLASH;
                 fullPathAndFilename.append("sysnfo.ttb");
                 CButtonBlockContainer* cont=loadSystemButtonBlocks(fullPathAndFilename);
-                if (cont!=NULL)
+                if (cont!=nullptr)
                 {
-                    if (cont->allBlocks[0]!=NULL)
+                    if (cont->allBlocks[0]!=nullptr)
                     {
                         infoBox=cont->allBlocks[0]->copyYourself();
                         infoBox->setBlockName("SYSTEM_BLOCK-INFO_OVERLAY");
@@ -113,7 +113,7 @@ void CButtonBlockContainer::removeAllBlocks(bool alsoSystemBlocks)
 
 void CButtonBlockContainer::updateInfoWindowColorStyle(int colorStyle)
 {
-    if (infoBox==NULL)
+    if (infoBox==nullptr)
         return;
     bool background=(colorStyle==2);
     float txtCol[3];
@@ -134,7 +134,7 @@ void CButtonBlockContainer::updateInfoWindowColorStyle(int colorStyle)
         CSoftButton* b=infoBox->getButtonWithID(2*i+1);
         CSoftButton* b2=infoBox->getButtonWithID(2*i+2);
         CSoftButton* b3=infoBox->getButtonWithID(41+i-2);
-        if ( (b!=NULL)&&(b2!=NULL)&&(b3!=NULL) )
+        if ( (b!=nullptr)&&(b2!=nullptr)&&(b3!=nullptr) )
         {
             bool lineActive=b->label!="";
             if (background)
@@ -231,7 +231,7 @@ CButtonBlock* CButtonBlockContainer::getButtonBlockWithID(int id)
         if (allBlocks[i]->blockID==id)
             return(allBlocks[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 void CButtonBlockContainer::getMinAndMaxNameSuffixes(int& minSuffix,int& maxSuffix)
@@ -301,7 +301,7 @@ void CButtonBlockContainer::insertBlockWithSuffixOffset(CButtonBlock* theNewBloc
 {
     // We find a free handle:
     int blockHandle=SIM_IDSTART_2DELEMENT;
-    while (getButtonBlockWithID(blockHandle)!=NULL)
+    while (getButtonBlockWithID(blockHandle)!=nullptr)
         blockHandle++;
     theNewBlock->setBlockID(blockHandle);
     // We check the name doesn't exist:
@@ -310,7 +310,7 @@ void CButtonBlockContainer::insertBlockWithSuffixOffset(CButtonBlock* theNewBloc
         name=tt::generateNewName_dash(name,suffixOffset);
     else
     {
-        while (getBlockWithName(name)!=NULL)
+        while (getBlockWithName(name)!=nullptr)
             name=tt::generateNewName_noDash(name);
     }
     theNewBlock->setBlockName(name);
@@ -327,7 +327,7 @@ CButtonBlock* CButtonBlockContainer::getBlockWithID(int id)
         if (allBlocks[i]->blockID==id)
             return(allBlocks[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 bool CButtonBlockContainer::removeBlockFromID(int id)
@@ -405,7 +405,7 @@ CButtonBlock* CButtonBlockContainer::getBlockWithName(std::string name)
         if (allBlocks[i]->getBlockName().compare(name)==0)
             return(allBlocks[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 void CButtonBlockContainer::announceObjectWillBeErased(int objID)
@@ -483,10 +483,10 @@ void CButtonBlockContainer::sendBlockToFront(int blockID)
 void CButtonBlockContainer::displayAllBlocks(int currentView,bool dialogsHaveFocus)
 {
     {
-        if (infoBox!=NULL)
+        if (infoBox!=nullptr)
         {
             static bool previousOpenState=true;
-            int butt=infoBox->getLastEventButtonID(NULL);
+            int butt=infoBox->getLastEventButtonID(nullptr);
             if (butt==0)
                 App::ct->mainSettings->infoWindowOpenState=!App::ct->mainSettings->infoWindowOpenState;
             if (butt==200)
@@ -504,20 +504,20 @@ void CButtonBlockContainer::displayAllBlocks(int currentView,bool dialogsHaveFoc
                 if (App::ct->mainSettings->infoWindowOpenState)
                 {
                     infoBox->setAttributes((infoBox->getAttributes()|sim_ui_property_rolledup)-sim_ui_property_rolledup);
-                    if (it!=NULL)
+                    if (it!=nullptr)
                         it->setAttributes(it->getAttributes()|sim_buttonproperty_isdown);
                 }
                 else
                 {
                     infoBox->setAttributes(infoBox->getAttributes()|sim_ui_property_rolledup);
-                    if (it!=NULL)
+                    if (it!=nullptr)
                         it->setAttributes((it->getAttributes()|sim_buttonproperty_isdown)-sim_buttonproperty_isdown);
                 }
                 previousOpenState=App::ct->mainSettings->infoWindowOpenState;
             }
         }
     }
-    bool showInfoAndStatusBox= ((App::mainWindow==NULL)||(!App::mainWindow->simulationRecorder->getIsRecording())||(!App::mainWindow->simulationRecorder->getHideInfoTextAndStatusBar()) );
+    bool showInfoAndStatusBox= ((App::mainWindow==nullptr)||(!App::mainWindow->simulationRecorder->getIsRecording())||(!App::mainWindow->simulationRecorder->getHideInfoTextAndStatusBar()) );
     bool editModeButNotButtonEditMode=((App::getEditModeType()!=NO_EDIT_MODE)&&(App::getEditModeType()!=BUTTON_EDIT_MODE));
 
 
@@ -533,7 +533,7 @@ void CButtonBlockContainer::displayAllBlocks(int currentView,bool dialogsHaveFoc
 
 bool CButtonBlockContainer::mouseDown(int xCoord,int yCoord,int currentView,int selectionStatus)
 {
-    bool showInfoAndStatusBox= ((App::mainWindow==NULL)||(!App::mainWindow->simulationRecorder->getIsRecording())||(!App::mainWindow->simulationRecorder->getHideInfoTextAndStatusBar()) );
+    bool showInfoAndStatusBox= ((App::mainWindow==nullptr)||(!App::mainWindow->simulationRecorder->getIsRecording())||(!App::mainWindow->simulationRecorder->getHideInfoTextAndStatusBar()) );
     bool editModeButNotButtonEditMode=((App::getEditModeType()!=NO_EDIT_MODE)&&(App::getEditModeType()!=BUTTON_EDIT_MODE));
 
     mousePos.x=xCoord;
@@ -546,8 +546,8 @@ bool CButtonBlockContainer::mouseDown(int xCoord,int yCoord,int currentView,int 
         setEditBoxEdition(-1,-1,true);
         bool dummyVal;
         shiftSelectionStart=-1;
-        CButtonBlock* itBlock=NULL;
-        CSoftButton* itButton=NULL;
+        CButtonBlock* itBlock=nullptr;
+        CSoftButton* itButton=nullptr;
         int buttID=-1;
         for (int i=(int)allBlocks.size()-1;i>=0;i--)
         {
@@ -614,8 +614,8 @@ bool CButtonBlockContainer::mouseDown(int xCoord,int yCoord,int currentView,int 
             return(false);
     }
     bool caught=false;
-    CButtonBlock* itBlock=NULL;
-    CSoftButton* itButton=NULL;
+    CButtonBlock* itBlock=nullptr;
+    CSoftButton* itButton=nullptr;
     bool cursorCatch;
     for (int i=(int)allBlocks.size()-1;i>=0;i--)
     {
@@ -630,12 +630,12 @@ bool CButtonBlockContainer::mouseDown(int xCoord,int yCoord,int currentView,int 
                 {
                     if ( (itBlock->getAttributes()&sim_ui_property_selectassociatedobject)&&(App::getEditModeType()==NO_EDIT_MODE) )
                     {
-                        C3DObject* obj=App::ct->objCont->getObject(itBlock->getObjectIDAttachedTo());
-                        if (obj!=NULL)
+                        C3DObject* obj=App::ct->objCont->getObjectFromHandle(itBlock->getObjectIDAttachedTo());
+                        if (obj!=nullptr)
                         {
                             // Modified on 2/6/2013 (was annoying when several objects were selected and an UI was clicked)
-                            App::ct->objCont->removeObjectFromSelection(obj->getID());
-                            App::ct->objCont->addObjectToSelection(obj->getID());
+                            App::ct->objCont->removeObjectFromSelection(obj->getObjectHandle());
+                            App::ct->objCont->addObjectToSelection(obj->getObjectHandle());
                         }
                     }
                     caught=true;
@@ -761,7 +761,7 @@ bool CButtonBlockContainer::leftMouseButtonDoubleClick(int xCoord,int yCoord,int
 bool CButtonBlockContainer::mouseDownTest(int xCoord,int yCoord,int currentView)
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
     // This routine is just to check whether the mouse is on a button or not. No action!!
-    CButtonBlock* itBlock=NULL;
+    CButtonBlock* itBlock=nullptr;
     for (int i=(int)allBlocks.size()-1;i>=0;i--)
     {
         itBlock=allBlocks[i];
@@ -789,10 +789,10 @@ void CButtonBlockContainer::onKeyDown(unsigned int key)
         if ( (key==ENTER_KEY)||(key==TAB_KEY) ) // Enter or tab-key pressed
         {
             CButtonBlock* itBlock=getBlockWithID(editBoxInEditionBlock);
-            if (itBlock!=NULL)
+            if (itBlock!=nullptr)
             {
                 CSoftButton* itButton=itBlock->getButtonWithID(editBoxInEditionButton);
-                if (itButton!=NULL)
+                if (itButton!=nullptr)
                 {
                     if (itButton->label!=editBoxEditionText)
                         setEditBoxEdition(-1,-1,true); // We leave the edition mode and apply changes
@@ -860,16 +860,16 @@ void CButtonBlockContainer::onKeyDown(unsigned int key)
     }
     if (App::getEditModeType()==BUTTON_EDIT_MODE)
     {
-        CSoftButton* singleTextableButton=NULL;
-        CSoftButton* singleButtonWithText=NULL;
+        CSoftButton* singleTextableButton=nullptr;
+        CSoftButton* singleButtonWithText=nullptr;
         CButtonBlock* itBlock=getBlockWithID(getBlockInEdition());
-        if ((itBlock!=NULL)&&(selectedButtons.size()==1))
+        if ((itBlock!=nullptr)&&(selectedButtons.size()==1))
         {
             VPoint size;
             itBlock->getBlockSize(size);
             int val=selectedButtons[0];
             singleTextableButton=itBlock->getButtonAtPos(val%size.x,val/size.x);
-            if (singleTextableButton!=NULL)
+            if (singleTextableButton!=nullptr)
             {
                 if (singleTextableButton->getButtonType()!=sim_buttonproperty_slider)
                 {
@@ -877,25 +877,25 @@ void CButtonBlockContainer::onKeyDown(unsigned int key)
                     if (singleButtonWithText->getAttributes()&sim_buttonproperty_isdown)
                     {
                         if (singleButtonWithText->downLabel.size()==0)
-                            singleButtonWithText=NULL;
+                            singleButtonWithText=nullptr;
                     }
                     else
                     {
                         if (singleButtonWithText->label.size()==0)
-                            singleButtonWithText=NULL;
+                            singleButtonWithText=nullptr;
                     }
                 }
                 else
-                    singleTextableButton=NULL;
+                    singleTextableButton=nullptr;
             }
         }
 
         if (key==DELETE_KEY)
-            App::mainWindow->editModeContainer->processCommand(UI_EDIT_MODE_DELETE_SELECTED_BUTTONS_EMCMD,NULL);
+            App::mainWindow->editModeContainer->processCommand(UI_EDIT_MODE_DELETE_SELECTED_BUTTONS_EMCMD,nullptr);
         if (key==BACKSPACE_KEY)
         {
-            if (singleButtonWithText==NULL)
-                App::mainWindow->editModeContainer->processCommand(UI_EDIT_MODE_DELETE_SELECTED_BUTTONS_EMCMD,NULL);
+            if (singleButtonWithText==nullptr)
+                App::mainWindow->editModeContainer->processCommand(UI_EDIT_MODE_DELETE_SELECTED_BUTTONS_EMCMD,nullptr);
             else
             {
                 if (singleButtonWithText->getAttributes()&sim_buttonproperty_isdown)
@@ -905,7 +905,7 @@ void CButtonBlockContainer::onKeyDown(unsigned int key)
                 App::setFullDialogRefreshFlag();
             }
         }
-        if ( (key>=' ')&&(key<127)&&(singleTextableButton!=NULL) )
+        if ( (key>=' ')&&(key<127)&&(singleTextableButton!=nullptr) )
         {
             if (singleTextableButton->getAttributes()&sim_buttonproperty_isdown)
                 singleTextableButton->downLabel+=char(key);
@@ -920,7 +920,7 @@ bool CButtonBlockContainer::mouseUp(int xCoord,int yCoord,int currentView)
 {
     if ( editMode&&(shiftSelectionStart!=-1) )
     {
-        CButtonBlock* itBlock=NULL;
+        CButtonBlock* itBlock=nullptr;
         int buttID=-1;
         for (int i=(int)allBlocks.size()-1;i>=0;i--)
         {
@@ -952,7 +952,7 @@ bool CButtonBlockContainer::mouseUp(int xCoord,int yCoord,int currentView)
                     for (int i=start.x;i!=end.x+dx;i+=dx)
                     {
                         CSoftButton* aButton=itBlock->getButtonAtPos(i,j);
-                        if (aButton==NULL)
+                        if (aButton==nullptr)
                             addToSelection(i+itBlock->blockWidth*j);
                         else
                             addToSelection(aButton->xPos+itBlock->blockWidth*aButton->yPos);
@@ -974,14 +974,14 @@ bool CButtonBlockContainer::mouseUp(int xCoord,int yCoord,int currentView)
         return(false);
     // Here we check if a slider was clicked
     CButtonBlock* aa=getBlockWithID(caughtBlock);
-    if (aa!=NULL)
+    if (aa!=nullptr)
     {
         CSoftButton* bb=aa->getButtonWithID(caughtButton);
-        if (bb!=NULL)
+        if (bb!=nullptr)
         {
             if (bb->getButtonType()==sim_buttonproperty_slider)
             {
-                App::ct->outsideCommandQueue->addCommand(sim_message_ui_button_state_change,caughtBlock,caughtButton,bb->getAttributes(),int(500.0f*(bb->getSliderPos()+1.0f)),NULL,0);
+                App::ct->outsideCommandQueue->addCommand(sim_message_ui_button_state_change,caughtBlock,caughtButton,bb->getAttributes(),int(500.0f*(bb->getSliderPos()+1.0f)),nullptr,0);
                 int auxVals[2]={bb->getAttributes(),int(500.0f*(bb->getSliderPos()+1.0f))};
                 aa->setLastEventButtonID(caughtButton,auxVals);
                 caughtBlock=-1;
@@ -997,8 +997,8 @@ bool CButtonBlockContainer::mouseUp(int xCoord,int yCoord,int currentView)
     }
 
     bool caught=false;
-    CButtonBlock* itBlock=NULL;
-    CSoftButton* itButton=NULL;
+    CButtonBlock* itBlock=nullptr;
+    CSoftButton* itButton=nullptr;
     for (int i=(int)allBlocks.size()-1;i>=0;i--)
     {
         bool dummyVal;
@@ -1020,7 +1020,7 @@ bool CButtonBlockContainer::mouseUp(int xCoord,int yCoord,int currentView)
 
             if ( (itButton->getAttributes()&sim_buttonproperty_downupevent)==0 )
             { // buttons with up/down events are handled elsewhere!
-                App::ct->outsideCommandQueue->addCommand(sim_message_ui_button_state_change,caughtBlock,caughtButton,itButton->getAttributes(),itButton->getAttributes()^sim_buttonproperty_isdown,NULL,0);
+                App::ct->outsideCommandQueue->addCommand(sim_message_ui_button_state_change,caughtBlock,caughtButton,itButton->getAttributes(),itButton->getAttributes()^sim_buttonproperty_isdown,nullptr,0);
                 int auxVals[2]={itButton->getAttributes(),itButton->getAttributes()^sim_buttonproperty_isdown};
                 itBlock->setLastEventButtonID(caughtButton,auxVals);
             }
@@ -1044,12 +1044,12 @@ bool CButtonBlockContainer::mouseUp(int xCoord,int yCoord,int currentView)
         if ( (App::ct->buttonBlockContainer->caughtBlockForDownUpEvent!=-1)&&(App::ct->buttonBlockContainer->caughtButtonForDownUpEvent!=-1) )
         {
             CButtonBlock* udBlock=getBlockWithID(App::ct->buttonBlockContainer->caughtBlockForDownUpEvent);
-            CSoftButton* udButton=NULL;
-            if (udBlock!=NULL)
+            CSoftButton* udButton=nullptr;
+            if (udBlock!=nullptr)
                 udButton=udBlock->getButtonWithID(App::ct->buttonBlockContainer->caughtButtonForDownUpEvent);
-            if ( (udButton!=NULL)&&App::ct->buttonBlockContainer->caughtButtonDownForDownUpEvent)
+            if ( (udButton!=nullptr)&&App::ct->buttonBlockContainer->caughtButtonDownForDownUpEvent)
             { // We have to generate an up event:
-                App::ct->outsideCommandQueue->addCommand(sim_message_ui_button_state_change,App::ct->buttonBlockContainer->caughtBlockForDownUpEvent,App::ct->buttonBlockContainer->caughtButtonForDownUpEvent,udButton->getAttributes(),0,NULL,0);
+                App::ct->outsideCommandQueue->addCommand(sim_message_ui_button_state_change,App::ct->buttonBlockContainer->caughtBlockForDownUpEvent,App::ct->buttonBlockContainer->caughtButtonForDownUpEvent,udButton->getAttributes(),0,nullptr,0);
                 int auxVals[2]={udButton->getAttributes(),0};
                 udBlock->setLastEventButtonID(App::ct->buttonBlockContainer->caughtButtonForDownUpEvent,auxVals);
             }
@@ -1084,7 +1084,7 @@ bool CButtonBlockContainer::mouseMove(int xCoord,int yCoord)
     if ( (caughtBlock!=-1)&&(caughtButton==-1) )
     { // Here we can shift the block
         CButtonBlock* itBlock=getBlockWithID(caughtBlock);
-        if (itBlock!=NULL)
+        if (itBlock!=nullptr)
         { // Important (a block can be destroyed during shifting (e.g. through a script!)
             VPoint blockPos;
             itBlock->getBlockPositionRelative(blockPos);
@@ -1105,10 +1105,10 @@ bool CButtonBlockContainer::mouseMove(int xCoord,int yCoord)
     }
     // Here we handle sliders:
     CButtonBlock* aa=getBlockWithID(caughtBlock);
-    if (aa!=NULL)
+    if (aa!=nullptr)
     {
         CSoftButton* bb=aa->getButtonWithID(caughtButton);
-        if (bb!=NULL)
+        if (bb!=nullptr)
         {
             if (bb->getButtonType()==sim_buttonproperty_slider)
             { // We have to move the slider
@@ -1126,7 +1126,7 @@ bool CButtonBlockContainer::mouseMove(int xCoord,int yCoord)
                 }
                 mousePos.x=xCoord;
                 mousePos.y=yCoord;
-                App::ct->outsideCommandQueue->addCommand(sim_message_ui_button_state_change,caughtBlock,caughtButton,bb->getAttributes(),int(500.0f*(bb->getSliderPos()+1.0f)),NULL,0);
+                App::ct->outsideCommandQueue->addCommand(sim_message_ui_button_state_change,caughtBlock,caughtButton,bb->getAttributes(),int(500.0f*(bb->getSliderPos()+1.0f)),nullptr,0);
                 int auxVals[2]={bb->getAttributes(),int(500.0f*(bb->getSliderPos()+1.0f))};
                 aa->setLastEventButtonID(caughtButton,auxVals);
                 return(true);
@@ -1151,7 +1151,7 @@ void CButtonBlockContainer::looseFocus()
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
     setEditBoxEdition(-1,-1,true);
     deselectButtons();
-    if ( (App::ct->objCont!=NULL)&&((App::getEditModeType()&BUTTON_EDIT_MODE)==0) )
+    if ( (App::ct->objCont!=nullptr)&&((App::getEditModeType()&BUTTON_EDIT_MODE)==0) )
     { // In the button edit mode, we don't want this to happen
         setBlockInEdition(-1);
     }
@@ -1162,15 +1162,15 @@ void CButtonBlockContainer::setEditBoxEdition(int block,int button,bool applyCha
     if (applyChangesIfLeavingEditMode)
     { // New since 25/02/2011 (so that we only cancel input if we pressed esc!)
         CButtonBlock* itBlock=getBlockWithID(editBoxInEditionBlock);
-        if (itBlock!=NULL)
+        if (itBlock!=nullptr)
         {
             CSoftButton* itButton=itBlock->getButtonWithID(editBoxInEditionButton);
-            if (itButton!=NULL)
+            if (itButton!=nullptr)
             {
                 if (itButton->label!=editBoxEditionText)
                 {
                     itButton->label=editBoxEditionText;
-                    App::ct->outsideCommandQueue->addCommand(sim_message_ui_button_state_change,editBoxInEditionBlock,editBoxInEditionButton,itButton->getAttributes(),0,NULL,0);
+                    App::ct->outsideCommandQueue->addCommand(sim_message_ui_button_state_change,editBoxInEditionBlock,editBoxInEditionButton,itButton->getAttributes(),0,nullptr,0);
                     int auxVals[2]={itButton->getAttributes(),0};
                     itBlock->setLastEventButtonID(editBoxInEditionButton,auxVals);
                 }
@@ -1181,10 +1181,10 @@ void CButtonBlockContainer::setEditBoxEdition(int block,int button,bool applyCha
     editBoxInEditionBlock=block;
     editBoxInEditionButton=button;
     CButtonBlock* itBlock=getBlockWithID(editBoxInEditionBlock);
-    if (itBlock!=NULL)
+    if (itBlock!=nullptr)
     {
         CSoftButton* itButton=itBlock->getButtonWithID(editBoxInEditionButton);
-        if (itButton!=NULL)
+        if (itButton!=nullptr)
             editBoxEditionText=itButton->label;
     }
 }
@@ -1196,14 +1196,14 @@ bool CButtonBlockContainer::getEditBoxEdition()
 
 CSoftButton* CButtonBlockContainer::getInfoBoxButton(int index,int subIndex)
 {
-    if (infoBox==NULL)
-        return(NULL);
+    if (infoBox==nullptr)
+        return(nullptr);
     if ((index>=INFO_BOX_ROW_COUNT)||(index<0))
-        return(NULL);
+        return(nullptr);
     if ((subIndex<0)||(subIndex>=2))
-        return(NULL);
+        return(nullptr);
     if (infoBoxButtonHandlers[2*index+subIndex]<0)
-        return(NULL);
+        return(nullptr);
     return(infoBox->getButtonWithID(infoBoxButtonHandlers[2*index+subIndex]));
 }
 
@@ -1225,9 +1225,9 @@ CButtonBlockContainer* CButtonBlockContainer::loadSystemButtonBlocks(std::string
             CButtonBlockContainer* cont=new CButtonBlockContainer(false);
             if (result==1)
             {
-                if (infoBox!=NULL)
+                if (infoBox!=nullptr)
                 {
-                    if (infoBox->getButtonWithID(0)!=NULL)
+                    if (infoBox->getButtonWithID(0)!=nullptr)
                         infoBox->getButtonWithID(0)->setAttributes(infoBox->getButtonWithID(0)->getAttributes()|sim_buttonproperty_isdown);
                 }
                 std::vector<CButtonBlock*> loadedButtonBlockList;
@@ -1266,7 +1266,7 @@ CButtonBlockContainer* CButtonBlockContainer::loadSystemButtonBlocks(std::string
             else
             {
                 delete cont;
-                cont=NULL;
+                cont=nullptr;
             }
             archive.close();
             file.close();
@@ -1275,10 +1275,10 @@ CButtonBlockContainer* CButtonBlockContainer::loadSystemButtonBlocks(std::string
         catch(VFILE_EXCEPTION_TYPE e)
         {
             VFile::reportAndHandleFileExceptionError(e);
-            return(NULL);
+            return(nullptr);
         }
     }
-    return(NULL);
+    return(nullptr);
 }
 
 bool CButtonBlockContainer::getButtonEditMode_editMode()
@@ -1297,7 +1297,7 @@ void CButtonBlockContainer::setButtonEditMode_editMode(bool isOn)
     if (!editMode)
     {
         delete copyOfBlock_forEditMode;
-        copyOfBlock_forEditMode=NULL;
+        copyOfBlock_forEditMode=nullptr;
     }
 }
 
@@ -1306,9 +1306,9 @@ void CButtonBlockContainer::copyBlockInEdition_editMode()
     if (editMode)
     {
         delete copyOfBlock_forEditMode;
-        copyOfBlock_forEditMode=NULL;
+        copyOfBlock_forEditMode=nullptr;
         CButtonBlock* it=getBlockWithID(getBlockInEdition());
-        if (it!=NULL)
+        if (it!=nullptr)
             copyOfBlock_forEditMode=it->copyYourself();
         setBlockInEdition(-1);
     }
@@ -1318,7 +1318,7 @@ void CButtonBlockContainer::pasteCopiedBlock_editMode()
 {
     if (editMode)
     {
-        if (copyOfBlock_forEditMode!=NULL)
+        if (copyOfBlock_forEditMode!=nullptr)
         {
             CButtonBlock* it=copyOfBlock_forEditMode->copyYourself();
             insertBlock(it,false);
@@ -1332,7 +1332,7 @@ void CButtonBlockContainer::deleteBlockInEdition_editMode()
     if (editMode)
     {
         CButtonBlock* it=getBlockWithID(getBlockInEdition());
-        if (it!=NULL)
+        if (it!=nullptr)
             removeBlockFromID(it->getBlockID());
         setBlockInEdition(-1);
     }
@@ -1343,7 +1343,7 @@ bool CButtonBlockContainer::deleteSelectedButtons_editMode()
     if (editMode)
     {
         CButtonBlock* itBlock=getBlockWithID(getBlockInEdition());
-        if (itBlock==NULL)
+        if (itBlock==nullptr)
             return(false);
         if (selectedButtons.size()<1)
             return(false);

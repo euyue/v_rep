@@ -10,33 +10,33 @@
 bool CCollisionRoutine::doEntitiesCollide(int entity1ID,int entity2ID,std::vector<float>* intersections,bool overrideCollidableFlagIfObject1,bool overrideCollidableFlagIfObject2,int collidingObjectIDs[2])
 {   // if entity2ID==-1, then all collidable objects are tested against entity1
     // We first check if objects are valid:
-    C3DObject* object1=App::ct->objCont->getObject(entity1ID);
-    C3DObject* object2=App::ct->objCont->getObject(entity2ID);
-    CRegCollection* collection1=NULL;
-    CRegCollection* collection2=NULL;
-    if (object1==NULL)
+    C3DObject* object1=App::ct->objCont->getObjectFromHandle(entity1ID);
+    C3DObject* object2=App::ct->objCont->getObjectFromHandle(entity2ID);
+    CRegCollection* collection1=nullptr;
+    CRegCollection* collection2=nullptr;
+    if (object1==nullptr)
     {
         collection1=App::ct->collections->getCollection(entity1ID);
-        if (collection1==NULL)
+        if (collection1==nullptr)
             return(false);
     }
-    if (object2==NULL)
+    if (object2==nullptr)
     {
         collection2=App::ct->collections->getCollection(entity2ID);
-        if ( (collection2==NULL)&&(entity2ID!=-1) )
+        if ( (collection2==nullptr)&&(entity2ID!=-1) )
             return(false);
     }
     App::ct->calcInfo->collisionDetectionStart();
     bool collisionResult=false;
-    if (object1!=NULL)
+    if (object1!=nullptr)
     { // Here we have an object against..
-        if (object2!=NULL)
+        if (object2!=nullptr)
         { //...another object
             collisionResult=_doesObjectCollideWithObject(object1,object2,overrideCollidableFlagIfObject1,overrideCollidableFlagIfObject2,intersections);
-            if (collisionResult&&(collidingObjectIDs!=NULL))
+            if (collisionResult&&(collidingObjectIDs!=nullptr))
             {
-                collidingObjectIDs[0]=object1->getID();
-                collidingObjectIDs[1]=object2->getID();
+                collidingObjectIDs[0]=object1->getObjectHandle();
+                collidingObjectIDs[1]=object2->getObjectHandle();
             }
         }
         else
@@ -65,9 +65,9 @@ bool CCollisionRoutine::doEntitiesCollide(int entity1ID,int entity2ID,std::vecto
                 if (object1->getObjectType()==sim_object_pointcloud_type)
                     collisionResult=_doesGroupCollideWithPointCloud(group,(CPointCloud*)object1,overrideCollidableFlagIfObject1,collidingGroupObject);
 
-                if (collisionResult&&(collidingObjectIDs!=NULL))
+                if (collisionResult&&(collidingObjectIDs!=nullptr))
                 {
-                    collidingObjectIDs[0]=object1->getID();
+                    collidingObjectIDs[0]=object1->getObjectHandle();
                     collidingObjectIDs[1]=collidingGroupObject;
                 }
             }
@@ -79,7 +79,7 @@ bool CCollisionRoutine::doEntitiesCollide(int entity1ID,int entity2ID,std::vecto
         App::ct->collections->getCollidableObjectsFromCollection(entity1ID,group1);
         if (group1.size()!=0)
         {
-            if (object2!=NULL)
+            if (object2!=nullptr)
             { // ...an object
                 int collidingGroupObject=-1;
                 if (object2->getObjectType()==sim_object_shape_type)
@@ -91,10 +91,10 @@ bool CCollisionRoutine::doEntitiesCollide(int entity1ID,int entity2ID,std::vecto
                 if (object2->getObjectType()==sim_object_pointcloud_type)
                     collisionResult=_doesGroupCollideWithPointCloud(group1,(CPointCloud*)object2,overrideCollidableFlagIfObject2,collidingGroupObject);
 
-                if (collisionResult&&(collidingObjectIDs!=NULL))
+                if (collisionResult&&(collidingObjectIDs!=nullptr))
                 {
                     collidingObjectIDs[0]=collidingGroupObject;
-                    collidingObjectIDs[1]=object2->getID();
+                    collidingObjectIDs[1]=object2->getObjectHandle();
                 }
             }
             else
@@ -117,7 +117,7 @@ bool CCollisionRoutine::doEntitiesCollide(int entity1ID,int entity2ID,std::vecto
                     else
                         collisionResult=_doesGroupCollideWithItself(group1,intersections,collidingGroupObjects);
 
-                    if (collisionResult&&(collidingObjectIDs!=NULL))
+                    if (collisionResult&&(collidingObjectIDs!=nullptr))
                     {
                         collidingObjectIDs[0]=collidingGroupObjects[0];
                         collidingObjectIDs[1]=collidingGroupObjects[1];
@@ -133,7 +133,7 @@ bool CCollisionRoutine::doEntitiesCollide(int entity1ID,int entity2ID,std::vecto
 //----------------------------------------------------------------------------------
 
 bool CCollisionRoutine::_doesShapeCollideWithShape(CShape* shape1,CShape* shape2,std::vector<float>* intersections,bool overrideShape1CollidableFlag,bool overrideShape2CollidableFlag)
-{   // if intersections is different from NULL we check for all collisions and
+{   // if intersections is different from nullptr we check for all collisions and
     // append intersection segments to the vector.
     // We never check a shape against itself!!
     if (shape1==shape2)
@@ -158,7 +158,7 @@ bool CCollisionRoutine::_doesShapeCollideWithShape(CShape* shape1,CShape* shape2
 }
 
 bool CCollisionRoutine::_doesGroupCollideWithShape(const std::vector<C3DObject*>& group, CShape* shape,std::vector<float>* intersections,bool overrideShapeCollidableFlag,int &collidingGroupObject)
-{   // if intersections is different from NULL we check for ALL shape-shape collisions and
+{   // if intersections is different from nullptr we check for ALL shape-shape collisions and
     // append intersection segments to the vector.
     bool returnValue=false;
     for (size_t i=0;i<group.size();i++)
@@ -170,8 +170,8 @@ bool CCollisionRoutine::_doesGroupCollideWithShape(const std::vector<C3DObject*>
                 if (_doesShapeCollideWithShape(shape,(CShape*)group[i],intersections,overrideShapeCollidableFlag,true))
                 {
                     returnValue=true;
-                    collidingGroupObject=group[i]->getID();
-                    if (intersections==NULL)
+                    collidingGroupObject=group[i]->getObjectHandle();
+                    if (intersections==nullptr)
                         return(true);
                 }
             }
@@ -183,8 +183,8 @@ bool CCollisionRoutine::_doesGroupCollideWithShape(const std::vector<C3DObject*>
                 if (_doesOctreeCollideWithShape((COctree*)group[i],shape,true,overrideShapeCollidableFlag))
                 {
                     returnValue=true;
-                    collidingGroupObject=group[i]->getID();
-                    if (intersections==NULL)
+                    collidingGroupObject=group[i]->getObjectHandle();
+                    if (intersections==nullptr)
                         return(true);
                 }
             }
@@ -194,7 +194,7 @@ bool CCollisionRoutine::_doesGroupCollideWithShape(const std::vector<C3DObject*>
 }
 
 bool CCollisionRoutine::_doesGroupCollideWithGroup(const std::vector<C3DObject*>& group1,const std::vector<C3DObject*>& group2,std::vector<float>* intersections,int collidingGroupObjects[2])
-{   // if intersections is different from NULL we check for all collisions and
+{   // if intersections is different from nullptr we check for all collisions and
     // append intersection segments to the vector.
     bool returnValue=false;
     std::vector<C3DObject*> checkedPairs;
@@ -220,7 +220,7 @@ bool CCollisionRoutine::_doesGroupCollideWithGroup(const std::vector<C3DObject*>
                     checkedPairs.push_back(group2[j]);
 
                     bool doIt=(!returnValue);
-                    if ( (!doIt)&&(intersections!=NULL) )
+                    if ( (!doIt)&&(intersections!=nullptr) )
                     { // we still might have to do it if we have shape-shape colldetection (for the contour)
                         doIt=(group1[i]->getObjectType()==sim_object_shape_type)&&(group2[j]->getObjectType()==sim_object_shape_type);
                     }
@@ -229,9 +229,9 @@ bool CCollisionRoutine::_doesGroupCollideWithGroup(const std::vector<C3DObject*>
                     {
                         if (_doesObjectCollideWithObject(group1[i],group2[j],true,true,intersections))
                         {
-                            collidingGroupObjects[0]=group1[i]->getID();
-                            collidingGroupObjects[1]=group2[j]->getID();
-                            if (intersections==NULL)
+                            collidingGroupObjects[0]=group1[i]->getObjectHandle();
+                            collidingGroupObjects[1]=group2[j]->getObjectHandle();
+                            if (intersections==nullptr)
                                 return(true);
                             returnValue=true;
                         }
@@ -271,7 +271,7 @@ bool CCollisionRoutine::_areObjectBoundingBoxesOverlapping(C3DObject* obj1,C3DOb
 
 bool CCollisionRoutine::_doesOctreeCollideWithShape(COctree* octree,CShape* shape,bool overrideOctreeCollidableFlag,bool overrideShapeCollidableFlag)
 {
-    if (octree->getOctreeInfo()==NULL)
+    if (octree->getOctreeInfo()==nullptr)
         return(false); // Octree is empty
     if ( ( (octree->getCumulativeObjectSpecialProperty()&sim_objectspecialproperty_collidable)==0 )&&(!overrideOctreeCollidableFlag) )
         return(false);
@@ -295,9 +295,9 @@ bool CCollisionRoutine::_doesOctreeCollideWithOctree(COctree* octree1,COctree* o
 {
     if (octree1==octree2)
         return(false); // never self-collision
-    if (octree1->getOctreeInfo()==NULL)
+    if (octree1->getOctreeInfo()==nullptr)
         return(false); // Octree is empty
-    if (octree2->getOctreeInfo()==NULL)
+    if (octree2->getOctreeInfo()==nullptr)
         return(false); // Octree is empty
     if ( ( (octree1->getCumulativeObjectSpecialProperty()&sim_objectspecialproperty_collidable)==0 )&&(!overrideOctree1CollidableFlag) )
         return(false);
@@ -310,9 +310,9 @@ bool CCollisionRoutine::_doesOctreeCollideWithOctree(COctree* octree1,COctree* o
 
 bool CCollisionRoutine::_doesOctreeCollideWithPointCloud(COctree* octree,CPointCloud* pointCloud,bool overrideOctreeCollidableFlag,bool overridePointCloudCollidableFlag)
 {
-    if (octree->getOctreeInfo()==NULL)
+    if (octree->getOctreeInfo()==nullptr)
         return(false); // Octree is empty
-    if (pointCloud->getPointCloudInfo()==NULL)
+    if (pointCloud->getPointCloudInfo()==nullptr)
         return(false); // PointCloud is empty
     if ( ( (octree->getCumulativeObjectSpecialProperty()&sim_objectspecialproperty_collidable)==0 )&&(!overrideOctreeCollidableFlag) )
         return(false);
@@ -327,14 +327,14 @@ bool CCollisionRoutine::_doesOctreeCollideWithPointCloud(COctree* octree,CPointC
 
 bool CCollisionRoutine::_doesOctreeCollideWithDummy(COctree* octree,CDummy* dummy,bool overrideOctreeCollidableFlag,bool overrideDummyCollidableFlag)
 {
-    if (octree->getOctreeInfo()==NULL)
+    if (octree->getOctreeInfo()==nullptr)
         return(false); // Octree is empty
     if ( ( (octree->getCumulativeObjectSpecialProperty()&sim_objectspecialproperty_collidable)==0 )&&(!overrideOctreeCollidableFlag) )
         return(false);
     if ( ( (dummy->getCumulativeObjectSpecialProperty()&sim_objectspecialproperty_collidable)==0 )&&(!overrideDummyCollidableFlag) )
         return(false);
 
-    return(CPluginContainer::mesh_checkOctreeCollisionWithSinglePoint(octree->getOctreeInfo(),octree->getCumulativeTransformation().getMatrix(),dummy->getCumulativeTransformation().X,NULL,NULL));
+    return(CPluginContainer::mesh_checkOctreeCollisionWithSinglePoint(octree->getOctreeInfo(),octree->getCumulativeTransformation().getMatrix(),dummy->getCumulativeTransformation().X,nullptr,nullptr));
 }
 
 bool CCollisionRoutine::_doesObjectCollideWithObject(C3DObject* object1,C3DObject* object2,bool overrideObject1CollidableFlag,bool overrideObject2CollidableFlag,std::vector<float>* intersections)
@@ -379,7 +379,7 @@ bool CCollisionRoutine::_doesGroupCollideWithOctree(const std::vector<C3DObject*
         {
             if (_doesOctreeCollideWithShape(octree,(CShape*)group[i],overrideOctreeCollidableFlag,true))
             {
-                collidingGroupObject=group[i]->getID();
+                collidingGroupObject=group[i]->getObjectHandle();
                 return(true);
             }
         }
@@ -387,7 +387,7 @@ bool CCollisionRoutine::_doesGroupCollideWithOctree(const std::vector<C3DObject*
         {
             if (_doesOctreeCollideWithDummy(octree,(CDummy*)group[i],overrideOctreeCollidableFlag,true))
             {
-                collidingGroupObject=group[i]->getID();
+                collidingGroupObject=group[i]->getObjectHandle();
                 return(true);
             }
         }
@@ -397,7 +397,7 @@ bool CCollisionRoutine::_doesGroupCollideWithOctree(const std::vector<C3DObject*
             { // never self-collision
                 if (_doesOctreeCollideWithOctree(octree,(COctree*)group[i],overrideOctreeCollidableFlag,true))
                 {
-                    collidingGroupObject=group[i]->getID();
+                    collidingGroupObject=group[i]->getObjectHandle();
                     return(true);
                 }
             }
@@ -406,7 +406,7 @@ bool CCollisionRoutine::_doesGroupCollideWithOctree(const std::vector<C3DObject*
         {
             if (_doesOctreeCollideWithPointCloud(octree,(CPointCloud*)group[i],overrideOctreeCollidableFlag,true))
             {
-                collidingGroupObject=group[i]->getID();
+                collidingGroupObject=group[i]->getObjectHandle();
                 return(true);
             }
         }
@@ -422,7 +422,7 @@ bool CCollisionRoutine::_doesGroupCollideWithDummy(const std::vector<C3DObject*>
         {
             if (_doesOctreeCollideWithDummy((COctree*)group[i],dummy,overrideDummyCollidableFlag,true))
             {
-                collidingGroupObject=group[i]->getID();
+                collidingGroupObject=group[i]->getObjectHandle();
                 return(true);
             }
         }
@@ -438,7 +438,7 @@ bool CCollisionRoutine::_doesGroupCollideWithPointCloud(const std::vector<C3DObj
         {
             if (_doesOctreeCollideWithPointCloud((COctree*)group[i],pointCloud,overridePointCloudCollidableFlag,true))
             {
-                collidingGroupObject=group[i]->getID();
+                collidingGroupObject=group[i]->getObjectHandle();
                 return(true);
             }
         }
@@ -447,7 +447,7 @@ bool CCollisionRoutine::_doesGroupCollideWithPointCloud(const std::vector<C3DObj
 }
 
 bool CCollisionRoutine::_doesGroupCollideWithItself(const std::vector<C3DObject*>& group,std::vector<float>* intersections,int collidingGroupObjects[2])
-{   // if intersections is different from NULL we check for all collisions and
+{   // if intersections is different from nullptr we check for all collisions and
     // append intersection segments to the vector.
 
     std::vector<C3DObject*> objPairs; // Object pairs we need to check
@@ -489,10 +489,10 @@ bool CCollisionRoutine::_doesGroupCollideWithItself(const std::vector<C3DObject*
     {
         C3DObject* obj1=objPairs[2*i+0];
         C3DObject* obj2=objPairs[2*i+1];
-        if (obj1!=NULL) // to take into account a removed pair
+        if (obj1!=nullptr) // to take into account a removed pair
         {
             bool doIt=(!returnValue);
-            if ( (!doIt)&&(intersections!=NULL) )
+            if ( (!doIt)&&(intersections!=nullptr) )
             { // we still might have to do it if we have shape-shape colldetection (for the contour)
                 doIt=(obj1->getObjectType()==sim_object_shape_type)&&(obj2->getObjectType()==sim_object_shape_type);
             }
@@ -500,9 +500,9 @@ bool CCollisionRoutine::_doesGroupCollideWithItself(const std::vector<C3DObject*
             {
                 if (_doesObjectCollideWithObject(obj1,obj2,true,true,intersections))
                 {
-                    collidingGroupObjects[0]=obj1->getID();
-                    collidingGroupObjects[1]=obj2->getID();
-                    if (intersections==NULL)
+                    collidingGroupObjects[0]=obj1->getObjectHandle();
+                    collidingGroupObjects[1]=obj2->getObjectHandle();
+                    if (intersections==nullptr)
                         return(true);
                     returnValue=true;
                 }

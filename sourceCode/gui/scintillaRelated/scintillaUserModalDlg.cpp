@@ -61,7 +61,7 @@ CScintillaUserModalDlg::CScintillaUserModalDlg(const std::string& xmlInfo,QWidge
     {
         tinyxml2::XMLElement* rootElement=xmldoc.FirstChildElement();
         const char* str=rootElement->Attribute("title");
-        if (str!=NULL)
+        if (str!=nullptr)
             setWindowTitle(str);
         str=rootElement->Attribute("textColor");
         _getColorFromString(str,_textColor);
@@ -89,10 +89,10 @@ CScintillaUserModalDlg::CScintillaUserModalDlg(const std::string& xmlInfo,QWidge
         _getColorFromString(str,_word4Color);
 
         str=rootElement->Attribute("tabWidth");
-        if (str!=NULL)
+        if (str!=nullptr)
             tt::stringToInt(str,tabWidth);
         str=rootElement->Attribute("size");
-        if (str!=NULL)
+        if (str!=nullptr)
         {
             std::string line(str);
             std::string w;
@@ -104,7 +104,7 @@ CScintillaUserModalDlg::CScintillaUserModalDlg(const std::string& xmlInfo,QWidge
             }
         }
         str=rootElement->Attribute("position");
-        if (str!=NULL)
+        if (str!=nullptr)
         {
             std::string line(str);
             std::string w;
@@ -120,19 +120,19 @@ CScintillaUserModalDlg::CScintillaUserModalDlg(const std::string& xmlInfo,QWidge
         rootElement->QueryBoolAttribute("isLua",&_isLua);
         rootElement->QueryBoolAttribute("useVrepKeywords",&_useVrepKeywords);
 //      str=rootElement->Attribute("lexer");
-//      if (str!=NULL)
+//      if (str!=nullptr)
 //          lexerStr=str;
 
         tinyxml2::XMLElement* keyw1Element=rootElement->FirstChildElement("keywords1");
-        if (keyw1Element!=NULL)
+        if (keyw1Element!=nullptr)
         {
             str=keyw1Element->Attribute("color");
             _getColorFromString(str,_keywords1Color);
             tinyxml2::XMLElement* w=keyw1Element->FirstChildElement("item");
-            while (w!=NULL)
+            while (w!=nullptr)
             {
                 str=w->Attribute("word");
-                if (str!=NULL)
+                if (str!=nullptr)
                 {
                     if (_allKeywords1.size()>0)
                         _allKeywords1+=" ";
@@ -142,7 +142,7 @@ CScintillaUserModalDlg::CScintillaUserModalDlg(const std::string& xmlInfo,QWidge
                     b.autocomplete=true;
                     w->QueryBoolAttribute("autocomplete",&b.autocomplete);
                     str=w->Attribute("calltip");
-                    if (str!=NULL)
+                    if (str!=nullptr)
                         b.callTip=str;
                     _keywords1.push_back(b);
                 }
@@ -190,15 +190,15 @@ CScintillaUserModalDlg::CScintillaUserModalDlg(const std::string& xmlInfo,QWidge
         }
 
         tinyxml2::XMLElement* keyw2Element=rootElement->FirstChildElement("keywords2");
-        if (keyw2Element!=NULL)
+        if (keyw2Element!=nullptr)
         {
             str=keyw2Element->Attribute("color");
             _getColorFromString(str,_keywords2Color);
             tinyxml2::XMLElement* w=keyw2Element->FirstChildElement("item");
-            while (w!=NULL)
+            while (w!=nullptr)
             {
                 str=w->Attribute("word");
-                if (str!=NULL)
+                if (str!=nullptr)
                 {
                     if (_allKeywords2.size()>0)
                         _allKeywords2+=" ";
@@ -208,7 +208,7 @@ CScintillaUserModalDlg::CScintillaUserModalDlg(const std::string& xmlInfo,QWidge
                     b.autocomplete=true;
                     w->QueryBoolAttribute("autocomplete",&b.autocomplete);
                     str=w->Attribute("calltip");
-                    if (str!=NULL)
+                    if (str!=nullptr)
                         b.callTip=str;
                     _keywords2.push_back(b);
 
@@ -267,7 +267,7 @@ CScintillaUserModalDlg::CScintillaUserModalDlg(const std::string& xmlInfo,QWidge
 
 // use following if using a QMainWindow!!!   setCentralWidget(_scintillaObject);
 
-    QsciLexer* lexer=NULL;
+    QsciLexer* lexer=nullptr;
     if (lexerStr.compare("lua")==0)
         lexer=new QsciLexerLua;
     /*
@@ -282,7 +282,7 @@ CScintillaUserModalDlg::CScintillaUserModalDlg(const std::string& xmlInfo,QWidge
     if (lexerStr.compare("octave")==0)
         lexer=new QsciLexerOctave;
     */
-    if (lexer!=NULL)
+    if (lexer!=nullptr)
         _scintillaObject->setLexer(lexer);
 
     _scintillaObject->SendScintilla(QsciScintillaBase::SCI_SETSTYLEBITS,(int)5);
@@ -555,7 +555,7 @@ void CScintillaUserModalDlg::_onFind()
 
 void CScintillaUserModalDlg::_getColorFromString(const char* txt,unsigned int& col) const
 {
-    if (txt!=NULL)
+    if (txt!=nullptr)
     {
         std::string str(txt);
         int r,g,b;

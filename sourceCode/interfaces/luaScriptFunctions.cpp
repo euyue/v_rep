@@ -45,7 +45,7 @@ if (_hasErrors(errorString)) \
     if (App::userSettings->raiseErrorWithApiScriptFunctions) \
     { \
         CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptID(L)); \
-        if ((it!=NULL)&&((it->getErrorReportMode()&(sim_api_error_report|sim_api_error_output))!=0)) \
+        if ((it!=nullptr)&&((it->getErrorReportMode()&(sim_api_error_report|sim_api_error_output))!=0)) \
         { \
             CApiErrors::decorateLuaErrorMessage(functionName.c_str(),errorString); \
             forgetLocation(); \
@@ -318,8 +318,8 @@ const SLuaCommands simLuaCommands[]=
     {"sim.auxiliaryConsolePrint",_simAuxiliaryConsolePrint,      "number result=sim.auxiliaryConsolePrint(number consoleHandle,string text)",true},
     {"sim.auxiliaryConsoleShow",_simAuxiliaryConsoleShow,        "number result=sim.auxiliaryConsoleShow(number consoleHandle,Boolean showState)",true},
     {"sim.importShape",_simImportShape,                          "number shapeHandle=sim.importShape(number fileformat,string pathAndFilename,number options,number identicalVerticeTolerance\n,number scalingFactor)",true},
-    {"sim.importMesh",_simImportMesh,                            "table_of_table vertices,table_of_table indices,nil,table names=sim.importMesh(number fileformat,string pathAndFilename,\nnumber options,number identicalVerticeTolerance,number scalingFactor)",true},
-    {"sim.exportMesh",_simExportMesh,                            "number result=sim.exportMesh(number fileformat,string pathAndFilename,number options,number scalingFactor,\ntable_of_table vertices,table_of_table indices,nil,table names)",true},
+    {"sim.importMesh",_simImportMesh,                            "table_of_table vertices,table_of_table indices=sim.importMesh(number fileformat,string pathAndFilename,\nnumber options,number identicalVerticeTolerance,number scalingFactor)",true},
+    {"sim.exportMesh",_simExportMesh,                            "number result=sim.exportMesh(number fileformat,string pathAndFilename,number options,number scalingFactor,\ntable_of_table vertices,table_of_table indices)",true},
     {"sim.createMeshShape",_simCreateMeshShape,                  "number objectHandle=sim.createMeshShape(number options,number shadingAngle,table vertices,table indices)",true},
     {"sim.getShapeMesh",_simGetShapeMesh,                        "table vertices,table indices,table normals=sim.getShapeMesh(number shapeHandle)",true},
     {"sim.createPureShape",_simCreatePureShape,                  "number objectHandle=sim.createPureShape(number primitiveType,number options,table_3 sizes,number mass,table_2 precision=nil)",true},
@@ -479,7 +479,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.handleChildScripts_legacy",_simHandleChildScripts_legacy,    "Deprecated",false},
     {"sim.launchThreadedChildScripts_legacy",_simLaunchThreadedChildScripts_legacy,"Deprecated",false},
     {"sim.resumeThreads_legacy",_simResumeThreads_legacy,           "Deprecated",false},
-    {"",NULL,"",false}
+    {"",nullptr,"",false}
 };
 
 
@@ -996,7 +996,7 @@ const SLuaCommands simLuaCommandsOldApi[]=
     // Following for backward compatibility (deprecated since 23/5/2014):
     {"simRMLPosition",_simRMLPosition,                              "Deprecated. Use sim.rmlPos instead",false},
     {"simRMLVelocity",_simRMLVelocity,                              "Deprecated. Use sim.rmlVel instead",false},
-    {"",NULL,"",false}
+    {"",nullptr,"",false}
 };
 
 const SLuaVariables simLuaVariables[]=
@@ -3010,7 +3010,7 @@ bool isObjectAssociatedWithThisThreadedChildScriptValid(luaWrap_lua_State* L)
 {
     int id=getCurrentScriptID(L);
     CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(id);
-    if (script==NULL)
+    if (script==nullptr)
         return(false);
     int h=script->getObjectIDThatScriptIsAttachedTo_child();
     return(h!=-1);
@@ -3030,7 +3030,7 @@ void memorizeLocation(luaWrap_lua_State* L)
 
     std::string scriptName("");
     CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptID(L));
-    if (it!=NULL)
+    if (it!=nullptr)
         scriptName=it->getShortDescriptiveName();
     int lineNumber=-1;
     lineNumber=luaWrap_getCurrentCodeLine(L);
@@ -3118,7 +3118,7 @@ void getScriptTree(luaWrap_lua_State* L,bool selfIncluded,std::vector<int>& scri
     int currentScriptID=getCurrentScriptID(L);
 
     CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(currentScriptID);
-    if (it!=NULL)
+    if (it!=nullptr)
     {
         if (it->getScriptType()==sim_scripttype_mainscript)
         { // we have a main script here
@@ -3126,17 +3126,17 @@ void getScriptTree(luaWrap_lua_State* L,bool selfIncluded,std::vector<int>& scri
                 scriptHandles.push_back(currentScriptID);
             for (int i=0;i<int(App::ct->objCont->objectList.size());i++)
             {
-                C3DObject* q=App::ct->objCont->getObject(App::ct->objCont->objectList[i]);
-                CLuaScriptObject* lso=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(q->getID());
-                if (lso!=NULL)
+                C3DObject* q=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
+                CLuaScriptObject* lso=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(q->getObjectHandle());
+                if (lso!=nullptr)
                     scriptHandles.push_back(lso->getScriptID());
             }
         }
 
         if (it->getScriptType()==sim_scripttype_childscript)
         { // we have a child script
-            C3DObject* obj=App::ct->objCont->getObject(it->getObjectIDThatScriptIsAttachedTo_child());
-            if (obj!=NULL)
+            C3DObject* obj=App::ct->objCont->getObjectFromHandle(it->getObjectIDThatScriptIsAttachedTo_child());
+            if (obj!=nullptr)
             { // should always pass
                 if (selfIncluded)
                     scriptHandles.push_back(currentScriptID);
@@ -3145,8 +3145,8 @@ void getScriptTree(luaWrap_lua_State* L,bool selfIncluded,std::vector<int>& scri
                 obj->getAllObjectsRecursive(&objList,false);
                 for (int i=0;i<int(objList.size());i++)
                 {
-                    CLuaScriptObject* lso=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(objList[i]->getID());
-                    if (lso!=NULL)
+                    CLuaScriptObject* lso=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(objList[i]->getObjectHandle());
+                    if (lso!=nullptr)
                         scriptHandles.push_back(lso->getScriptID());
                 }
             }
@@ -3154,13 +3154,13 @@ void getScriptTree(luaWrap_lua_State* L,bool selfIncluded,std::vector<int>& scri
 
         if (it->getScriptType()==sim_scripttype_jointctrlcallback)
         { // we have a joint ctrl callback script
-            C3DObject* obj=App::ct->objCont->getObject(it->getObjectIDThatScriptIsAttachedTo_callback_OLD());
-            if (obj!=NULL)
+            C3DObject* obj=App::ct->objCont->getObjectFromHandle(it->getObjectIDThatScriptIsAttachedTo_callback_OLD());
+            if (obj!=nullptr)
             { // should always pass
                 if (selfIncluded)
                 {
-                    CLuaScriptObject* aScript=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(obj->getID());
-                    if (aScript!=NULL)
+                    CLuaScriptObject* aScript=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(obj->getObjectHandle());
+                    if (aScript!=nullptr)
                         scriptHandles.push_back(aScript->getScriptID());
                 }
 
@@ -3168,8 +3168,8 @@ void getScriptTree(luaWrap_lua_State* L,bool selfIncluded,std::vector<int>& scri
                 obj->getAllObjectsRecursive(&objList,false);
                 for (int i=0;i<int(objList.size());i++)
                 {
-                    CLuaScriptObject* lso=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(objList[i]->getID());
-                    if (lso!=NULL)
+                    CLuaScriptObject* lso=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(objList[i]->getObjectHandle());
+                    if (lso!=nullptr)
                         scriptHandles.push_back(lso->getScriptID());
                 }
             }
@@ -3177,13 +3177,13 @@ void getScriptTree(luaWrap_lua_State* L,bool selfIncluded,std::vector<int>& scri
 
         if (it->getScriptType()==sim_scripttype_customizationscript)
         { // we have a customization script
-            C3DObject* obj=App::ct->objCont->getObject(it->getObjectIDThatScriptIsAttachedTo_customization());
-            if (obj!=NULL)
+            C3DObject* obj=App::ct->objCont->getObjectFromHandle(it->getObjectIDThatScriptIsAttachedTo_customization());
+            if (obj!=nullptr)
             { // should always pass
                 if (selfIncluded)
                 {
-                    CLuaScriptObject* aScript=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(obj->getID());
-                    if (aScript!=NULL)
+                    CLuaScriptObject* aScript=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(obj->getObjectHandle());
+                    if (aScript!=nullptr)
                         scriptHandles.push_back(aScript->getScriptID());
                 }
 
@@ -3191,8 +3191,8 @@ void getScriptTree(luaWrap_lua_State* L,bool selfIncluded,std::vector<int>& scri
                 obj->getAllObjectsRecursive(&objList,false);
                 for (int i=0;i<int(objList.size());i++)
                 {
-                    CLuaScriptObject* lso=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(objList[i]->getID());
-                    if (lso!=NULL)
+                    CLuaScriptObject* lso=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(objList[i]->getObjectHandle());
+                    if (lso!=nullptr)
                     {
                         scriptHandles.push_back(lso->getScriptID());
                     }
@@ -3209,7 +3209,7 @@ void getScriptChain(luaWrap_lua_State* L,bool selfIncluded,bool mainIncluded,std
 
     CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(currentScriptID);
 
-    if (it!=NULL)
+    if (it!=nullptr)
     {
         if (it->getScriptType()==sim_scripttype_mainscript)
         { // we have a main script here
@@ -3219,22 +3219,22 @@ void getScriptChain(luaWrap_lua_State* L,bool selfIncluded,bool mainIncluded,std
 
         if (it->getScriptType()==sim_scripttype_childscript)
         { // we have a child script here
-            C3DObject* obj=App::ct->objCont->getObject(it->getObjectIDThatScriptIsAttachedTo_child());
-            if (obj!=NULL)
+            C3DObject* obj=App::ct->objCont->getObjectFromHandle(it->getObjectIDThatScriptIsAttachedTo_child());
+            if (obj!=nullptr)
             {
                 if (selfIncluded)
                     scriptHandles.push_back(currentScriptID);
-                while (obj->getParent()!=NULL)
+                while (obj->getParentObject()!=nullptr)
                 {
-                    obj=obj->getParent();
-                    CLuaScriptObject* lso=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(obj->getID());
-                    if (lso!=NULL)
+                    obj=obj->getParentObject();
+                    CLuaScriptObject* lso=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(obj->getObjectHandle());
+                    if (lso!=nullptr)
                         scriptHandles.push_back(lso->getScriptID());
                 }
                 if (mainIncluded)
                 {
                     CLuaScriptObject* lso=App::ct->luaScriptContainer->getMainScript();
-                    if (lso!=NULL)
+                    if (lso!=nullptr)
                         scriptHandles.push_back(lso->getScriptID());
                 }
             }
@@ -3242,26 +3242,26 @@ void getScriptChain(luaWrap_lua_State* L,bool selfIncluded,bool mainIncluded,std
 
         if (it->getScriptType()==sim_scripttype_jointctrlcallback)
         { // we have a joint callback script here
-            C3DObject* obj=App::ct->objCont->getObject(it->getObjectIDThatScriptIsAttachedTo_callback_OLD());
-            if (obj!=NULL)
+            C3DObject* obj=App::ct->objCont->getObjectFromHandle(it->getObjectIDThatScriptIsAttachedTo_callback_OLD());
+            if (obj!=nullptr)
             {
                 if (selfIncluded)
                 {
-                    CLuaScriptObject* aScript=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(obj->getID());
-                    if (aScript!=NULL)
+                    CLuaScriptObject* aScript=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(obj->getObjectHandle());
+                    if (aScript!=nullptr)
                         scriptHandles.push_back(aScript->getScriptID());
                 }
-                while (obj->getParent()!=NULL)
+                while (obj->getParentObject()!=nullptr)
                 {
-                    obj=obj->getParent();
-                    CLuaScriptObject* lso=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(obj->getID());
-                    if (lso!=NULL)
+                    obj=obj->getParentObject();
+                    CLuaScriptObject* lso=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(obj->getObjectHandle());
+                    if (lso!=nullptr)
                         scriptHandles.push_back(lso->getScriptID());
                 }
                 if (mainIncluded)
                 {
                     CLuaScriptObject* lso=App::ct->luaScriptContainer->getMainScript();
-                    if (lso!=NULL)
+                    if (lso!=nullptr)
                         scriptHandles.push_back(lso->getScriptID());
                 }
             }
@@ -3269,26 +3269,26 @@ void getScriptChain(luaWrap_lua_State* L,bool selfIncluded,bool mainIncluded,std
 
         if (it->getScriptType()==sim_scripttype_customizationscript)
         { // we have a customization script here
-            C3DObject* obj=App::ct->objCont->getObject(it->getObjectIDThatScriptIsAttachedTo_customization());
-            if (obj!=NULL)
+            C3DObject* obj=App::ct->objCont->getObjectFromHandle(it->getObjectIDThatScriptIsAttachedTo_customization());
+            if (obj!=nullptr)
             {
                 if (selfIncluded)
                 {
-                    CLuaScriptObject* aScript=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(obj->getID());
-                    if (aScript!=NULL)
+                    CLuaScriptObject* aScript=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(obj->getObjectHandle());
+                    if (aScript!=nullptr)
                         scriptHandles.push_back(aScript->getScriptID());
                 }
-                while (obj->getParent()!=NULL)
+                while (obj->getParentObject()!=nullptr)
                 {
-                    obj=obj->getParent();
-                    CLuaScriptObject* lso=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(obj->getID());
-                    if (lso!=NULL)
+                    obj=obj->getParentObject();
+                    CLuaScriptObject* lso=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(obj->getObjectHandle());
+                    if (lso!=nullptr)
                         scriptHandles.push_back(lso->getScriptID());
                 }
                 if (mainIncluded)
                 {
                     CLuaScriptObject* lso=App::ct->luaScriptContainer->getMainScript();
-                    if (lso!=NULL)
+                    if (lso!=nullptr)
                         scriptHandles.push_back(lso->getScriptID());
                 }
             }
@@ -3437,7 +3437,7 @@ void luaHookFunction(luaWrap_lua_State* L,luaWrap_lua_Debug* ar)
 {
     FUNCTION_DEBUG;
     CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptID(L));
-    if (it==NULL)
+    if (it==nullptr)
         return; // the script ID was not yet set
     int debugLevel=it->getDebugLevel();
 
@@ -3471,7 +3471,7 @@ void luaHookFunction(luaWrap_lua_State* L,luaWrap_lua_Debug* ar)
             if (App::userSettings->getAbortScriptExecutionTiming()!=0)
             {
                 bool doIt=( (App::ct->luaScriptContainer->getMainScriptExecTimeInMs()>(App::userSettings->getAbortScriptExecutionTiming()*1000))&&App::ct->luaScriptContainer->getInMainScriptNow() );
-                if ( (App::mainWindow!=NULL)&&(App::mainWindow->openglWidget->getModelDragAndDropInfo()==NULL) )
+                if ( (App::mainWindow!=nullptr)&&(App::mainWindow->openglWidget->getModelDragAndDropInfo()==nullptr) )
                 { // Otherwise can get very slow somehow
                     App::ct->simulation->showAndHandleEmergencyStopButton(doIt,it->getShortDescriptiveName().c_str());
                 }
@@ -3515,7 +3515,7 @@ void luaHookFunction(luaWrap_lua_State* L,luaWrap_lua_Debug* ar)
 #ifdef SIM_WITH_GUI
             if (App::userSettings->getAbortScriptExecutionTiming()!=0)
             {
-                if ( (App::mainWindow!=NULL)&&(App::mainWindow->openglWidget->getModelDragAndDropInfo()==NULL) )
+                if ( (App::mainWindow!=nullptr)&&(App::mainWindow->openglWidget->getModelDragAndDropInfo()==nullptr) )
                 { // Otherwise can get very slow somehow
                     if ( it->getScriptExecutionTimeInMs()>(App::userSettings->getAbortScriptExecutionTiming()*1000) )
                     {
@@ -4011,7 +4011,7 @@ int checkOneGeneralInputArgument(luaWrap_lua_State* L,int index,
     { // That data is missing:
         if (optional)
             return(0);
-        if (errStr!=NULL)
+        if (errStr!=nullptr)
             errStr->assign(SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS);
         return(-1);
     }
@@ -4025,7 +4025,7 @@ int checkOneGeneralInputArgument(luaWrap_lua_State* L,int index,
             return(2);
         if (nilInsteadOfTypeAndCountAllowed)
             return(1);
-        if (errStr!=NULL)
+        if (errStr!=nullptr)
             errStr->assign(SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG);
         return(-1);
     }
@@ -4035,14 +4035,14 @@ int checkOneGeneralInputArgument(luaWrap_lua_State* L,int index,
         // We check if we really have a table at that position:
         if (!luaWrap_lua_istable(L,index))
         {
-            if (errStr!=NULL)
+            if (errStr!=nullptr)
                 errStr->assign(SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG);
             return(-1);
         }
         // we check the table size:
         if (int(luaWrap_lua_objlen(L,index))<cnt_orZeroIfNotTable)
         { // the size is not correct
-            if (errStr!=NULL)
+            if (errStr!=nullptr)
                 errStr->assign(SIM_ERROR_ONE_TABLE_SIZE_IS_WRONG);
             return(-1);
         }
@@ -4088,7 +4088,7 @@ bool checkOneInputArgument(luaWrap_lua_State* L,int index,int type,std::string* 
     // 1. We check if there is something on the stack at that position:
     if (luaWrap_lua_gettop(L)<index)
     { // That data is missing:
-        if (errStr!=NULL)
+        if (errStr!=nullptr)
             errStr->assign(SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS);
         return(false);
     }
@@ -4096,7 +4096,7 @@ bool checkOneInputArgument(luaWrap_lua_State* L,int index,int type,std::string* 
     {
         if (!luaWrap_lua_isnumber(L,index))
         {
-            if (errStr!=NULL)
+            if (errStr!=nullptr)
                 errStr->assign(SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG);
             return(false); // error
         }
@@ -4110,7 +4110,7 @@ bool checkOneInputArgument(luaWrap_lua_State* L,int index,int type,std::string* 
     { // Here we expect a nil value:
         if (!luaWrap_lua_isnil(L,index))
         {
-            if (errStr!=NULL)
+            if (errStr!=nullptr)
                 errStr->assign(SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG);
             return(false);
         }
@@ -4120,7 +4120,7 @@ bool checkOneInputArgument(luaWrap_lua_State* L,int index,int type,std::string* 
     {
         if (!luaWrap_lua_isstring(L,index))
         {
-            if (errStr!=NULL)
+            if (errStr!=nullptr)
                 errStr->assign(SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG);
             return(false); // error
         }
@@ -4130,7 +4130,7 @@ bool checkOneInputArgument(luaWrap_lua_State* L,int index,int type,std::string* 
     {
         if (!luaWrap_lua_istable(L,index))
         {
-            if (errStr!=NULL)
+            if (errStr!=nullptr)
                 errStr->assign(SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG);
             return(false); // error
         }
@@ -4140,7 +4140,7 @@ bool checkOneInputArgument(luaWrap_lua_State* L,int index,int type,std::string* 
     {
         if (!luaWrap_lua_isfunction(L,index))
         {
-            if (errStr!=NULL)
+            if (errStr!=nullptr)
                 errStr->assign(SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG);
             return(false); // error
         }
@@ -4150,14 +4150,14 @@ bool checkOneInputArgument(luaWrap_lua_State* L,int index,int type,std::string* 
     {
         if (!luaWrap_lua_isuserdata(L,index))
         {
-            if (errStr!=NULL)
+            if (errStr!=nullptr)
                 errStr->assign(SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG);
             return(false); // error
         }
         return(true);
     }
     // Here we have a table
-    if (errStr!=NULL)
+    if (errStr!=nullptr)
         errStr->assign(SIM_ERROR_ONE_ARGUMENT_TYPE_IS_WRONG);
     return(false);
 }
@@ -4196,7 +4196,7 @@ bool checkInputArguments(luaWrap_lua_State* L,std::string* errStr,
     int numberOfArguments=luaWrap_lua_gettop(L);
     if (numberOfArguments<totArgs)
     { // we don't have enough arguments!
-        if (errStr!=NULL)
+        if (errStr!=nullptr)
             errStr->assign(SIM_ERROR_FUNCTION_REQUIRES_MORE_ARGUMENTS);
         return(false); // error
     }
@@ -4228,21 +4228,21 @@ int _genericFunctionHandler_new(luaWrap_lua_State* L,CLuaCustomFunction* func,st
     int linkedObject=-1;
     if (itObj->getScriptType()==sim_scripttype_childscript)
     {
-        C3DObject* obj=App::ct->objCont->getObject(itObj->getObjectIDThatScriptIsAttachedTo_child());
-        if (obj!=NULL)
-            linkedObject=obj->getID();
+        C3DObject* obj=App::ct->objCont->getObjectFromHandle(itObj->getObjectIDThatScriptIsAttachedTo_child());
+        if (obj!=nullptr)
+            linkedObject=obj->getObjectHandle();
     }
     if (itObj->getScriptType()==sim_scripttype_jointctrlcallback)
     {
-        C3DObject* obj=App::ct->objCont->getObject(itObj->getObjectIDThatScriptIsAttachedTo_callback_OLD());
-        if (obj!=NULL)
-            linkedObject=obj->getID();
+        C3DObject* obj=App::ct->objCont->getObjectFromHandle(itObj->getObjectIDThatScriptIsAttachedTo_callback_OLD());
+        if (obj!=nullptr)
+            linkedObject=obj->getObjectHandle();
     }
     if (itObj->getScriptType()==sim_scripttype_customizationscript)
     {
-        C3DObject* obj=App::ct->objCont->getObject(itObj->getObjectIDThatScriptIsAttachedTo_customization());
-        if (obj!=NULL)
-            linkedObject=obj->getID();
+        C3DObject* obj=App::ct->objCont->getObjectFromHandle(itObj->getObjectIDThatScriptIsAttachedTo_customization());
+        if (obj!=nullptr)
+            linkedObject=obj->getObjectHandle();
     }
 
     // We prepare the callback structure:
@@ -4324,42 +4324,42 @@ int _genericFunctionHandler_old(luaWrap_lua_State* L,CLuaCustomFunction* func)
     int linkedObject=-1;
     if (itObj->getScriptType()==sim_scripttype_childscript)
     {
-        C3DObject* obj=App::ct->objCont->getObject(itObj->getObjectIDThatScriptIsAttachedTo_child());
-        if (obj!=NULL)
-            linkedObject=obj->getID();
+        C3DObject* obj=App::ct->objCont->getObjectFromHandle(itObj->getObjectIDThatScriptIsAttachedTo_child());
+        if (obj!=nullptr)
+            linkedObject=obj->getObjectHandle();
     }
     if (itObj->getScriptType()==sim_scripttype_jointctrlcallback)
     {
-        C3DObject* obj=App::ct->objCont->getObject(itObj->getObjectIDThatScriptIsAttachedTo_callback_OLD());
-        if (obj!=NULL)
-            linkedObject=obj->getID();
+        C3DObject* obj=App::ct->objCont->getObjectFromHandle(itObj->getObjectIDThatScriptIsAttachedTo_callback_OLD());
+        if (obj!=nullptr)
+            linkedObject=obj->getObjectHandle();
     }
     if (itObj->getScriptType()==sim_scripttype_customizationscript)
     {
-        C3DObject* obj=App::ct->objCont->getObject(itObj->getObjectIDThatScriptIsAttachedTo_customization());
-        if (obj!=NULL)
-            linkedObject=obj->getID();
+        C3DObject* obj=App::ct->objCont->getObjectFromHandle(itObj->getObjectIDThatScriptIsAttachedTo_customization());
+        if (obj!=nullptr)
+            linkedObject=obj->getObjectHandle();
     }
     // We prepare the callback structure:
     SLuaCallBack* p=new SLuaCallBack;
     p->objectID=linkedObject;
     p->scriptID=currentScriptID;
-    p->inputBool=NULL;
-    p->inputInt=NULL;
-    p->inputFloat=NULL;
-    p->inputDouble=NULL;
-    p->inputChar=NULL;
-    p->inputCharBuff=NULL;
+    p->inputBool=nullptr;
+    p->inputInt=nullptr;
+    p->inputFloat=nullptr;
+    p->inputDouble=nullptr;
+    p->inputChar=nullptr;
+    p->inputCharBuff=nullptr;
     p->inputArgCount=0;
-    p->inputArgTypeAndSize=NULL;
-    p->outputBool=NULL;
-    p->outputInt=NULL;
-    p->outputFloat=NULL;
-    p->outputDouble=NULL;
-    p->outputChar=NULL;
-    p->outputCharBuff=NULL;
+    p->inputArgTypeAndSize=nullptr;
+    p->outputBool=nullptr;
+    p->outputInt=nullptr;
+    p->outputFloat=nullptr;
+    p->outputDouble=nullptr;
+    p->outputChar=nullptr;
+    p->outputCharBuff=nullptr;
     p->outputArgCount=0;
-    p->outputArgTypeAndSize=NULL;
+    p->outputArgTypeAndSize=nullptr;
     p->waitUntilZero=0;
     // Now we prepare the input buffers:
     p->inputBool=new unsigned char[inBoolVector.size()];
@@ -4800,14 +4800,14 @@ int _simHandleChildScripts(luaWrap_lua_State* L)
         int callType=luaWrap_lua_tointeger(L,1);
         int currentScriptID=getCurrentScriptID(L);
         CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(currentScriptID);
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             if (it->getScriptType()==sim_scripttype_mainscript)
             { // only the main script can call this function
                 CInterfaceStack inStack;
                 inStack.buildFromLuaStack(L,2);
                 int startT=VDateTime::getTimeInMs();
-                retVal=App::ct->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript,callType,&inStack,NULL,NULL);
+                retVal=App::ct->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript,callType,&inStack,nullptr,nullptr);
                 App::ct->calcInfo->addChildScriptCalcTime(VDateTime::getTimeInMs()-startT,false);
                 if (callType==sim_syscb_sensing)
                     App::ct->calcInfo->addChildScriptExecCnt(App::ct->luaScriptContainer->getCalledScriptsCountInThisSimulationStep(sim_scripttype_childscript),false);
@@ -4833,12 +4833,12 @@ int _simLaunchThreadedChildScripts(luaWrap_lua_State* L)
     int retVal=-1; // means error
     int currentScriptID=getCurrentScriptID(L);
     CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(currentScriptID);
-    if (it!=NULL)
+    if (it!=nullptr)
     {
         if (it->getScriptType()==sim_scripttype_mainscript)
         {
             int startT=VDateTime::getTimeInMs();
-            retVal=App::ct->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript|sim_scripttype_threaded,sim_scriptthreadresume_launch,NULL,NULL,NULL);
+            retVal=App::ct->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript|sim_scripttype_threaded,sim_scriptthreadresume_launch,nullptr,nullptr,nullptr);
             App::ct->calcInfo->addChildScriptCalcTime(VDateTime::getTimeInMs()-startT,true);
             App::ct->calcInfo->addChildScriptExecCnt(retVal,true);
         }
@@ -4862,7 +4862,7 @@ int _simGetScriptName(luaWrap_lua_State* L)
         if (a==sim_handle_self)
             a=getCurrentScriptID(L);
         char* name=simGetScriptName_internal(a);
-        if (name!=NULL)
+        if (name!=nullptr)
         {
             luaWrap_lua_pushstring(L,name);
             simReleaseBuffer_internal(name);
@@ -4895,7 +4895,7 @@ int _simIsScriptExecutionThreaded(luaWrap_lua_State* L)
     int currentScriptID=getCurrentScriptID(L);
     CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(currentScriptID);
     int retVal=0;
-    if ((it!=NULL)&&it->getThreadedExecution())
+    if ((it!=nullptr)&&it->getThreadedExecution())
         retVal=1;
 
     LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
@@ -5022,7 +5022,7 @@ void moduleCommonPart(luaWrap_lua_State* L,int action,std::string* errorString)
     CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
     if (it->getScriptType()!=sim_scripttype_mainscript)
     {
-        if (errorString!=NULL)
+        if (errorString!=nullptr)
             errorString->assign(SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT);
         luaWrap_lua_pushnumber(L,-1);
     }
@@ -5034,7 +5034,7 @@ void moduleCommonPart(luaWrap_lua_State* L,int action,std::string* errorString)
             if (luaToInt(L,1)==sim_handle_all)
             {
                 handleAll=true;
-                void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(action,NULL,NULL,NULL);
+                void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(action,nullptr,nullptr,nullptr);
                 delete[] ((char*)retVal);
                 luaWrap_lua_pushnumber(L,1);
             }
@@ -5044,7 +5044,7 @@ void moduleCommonPart(luaWrap_lua_State* L,int action,std::string* errorString)
             if (checkInputArguments(L,errorString,lua_arg_string,0))
             {
                 std::string modName(luaWrap_lua_tostring(L,1));
-                void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(action,NULL,(char*)modName.c_str(),NULL);
+                void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(action,nullptr,(char*)modName.c_str(),nullptr);
                 delete[] ((char*)retVal);
                 luaWrap_lua_pushnumber(L,1);
             }
@@ -5179,7 +5179,7 @@ int _simCheckIkGroup(luaWrap_lua_State* L)
             int res=checkOneGeneralInputArgument(L,3,lua_arg_number,jointCnt,true,true,&errorString);
             if (res>=0)
             {
-                int* jointOptionsP=NULL;
+                int* jointOptionsP=nullptr;
                 std::vector<int> jointOptions;
                 if (res==2)
                 {
@@ -5218,7 +5218,7 @@ int _simHandleCollision(luaWrap_lua_State* L)
         {
             int collObjHandles[2];
             CRegCollision* it=App::ct->collisions->getObject(objHandle);
-            if (it!=NULL)
+            if (it!=nullptr)
             {
                 it->readCollision(collObjHandles);
                 luaWrap_lua_pushnumber(L,retVal);
@@ -5247,7 +5247,7 @@ int _simReadCollision(luaWrap_lua_State* L)
         {
             int collObjHandles[2];
             CRegCollision* it=App::ct->collisions->getObject(objHandle);
-            if (it!=NULL)
+            if (it!=nullptr)
             {
                 it->readCollision(collObjHandles);
                 luaWrap_lua_pushnumber(L,retVal);
@@ -5395,10 +5395,10 @@ int _simHandleVisionSensor(luaWrap_lua_State* L)
     int retVal=-1; // means error
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        float* auxVals=NULL;
-        int* auxValsCount=NULL;
+        float* auxVals=nullptr;
+        int* auxValsCount=nullptr;
         retVal=simHandleVisionSensor_internal(luaToInt(L,1),&auxVals,&auxValsCount);
-        if ((retVal!=-1)&&(auxValsCount!=NULL))
+        if ((retVal!=-1)&&(auxValsCount!=nullptr))
         {
             int off=0;
             luaWrap_lua_pushnumber(L,retVal);
@@ -5427,10 +5427,10 @@ int _simReadVisionSensor(luaWrap_lua_State* L)
     int retVal=-1; // means error
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        float* auxVals=NULL;
-        int* auxValsCount=NULL;
+        float* auxVals=nullptr;
+        int* auxValsCount=nullptr;
         retVal=simReadVisionSensor_internal(luaToInt(L,1),&auxVals,&auxValsCount);
-        if ((retVal!=-1)&&(auxValsCount!=NULL))
+        if ((retVal!=-1)&&(auxValsCount!=nullptr))
         {
             int off=0;
             luaWrap_lua_pushnumber(L,retVal);
@@ -5688,7 +5688,7 @@ int _simGetVisionSensorImage(luaWrap_lua_State* L)
                             if (res==2)
                                 retType=luaToInt(L,6);
                             CVisionSensor* rs=App::ct->objCont->getVisionSensor(objectHandle);
-                            if (rs!=NULL)
+                            if (rs!=nullptr)
                             {
                                 if ( (sizeX==0)&&(sizeY==0) )
                                 { // we have default values here (the whole picture)
@@ -5698,7 +5698,7 @@ int _simGetVisionSensorImage(luaWrap_lua_State* L)
                                     sizeY=reso[1];
                                 }
                                 float* buffer=rs->readPortionOfImage(posX,posY,sizeX,sizeY,rgbOrGreyOrDepth);
-                                if (buffer!=NULL)
+                                if (buffer!=nullptr)
                                 {
                                     if (retType==0)
                                         pushFloatTableOntoStack(L,sizeX*sizeY*valPerPix,buffer);
@@ -5776,7 +5776,7 @@ int _simGetVisionSensorCharImage(luaWrap_lua_State* L)
                             if (res==2)
                                 rgbaCutOff=luaToFloat(L,6);
                             CVisionSensor* rs=App::ct->objCont->getVisionSensor(objectHandle);
-                            if (rs!=NULL)
+                            if (rs!=nullptr)
                             {
                                 int reso[2];
                                 rs->getRealResolution(reso);
@@ -5786,7 +5786,7 @@ int _simGetVisionSensorCharImage(luaWrap_lua_State* L)
                                     sizeY=reso[1];
                                 }
                                 unsigned char* buffer=rs->readPortionOfCharImage(posX,posY,sizeX,sizeY,rgbaCutOff,valPerPix==1);
-                                if (buffer!=NULL)
+                                if (buffer!=nullptr)
                                 {
                                     int vvv=sizeX*sizeY*valPerPix;
                                     if (rgbaCutOff>0.0f)
@@ -5832,8 +5832,8 @@ int _simSetVisionSensorImage(luaWrap_lua_State* L)
         int valPerPix=3;
         if ((handleFlags&sim_handleflag_greyscale)!=0)
             valPerPix=1;
-        C3DObject* it=App::ct->objCont->getObject(sensHandle);
-        if (it!=NULL)
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(sensHandle);
+        if (it!=nullptr)
         { // Ok we have a valid object
             if (it->getObjectType()==sim_object_visionsensor_type)
             { // ok we have a valid vision sensor
@@ -5904,8 +5904,8 @@ int _simSetVisionSensorCharImage(luaWrap_lua_State* L)
         int valPerPix=3;
         if ((handleFlags&sim_handleflag_greyscale)!=0)
             valPerPix=1;
-        C3DObject* it=App::ct->objCont->getObject(sensHandle);
-        if (it!=NULL)
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(sensHandle);
+        if (it!=nullptr)
         { // Ok we have a valid object
             if (it->getObjectType()==sim_object_visionsensor_type)
             { // ok we have a valid vision sensor
@@ -5979,7 +5979,7 @@ int _simGetVisionSensorDepthBuffer(luaWrap_lua_State* L)
                         bool toMeters=(sensHandle&sim_handleflag_depthbuffermeters)!=0;
                         sensHandle=sensHandle&0xfffff;
                         CVisionSensor* rs=App::ct->objCont->getVisionSensor(sensHandle);
-                        if (rs!=NULL)
+                        if (rs!=nullptr)
                         {
                             if ( (sizeX==0)&&(sizeY==0) )
                             { // we have default values here (the whole picture)
@@ -5989,7 +5989,7 @@ int _simGetVisionSensorDepthBuffer(luaWrap_lua_State* L)
                                 sizeY=reso[1];
                             }
                             float* buffer=rs->readPortionOfImage(posX,posY,sizeX,sizeY,2);
-                            if (buffer!=NULL)
+                            if (buffer!=nullptr)
                             {
                                 if (toMeters)
                                 { // Here we need to convert values to distances in meters:
@@ -6029,10 +6029,10 @@ int _simCheckVisionSensor(luaWrap_lua_State* L)
     int retVal=-1; // means error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
-        float* auxVals=NULL;
-        int* auxValsCount=NULL;
+        float* auxVals=nullptr;
+        int* auxValsCount=nullptr;
         retVal=simCheckVisionSensor_internal(luaToInt(L,1),luaToInt(L,2),&auxVals,&auxValsCount);
-        if ((retVal!=-1)&&(auxValsCount!=NULL))
+        if ((retVal!=-1)&&(auxValsCount!=nullptr))
         {
             int off=0;
             luaWrap_lua_pushnumber(L,retVal);
@@ -6062,7 +6062,7 @@ int _simCheckVisionSensorEx(luaWrap_lua_State* L)
     {
         simBool returnImage=luaToBool(L,3);
         float* buffer=simCheckVisionSensorEx_internal(luaToInt(L,1),luaToInt(L,2),returnImage);
-        if (buffer!=NULL)
+        if (buffer!=nullptr)
         {
             int res[2];
             simGetVisionSensorResolution_internal(luaToInt(L,1),res);
@@ -6190,11 +6190,11 @@ int _simGetScriptHandle(luaWrap_lua_State* L)
         retVal=getCurrentScriptID(L);
     else
     {
-        if (checkInputArguments(L,NULL,lua_arg_nil,0)) // we don't output errors here!!
+        if (checkInputArguments(L,nullptr,lua_arg_nil,0)) // we don't output errors here!!
             retVal=getCurrentScriptID(L); // nil argument
         else
         {
-            if (checkInputArguments(L,NULL,lua_arg_number,0))
+            if (checkInputArguments(L,nullptr,lua_arg_number,0))
             { // argument sim.handle_self
                 if (luaWrap_lua_tointeger(L,1)==sim_handle_self)
                     retVal=getCurrentScriptID(L);
@@ -6668,7 +6668,7 @@ int _simGetObjectName(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         char* name=simGetObjectName_internal(luaToInt(L,1));
-        if (name!=NULL)
+        if (name!=nullptr)
         {
             luaWrap_lua_pushstring(L,name);
             simReleaseBuffer_internal(name);
@@ -6688,7 +6688,7 @@ int _simGetCollectionName(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         char* name=simGetCollectionName_internal(luaToInt(L,1));
-        if (name!=NULL)
+        if (name!=nullptr)
         {
             luaWrap_lua_pushstring(L,name);
             simReleaseBuffer_internal(name);
@@ -6709,7 +6709,7 @@ int _simGetModuleName(luaWrap_lua_State* L)
     {
         unsigned char version;
         char* name=simGetModuleName_internal(luaToInt(L,1),&version);
-        if (name!=NULL)
+        if (name!=nullptr)
         {
             luaWrap_lua_pushstring(L,name);
             simReleaseBuffer_internal(name);
@@ -6850,7 +6850,7 @@ int _simGetObjectConfiguration(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         char* data=simGetObjectConfiguration_internal(luaToInt(L,1));
-        if (data==NULL)
+        if (data==nullptr)
             luaWrap_lua_pushnumber(L,-1);
         else
         {
@@ -6875,7 +6875,7 @@ int _simSetObjectConfiguration(luaWrap_lua_State* L)
     {
         CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptID(L));
         char* data=(char*)it->getUserData(luaWrap_lua_tointeger(L,1));
-        if (data!=NULL)
+        if (data!=nullptr)
             retVal=simSetObjectConfiguration_internal(data);
         else
             errorString=SIM_ERROR_INVALID_HANDLE;
@@ -6906,7 +6906,7 @@ int _simGetConfigurationTree(luaWrap_lua_State* L)
         if (id!=-1)
         {
             char* data=simGetConfigurationTree_internal(id);
-            if (data!=NULL)
+            if (data!=nullptr)
                 retVal=it->setUserData(data);
         }
     }
@@ -6926,7 +6926,7 @@ int _simSetConfigurationTree(luaWrap_lua_State* L)
     {
         CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptID(L));
         char* data=(char*)it->getUserData(luaWrap_lua_tointeger(L,1));
-        if (data==NULL)
+        if (data==nullptr)
             errorString=SIM_ERROR_INVALID_HANDLE;
         else
             retVal=simSetConfigurationTree_internal(data);
@@ -6957,7 +6957,7 @@ int _simGetLastError(luaWrap_lua_State* L)
     LUA_START("sim.getLastError");
 
     char* it=simGetLastError_internal();
-    if (it!=NULL)
+    if (it!=nullptr)
     {
         luaWrap_lua_pushstring(L,it);
         simReleaseBuffer_internal(it);
@@ -7047,7 +7047,7 @@ int _simAddStatusbarMessage(luaWrap_lua_State* L)
     }
     else
     {
-        if (checkInputArguments(L,NULL,lua_arg_nil,0))
+        if (checkInputArguments(L,nullptr,lua_arg_nil,0))
         {
             App::clearStatusbar();
             retVal=1;
@@ -7082,7 +7082,7 @@ int _simGetScriptSimulationParameter(luaWrap_lua_State* L)
             {
                 handle=it->getObjectIDThatScriptIsAttachedTo_callback_OLD();
                 it=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(handle);
-                if (it!=NULL)
+                if (it!=nullptr)
                     handle=it->getScriptID();
                 else
                     goOn=false;
@@ -7091,7 +7091,7 @@ int _simGetScriptSimulationParameter(luaWrap_lua_State* L)
             {
                 handle=it->getObjectIDThatScriptIsAttachedTo_customization();
                 it=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(handle);
-                if (it!=NULL)
+                if (it!=nullptr)
                     handle=it->getScriptID();
                 else
                     goOn=false;
@@ -7110,7 +7110,7 @@ int _simGetScriptSimulationParameter(luaWrap_lua_State* L)
                 {
                     int l;
                     char* p=simGetScriptSimulationParameter_internal(handle,parameterName.c_str(),&l);
-                    if (p!=NULL)
+                    if (p!=nullptr)
                     {
                         std::string a;
                         a.assign(p,l);
@@ -7145,7 +7145,7 @@ int _simGetScriptSimulationParameter(luaWrap_lua_State* L)
                     {
                         int l;
                         char* p=simGetScriptSimulationParameter_internal(scriptHandles[i],parameterName.c_str(),&l);
-                        if (p!=NULL)
+                        if (p!=nullptr)
                         {
                             std::string a;
                             a.assign(p,l);
@@ -7214,7 +7214,7 @@ int _simSetScriptSimulationParameter(luaWrap_lua_State* L)
             {
                 handle=it->getObjectIDThatScriptIsAttachedTo_callback_OLD();
                 it=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(handle);
-                if (it!=NULL)
+                if (it!=nullptr)
                     handle=it->getScriptID();
                 else
                     goOn=false;
@@ -7223,7 +7223,7 @@ int _simSetScriptSimulationParameter(luaWrap_lua_State* L)
             {
                 handle=it->getObjectIDThatScriptIsAttachedTo_customization();
                 it=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(handle);
-                if (it!=NULL)
+                if (it!=nullptr)
                     handle=it->getScriptID();
                 else
                     goOn=false;
@@ -7728,7 +7728,7 @@ int _simGetStringParameter(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         char* s=simGetStringParameter_internal(luaWrap_lua_tointeger(L,1));
-        if (s!=NULL)
+        if (s!=nullptr)
         {
             luaWrap_lua_pushstring(L,s);
             delete[] s;
@@ -7800,7 +7800,7 @@ int _simRemoveObject(luaWrap_lua_State* L)
         if (!it->getThreadedExecution())
             retVal=simRemoveObject_internal(objId);
         else
-        { // this script runs threaded and wants to destroy another object (than itself probably). We need to make sure that it will only destroy objects that do not have any scripts attached with a non-NULL lua state:
+        { // this script runs threaded and wants to destroy another object (than itself probably). We need to make sure that it will only destroy objects that do not have any scripts attached with a non-nullptr lua state:
             std::vector<CLuaScriptObject*> scripts;
             App::ct->luaScriptContainer->getScriptsFromObjectAttachedTo(objId,scripts);
             bool ok=true;
@@ -7835,9 +7835,9 @@ int _simRemoveModel(luaWrap_lua_State* L)
         if (!it->getThreadedExecution())
             retVal=simRemoveModel_internal(objId);
         else
-        { // this script runs threaded and wants to destroy other objects. We need to make sure that it will only destroy objects that do not have any scripts attached with a non-NULL lua state:
-            C3DObject* objBase=App::ct->objCont->getObject(objId);
-            if (objBase!=NULL)
+        { // this script runs threaded and wants to destroy other objects. We need to make sure that it will only destroy objects that do not have any scripts attached with a non-nullptr lua state:
+            C3DObject* objBase=App::ct->objCont->getObjectFromHandle(objId);
+            if (objBase!=nullptr)
             {
                 if (objBase->getModelBase())
                 {
@@ -7948,7 +7948,7 @@ int _simLoadScene(luaWrap_lua_State* L)
     int retVal=-1;// error
     int currentScriptID=getCurrentScriptID(L);
     CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
-    if ( (script!=NULL)&&((script->getScriptType()==sim_scripttype_addonfunction)||(script->getScriptType()==sim_scripttype_addonscript)||(script->getScriptType()==sim_scripttype_sandboxscript)) )
+    if ( (script!=nullptr)&&((script->getScriptType()==sim_scripttype_addonfunction)||(script->getScriptType()==sim_scripttype_addonscript)||(script->getScriptType()==sim_scripttype_sandboxscript)) )
     {
         if (checkInputArguments(L,&errorString,lua_arg_string,0))
             retVal=simLoadScene_internal(luaWrap_lua_tostring(L,1));
@@ -7969,7 +7969,7 @@ int _simCloseScene(luaWrap_lua_State* L)
     int retVal=-1;// error
     int currentScriptID=getCurrentScriptID(L);
     CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
-    if ( (script!=NULL)&&((script->getScriptType()==sim_scripttype_addonfunction)||(script->getScriptType()==sim_scripttype_addonscript)||(script->getScriptType()==sim_scripttype_sandboxscript)) )
+    if ( (script!=nullptr)&&((script->getScriptType()==sim_scripttype_addonfunction)||(script->getScriptType()==sim_scripttype_addonscript)||(script->getScriptType()==sim_scripttype_sandboxscript)) )
         retVal=simCloseScene_internal();
     else
         errorString=SIM_ERROR_MUST_BE_CALLED_FROM_ADDON_OR_SANDBOX_SCRIPT;
@@ -8019,7 +8019,7 @@ int _simLoadModel(luaWrap_lua_State* L)
 
                 if (VFile::doesFileExist(path))
                 {
-                    if (CFileOperations::loadModel(path.c_str(),false,false,false,NULL,false,NULL,onlyThumbnails,forceAsCopy))
+                    if (CFileOperations::loadModel(path.c_str(),false,false,false,nullptr,false,nullptr,onlyThumbnails,forceAsCopy))
                     {
                         if (onlyThumbnails)
                         {
@@ -8046,7 +8046,7 @@ int _simLoadModel(luaWrap_lua_State* L)
             else
             { // loading from buffer:
                 std::vector<char> buffer(data,data+dataLength);
-                if (CFileOperations::loadModel(NULL,false,false,false,NULL,false,&buffer,onlyThumbnails,false))
+                if (CFileOperations::loadModel(nullptr,false,false,false,nullptr,false,&buffer,onlyThumbnails,false))
                 {
                     if (onlyThumbnails)
                     {
@@ -8094,15 +8094,15 @@ int _simSaveModel(luaWrap_lua_State* L)
 
                 if (!App::ct->environment->getSceneLocked())
                 {
-                    C3DObject* it=App::ct->objCont->getObject(model);
-                    if (it!=NULL)
+                    C3DObject* it=App::ct->objCont->getObjectFromHandle(model);
+                    if (it!=nullptr)
                     {
                         if (it->getModelBase())
                         {
                             std::vector<int> initSelection;
                             App::ct->objCont->getSelectedObjects(initSelection);
                             std::vector<char> buffer;
-                            if (CFileOperations::saveModel(model,NULL,false,false,false,&buffer))
+                            if (CFileOperations::saveModel(model,nullptr,false,false,false,&buffer))
                             {
                                 luaWrap_lua_pushlstring(L,&buffer[0],buffer.size());
                                 LUA_END(1);
@@ -8149,7 +8149,7 @@ int _simAddObjectToSelection(luaWrap_lua_State* L)
 
     int retVal=-1;// error
     // We check if argument 1 is nil (special case):
-    if (checkOneGeneralInputArgument(L,1,lua_arg_nil,0,false,true,NULL)==1) // we do not generate an error message!
+    if (checkOneGeneralInputArgument(L,1,lua_arg_nil,0,false,true,nullptr)==1) // we do not generate an error message!
     {
         retVal=1; // nothing happens
     }
@@ -8158,12 +8158,12 @@ int _simAddObjectToSelection(luaWrap_lua_State* L)
         // We check if we have a table at position 1:
         if (!luaWrap_lua_istable(L,1))
         { // It is not a table!
-            if (checkInputArguments(L,NULL,lua_arg_number,0,lua_arg_number,0)) // we don't generate an error
+            if (checkInputArguments(L,nullptr,lua_arg_number,0,lua_arg_number,0)) // we don't generate an error
                 retVal=simAddObjectToSelection_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2));
             else
             { // Maybe we have a special case with one argument only?
                 // nil is a valid argument!
-                if (checkInputArguments(L,NULL,lua_arg_nil,0)) // we don't generate an error
+                if (checkInputArguments(L,nullptr,lua_arg_nil,0)) // we don't generate an error
                     retVal=1;
                 else
                 {
@@ -8185,7 +8185,7 @@ int _simAddObjectToSelection(luaWrap_lua_State* L)
             {
                 for (int i=0;i<tableLen;i++)
                 {
-                    if (App::ct->objCont->getObject(buffer[i])!=NULL)
+                    if (App::ct->objCont->getObjectFromHandle(buffer[i])!=nullptr)
                         App::ct->objCont->addObjectToSelection(buffer[i]);
                 }
                 retVal=1;
@@ -8208,14 +8208,14 @@ int _simRemoveObjectFromSelection(luaWrap_lua_State* L)
 
     int retVal=-1;// error
     // We check if argument 1 is nil (special case):
-    if (checkOneGeneralInputArgument(L,1,lua_arg_nil,0,false,true,NULL)==1) // we do not generate an error message!
+    if (checkOneGeneralInputArgument(L,1,lua_arg_nil,0,false,true,nullptr)==1) // we do not generate an error message!
         retVal=1; // nothing happens
     else
     {
         // We check if we have a table at position 1:
         if (!luaWrap_lua_istable(L,1))
         { // It is not a table!
-            if (checkInputArguments(L,NULL,lua_arg_number,0,lua_arg_number,0)) // we don't generate an error
+            if (checkInputArguments(L,nullptr,lua_arg_number,0,lua_arg_number,0)) // we don't generate an error
                 retVal=simRemoveObjectFromSelection_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2));
             else
             {
@@ -8340,7 +8340,7 @@ int _simGetConfigForTipPose(luaWrap_lua_State* L)
                 getFloatsFromTable(L,5,4,metric);
             int collisionPairCnt=0;
             std::vector<int> _collisionPairs;
-            int* collisionPairs=NULL;
+            int* collisionPairs=nullptr;
             res=checkOneGeneralInputArgument(L,6,lua_arg_number,-1,true,true,&errorString);
             if (res>=0)
             {
@@ -8355,7 +8355,7 @@ int _simGetConfigForTipPose(luaWrap_lua_State* L)
                     }
                 }
                 std::vector<int> _jointOptions;
-                int* jointOptions=NULL;
+                int* jointOptions=nullptr;
                 res=checkOneGeneralInputArgument(L,7,lua_arg_number,jointCnt,true,true,&errorString);
                 if (res>=0)
                 {
@@ -8373,14 +8373,14 @@ int _simGetConfigForTipPose(luaWrap_lua_State* L)
                         _lowLimits.resize(jointCnt);
                         std::vector<float> _ranges;
                         _ranges.resize(jointCnt);
-                        float* lowLimits=NULL;
-                        float* ranges=NULL;
+                        float* lowLimits=nullptr;
+                        float* ranges=nullptr;
                         if (res==2)
                         {
                             getFloatsFromTable(L,8,jointCnt,&_lowLimits[0]);
                             lowLimits=&_lowLimits[0];
                         }
-                        res=checkOneGeneralInputArgument(L,9,lua_arg_number,jointCnt,lowLimits==NULL,lowLimits==NULL,&errorString);
+                        res=checkOneGeneralInputArgument(L,9,lua_arg_number,jointCnt,lowLimits==nullptr,lowLimits==nullptr,&errorString);
                         if (res>=0)
                         {
                             if (res==2)
@@ -8390,7 +8390,7 @@ int _simGetConfigForTipPose(luaWrap_lua_State* L)
                             }
                             std::vector<float> foundConfig;
                             foundConfig.resize(jointCnt);
-                            res=simGetConfigForTipPose_internal(ikGroupHandle,jointCnt,&jointHandles[0],thresholdDist,maxTimeInMs,&foundConfig[0],metric,collisionPairCnt,collisionPairs,jointOptions,lowLimits,ranges,NULL);
+                            res=simGetConfigForTipPose_internal(ikGroupHandle,jointCnt,&jointHandles[0],thresholdDist,maxTimeInMs,&foundConfig[0],metric,collisionPairCnt,collisionPairs,jointOptions,lowLimits,ranges,nullptr);
                             if (res>0)
                             {
                                 pushFloatTableOntoStack(L,jointCnt,&foundConfig[0]);
@@ -8425,7 +8425,7 @@ int _simGenerateIkPath(luaWrap_lua_State* L)
         {
             int collisionPairCnt=0;
             std::vector<int> _collisionPairs;
-            int* collisionPairs=NULL;
+            int* collisionPairs=nullptr;
             if (res==2)
             {
                 collisionPairCnt=int(luaWrap_lua_objlen(L,4))/2;
@@ -8440,15 +8440,15 @@ int _simGenerateIkPath(luaWrap_lua_State* L)
             if (res>=0)
             {
                 std::vector<int> _jointOptions;
-                int* jointOptions=NULL;
+                int* jointOptions=nullptr;
                 if (res==2)
                 {
                     _jointOptions.resize(jointCnt);
                     getIntsFromTable(L,5,jointCnt,&_jointOptions[0]);
                     jointOptions=&_jointOptions[0];
                 }
-                float* path=simGenerateIkPath_internal(ikGroupHandle,jointCnt,&jointHandles[0],ptCnt,collisionPairCnt,collisionPairs,jointOptions,NULL);
-                if (path!=NULL)
+                float* path=simGenerateIkPath_internal(ikGroupHandle,jointCnt,&jointHandles[0],ptCnt,collisionPairCnt,collisionPairs,jointOptions,nullptr);
+                if (path!=nullptr)
                 {
                     pushFloatTableOntoStack(L,jointCnt*ptCnt,path);
                     simReleaseBuffer_internal((char*)path);
@@ -8478,7 +8478,7 @@ int _simGetExtensionString(luaWrap_lua_State* L)
             if (res==2)
                 key=luaWrap_lua_tostring(L,3);
             char* str=simGetExtensionString_internal(objHandle,index,key.c_str());
-            if (str!=NULL)
+            if (str!=nullptr)
             {
                 luaWrap_lua_pushstring(L,str);
                 simReleaseBuffer_internal(str);
@@ -8519,7 +8519,7 @@ int _simTest(luaWrap_lua_State* L)
         int func=luaWrap_lua_tointeger(L,1);
         if (func==0)
         {
-           int r=simDisplayDialog_internal("Hello from title","MainText\nis here!!!\nBye",sim_dlgstyle_ok_cancel,"init text",NULL,NULL,NULL);
+           int r=simDisplayDialog_internal("Hello from title","MainText\nis here!!!\nBye",sim_dlgstyle_ok_cancel,"init text",nullptr,nullptr,nullptr);
            luaWrap_lua_pushinteger(L,r);
            LUA_END(1);
         }
@@ -8845,7 +8845,7 @@ int _simGetNameSuffix(luaWrap_lua_State* L)
     LUA_API_FUNCTION_DEBUG;
     LUA_START("sim.getNameSuffix");
 
-    if (checkInputArguments(L,NULL,lua_arg_nil,0))
+    if (checkInputArguments(L,nullptr,lua_arg_nil,0))
     { // we want the suffix of current script
         std::string suffTxt;
         int suffixNumber=-1;
@@ -8977,7 +8977,7 @@ int _simResumeThreads(luaWrap_lua_State* L)
             int loc=luaWrap_lua_tointeger(L,1);
 
             int startT=VDateTime::getTimeInMs();
-            retVal=App::ct->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript|sim_scripttype_threaded,loc,NULL,NULL,NULL);
+            retVal=App::ct->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_childscript|sim_scripttype_threaded,loc,nullptr,nullptr,nullptr);
             // Following line important: when erasing a running threaded script object, with above cascaded
             // call, the thread will never resume nor be able to end. Next line basically runs all
             // that were not yet ran:
@@ -9026,7 +9026,7 @@ int _simCreateIkGroup(luaWrap_lua_State* L)
         if (res>=0)
         {
             int intParams[2];
-            int* intP=NULL;
+            int* intP=nullptr;
             if (res==2)
             {
                 getIntsFromTable(L,2,2,intParams);
@@ -9036,13 +9036,13 @@ int _simCreateIkGroup(luaWrap_lua_State* L)
             if (res>=0)
             {
                 float floatParams[4];
-                float* floatP=NULL;
+                float* floatP=nullptr;
                 if (res==2)
                 {
                     getFloatsFromTable(L,3,4,floatParams);
                     floatP=floatParams;
                 }
-                retVal=simCreateIkGroup_internal(options,intP,floatP,NULL);
+                retVal=simCreateIkGroup_internal(options,intP,floatP,nullptr);
             }
         }
     }
@@ -9086,13 +9086,13 @@ int _simCreateIkElement(luaWrap_lua_State* L)
         if (res>=0)
         {
             float floatParams[4];
-            float* floatP=NULL;
+            float* floatP=nullptr;
             if (res==2)
             {
                 getFloatsFromTable(L,4,4,floatParams);
                 floatP=floatParams;
             }
-            retVal=simCreateIkElement_internal(ikGroup,options,intParams,floatP,NULL);
+            retVal=simCreateIkElement_internal(ikGroup,options,intParams,floatP,nullptr);
         }
     }
 
@@ -9165,7 +9165,7 @@ int _simSaveImage(luaWrap_lua_State* L)
                 if (filename.size()>0)
                 {
                     if (filename[0]!='.')
-                        retVal=simSaveImage_internal((unsigned char*)&img[0],res,options,filename.c_str(),quality,NULL);
+                        retVal=simSaveImage_internal((unsigned char*)&img[0],res,options,filename.c_str(),quality,nullptr);
                     else
                     { // we save to memory:
                         std::string buffer;
@@ -9204,15 +9204,15 @@ int _simLoadImage(luaWrap_lua_State* L)
         size_t dataLength;
         char* data=((char*)luaWrap_lua_tolstring(L,2,&dataLength));
         int resol[2];
-        unsigned char* img=NULL;
+        unsigned char* img=nullptr;
         if ( (dataLength>4)&&(data[0]=='@')&&(data[1]=='m')&&(data[2]=='e')&&(data[3]=='m') )
         {
             int reserved[1]={(int)dataLength};
             img=simLoadImage_internal(resol,options,data+4,reserved);
         }
         else
-            img=simLoadImage_internal(resol,options,data,NULL);
-        if (img!=NULL)
+            img=simLoadImage_internal(resol,options,data,nullptr);
+        if (img!=nullptr)
         {
             int s=resol[0]*resol[1]*3;
             if (options&1)
@@ -9250,8 +9250,8 @@ int _simGetScaledImage(luaWrap_lua_State* L)
         {
             if ((resIn[0]>0)&&(resIn[1]>0)&&(resOut[0]>0)&&(resOut[1]>0))
             {
-                unsigned char* imgOut=simGetScaledImage_internal((unsigned char*)&imgIn[0],resIn,resOut,options,NULL);
-                if (imgOut!=NULL)
+                unsigned char* imgOut=simGetScaledImage_internal((unsigned char*)&imgIn[0],resIn,resOut,options,nullptr);
+                if (imgOut!=nullptr)
                 {
                     int s=resOut[0]*resOut[1]*3;
                     if (options&2)
@@ -9292,7 +9292,7 @@ int _simTransformImage(luaWrap_lua_State* L)
         if (int(dataLength)>=resol[0]*resol[1]*channels)
         {
             if ((resol[0]>0)&&(resol[1]>0))
-                retVal=simTransformImage_internal((unsigned char*)data,resol,options,NULL,NULL,NULL);
+                retVal=simTransformImage_internal((unsigned char*)data,resol,options,nullptr,nullptr,nullptr);
             else
                 errorString=SIM_ERROR_INVALID_RESOLUTION;
         }
@@ -9321,7 +9321,7 @@ int _simGetQHull(luaWrap_lua_State* L)
             int vertOutL;
             int* indOut;
             int indOutL;
-            if (simGetQHull_internal(vertices,vl,&vertOut,&vertOutL,&indOut,&indOutL,0,NULL))
+            if (simGetQHull_internal(vertices,vl,&vertOut,&vertOutL,&indOut,&indOutL,0,nullptr))
             {
                 pushFloatTableOntoStack(L,vertOutL,vertOut);
                 pushIntTableOntoStack(L,indOutL,indOut);
@@ -9357,7 +9357,7 @@ int _simGetDecimatedMesh(luaWrap_lua_State* L)
             int vertOutL;
             int* indOut;
             int indOutL;
-            if (simGetDecimatedMesh_internal(vertices,vl,indices,il,&vertOut,&vertOutL,&indOut,&indOutL,percentage,0,NULL))
+            if (simGetDecimatedMesh_internal(vertices,vl,indices,il,&vertOut,&vertOutL,&indOut,&indOutL,percentage,0,nullptr))
             {
                 pushFloatTableOntoStack(L,vertOutL,vertOut);
                 pushIntTableOntoStack(L,indOutL,indOut);
@@ -9382,7 +9382,7 @@ int _simExportIk(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         std::string pathAndFilename(luaWrap_lua_tostring(L,1));
-        retVal=simExportIk_internal(pathAndFilename.c_str(),0,NULL);
+        retVal=simExportIk_internal(pathAndFilename.c_str(),0,nullptr);
     }
 
     LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
@@ -9397,7 +9397,7 @@ int _simComputeJacobian(luaWrap_lua_State* L)
 
     int retVal=-1;
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
-        retVal=simComputeJacobian_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2),NULL);
+        retVal=simComputeJacobian_internal(luaWrap_lua_tointeger(L,1),luaWrap_lua_tointeger(L,2),nullptr);
 
     LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
@@ -10696,8 +10696,8 @@ int _simSendData(luaWrap_lua_State* L)
                                         antennaHandle=it->getObjectIDThatScriptIsAttachedTo_child();
                                     if (antennaHandle!=sim_handle_default)
                                     {
-                                        C3DObject* ant=App::ct->objCont->getObject(antennaHandle);
-                                        if (ant==NULL)
+                                        C3DObject* ant=App::ct->objCont->getObjectFromHandle(antennaHandle);
+                                        if (ant==nullptr)
                                         {
                                             errorString=SIM_ERROR_INVALID_ANTENNA_HANDLE;
                                             err=true;
@@ -10816,8 +10816,8 @@ int _simReceiveData(luaWrap_lua_State* L)
                     antennaHandle=it->getObjectIDThatScriptIsAttachedTo_child();
                 if (antennaHandle!=sim_handle_default)
                 {
-                    C3DObject* ant=App::ct->objCont->getObject(antennaHandle);
-                    if (ant==NULL)
+                    C3DObject* ant=App::ct->objCont->getObjectFromHandle(antennaHandle);
+                    if (ant==nullptr)
                     {
                         errorString=SIM_ERROR_INVALID_ANTENNA_HANDLE;
                         err=true;
@@ -10844,7 +10844,7 @@ int _simReceiveData(luaWrap_lua_State* L)
             std::string theDataName;
             char* data0=App::ct->luaScriptContainer->broadcastDataContainer.receiveData(currentScriptID,float(App::ct->simulation->getSimulationTime_ns())/1000000.0f,
                     dataHeader,dataName,antennaHandle,theDataLength,index,theSenderID,theDataHeader,theDataName);
-            if (data0!=NULL)
+            if (data0!=nullptr)
             {
                 luaWrap_lua_pushlstring(L,data0,theDataLength);
                 luaWrap_lua_pushnumber(L,theSenderID);
@@ -10893,9 +10893,9 @@ int _simAddDrawingObject(luaWrap_lua_State* L)
         float duplicateTolerance=luaToFloat(L,3);
         int parentID=luaToInt(L,4);
         int maxItemCount=luaToInt(L,5);
-        float* ambient=NULL;
-        float* specular=NULL;
-        float* emission=NULL;
+        float* ambient=nullptr;
+        float* specular=nullptr;
+        float* emission=nullptr;
         int res=checkOneGeneralInputArgument(L,6,lua_arg_number,3,true,true,&errorString);
         int okToGo=(res!=-1);
         if (okToGo)
@@ -10958,7 +10958,7 @@ int _simAddDrawingObject(luaWrap_lua_State* L)
             }
             if (okToGo)
             {
-                retVal=simAddDrawingObject_internal(objType,size,duplicateTolerance,parentID,maxItemCount,ambient,NULL,specular,emission);
+                retVal=simAddDrawingObject_internal(objType,size,duplicateTolerance,parentID,maxItemCount,ambient,nullptr,specular,emission);
                 if ( (retVal!=-1) )//&&((objType&sim_drawing_persistent)==0) )
                 { // following condition added on 2011/01/06 so as to not remove objects created from the c/c++ interface or from an add-on:
                     int currentScriptID=getCurrentScriptID(L);
@@ -10966,7 +10966,7 @@ int _simAddDrawingObject(luaWrap_lua_State* L)
                     if ( (itScrObj->getScriptType()==sim_scripttype_mainscript)||(itScrObj->getScriptType()==sim_scripttype_childscript)||(itScrObj->getScriptType()==sim_scripttype_jointctrlcallback)||(itScrObj->getScriptType()==sim_scripttype_contactcallback) ) //||(itScrObj->getScriptType()==sim_scripttype_generalcallback) )
                     {
                         CDrawingObject* anObj=App::ct->drawingCont->getObject(retVal);
-                        if (anObj!=NULL)
+                        if (anObj!=nullptr)
                         {
                             anObj->setCreatedFromScript(true);
                             anObj->setPersistent((objType&sim_drawing_persistent)!=0);
@@ -11018,7 +11018,7 @@ int _simAddDrawingObjectItem(luaWrap_lua_State* L)
         int drawingObjHandle=luaToInt(L,1);
         CDrawingObject* it=App::ct->drawingCont->getObject(drawingObjHandle);
         int d=3;
-        if (it!=NULL)
+        if (it!=nullptr)
             d=it->verticesPerItem*3+it->normalsPerItem*3+it->otherFloatsPerItem;
         int res=checkOneGeneralInputArgument(L,2,lua_arg_number,d,true,true,&errorString);
         if (res==2)
@@ -11030,7 +11030,7 @@ int _simAddDrawingObjectItem(luaWrap_lua_State* L)
         else
         {
             if (res>=0)
-                retVal=simAddDrawingObjectItem_internal(drawingObjHandle,NULL);
+                retVal=simAddDrawingObjectItem_internal(drawingObjHandle,nullptr);
         }
     }
 
@@ -11065,7 +11065,7 @@ int _simAddParticleObject(luaWrap_lua_State* L)
                     int paramLen=int(luaWrap_lua_objlen(L,4));
                     paramLen=(paramLen-1)/2;
                     paramLen=paramLen*2+1;
-                    void* params=NULL;
+                    void* params=nullptr;
                     if (!luaWrap_lua_isnil(L,4))
                     {
                         int intParams[30];
@@ -11082,9 +11082,9 @@ int _simAddParticleObject(luaWrap_lua_State* L)
                     }
                     float lifeTime=luaToFloat(L,5);
                     int maxItemCount=luaToInt(L,6);
-                    float* ambient=NULL;
-                    float* specular=NULL;
-                    float* emission=NULL;
+                    float* ambient=nullptr;
+                    float* specular=nullptr;
+                    float* emission=nullptr;
                     int res=checkOneGeneralInputArgument(L,7,lua_arg_number,3,true,true,&errorString);
                     int okToGo=(res!=-1);
                     if (okToGo)
@@ -11137,7 +11137,7 @@ int _simAddParticleObject(luaWrap_lua_State* L)
                         }
                         if (okToGo)
                         {
-                            retVal=simAddParticleObject_internal(objType,size,massOverVolume,params,lifeTime,maxItemCount,ambient,NULL,specular,emission);
+                            retVal=simAddParticleObject_internal(objType,size,massOverVolume,params,lifeTime,maxItemCount,ambient,nullptr,specular,emission);
                         }
                     }
                     delete[] ((char*)params);
@@ -11185,7 +11185,7 @@ int _simAddParticleObjectItem(luaWrap_lua_State* L)
         else
         {
             if (res>=0)
-                retVal=simAddParticleObjectItem_internal(particleObjHandle,NULL);
+                retVal=simAddParticleObjectItem_internal(particleObjHandle,nullptr);
         }
     }
 
@@ -11390,7 +11390,7 @@ int _simGetStringSignal(luaWrap_lua_State* L)
     {
         int stringLength;
         char* str=simGetStringSignal_internal(std::string(luaWrap_lua_tostring(L,1)).c_str(),&stringLength);
-        if (str!=NULL)
+        if (str!=nullptr)
         {
             luaWrap_lua_pushlstring(L,str,stringLength);
             simReleaseBuffer_internal(str);
@@ -11434,7 +11434,7 @@ int _simGetSignalName(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
         char* str=simGetSignalName_internal(luaToInt(L,1),luaToInt(L,2));
-        if (str!=NULL)
+        if (str!=nullptr)
         {
             luaWrap_lua_pushstring(L,str);
             simReleaseBuffer_internal(str);
@@ -11459,7 +11459,7 @@ int _simWaitForSignal(luaWrap_lua_State* L)
             int intVal;
             bool signalPresent=false;
 
-            CSignalContainer* sigCont=NULL;
+            CSignalContainer* sigCont=nullptr;
             sigCont=App::ct->signalContainer;
 
             while (!signalPresent)
@@ -11601,11 +11601,11 @@ int _simMoveToObject(luaWrap_lua_State* L)
                 float maxVelocity=0.1f;
                 float relativeDistanceOnPath=-1.0f;
                 int positionAndOrOrientation=3; // position and orientation (default value)
-                C3DObject* object=App::ct->objCont->getObject(objID);
-                C3DObject* targetObject=App::ct->objCont->getObject(targetObjID);
+                C3DObject* object=App::ct->objCont->getObjectFromHandle(objID);
+                C3DObject* targetObject=App::ct->objCont->getObjectFromHandle(targetObjID);
                 float accel=0.0f; // means infinite accel!! (default value)
                 bool foundError=false;
-                if ((!foundError)&&((object==NULL)||(targetObject==NULL)))
+                if ((!foundError)&&((object==nullptr)||(targetObject==nullptr)))
                 {
                     errorString=SIM_ERROR_OBJECT_OR_TARGET_OBJECT_DOES_NOT_EXIST;
                     foundError=true;
@@ -11715,7 +11715,7 @@ int _simMoveToObject(luaWrap_lua_State* L)
                         float ll=currentPos/vdl;
                         if (ll>1.0f)
                             ll=1.0f;
-                        if ((App::ct->objCont->getObject(objID)==object)&&(App::ct->objCont->getObject(targetObjID)==targetObject)) // make sure the objects are still valid (running in a thread)
+                        if ((App::ct->objCont->getObjectFromHandle(objID)==object)&&(App::ct->objCont->getObjectFromHandle(targetObjID)==targetObject)) // make sure the objects are still valid (running in a thread)
                         {
                             C7Vector targetTr(targetObject->getCumulativeTransformationPart1());
                             bool goOn=true;
@@ -11791,16 +11791,16 @@ int _simFollowPath(luaWrap_lua_State* L)
                 if (positionAndOrOrientation==0)
                     positionAndOrOrientation=1;
                 float maxVelocity=luaToFloat(L,5);
-                C3DObject* object=App::ct->objCont->getObject(objID);
+                C3DObject* object=App::ct->objCont->getObjectFromHandle(objID);
                 CPath* path=App::ct->objCont->getPath(pathID);
                 float accel=0.0f; // means infinite accel!! (default value)
                 bool foundError=false;
-                if ((!foundError)&&(object==NULL))
+                if ((!foundError)&&(object==nullptr))
                 {
                     errorString=SIM_ERROR_OBJECT_INEXISTANT;
                     foundError=true;
                 }
-                if ((!foundError)&&(path==NULL))
+                if ((!foundError)&&(path==nullptr))
                 {
                     errorString=SIM_ERROR_PATH_INEXISTANT;
                     foundError=true;
@@ -11838,7 +11838,7 @@ int _simFollowPath(luaWrap_lua_State* L)
                     float dt=float(App::ct->simulation->getSimulationTimeStep_speedModified_ns())/1000000.0f; // this is the time left if we leave here
                     while (!movementFinished)
                     {
-                        if ((App::ct->objCont->getObject(objID)!=object)||(App::ct->objCont->getPath(pathID)!=path) ) // make sure the objects are still valid (running in a thread)
+                        if ((App::ct->objCont->getObjectFromHandle(objID)!=object)||(App::ct->objCont->getPath(pathID)!=path) ) // make sure the objects are still valid (running in a thread)
                         {
                             dt=float(App::ct->simulation->getSimulationTimeStep_speedModified_ns())/1000000.0f;
                             break;
@@ -12112,7 +12112,7 @@ int _simGetLightParameters(luaWrap_lua_State* L)
         float ambientOld[3]={0.0f,0.0f,0.0f};
         float diffuse[3];
         float specular[3];
-        retVal=simGetLightParameters_internal(luaToInt(L,1),NULL,diffuse,specular);
+        retVal=simGetLightParameters_internal(luaToInt(L,1),nullptr,diffuse,specular);
         if (retVal>=0)
         {
             luaWrap_lua_pushnumber(L,retVal);
@@ -12138,8 +12138,8 @@ int _simSetLightParameters(luaWrap_lua_State* L)
     {
         int objHandle=luaToInt(L,1);
         int state=luaToInt(L,2);
-        float* diffuseP=NULL;
-        float* specularP=NULL;
+        float* diffuseP=nullptr;
+        float* specularP=nullptr;
         float diffuse_[3]={0.0f,0.0f,0.0f};
         float specular_[3]={0.0f,0.0f,0.0f};
         int res=checkOneGeneralInputArgument(L,3,lua_arg_number,3,true,true,&errorString);
@@ -12161,7 +12161,7 @@ int _simSetLightParameters(luaWrap_lua_State* L)
                         getFloatsFromTable(L,5,3,specular_);
                         specularP=specular_;
                     }
-                    retVal=simSetLightParameters_internal(objHandle,state,NULL,diffuseP,specularP);
+                    retVal=simSetLightParameters_internal(objHandle,state,nullptr,diffuseP,specularP);
                 }
             }
         }
@@ -12332,7 +12332,7 @@ int _simSetShapeColor(luaWrap_lua_State* L)
     int shapeHandle=-1;
     bool ok=false;
     bool correctColors=false;
-    if (!checkInputArguments(L,NULL,lua_arg_number,0))
+    if (!checkInputArguments(L,nullptr,lua_arg_number,0))
     { // this section is to guarantee backward compatibility: color values have changed in the release following 3.1.3. So we need to adjust them
         if (checkInputArguments(L,&errorString,lua_arg_string,0))
         {
@@ -12361,7 +12361,7 @@ int _simSetShapeColor(luaWrap_lua_State* L)
     if (ok)
     { // First arg ok
         std::string strTmp;
-        char* str=NULL;
+        char* str=nullptr;
         int colorComponent=0;
         bool err=false;
         bool transformColor=false;
@@ -12423,7 +12423,7 @@ int _simGetShapeColor(luaWrap_lua_State* L)
     { // First arg ok
         int shapeHandle=luaToInt(L,1);
         std::string strTmp;
-        char* str=NULL;
+        char* str=nullptr;
         int colorComponent=0;
         bool err=false;
         int res=checkOneGeneralInputArgument(L,2,lua_arg_string,0,false,true,&errorString);
@@ -12749,7 +12749,7 @@ int _simSetThreadIsFree(luaWrap_lua_State* L)
     if (!VThread::isCurrentThreadTheMainSimulationThread())
     {
         bool result=false;
-        if (checkInputArguments(L,NULL,lua_arg_bool,0))
+        if (checkInputArguments(L,nullptr,lua_arg_bool,0))
         {
             result=CThreadPool::setThreadFreeMode(luaToBool(L,1));
             if (result)
@@ -12834,12 +12834,12 @@ int _simTubeRead(luaWrap_lua_State* L)
         if (blocking)
         {
             CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptID(L));
-            if (it!=NULL)
+            if (it!=nullptr)
             {
                 if (!VThread::isCurrentThreadTheMainSimulationThread())
                 {
                     char* data=simTubeRead_internal(luaToInt(L,1),&dataLength);
-                    while (data==NULL)
+                    while (data==nullptr)
                     {
                         // Now wait here until a button was pressed! (or the simulation is aborted)
                         CThreadPool::switchBackToPreviousThread();
@@ -12848,7 +12848,7 @@ int _simTubeRead(luaWrap_lua_State* L)
                         data=simTubeRead_internal(luaToInt(L,1),&dataLength);
                     }
 
-                    if (data!=NULL)
+                    if (data!=nullptr)
                     {
                         luaWrap_lua_pushlstring(L,(const char*)data,dataLength);
                         delete[] data;
@@ -12918,10 +12918,10 @@ int _simAuxiliaryConsoleOpen(luaWrap_lua_State* L)
             mode|=16;
             mode-=16;
         }
-        int* p=NULL;
-        int* s=NULL;
-        float* tc=NULL;
-        float* bc=NULL;
+        int* p=nullptr;
+        int* s=nullptr;
+        float* tc=nullptr;
+        float* bc=nullptr;
         int res=checkOneGeneralInputArgument(L,4,lua_arg_number,2,true,true,&errorString);
         if (res>=0)
         {
@@ -13008,7 +13008,7 @@ int _simAuxiliaryConsolePrint(luaWrap_lua_State* L)
     {
         int res=checkOneGeneralInputArgument(L,2,lua_arg_string,0,false,true,&errorString);
         if (res==1)
-            retVal=simAuxiliaryConsolePrint_internal(luaToInt(L,1),NULL);
+            retVal=simAuxiliaryConsolePrint_internal(luaToInt(L,1),nullptr);
         if (res==2)
             retVal=simAuxiliaryConsolePrint_internal(luaToInt(L,1),luaWrap_lua_tostring(L,2));
     }
@@ -13056,8 +13056,7 @@ int _simImportMesh(luaWrap_lua_State* L)
         int* verticesSizes;
         int** indices;
         int* indicesSizes;
-        char** names;
-        int elementCount=simImportMesh_internal(fileType,pathAndFilename.c_str(),options,identicalVerticeTolerance,scalingFactor,&vertices,&verticesSizes,&indices,&indicesSizes,NULL,&names);
+        int elementCount=simImportMesh_internal(fileType,pathAndFilename.c_str(),options,identicalVerticeTolerance,scalingFactor,&vertices,&verticesSizes,&indices,&indicesSizes,nullptr,nullptr);
         if (elementCount>0)
         {
             // Vertices:
@@ -13088,26 +13087,13 @@ int _simImportMesh(luaWrap_lua_State* L)
                 }
                 luaWrap_lua_rawseti(L,tablePos,i+1);
             }
-            // For future:
-            luaWrap_lua_pushnil(L);
-
-            // Names:
-            luaWrap_lua_newtable(L);
-            tablePos=luaWrap_lua_gettop(L);
-            for (int i=0;i<elementCount;i++)
-            {
-                luaWrap_lua_pushstring(L,names[i]);
-                luaWrap_lua_rawseti(L,tablePos,i+1);
-            }
-            retValCnt=4;
+            retValCnt=2;
 
             for (int i=0;i<elementCount;i++)
             {
-                delete[] names[i];
                 delete[] indices[i];
                 delete[] vertices[i];
             }
-            delete[] names;
             delete[] indicesSizes;
             delete[] indices;
             delete[] verticesSizes;
@@ -13133,36 +13119,30 @@ int _simExportMesh(luaWrap_lua_State* L)
         int options=luaToInt(L,3);
         float scalingFactor=luaToFloat(L,4);
         int elementCount=15487;
-        if ( (luaWrap_lua_gettop(L)>=8)&&luaWrap_lua_istable(L,5)&&luaWrap_lua_istable(L,6)&&luaWrap_lua_isnil(L,7)&&luaWrap_lua_istable(L,8) )
+        if ( (luaWrap_lua_gettop(L)>=6)&&luaWrap_lua_istable(L,5)&&luaWrap_lua_istable(L,6) )
         {
             int ve=(int)luaWrap_lua_objlen(L,5);
             int ie=(int)luaWrap_lua_objlen(L,6);
-            int nameE=(int)luaWrap_lua_objlen(L,8);
-            elementCount=SIM_MIN(SIM_MIN(ve,ie),nameE);
+            elementCount=SIM_MIN(ve,ie);
         }
         if ( (checkOneGeneralInputArgument(L,5,lua_arg_table,elementCount,false,false,&errorString)==2)&&
-                (checkOneGeneralInputArgument(L,6,lua_arg_table,elementCount,false,false,&errorString)==2)&&
-                (checkOneGeneralInputArgument(L,7,lua_arg_nil,0,false,false,&errorString)==2)&&
-                (checkOneGeneralInputArgument(L,8,lua_arg_string,elementCount,false,false,&errorString)==2) )
+                (checkOneGeneralInputArgument(L,6,lua_arg_table,elementCount,false,false,&errorString)==2) )
         {
             float** vertices;
             int* verticesSizes;
             int** indices;
             int* indicesSizes;
-            char** names;
             vertices=new float*[elementCount];
             verticesSizes=new int[elementCount];
             indices=new int*[elementCount];
             indicesSizes=new int[elementCount];
-            names=new char*[elementCount];
             // Following needed if we break before (because one table in a table is not correct (or not a table)):
             for (int i=0;i<elementCount;i++)
             {
-                vertices[i]=NULL;
+                vertices[i]=nullptr;
                 verticesSizes[i]=0;
-                indices[i]=NULL;
+                indices[i]=nullptr;
                 indicesSizes[i]=0;
-                names[i]=NULL;
             }
 
             bool error=false;
@@ -13206,28 +13186,16 @@ int _simExportMesh(luaWrap_lua_State* L)
                         error=true;
                     luaWrap_lua_pop(L,1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
                 }
-                if (!error)
-                {
-                    luaWrap_lua_rawgeti(L,8,i+1);
-                    std::string name(luaWrap_lua_tostring(L,-1));
-                    names[i]=new char[name.length()+1];
-                    for (int j=0;j<int(name.length());j++)
-                        names[i][j]=name[j];
-                    names[i][name.length()]=0; // terminal 0
-                    luaWrap_lua_pop(L,1); // we have to pop the value that was pushed with luaWrap_lua_rawgeti
-                }
             }
 
             if (!error)
-                retVal=simExportMesh_internal(fileType,pathAndFilename.c_str(),options,scalingFactor,elementCount,vertices,verticesSizes,indices,indicesSizes,NULL,names);
+                retVal=simExportMesh_internal(fileType,pathAndFilename.c_str(),options,scalingFactor,elementCount,(const float**)vertices,verticesSizes,(const int**)indices,indicesSizes,nullptr,nullptr);
 
             for (int i=0;i<elementCount;i++)
             {
                 delete[] vertices[i];
                 delete[] indices[i];
-                delete[] names[i];
             }
-            delete[] names;
             delete[] indicesSizes;
             delete[] indices;
             delete[] verticesSizes;
@@ -13270,7 +13238,7 @@ int _simCreateMeshShape(luaWrap_lua_State* L)
                 int* indices=new int[il];
                 getFloatsFromTable(L,3,vl,vertices);
                 getIntsFromTable(L,4,il,indices);
-                retVal=simCreateMeshShape_internal(options,shadingAngle,vertices,vl,indices,il,NULL);
+                retVal=simCreateMeshShape_internal(options,shadingAngle,vertices,vl,indices,il,nullptr);
                 delete[] indices;
                 delete[] vertices;
             }
@@ -13324,7 +13292,7 @@ int _simCreatePureShape(luaWrap_lua_State* L)
         float sizes[3];
         getFloatsFromTable(L,3,3,sizes);
         float mass=luaToFloat(L,4);
-        int* precision=NULL;
+        int* precision=nullptr;
         int prec[2];
         int res=checkOneGeneralInputArgument(L,5,lua_arg_number,2,true,true,&errorString);
         if (res>=0)
@@ -13384,10 +13352,10 @@ int _simAddBanner(luaWrap_lua_State* L)
         float size=luaToFloat(L,2);
         int options=luaToInt(L,3);
 
-        float* positionAndEulerAngles=NULL;
+        float* positionAndEulerAngles=nullptr;
         int parentObjectHandle=-1;
-        float* labelColors=NULL;
-        float* backgroundColors=NULL;
+        float* labelColors=nullptr;
+        float* backgroundColors=nullptr;
 
         int res=checkOneGeneralInputArgument(L,4,lua_arg_number,6,true,true,&errorString);
         int okToGo=(res!=-1);
@@ -13448,7 +13416,7 @@ int _simAddBanner(luaWrap_lua_State* L)
                     int currentScriptID=getCurrentScriptID(L);
                     CLuaScriptObject* itScrObj=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
                     CBannerObject* anObj=App::ct->bannerCont->getObject(retVal);
-                    if (anObj!=NULL)
+                    if (anObj!=nullptr)
                         anObj->setCreatedFromScript((itScrObj->getScriptType()==sim_scripttype_mainscript)||(itScrObj->getScriptType()==sim_scripttype_childscript)||(itScrObj->getScriptType()==sim_scripttype_jointctrlcallback)||(itScrObj->getScriptType()==sim_scripttype_contactcallback)); //||(itScrObj->getScriptType()==sim_scripttype_generalcallback));
                 }
             }
@@ -13494,9 +13462,9 @@ int _simCreateJoint(luaWrap_lua_State* L)
         int jointType=luaToInt(L,1);
         int jointMode=luaToInt(L,2);
         int options=luaToInt(L,3);
-        float* sizes=NULL;
-        float* colorA=NULL;
-        float* colorB=NULL;
+        float* sizes=nullptr;
+        float* colorA=nullptr;
+        float* colorB=nullptr;
         float s[2];
         float cA[12];
         float cB[12];
@@ -13544,7 +13512,7 @@ int _simCreateDummy(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         float size=luaToFloat(L,1);
-        float* color=NULL;
+        float* color=nullptr;
         float c[12];
         int res=checkOneGeneralInputArgument(L,2,lua_arg_number,12,true,true,&errorString);
         if (res>=0)
@@ -13572,11 +13540,11 @@ int _simCreatePath(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         int attribs=luaToInt(L,1);
-        int* intP=NULL;
-        float* floatP=NULL;
+        int* intP=nullptr;
+        float* floatP=nullptr;
         int intParams[3];
         float floatParams[3];
-        float* color=NULL;
+        float* color=nullptr;
         float c[12];
         int res=checkOneGeneralInputArgument(L,2,lua_arg_number,3,true,true,&errorString);
         if (res>=0)
@@ -13629,7 +13597,7 @@ int _simCreateProximitySensor(luaWrap_lua_State* L)
         getIntsFromTable(L,4,8,intParams);
         getFloatsFromTable(L,5,15,floatParams);
 
-        float* color=NULL;
+        float* color=nullptr;
         float c[48];
         int res=checkOneGeneralInputArgument(L,6,lua_arg_number,48,true,true,&errorString);
         if (res>=0)
@@ -13662,7 +13630,7 @@ int _simCreateForceSensor(luaWrap_lua_State* L)
         getIntsFromTable(L,2,5,intParams);
         getFloatsFromTable(L,3,5,floatParams);
 
-        float* color=NULL;
+        float* color=nullptr;
         float c[24];
         int res=checkOneGeneralInputArgument(L,4,lua_arg_number,24,true,true,&errorString);
         if (res>=0)
@@ -13695,7 +13663,7 @@ int _simCreateVisionSensor(luaWrap_lua_State* L)
         getIntsFromTable(L,2,4,intParams);
         getFloatsFromTable(L,3,11,floatParams);
 
-        float* color=NULL;
+        float* color=nullptr;
         float c[48];
         int res=checkOneGeneralInputArgument(L,4,lua_arg_number,48,true,true,&errorString);
         if (res>=0)
@@ -13753,13 +13721,13 @@ int _simAdjustView(luaWrap_lua_State* L)
         int res=checkOneGeneralInputArgument(L,4,lua_arg_string,0,true,true,&errorString);
         if (res>=0)
         {
-            char* txt=NULL;
+            char* txt=nullptr;
             if (res==2)
                 txt=(char*)luaWrap_lua_tostring(L,4);
-            if ( (txt!=NULL)&&(strlen(txt)>0) )
+            if ( (txt!=nullptr)&&(strlen(txt)>0) )
                 retVal=simAdjustView_internal(luaToInt(L,1),luaToInt(L,2),luaToInt(L,3),txt);
             else
-                retVal=simAdjustView_internal(luaToInt(L,1),luaToInt(L,2),luaToInt(L,3),NULL);
+                retVal=simAdjustView_internal(luaToInt(L,1),luaToInt(L,2),luaToInt(L,3),nullptr);
         }
     }
 
@@ -13776,7 +13744,7 @@ int _simCameraFitToView(luaWrap_lua_State* L)
     int retVal=-1; // means error
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
-        int* objPtr=NULL;
+        int* objPtr=nullptr;
         int options=0;
         float scaling=1.0f;
         int tableLen=2;
@@ -13908,7 +13876,7 @@ int _simGetObjectStringParameter(luaWrap_lua_State* L)
     {
         int paramLength;
         char* strBuff=simGetObjectStringParameter_internal(luaToInt(L,1),luaToInt(L,2),&paramLength);
-        if (strBuff!=NULL)
+        if (strBuff!=nullptr)
         {
             luaWrap_lua_pushlstring(L,strBuff,paramLength);
             delete[] strBuff;
@@ -14014,7 +13982,7 @@ int _simSetIkGroupProperties(luaWrap_lua_State* L)
 
     int retVal=-1; // means error
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
-        retVal=simSetIkGroupProperties_internal(luaToInt(L,1),luaToInt(L,2),luaToInt(L,3),luaToFloat(L,4),NULL);
+        retVal=simSetIkGroupProperties_internal(luaToInt(L,1),luaToInt(L,2),luaToInt(L,3),luaToFloat(L,4),nullptr);
 
     LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
@@ -14032,7 +14000,7 @@ int _simSetIkElementProperties(luaWrap_lua_State* L)
         int res=checkOneGeneralInputArgument(L,4,lua_arg_number,2,true,true,&errorString);
         if (res>=0)
         {
-            float* precision=NULL;
+            float* precision=nullptr;
             float prec[2];
             if (res==2)
             {
@@ -14042,14 +14010,14 @@ int _simSetIkElementProperties(luaWrap_lua_State* L)
             res=checkOneGeneralInputArgument(L,5,lua_arg_number,2,true,true,&errorString);
             if (res>=0)
             {
-                float* weight=NULL;
+                float* weight=nullptr;
                 float w[2];
                 if (res==2)
                 {
                     getFloatsFromTable(L,5,2,w);
                     weight=w;
                 }
-                retVal=simSetIkElementProperties_internal(luaToInt(L,1),luaToInt(L,2),luaToInt(L,3),precision,weight,NULL);
+                retVal=simSetIkElementProperties_internal(luaToInt(L,1),luaToInt(L,2),luaToInt(L,3),precision,weight,nullptr);
             }
         }
     }
@@ -14094,7 +14062,7 @@ int _simPersistentDataRead(luaWrap_lua_State* L)
         int stringLength;
         char* str=simPersistentDataRead_internal(std::string(luaWrap_lua_tostring(L,1)).c_str(),&stringLength);
 
-        if (str!=NULL)
+        if (str!=nullptr)
         {
             luaWrap_lua_pushlstring(L,str,stringLength);
             simReleaseBuffer_internal(str);
@@ -14202,14 +14170,14 @@ int _simRMLStep(luaWrap_lua_State* L)
             int auxVals[4]={0,handle,0,0};
             int replyData[4]={-1,-1,-1,-1};
 
-            if (CPluginContainer::getPluginFromName("ReflexxesTypeIV")!=NULL)
-                CPluginContainer::sendEventCallbackMessageToOnePlugin("ReflexxesTypeIV",sim_message_eventcallback_rmlinfo,auxVals,NULL,replyData);
+            if (CPluginContainer::getPluginFromName("ReflexxesTypeIV")!=nullptr)
+                CPluginContainer::sendEventCallbackMessageToOnePlugin("ReflexxesTypeIV",sim_message_eventcallback_rmlinfo,auxVals,nullptr,replyData);
             else
             {
-                if (CPluginContainer::getPluginFromName("ReflexxesTypeII")!=NULL)
-                    CPluginContainer::sendEventCallbackMessageToOnePlugin("ReflexxesTypeII",sim_message_eventcallback_rmlinfo,auxVals,NULL,replyData);
+                if (CPluginContainer::getPluginFromName("ReflexxesTypeII")!=nullptr)
+                    CPluginContainer::sendEventCallbackMessageToOnePlugin("ReflexxesTypeII",sim_message_eventcallback_rmlinfo,auxVals,nullptr,replyData);
             }
-//            CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_rmlinfo,auxVals,NULL,replyData);
+//            CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_rmlinfo,auxVals,nullptr,replyData);
             dofs=replyData[1];
         }
 
@@ -14218,7 +14186,7 @@ int _simRMLStep(luaWrap_lua_State* L)
             double* newPosVelAccel=new double[dofs*3];
             unsigned char auxData[1+8+8];
             auxData[0]=1;
-            retVal=simRMLStep_internal(handle,timeStep,newPosVelAccel,auxData,NULL);
+            retVal=simRMLStep_internal(handle,timeStep,newPosVelAccel,auxData,nullptr);
             if (retVal>=0)
             {
                 luaWrap_lua_pushnumber(L,retVal);
@@ -14403,32 +14371,32 @@ int _simRMLMoveToPosition(luaWrap_lua_State* L)
     {
         if ((!CThreadPool::getSimulationStopRequested())&&(isObjectAssociatedWithThisThreadedChildScriptValid(L)))
         {
-            if (checkInputArguments(L,NULL,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
+            if (checkInputArguments(L,nullptr,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
             { // the 3 first types are ok!
                 int objectHandle=luaToInt(L,1);
                 int relativeToObjectHandle=luaToInt(L,2);
                 int flags=luaToInt(L,3);
-                C3DObject* it=App::ct->objCont->getObject(objectHandle);
-                C3DObject* relativeIt=NULL;
+                C3DObject* it=App::ct->objCont->getObjectFromHandle(objectHandle);
+                C3DObject* relativeIt=nullptr;
                 bool relParentError=false;
                 if (relativeToObjectHandle!=-1)
                 {
                     if (relativeToObjectHandle==sim_handle_parent)
-                        relativeIt=it->getParent();
+                        relativeIt=it->getParentObject();
                     else
                     {
-                        relativeIt=App::ct->objCont->getObject(relativeToObjectHandle);
-                        relParentError=(relativeIt==NULL);
+                        relativeIt=App::ct->objCont->getObjectFromHandle(relativeToObjectHandle);
+                        relParentError=(relativeIt==nullptr);
                     }
                 }
-                if ( (it==NULL)||((relativeIt==NULL)&&relParentError) )
+                if ( (it==nullptr)||((relativeIt==nullptr)&&relParentError) )
                     errorString=SIM_ERROR_OBJECT_INEXISTANT;
                 else
                 {
                     C7Vector startPose(it->getCumulativeTransformationPart1());
                     C7Vector tr;
                     tr.setIdentity();
-                    if (relativeIt!=NULL)
+                    if (relativeIt!=nullptr)
                         tr=relativeIt->getCumulativeTransformationPart1();
                     C7Vector trInv(tr.getInverse());
                     startPose=trInv*startPose;
@@ -14585,13 +14553,13 @@ int _simRMLMoveToPosition(luaWrap_lua_State* L)
                         bool movementFinished=false;
 
 
-                        int rmlHandle=simRMLPos_internal(4,0.0001,flags,currentPosVelAccel,maxVelAccelJerk,selection,targetPosVel,NULL);
+                        int rmlHandle=simRMLPos_internal(4,0.0001,flags,currentPosVelAccel,maxVelAccelJerk,selection,targetPosVel,nullptr);
                         while (!movementFinished)
                         {
                             double dt=double(App::ct->simulation->getSimulationTimeStep_speedModified_ns())/1000000.0;
-                            int rmlRes=simRMLStep_internal(rmlHandle,dt,newPosVelAccel,auxData,NULL);
-                            it=App::ct->objCont->getObject(objectHandle);
-                            if ((rmlRes<0)||(it==NULL))
+                            int rmlRes=simRMLStep_internal(rmlHandle,dt,newPosVelAccel,auxData,nullptr);
+                            it=App::ct->objCont->getObjectFromHandle(objectHandle);
+                            if ((rmlRes<0)||(it==nullptr))
                                 movementFinished=true; // error
                             else
                             {
@@ -14700,7 +14668,7 @@ int _simRMLMoveToJointPositions(luaWrap_lua_State* L)
                     for (int i=0;i<dofs;i++)
                     {
                         CJoint* act=App::ct->objCont->getJoint(jointHandles[i]);
-                        if (act==NULL)
+                        if (act==nullptr)
                             argError=true;
                     }
                     if (argError)
@@ -14808,7 +14776,7 @@ int _simRMLMoveToJointPositions(luaWrap_lua_State* L)
                     for (int i=0;i<dofs;i++)
                     {
                         CJoint* act=App::ct->objCont->getJoint(jointHandles[i]);
-                        if (act!=NULL) // should always pass!
+                        if (act!=nullptr) // should always pass!
                         {
                             selection[i]=1;
                             float ps=act->getPosition();
@@ -14883,11 +14851,11 @@ int _simRMLMoveToJointPositions(luaWrap_lua_State* L)
                     bool movementFinished=false;
 
 
-                    int rmlHandle=simRMLPos_internal(dofs,0.0001,flags,currentPosVelAccel,maxVelAccelJerk,selection,targetPosVel,NULL);
+                    int rmlHandle=simRMLPos_internal(dofs,0.0001,flags,currentPosVelAccel,maxVelAccelJerk,selection,targetPosVel,nullptr);
                     while (!movementFinished)
                     {
                         double dt=double(App::ct->simulation->getSimulationTimeStep_speedModified_ns())/1000000.0;
-                        int rmlRes=simRMLStep_internal(rmlHandle,dt,newPosVelAccel,auxData,NULL);
+                        int rmlRes=simRMLStep_internal(rmlHandle,dt,newPosVelAccel,auxData,nullptr);
                         if (rmlRes<0)
                             movementFinished=true; // error
                         else
@@ -14899,7 +14867,7 @@ int _simRMLMoveToJointPositions(luaWrap_lua_State* L)
                             for (int i=0;i<dofs;i++)
                             {
                                 CJoint* act=App::ct->objCont->getJoint(jointHandles[i]);
-                                if ( (act!=NULL)&&(act->getJointType()!=sim_joint_spherical_subtype) )
+                                if ( (act!=nullptr)&&(act->getJointType()!=sim_joint_spherical_subtype) )
                                 { // might have been destroyed in the mean time
                                     if ( (act->getJointMode()==sim_jointmode_force)&&((act->getCumulativeModelProperty()&sim_modelproperty_not_dynamic)==0) )
                                         act->setDynamicMotorPositionControlTargetPosition((float)currentPosVelAccel[0*dofs+i]);
@@ -14988,7 +14956,7 @@ int _simFileDialog(luaWrap_lua_State* L)
         std::string extName(luaWrap_lua_tostring(L,5));
         std::string ext(luaWrap_lua_tostring(L,6));
         char* pathAndName=simFileDialog_internal(mode,title.c_str(),startPath.c_str(),initName.c_str(),extName.c_str(),ext.c_str());
-        if (pathAndName!=NULL)
+        if (pathAndName!=nullptr)
         {
             luaWrap_lua_pushstring(L,pathAndName);
             simReleaseBuffer_internal(pathAndName);
@@ -15075,7 +15043,7 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
         else
             funcName=funcAndScriptName;
 
-        CLuaScriptObject* script=NULL;
+        CLuaScriptObject* script=nullptr;
         if (scriptHandleOrType>=SIM_IDSTART_LUASCRIPT)
         { // script is identified by its ID
             script=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptHandleOrType);
@@ -15090,22 +15058,22 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
                 script=App::ct->luaScriptContainer->getCustomContactHandlingScript_callback_OLD();
             if (scriptHandleOrType==sim_scripttype_childscript)
             {
-                int objId=App::ct->objCont->getObjectIdentifier(scriptDescription);
+                int objId=App::ct->objCont->getObjectHandleFromName(scriptDescription.c_str());
                 script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(objId);
             }
             if (scriptHandleOrType==sim_scripttype_jointctrlcallback)
             {
-                int objId=App::ct->objCont->getObjectIdentifier(scriptDescription);
+                int objId=App::ct->objCont->getObjectHandleFromName(scriptDescription.c_str());
                 script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(objId);
             }
             if (scriptHandleOrType==sim_scripttype_customizationscript)
             {
-                int objId=App::ct->objCont->getObjectIdentifier(scriptDescription);
+                int objId=App::ct->objCont->getObjectHandleFromName(scriptDescription.c_str());
                 script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
             }
         }
 
-        if (script!=NULL)
+        if (script!=nullptr)
         {
             CInterfaceStack stack;
             stack.buildFromLuaStack(L,3);
@@ -15201,7 +15169,7 @@ int _simSetShapeMassAndInertia(luaWrap_lua_State* L)
         getFloatsFromTable(L,3,9,inertiaMatrix);
         float centerOfMass[3];
         getFloatsFromTable(L,4,3,centerOfMass);
-        float* transf=NULL;
+        float* transf=nullptr;
         float transformation[12];
         int res=checkOneGeneralInputArgument(L,5,lua_arg_number,12,true,true,&errorString);
         if (res>=0)
@@ -15228,7 +15196,7 @@ int _simGetShapeMassAndInertia(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0))
     {
         int handle=luaWrap_lua_tointeger(L,1);
-        float* transf=NULL;
+        float* transf=nullptr;
         float transformation[12];
         int res=checkOneGeneralInputArgument(L,2,lua_arg_number,12,true,true,&errorString);
         if (res>=0)
@@ -15285,7 +15253,7 @@ int _simUngroupShape(luaWrap_lua_State* L)
         int shapeHandle=luaWrap_lua_tointeger(L,1);
         int count;
         int* handles=simUngroupShape_internal(shapeHandle,&count);
-        if (handles!=NULL)
+        if (handles!=nullptr)
         {
             pushIntTableOntoStack(L,count,handles);
             delete[] handles;
@@ -15414,7 +15382,7 @@ int _simGetIkGroupMatrix(luaWrap_lua_State* L)
         int options=luaToInt(L,2);
         int matrixSize[2];
         float* data=simGetIkGroupMatrix_internal(ikGroupHandle,options,matrixSize);
-        if (data!=NULL)
+        if (data!=nullptr)
         {
             pushFloatTableOntoStack(L,matrixSize[0]*matrixSize[1],data);
             pushIntTableOntoStack(L,2,matrixSize);
@@ -15450,7 +15418,7 @@ int _simAddGhost(luaWrap_lua_State* L)
                 getFloatsFromTable(L,6,12,color);
             }
             if (defaultColors)
-                retVal=simAddGhost_internal(ghostGroup,objectHandle,options,startTime,endTime,NULL);
+                retVal=simAddGhost_internal(ghostGroup,objectHandle,options,startTime,endTime,nullptr);
             else
                 retVal=simAddGhost_internal(ghostGroup,objectHandle,options,startTime,endTime,color);
         }
@@ -15620,7 +15588,7 @@ int _simReadTexture(luaWrap_lua_State* L)
                             sizeY=luaToInt(L,6);
 
                         CTextureObject* to=App::ct->textureCont->getObject(textureId);
-                        if (to!=NULL)
+                        if (to!=nullptr)
                         {
                             int tSizeX,tSizeY;
                             to->getTextureSize(tSizeX,tSizeY);
@@ -15637,7 +15605,7 @@ int _simReadTexture(luaWrap_lua_State* L)
                                     sizeY=tSizeY;
                                 }
                                 char* textureData=simReadTexture_internal(textureId,options,posX,posY,sizeX,sizeY);
-                                if (textureData!=NULL)
+                                if (textureData!=nullptr)
                                 { // here we return RGB data in a string
                                     luaWrap_lua_pushlstring(L,(const char*)textureData,sizeX*sizeY*3);
                                     simReleaseBuffer_internal(textureData);
@@ -15704,7 +15672,7 @@ int _simWriteTexture(luaWrap_lua_State* L)
                             if (res==2)
                                 interpol=luaToFloat(L,8);
                             CTextureObject* to=App::ct->textureCont->getObject(textureId);
-                            if (to!=NULL)
+                            if (to!=nullptr)
                             {
                                 int tSizeX,tSizeY;
                                 to->getTextureSize(tSizeX,tSizeY);
@@ -15752,11 +15720,11 @@ int _simCreateTexture(luaWrap_lua_State* L)
     {
         std::string fileName(luaWrap_lua_tostring(L,1));
         int options=luaToInt(L,2);
-        float* planeSizesP=NULL;
+        float* planeSizesP=nullptr;
         float planeSizes[2];
-        float* scalingUVP=NULL;
+        float* scalingUVP=nullptr;
         float scalingUV[2];
-        float* xy_gP=NULL;
+        float* xy_gP=nullptr;
         float xy_g[3];
         int resolution[2]={0,0}; // means: just any!
 
@@ -15809,7 +15777,7 @@ int _simCreateTexture(luaWrap_lua_State* L)
                             }
 
                             int textureId;
-                            int shapeHandle=simCreateTexture_internal(fileName.c_str(),options,planeSizesP,scalingUVP,xy_gP,maxTextureSize,&textureId,resolution,NULL);
+                            int shapeHandle=simCreateTexture_internal(fileName.c_str(),options,planeSizesP,scalingUVP,xy_gP,maxTextureSize,&textureId,resolution,nullptr);
                             if (shapeHandle>=0)
                             {
                                 luaWrap_lua_pushnumber(L,shapeHandle);
@@ -15848,7 +15816,7 @@ int _simWriteCustomDataBlock(luaWrap_lua_State* L)
         if (res>=1)
         {
             size_t dataLength=0;
-            char* data=NULL;
+            char* data=nullptr;
             if (res==2)
                 data=(char*)luaWrap_lua_tolstring(L,3,&dataLength);
             retVal=simWriteCustomDataBlock_internal(objectHandle,dataName.c_str(),data,(int)dataLength);
@@ -15875,7 +15843,7 @@ int _simReadCustomDataBlock(luaWrap_lua_State* L)
         std::string dataName(luaWrap_lua_tostring(L,2));
         int dataLength;
         char* data=simReadCustomDataBlock_internal(objectHandle,dataName.c_str(),&dataLength);
-        if (data!=NULL)
+        if (data!=nullptr)
         {
             luaWrap_lua_pushlstring(L,(const char*)data,dataLength);
             simReleaseBuffer_internal(data);
@@ -15900,7 +15868,7 @@ int _simReadCustomDataBlockTags(luaWrap_lua_State* L)
 
         int tagCount;
         char* data=simReadCustomDataBlockTags_internal(objectHandle,&tagCount);
-        if (data!=NULL)
+        if (data!=nullptr)
         {
             std::vector<std::string> stringTable;
             size_t off=0;
@@ -15944,7 +15912,7 @@ int _simAddPointCloud(luaWrap_lua_State* L)
         res=checkOneGeneralInputArgument(L,7,lua_arg_number,12,true,true,&errorString);
         if (res>=0)
         {
-            unsigned char* defaultColors=NULL;
+            unsigned char* defaultColors=nullptr;
             std::vector<unsigned char> _defCols(12,0);
             if (res==2)
             {
@@ -15957,7 +15925,7 @@ int _simAddPointCloud(luaWrap_lua_State* L)
             res=checkOneGeneralInputArgument(L,8,lua_arg_number,pointCnt*3,true,true,&errorString);
             if (res>=0)
             {
-                unsigned char* pointColors=NULL;
+                unsigned char* pointColors=nullptr;
                 std::vector<unsigned char> _pointCols;
                 if (res==2)
                 {
@@ -15971,7 +15939,7 @@ int _simAddPointCloud(luaWrap_lua_State* L)
                 res=checkOneGeneralInputArgument(L,9,lua_arg_number,pointCnt*3,true,true,&errorString);
                 if (res>=0)
                 {
-                    float* pointNormals=NULL;
+                    float* pointNormals=nullptr;
                     std::vector<float> _pointNormals;
                     if (res==2)
                     {
@@ -16000,7 +15968,7 @@ int _simModifyPointCloud(luaWrap_lua_State* L)
     {
         int pointCloudHandle=luaToInt(L,1);
         int operation=luaToInt(L,2);
-        retVal=simModifyPointCloud_internal(pointCloudHandle,operation,NULL,NULL);
+        retVal=simModifyPointCloud_internal(pointCloudHandle,operation,nullptr,nullptr);
     }
 
     LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
@@ -16019,7 +15987,7 @@ int _simGetShapeGeomInfo(luaWrap_lua_State* L)
         int handle=luaToInt(L,1);
         int intData[5];
         float floatData[5];
-        retVal=simGetShapeGeomInfo_internal(handle,intData,floatData,NULL);
+        retVal=simGetShapeGeomInfo_internal(handle,intData,floatData,nullptr);
         if (retVal>=0)
         {
             luaWrap_lua_pushnumber(L,retVal);
@@ -16056,7 +16024,7 @@ int _simGetObjectsInTree(luaWrap_lua_State* L)
                     options=luaToInt(L,3);
                 int objCnt=0;
                 int* objHandles=simGetObjectsInTree_internal(handle,objType,options,&objCnt);
-                if (objHandles!=NULL)
+                if (objHandles!=nullptr)
                 {
                     pushIntTableOntoStack(L,objCnt,objHandles);
                     simReleaseBuffer_internal((char*)objHandles);
@@ -16150,8 +16118,8 @@ int _simSetShapeTexture(luaWrap_lua_State* L)
         int options=luaToInt(L,4);
         float uvScaling[2];
         getFloatsFromTable(L,5,2,uvScaling);
-        float* posP=NULL;
-        float* orP=NULL;
+        float* posP=nullptr;
+        float* orP=nullptr;
         float _pos[3];
         float _or[3];
         int res=checkOneGeneralInputArgument(L,6,lua_arg_number,3,true,true,&errorString);
@@ -16232,7 +16200,7 @@ int _simHandleCustomizationScripts(luaWrap_lua_State* L)
             retVal=0;
             if (App::getEditModeType()==NO_EDIT_MODE)
             {
-                retVal=App::ct->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,callType,NULL,NULL,NULL);
+                retVal=App::ct->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,callType,nullptr,nullptr,nullptr);
                 App::ct->luaScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
             }
         }
@@ -16260,7 +16228,7 @@ int _simHandleAddOnScripts(luaWrap_lua_State* L)
             int callType=luaToInt(L,1);
             retVal=0;
             if (App::getEditModeType()==NO_EDIT_MODE)
-                retVal=App::ct->addOnScriptContainer->handleAddOnScriptExecution(callType,NULL,NULL);
+                retVal=App::ct->addOnScriptContainer->handleAddOnScriptExecution(callType,nullptr,nullptr);
         }
     }
     else
@@ -16390,7 +16358,7 @@ int _simGetEngineFloatParameter(luaWrap_lua_State* L)
         int paramId=luaWrap_lua_tointeger(L,1);
         int objectHandle=luaWrap_lua_tointeger(L,2);
         simBool ok;
-        float paramVal=simGetEngineFloatParameter_internal(paramId,objectHandle,NULL,&ok);
+        float paramVal=simGetEngineFloatParameter_internal(paramId,objectHandle,nullptr,&ok);
         if (ok>0)
         {
             luaWrap_lua_pushnumber(L,paramVal);
@@ -16412,7 +16380,7 @@ int _simGetEngineInt32Parameter(luaWrap_lua_State* L)
         int paramId=luaWrap_lua_tointeger(L,1);
         int objectHandle=luaWrap_lua_tointeger(L,2);
         simBool ok;
-        int paramVal=simGetEngineInt32Parameter_internal(paramId,objectHandle,NULL,&ok);
+        int paramVal=simGetEngineInt32Parameter_internal(paramId,objectHandle,nullptr,&ok);
         if (ok>0)
         {
             luaWrap_lua_pushnumber(L,paramVal);
@@ -16434,7 +16402,7 @@ int _simGetEngineBoolParameter(luaWrap_lua_State* L)
         int paramId=luaWrap_lua_tointeger(L,1);
         int objectHandle=luaWrap_lua_tointeger(L,2);
         simBool ok;
-        simBool paramVal=simGetEngineBoolParameter_internal(paramId,objectHandle,NULL,&ok);
+        simBool paramVal=simGetEngineBoolParameter_internal(paramId,objectHandle,nullptr,&ok);
         if (ok>0)
         {
             luaWrap_lua_pushboolean(L,paramVal>0);
@@ -16457,7 +16425,7 @@ int _simSetEngineFloatParameter(luaWrap_lua_State* L)
         int paramId=luaWrap_lua_tointeger(L,1);
         int objectHandle=luaWrap_lua_tointeger(L,2);
         float paramVal=luaToFloat(L,3);
-        retVal=simSetEngineFloatParameter_internal(paramId,objectHandle,NULL,paramVal);
+        retVal=simSetEngineFloatParameter_internal(paramId,objectHandle,nullptr,paramVal);
     }
 
     LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
@@ -16476,7 +16444,7 @@ int _simSetEngineInt32Parameter(luaWrap_lua_State* L)
         int paramId=luaWrap_lua_tointeger(L,1);
         int objectHandle=luaWrap_lua_tointeger(L,2);
         int paramVal=luaWrap_lua_tointeger(L,3);
-        retVal=simSetEngineInt32Parameter_internal(paramId,objectHandle,NULL,paramVal);
+        retVal=simSetEngineInt32Parameter_internal(paramId,objectHandle,nullptr,paramVal);
     }
 
     LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
@@ -16495,7 +16463,7 @@ int _simSetEngineBoolParameter(luaWrap_lua_State* L)
         int paramId=luaWrap_lua_tointeger(L,1);
         int objectHandle=luaWrap_lua_tointeger(L,2);
         simBool paramVal=(simBool)luaWrap_lua_toboolean(L,3);
-        retVal=simSetEngineBoolParameter_internal(paramId,objectHandle,NULL,paramVal);
+        retVal=simSetEngineBoolParameter_internal(paramId,objectHandle,nullptr,paramVal);
     }
 
     LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
@@ -16514,7 +16482,7 @@ int _simCreateOctree(luaWrap_lua_State* L)
         float voxelSize=(float)luaWrap_lua_tonumber(L,1);
         int options=luaWrap_lua_tointeger(L,2);
         float pointSize=(float)luaWrap_lua_tonumber(L,3);
-        retVal=simCreateOctree_internal(voxelSize,options,pointSize,NULL);
+        retVal=simCreateOctree_internal(voxelSize,options,pointSize,nullptr);
     }
 
     LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
@@ -16534,7 +16502,7 @@ int _simCreatePointCloud(luaWrap_lua_State* L)
         int maxPtCntPerVoxel=luaWrap_lua_tointeger(L,2);
         int options=luaWrap_lua_tointeger(L,3);
         float pointSize=(float)luaWrap_lua_tonumber(L,4);
-        retVal=simCreatePointCloud_internal(maxVoxelSize,maxPtCntPerVoxel,options,pointSize,NULL);
+        retVal=simCreatePointCloud_internal(maxVoxelSize,maxPtCntPerVoxel,options,pointSize,nullptr);
     }
 
     LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
@@ -16555,7 +16523,7 @@ int _simSetPointCloudOptions(luaWrap_lua_State* L)
         int maxPtCntPerVoxel=luaWrap_lua_tointeger(L,3);
         int options=luaWrap_lua_tointeger(L,4);
         float pointSize=(float)luaWrap_lua_tonumber(L,5);
-        retVal=simSetPointCloudOptions_internal(handle,maxVoxelSize,maxPtCntPerVoxel,options,pointSize,NULL);
+        retVal=simSetPointCloudOptions_internal(handle,maxVoxelSize,maxPtCntPerVoxel,options,pointSize,nullptr);
     }
 
     LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
@@ -16575,7 +16543,7 @@ int _simGetPointCloudOptions(luaWrap_lua_State* L)
         int maxPtCntPerVoxel;
         int options;
         float pointSize;
-        int retVal=simGetPointCloudOptions_internal(handle,&maxVoxelSize,&maxPtCntPerVoxel,&options,&pointSize,NULL);
+        int retVal=simGetPointCloudOptions_internal(handle,&maxVoxelSize,&maxPtCntPerVoxel,&options,&pointSize,nullptr);
         if (retVal>0)
         {
             luaWrap_lua_pushnumber(L,maxVoxelSize);
@@ -16603,7 +16571,7 @@ int _simInsertVoxelsIntoOctree(luaWrap_lua_State* L)
         int ptCnt=int(luaWrap_lua_objlen(L,3))/3;
         std::vector<float> pts;
         pts.resize(ptCnt*3);
-        unsigned char* cols=NULL;
+        unsigned char* cols=nullptr;
         std::vector<unsigned char> _cols;
         int v=3;
         if (options&2)
@@ -16621,11 +16589,11 @@ int _simInsertVoxelsIntoOctree(luaWrap_lua_State* L)
             res=checkOneGeneralInputArgument(L,5,lua_arg_number,v/3,true,true,&errorString);
             if (res>=0)
             {
-                if (cols==NULL)
-                    retVal=simInsertVoxelsIntoOctree_internal(handle,options,&pts[0],ptCnt,NULL,NULL,NULL);
+                if (cols==nullptr)
+                    retVal=simInsertVoxelsIntoOctree_internal(handle,options,&pts[0],ptCnt,nullptr,nullptr,nullptr);
                 else
                 {
-                    unsigned int* tags=NULL;
+                    unsigned int* tags=nullptr;
                     std::vector<unsigned int> _tags;
                     if (res==2)
                     {
@@ -16633,7 +16601,7 @@ int _simInsertVoxelsIntoOctree(luaWrap_lua_State* L)
                         getUIntsFromTable(L,5,v/3,&_tags[0]);
                         tags=&_tags[0];
                     }
-                    retVal=simInsertVoxelsIntoOctree_internal(handle,options,&pts[0],ptCnt,cols,tags,NULL);
+                    retVal=simInsertVoxelsIntoOctree_internal(handle,options,&pts[0],ptCnt,cols,tags,nullptr);
                 }
             }
         }
@@ -16663,10 +16631,10 @@ int _simRemoveVoxelsFromOctree(luaWrap_lua_State* L)
                 std::vector<float> pts;
                 pts.resize(ptCnt*3);
                 getFloatsFromTable(L,3,ptCnt*3,&pts[0]);
-                retVal=simRemoveVoxelsFromOctree_internal(handle,options,&pts[0],ptCnt,NULL);
+                retVal=simRemoveVoxelsFromOctree_internal(handle,options,&pts[0],ptCnt,nullptr);
             }
             else
-                retVal=simRemoveVoxelsFromOctree_internal(handle,options,NULL,0,NULL); // remove all voxels!
+                retVal=simRemoveVoxelsFromOctree_internal(handle,options,nullptr,0,nullptr); // remove all voxels!
         }
     }
 
@@ -16691,7 +16659,7 @@ int _simInsertPointsIntoPointCloud(luaWrap_lua_State* L)
         optionalValues[1]=0.0; // duplicate tolerance
         std::vector<float> pts;
         pts.resize(ptCnt*3);
-        unsigned char* cols=NULL;
+        unsigned char* cols=nullptr;
         std::vector<unsigned char> _cols;
         int v=3;
         if (options&2)
@@ -16715,7 +16683,7 @@ int _simInsertPointsIntoPointCloud(luaWrap_lua_State* L)
                     retVal=simInsertPointsIntoPointCloud_internal(handle,options,&pts[0],ptCnt,cols,optionalValues);
                 }
                 else
-                    retVal=simInsertPointsIntoPointCloud_internal(handle,options,&pts[0],ptCnt,cols,NULL);
+                    retVal=simInsertPointsIntoPointCloud_internal(handle,options,&pts[0],ptCnt,cols,nullptr);
             }
         }
     }
@@ -16748,10 +16716,10 @@ int _simRemovePointsFromPointCloud(luaWrap_lua_State* L)
                     std::vector<float> pts;
                     pts.resize(ptCnt*3);
                     getFloatsFromTable(L,3,ptCnt*3,&pts[0]);
-                    retVal=simRemovePointsFromPointCloud_internal(handle,options,&pts[0],ptCnt,tolerance,NULL);
+                    retVal=simRemovePointsFromPointCloud_internal(handle,options,&pts[0],ptCnt,tolerance,nullptr);
                 }
                 else
-                    retVal=simRemovePointsFromPointCloud_internal(handle,options,NULL,0,0.0,NULL); // remove all points
+                    retVal=simRemovePointsFromPointCloud_internal(handle,options,nullptr,0,0.0,nullptr); // remove all points
             }
         }
     }
@@ -16784,10 +16752,10 @@ int _simIntersectPointsWithPointCloud(luaWrap_lua_State* L)
                     std::vector<float> pts;
                     pts.resize(ptCnt*3);
                     getFloatsFromTable(L,3,ptCnt*3,&pts[0]);
-                    retVal=simIntersectPointsWithPointCloud_internal(handle,options,&pts[0],ptCnt,tolerance,NULL);
+                    retVal=simIntersectPointsWithPointCloud_internal(handle,options,&pts[0],ptCnt,tolerance,nullptr);
                 }
                 else
-                    retVal=simRemovePointsFromPointCloud_internal(handle,options,NULL,0,0.0,NULL); // remove all points
+                    retVal=simRemovePointsFromPointCloud_internal(handle,options,nullptr,0,0.0,nullptr); // remove all points
             }
         }
     }
@@ -16806,7 +16774,7 @@ int _simGetOctreeVoxels(luaWrap_lua_State* L)
     {
         int handle=luaWrap_lua_tointeger(L,1);
         int ptCnt=-1;
-        const float* p=simGetOctreeVoxels_internal(handle,&ptCnt,NULL);
+        const float* p=simGetOctreeVoxels_internal(handle,&ptCnt,nullptr);
         if (ptCnt>=0)
         {
             pushFloatTableOntoStack(L,ptCnt*3,p);
@@ -16827,7 +16795,7 @@ int _simGetPointCloudPoints(luaWrap_lua_State* L)
     {
         int handle=luaWrap_lua_tointeger(L,1);
         int ptCnt=-1;
-        const float* p=simGetPointCloudPoints_internal(handle,&ptCnt,NULL);
+        const float* p=simGetPointCloudPoints_internal(handle,&ptCnt,nullptr);
         if (ptCnt>=0)
         {
             pushFloatTableOntoStack(L,ptCnt*3,p);
@@ -16851,7 +16819,7 @@ int _simInsertObjectIntoOctree(luaWrap_lua_State* L)
         int handle2=luaWrap_lua_tointeger(L,2);
         int options=luaWrap_lua_tointeger(L,3);
         unsigned char col[3];
-        unsigned char* c=NULL;
+        unsigned char* c=nullptr;
         int tag=0;
         int res=checkOneGeneralInputArgument(L,4,lua_arg_number,3,true,true,&errorString);
         if (res>=0)
@@ -16864,7 +16832,7 @@ int _simInsertObjectIntoOctree(luaWrap_lua_State* L)
             res=checkOneGeneralInputArgument(L,5,lua_arg_number,0,true,true,&errorString);
             if (res==2)
                 tag=(unsigned int)luaWrap_lua_tonumber(L,5);
-            retVal=simInsertObjectIntoOctree_internal(handle1,handle2,options,c,tag,NULL);
+            retVal=simInsertObjectIntoOctree_internal(handle1,handle2,options,c,tag,nullptr);
         }
     }
 
@@ -16884,7 +16852,7 @@ int _simSubtractObjectFromOctree(luaWrap_lua_State* L)
         int handle1=luaWrap_lua_tointeger(L,1);
         int handle2=luaWrap_lua_tointeger(L,2);
         int options=luaWrap_lua_tointeger(L,3);
-        retVal=simSubtractObjectFromOctree_internal(handle1,handle2,options,NULL);
+        retVal=simSubtractObjectFromOctree_internal(handle1,handle2,options,nullptr);
     }
 
     LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
@@ -16908,7 +16876,7 @@ int _simInsertObjectIntoPointCloud(luaWrap_lua_State* L)
         ((int*)optionalValues)[0]=1; // duplicate tolerance bit
         optionalValues[1]=0.0; // duplicate tolerance
         unsigned char col[3];
-        unsigned char* c=NULL;
+        unsigned char* c=nullptr;
         int res=checkOneGeneralInputArgument(L,5,lua_arg_number,3,true,true,&errorString);
         if (res>=0)
         {
@@ -16926,7 +16894,7 @@ int _simInsertObjectIntoPointCloud(luaWrap_lua_State* L)
                     retVal=simInsertObjectIntoPointCloud_internal(handle1,handle2,options,gridSize,c,optionalValues);
                 }
                 else
-                    retVal=simInsertObjectIntoPointCloud_internal(handle1,handle2,options,gridSize,c,NULL);
+                    retVal=simInsertObjectIntoPointCloud_internal(handle1,handle2,options,gridSize,c,nullptr);
             }
         }
     }
@@ -16948,7 +16916,7 @@ int _simSubtractObjectFromPointCloud(luaWrap_lua_State* L)
         int handle2=luaWrap_lua_tointeger(L,2);
         int options=luaWrap_lua_tointeger(L,3);
         float tolerance=luaWrap_lua_tonumber(L,4);
-        retVal=simSubtractObjectFromPointCloud_internal(handle1,handle2,options,tolerance,NULL);
+        retVal=simSubtractObjectFromPointCloud_internal(handle1,handle2,options,tolerance,nullptr);
     }
 
     LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
@@ -16972,7 +16940,7 @@ int _simCheckOctreePointOccupancy(luaWrap_lua_State* L)
         getFloatsFromTable(L,3,ptCnt*3,&points[0]);
         unsigned int tag=0;
         unsigned long long int location=0;
-        retVal=simCheckOctreePointOccupancy_internal(handle,options,&points[0],ptCnt,&tag,&location,NULL);
+        retVal=simCheckOctreePointOccupancy_internal(handle,options,&points[0],ptCnt,&tag,&location,nullptr);
         if ( (retVal>0)&&(ptCnt==1) )
         { // in this case we return 4 values:
             unsigned int locLow=location&0xffffffff;
@@ -17124,7 +17092,7 @@ int _simHandleSimulationStart(luaWrap_lua_State* L)
         for (size_t i=0;i<App::ct->objCont->jointList.size();i++)
             App::ct->objCont->getJoint(App::ct->objCont->jointList[i])->measureJointVelocity(dt);
         for (size_t i=0;i<App::ct->objCont->objectList.size();i++)
-            App::ct->objCont->getObject(App::ct->objCont->objectList[i])->measureVelocity(dt);
+            App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i])->measureVelocity(dt);
     }
     else
         errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
@@ -17156,7 +17124,7 @@ int _simHandleSensingStart(luaWrap_lua_State* L)
         for (size_t i=0;i<App::ct->objCont->jointList.size();i++)
             App::ct->objCont->getJoint(App::ct->objCont->jointList[i])->measureJointVelocity(dt);
         for (size_t i=0;i<App::ct->objCont->objectList.size();i++)
-            App::ct->objCont->getObject(App::ct->objCont->objectList[i])->measureVelocity(dt);
+            App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i])->measureVelocity(dt);
     }
     else
         errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
@@ -17177,7 +17145,7 @@ int _simAuxFunc(luaWrap_lua_State* L)
         if (cmd.compare("activateMainWindow")==0)
         {
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=NULL)
+            if (App::mainWindow!=nullptr)
                 App::mainWindow->activateMainWindow();
 #endif
             LUA_END(0);
@@ -17210,7 +17178,7 @@ int _simAuxFunc(luaWrap_lua_State* L)
                 int curveType=luaWrap_lua_tointeger(L,3);
                 std::string curveName(luaWrap_lua_tostring(L,4));
                 CGraph* it=App::ct->objCont->getGraph(graphHandle);
-                if (it!=NULL)
+                if (it!=nullptr)
                 {
                     it->curveToClipboard(curveType,curveName);
                     LUA_END(0);
@@ -17227,7 +17195,7 @@ int _simAuxFunc(luaWrap_lua_State* L)
                 int curveType=luaWrap_lua_tointeger(L,3);
                 std::string curveName(luaWrap_lua_tostring(L,4));
                 CGraph* it=App::ct->objCont->getGraph(graphHandle);
-                if (it!=NULL)
+                if (it!=nullptr)
                 {
                     it->curveToStatic(curveType,curveName);
                     LUA_END(0);
@@ -17244,7 +17212,7 @@ int _simAuxFunc(luaWrap_lua_State* L)
                 int curveType=luaWrap_lua_tointeger(L,3);
                 std::string curveName(luaWrap_lua_tostring(L,4));
                 CGraph* it=App::ct->objCont->getGraph(graphHandle);
-                if (it!=NULL)
+                if (it!=nullptr)
                 {
                     it->removeStaticCurve(curveType,curveName);
                     LUA_END(0);
@@ -17260,8 +17228,8 @@ int _simAuxFunc(luaWrap_lua_State* L)
                 int objHandle=luaWrap_lua_tointeger(L,2);
                 bool childAttr=luaWrap_lua_toboolean(L,3);
                 std::string matchValues(luaWrap_lua_tostring(L,4));
-                C3DObject* it=App::ct->objCont->getObject(objHandle);
-                if (it!=NULL)
+                C3DObject* it=App::ct->objCont->getObjectFromHandle(objHandle);
+                if (it!=nullptr)
                 {
                     it->setAssemblyMatchValues(childAttr,matchValues.c_str());
                     LUA_END(0);
@@ -17276,8 +17244,8 @@ int _simAuxFunc(luaWrap_lua_State* L)
             {
                 int objHandle=luaWrap_lua_tointeger(L,2);
                 bool childAttr=luaWrap_lua_toboolean(L,3);
-                C3DObject* it=App::ct->objCont->getObject(objHandle);
-                if (it!=NULL)
+                C3DObject* it=App::ct->objCont->getObjectFromHandle(objHandle);
+                if (it!=nullptr)
                 {
                     std::string str(it->getAssemblyMatchValues(childAttr));
                     luaWrap_lua_pushstring(L,str.c_str());
@@ -17401,10 +17369,10 @@ int _simSetReferencedHandles(luaWrap_lua_State* L)
                 std::vector<int> handles;
                 handles.resize(cnt);
                 getIntsFromTable(L,2,cnt,&handles[0]);
-                retVal=simSetReferencedHandles_internal(objHandle,cnt,&handles[0],NULL,NULL);
+                retVal=simSetReferencedHandles_internal(objHandle,cnt,&handles[0],nullptr,nullptr);
             }
             else
-                retVal=simSetReferencedHandles_internal(objHandle,0,NULL,NULL,NULL);
+                retVal=simSetReferencedHandles_internal(objHandle,0,nullptr,nullptr,nullptr);
         }
         else
             errorString=SIM_ERROR_INVALID_ARGUMENT;
@@ -17424,7 +17392,7 @@ int _simGetReferencedHandles(luaWrap_lua_State* L)
     {
         int objHandle=(luaWrap_lua_tointeger(L,1));
         int* handles;
-        int cnt=simGetReferencedHandles_internal(objHandle,&handles,NULL,NULL);
+        int cnt=simGetReferencedHandles_internal(objHandle,&handles,nullptr,nullptr);
         if (cnt>=0)
         {
             pushIntTableOntoStack(L,cnt,handles);
@@ -17447,7 +17415,7 @@ int _simGetGraphCurve(luaWrap_lua_State* L)
         int graphType=(luaWrap_lua_tointeger(L,2));
         int index=(luaWrap_lua_tointeger(L,3));
         CGraph* graph=App::ct->objCont->getGraph(graphHandle);
-        if (graph!=NULL)
+        if (graph!=nullptr)
         {
             std::vector<float> xVals;
             std::vector<float> yVals;
@@ -17464,17 +17432,17 @@ int _simGetGraphCurve(luaWrap_lua_State* L)
                 if (xVals.size()>0)
                     pushFloatTableOntoStack(L,(int)xVals.size(),&xVals[0]);
                 else
-                    pushFloatTableOntoStack(L,0,NULL);
+                    pushFloatTableOntoStack(L,0,nullptr);
                 if (yVals.size()>0)
                     pushFloatTableOntoStack(L,(int)yVals.size(),&yVals[0]);
                 else
-                    pushFloatTableOntoStack(L,0,NULL);
+                    pushFloatTableOntoStack(L,0,nullptr);
                 if (graphType==2)
                 {
                     if (zVals.size()>0)
                         pushFloatTableOntoStack(L,(int)zVals.size(),&zVals[0]);
                     else
-                        pushFloatTableOntoStack(L,0,NULL);
+                        pushFloatTableOntoStack(L,0,nullptr);
                     if (xVals.size()>0)
                     {
                         pushFloatTableOntoStack(L,6,minMax);
@@ -17512,7 +17480,7 @@ int _simGetGraphInfo(luaWrap_lua_State* L)
     {
         int graphHandle=(luaWrap_lua_tointeger(L,1));
         CGraph* graph=App::ct->objCont->getGraph(graphHandle);
-        if (graph!=NULL)
+        if (graph!=nullptr)
         {
             int bitCoded=0;
             luaWrap_lua_pushnumber(L,bitCoded);
@@ -17638,7 +17606,7 @@ int _simGetApiFunc(luaWrap_lua_State* L)
         std::string apiWord(luaWrap_lua_tostring(L,2));
         char* str=simGetApiFunc_internal(scriptHandleOrType,apiWord.c_str());
         std::vector<std::string> strTable;
-        if (str!=NULL)
+        if (str!=nullptr)
         {
             std::string sstr(str);
             simReleaseBuffer_internal(str);
@@ -17670,7 +17638,7 @@ int _simGetApiInfo(luaWrap_lua_State* L)
         int scriptHandleOrType=luaWrap_lua_tointeger(L,1);
         std::string apiWord(luaWrap_lua_tostring(L,2));
         char* str=simGetApiInfo_internal(scriptHandleOrType,apiWord.c_str());
-        if (str!=NULL)
+        if (str!=nullptr)
         {
             luaWrap_lua_pushstring(L,str);
             simReleaseBuffer_internal(str);
@@ -17727,7 +17695,7 @@ int _simRegisterScriptFunction(luaWrap_lua_State* L)
         std::string funcNameAtPluginName(luaWrap_lua_tostring(L,1));
         std::string ct(luaWrap_lua_tostring(L,2));
         ct="####"+ct;
-        retVal=simRegisterScriptCallbackFunction_internal(funcNameAtPluginName.c_str(),ct.c_str(),NULL);
+        retVal=simRegisterScriptCallbackFunction_internal(funcNameAtPluginName.c_str(),ct.c_str(),nullptr);
     }
 
     LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
@@ -17744,7 +17712,7 @@ int _simRegisterScriptVariable(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0))
     {
         const char* varNameAtPluginName=luaWrap_lua_tostring(L,1);
-        retVal=simRegisterScriptVariable_internal(varNameAtPluginName,NULL,0);
+        retVal=simRegisterScriptVariable_internal(varNameAtPluginName,nullptr,0);
     }
 
     LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
@@ -17773,7 +17741,7 @@ int _simGetPersistentDataTags(luaWrap_lua_State* L)
 
     int tagCount;
     char* data=simGetPersistentDataTags_internal(&tagCount);
-    if (data!=NULL)
+    if (data!=nullptr)
     {
         std::vector<std::string> stringTable;
         size_t off=0;
@@ -17797,7 +17765,7 @@ int _simGetRandom(luaWrap_lua_State* L)
 
     int currentScriptID=getCurrentScriptID(L);
     CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
-    if (it!=NULL)
+    if (it!=nullptr)
     {
         int res=checkOneGeneralInputArgument(L,1,lua_arg_number,0,true,true,&errorString);
         if (res>=0)
@@ -17834,7 +17802,7 @@ int _simOpenTextEditor(luaWrap_lua_State* L)
         if (res>=0)
         {
             std::string xml;
-            const char* _xml=NULL;
+            const char* _xml=nullptr;
             if (res==2)
             {
                 xml=luaWrap_lua_tostring(L,2);
@@ -17845,7 +17813,7 @@ int _simOpenTextEditor(luaWrap_lua_State* L)
             { // Modal dlg
                 int various[4];
                 char* outText=simOpenTextEditor_internal(initText.c_str(),_xml,various);
-                if (outText!=NULL)
+                if (outText!=nullptr)
                 {
                     luaWrap_lua_pushstring(L,outText);
                     delete[] outText;
@@ -17858,7 +17826,7 @@ int _simOpenTextEditor(luaWrap_lua_State* L)
             { // non-modal dlg
                 int handle=-1;
                 CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptID(L));
-                if (it!=NULL)
+                if (it!=nullptr)
                 {
                     std::string callbackFunction(luaWrap_lua_tostring(L,3));
                     if (App::userSettings->useOldCodeEditor)
@@ -17934,10 +17902,10 @@ int _simCloseTextEditor(luaWrap_lua_State* L)
         if ( (res>0)&&(!ignoreCb) )
         {   // We call the callback directly from here:
             CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptID(L));
-            if (it!=NULL)
+            if (it!=nullptr)
             {
                 CInterfaceStack stack;
-                stack.pushStringOntoStack(txt.c_str(),txt.size());
+                stack.pushStringOntoStack(txt.c_str(),int(txt.size()));
                 stack.pushIntArrayTableOntoStack(posAndSize+0,2);
                 stack.pushIntArrayTableOntoStack(posAndSize+2,2);
                 it->callScriptFunctionEx(cb.c_str(),&stack);
@@ -17984,7 +17952,7 @@ int _simGetMpConfigForTipPose(luaWrap_lua_State* L)
         int maxTimeInMs=0;
         getFloatsFromTable(L,5,7,tipPose);
         CMotionPlanningTask* it=App::ct->motionPlanning->getObject(mpHandle);
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             int res=checkOneGeneralInputArgument(L,6,lua_arg_number,0,true,true,&errorString);
             if (res>=0)
@@ -18033,10 +18001,10 @@ int _simGetMpConfigForTipPose(luaWrap_lua_State* L)
                             }
                         }
                         else
-                            retVal=simGetMpConfigForTipPose_internal(mpHandle,options,closeNodesDistance,trialCount,tipPose,maxTimeInMs,&jointPositions[0],NULL,0,NULL,NULL,0);
+                            retVal=simGetMpConfigForTipPose_internal(mpHandle,options,closeNodesDistance,trialCount,tipPose,maxTimeInMs,&jointPositions[0],nullptr,0,nullptr,nullptr,0);
                     }
                     else
-                        retVal=simGetMpConfigForTipPose_internal(mpHandle,options,closeNodesDistance,trialCount,tipPose,maxTimeInMs,&jointPositions[0],NULL,0,NULL,NULL,0);
+                        retVal=simGetMpConfigForTipPose_internal(mpHandle,options,closeNodesDistance,trialCount,tipPose,maxTimeInMs,&jointPositions[0],nullptr,0,nullptr,nullptr,0);
                     if (retVal>0)
                     {
                         luaWrap_lua_pushnumber(L,retVal);
@@ -18150,13 +18118,13 @@ int _simMoveToPosition(luaWrap_lua_State* L)
                 float posTarget[3];
                 float eulerTarget[3];
                 float maxVelocity;
-                C3DObject* object=App::ct->objCont->getObject(objID);
-                C3DObject* relToObject=NULL;
+                C3DObject* object=App::ct->objCont->getObjectFromHandle(objID);
+                C3DObject* relToObject=nullptr;
                 float accel=0.0f; // means infinite accel!! (default value)
                 float angleToLinearCoeff=0.1f/(90.0f*degToRad_f); // (default value)
                 int distCalcMethod=sim_distcalcmethod_dl_if_nonzero; // (default value)
                 bool foundError=false;
-                if ((!foundError)&&(object==NULL))
+                if ((!foundError)&&(object==nullptr))
                 {
                     errorString=SIM_ERROR_OBJECT_INEXISTANT;
                     foundError=true;
@@ -18164,14 +18132,14 @@ int _simMoveToPosition(luaWrap_lua_State* L)
                 if ((!foundError)&&(relativeToObjID==sim_handle_parent))
                 {
                     relativeToObjID=-1;
-                    C3DObject* parent=object->getParent();
-                    if (parent!=NULL)
-                        relativeToObjID=parent->getID();
+                    C3DObject* parent=object->getParentObject();
+                    if (parent!=nullptr)
+                        relativeToObjID=parent->getObjectHandle();
                 }
                 if ((!foundError)&&(relativeToObjID!=-1))
                 {
-                    relToObject=App::ct->objCont->getObject(relativeToObjID);
-                    if (relToObject==NULL)
+                    relToObject=App::ct->objCont->getObjectFromHandle(relativeToObjID);
+                    if (relToObject==nullptr)
                     { // error, object doesn't exist!
                         errorString=SIM_ERROR_OBJECT_INEXISTANT;
                         foundError=true;
@@ -18259,7 +18227,7 @@ int _simMoveToPosition(luaWrap_lua_State* L)
                     C7Vector startTr(object->getCumulativeTransformationPart1());
                     C7Vector relTr;
                     relTr.setIdentity();
-                    if (relToObject!=NULL)
+                    if (relToObject!=nullptr)
                         relTr=relToObject->getCumulativeTransformation();
                     startTr=relTr.getInverse()*startTr;
 
@@ -18304,16 +18272,16 @@ int _simMoveToPosition(luaWrap_lua_State* L)
 
                     if (vdl==0.0f)
                     { // if the path length is 0 (the two positions might still be not-coincident, depending on the calculation method!)
-                        if (App::ct->objCont->getObject(objID)==object) // make sure the object is still valid (running in a thread)
+                        if (App::ct->objCont->getObjectFromHandle(objID)==object) // make sure the object is still valid (running in a thread)
                         {
-                            if (relToObject==NULL)
+                            if (relToObject==nullptr)
                             { // absolute
                                 C7Vector parentInv(object->getParentCumulativeTransformation().getInverse());
                                 object->setLocalTransformation(parentInv*targetTr);
                             }
                             else
                             { // relative to a specific object (2009/11/17)
-                                if (App::ct->objCont->getObject(relativeToObjID)==relToObject) // make sure the object is still valid (running in a thread)
+                                if (App::ct->objCont->getObjectFromHandle(relativeToObjID)==relToObject) // make sure the object is still valid (running in a thread)
                                 { // ok
                                     C7Vector relToTr(relToObject->getCumulativeTransformation());
                                     targetTr=relToTr*targetTr;
@@ -18368,9 +18336,9 @@ int _simMoveToPosition(luaWrap_lua_State* L)
                             ll=1.0f;
                         C7Vector newAbs;
                         newAbs.buildInterpolation(startTr,targetTr,ll);
-                        if (App::ct->objCont->getObject(objID)==object) // make sure the object is still valid (running in a thread)
+                        if (App::ct->objCont->getObjectFromHandle(objID)==object) // make sure the object is still valid (running in a thread)
                         {
-                            if ( (relToObject!=NULL)&&(App::ct->objCont->getObject(relativeToObjID)!=relToObject) )
+                            if ( (relToObject!=nullptr)&&(App::ct->objCont->getObjectFromHandle(relativeToObjID)!=relToObject) )
                                 movementFinished=true; // the object was destroyed during execution of the command!
                             else
                             {
@@ -18378,7 +18346,7 @@ int _simMoveToPosition(luaWrap_lua_State* L)
                                 C7Vector currAbs(object->getCumulativeTransformationPart1());
                                 C7Vector relToTr;
                                 relToTr.setIdentity();
-                                if (relToObject!=NULL)
+                                if (relToObject!=nullptr)
                                     relToTr=relToObject->getCumulativeTransformation();
                                 currAbs=relToTr.getInverse()*currAbs;
                                 if ((posAndOrient&1)==0)
@@ -18523,7 +18491,7 @@ int _simMoveToJointPositions(luaWrap_lua_State* L)
                             jointAccels[i]=accel;
 
                         CJoint* it=App::ct->objCont->getJoint(jointHandles[i]);
-                        if ((it!=NULL)&&(it->getJointType()!=sim_joint_spherical_subtype))
+                        if ((it!=nullptr)&&(it->getJointType()!=sim_joint_spherical_subtype))
                         { // make sure target is within allowed range, and check the maximum virtual distance:
                             jointStartPositions[i]=it->getPosition();
                             float minP=it->getPositionIntervalMin();
@@ -18577,7 +18545,7 @@ int _simMoveToJointPositions(luaWrap_lua_State* L)
                             float timeLeftLocal=dt;
                             // 1. handle the joint with longest distance first:
                             // Does the main joint still exist?
-                            if (App::ct->objCont->getJoint(jointHandles[maxVirtualDistIndex])!=NULL)
+                            if (App::ct->objCont->getJoint(jointHandles[maxVirtualDistIndex])!=nullptr)
                             {
                                 if (accel==0.0f)
                                 { // means infinite accel
@@ -18629,7 +18597,7 @@ int _simMoveToJointPositions(luaWrap_lua_State* L)
                             bool withinTolerance=true;
                             for (int i=0;i<tableLen;i++)
                             {
-                                if (App::ct->objCont->getJoint(jointHandles[i])!=NULL)
+                                if (App::ct->objCont->getJoint(jointHandles[i])!=nullptr)
                                 {
                                     // Check if within tolerance (before):
                                     if (fabs(jointCurrentVirtualPositions[i]-jointVirtualDistances[i])>0.00001f)
@@ -18678,7 +18646,7 @@ int _simMoveToJointPositions(luaWrap_lua_State* L)
                         for (int i=0;i<tableLen;i++)
                         {
                             CJoint* joint=App::ct->objCont->getJoint(jointHandles[i]);
-                            if ( (joint!=NULL)&&(joint->getJointType()!=sim_joint_spherical_subtype)&&(jointVirtualDistances[i]!=0.0f) )
+                            if ( (joint!=nullptr)&&(joint->getJointType()!=sim_joint_spherical_subtype)&&(jointVirtualDistances[i]!=0.0f) )
                             {
                                 if (joint->getJointMode()==sim_jointmode_force)
                                     joint->setDynamicMotorPositionControlTargetPosition(jointStartPositions[i]+(jointTargetPositions[i]-jointStartPositions[i])*jointCurrentVirtualPositions[i]/jointVirtualDistances[i]);
@@ -19098,7 +19066,7 @@ int _simFindIkPath(luaWrap_lua_State* L)
         int options=luaToInt(L,4);
         float stepSize=luaToFloat(L,5);
         CMotionPlanningTask* it=App::ct->motionPlanning->getObject(mpHandle);
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             int dof=it->getJointCount();
             // now check the args again, this time taking the table sizes into account
@@ -19110,8 +19078,8 @@ int _simFindIkPath(luaWrap_lua_State* L)
                 getFloatsFromTable(L,3,7,&goalPose[0]);
 
                 int configCount=0;
-                float* configs=simFindIkPath_internal(mpHandle,&startConfig[0],&goalPose[0],options,stepSize,&configCount,NULL,NULL,NULL);
-                if (configs!=NULL)
+                float* configs=simFindIkPath_internal(mpHandle,&startConfig[0],&goalPose[0],options,stepSize,&configCount,nullptr,nullptr,nullptr);
+                if (configs!=nullptr)
                 {
                     pushFloatTableOntoStack(L,dof*configCount,configs);
                     pushFloatTableOntoStack(L,configCount,configs+dof*configCount);
@@ -19145,8 +19113,8 @@ int _simCreateMotionPlanning(luaWrap_lua_State* L)
             int* jointHandles=new int[jointCnt];
             int* jointSubdiv=new int[jointCnt];
             float* jointWeights=new float[jointCnt];
-            int* _jointSubdiv=NULL;
-            float* _jointWeights=NULL;
+            int* _jointSubdiv=nullptr;
+            float* _jointWeights=nullptr;
             getIntsFromTable(L,1,jointCnt,jointHandles);
             int res=checkOneGeneralInputArgument(L,2,lua_arg_number,jointCnt,true,true,&errorString);
             if (res>=0)
@@ -19177,13 +19145,13 @@ int _simCreateMotionPlanning(luaWrap_lua_State* L)
                             if (res>=0)
                             {
                                 float floatParams[6];
-                                float* _floatParams=NULL;
+                                float* _floatParams=nullptr;
                                 if (res==2)
                                 {
                                     getFloatsFromTable(L,6,6,floatParams);
                                     _floatParams=floatParams;
                                 }
-                                retVal=simCreateMotionPlanning_internal(jointCnt,jointHandles,_jointSubdiv,_jointWeights,options,intParams,_floatParams,NULL);
+                                retVal=simCreateMotionPlanning_internal(jointCnt,jointHandles,_jointSubdiv,_jointWeights,options,intParams,_floatParams,nullptr);
                             }
                         }
                     }
@@ -19290,7 +19258,7 @@ int _simSearchPath(luaWrap_lua_State* L)
         if (!foundError)
         {
             CPathPlanningTask* it=App::ct->pathPlanning->getObject(pathPlanningObjectHandle);
-            if (it==NULL)
+            if (it==nullptr)
                 errorString=SIM_ERROR_PATH_PLANNING_OBJECT_INEXISTANT;
             else
             {
@@ -19420,7 +19388,7 @@ int _simFindMpPath(luaWrap_lua_State* L)
         float stepSize=luaToFloat(L,5);
         int maxTimeInMs=0;
         CMotionPlanningTask* it=App::ct->motionPlanning->getObject(mpHandle);
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             int dof=it->getJointCount();
             // now check the args again, this time taking the table sizes into account
@@ -19437,8 +19405,8 @@ int _simFindMpPath(luaWrap_lua_State* L)
                     if (res==2)
                         maxTimeInMs=luaToInt(L,6);
                     int configCount=0;
-                    float* configs=simFindMpPath_internal(mpHandle,&startConfig[0],&goalConfig[0],options,stepSize,&configCount,maxTimeInMs,NULL,NULL,NULL);
-                    if (configs!=NULL)
+                    float* configs=simFindMpPath_internal(mpHandle,&startConfig[0],&goalConfig[0],options,stepSize,&configCount,maxTimeInMs,nullptr,nullptr,nullptr);
+                    if (configs!=nullptr)
                     {
                         pushFloatTableOntoStack(L,dof*configCount,configs);
                         pushFloatTableOntoStack(L,configCount,configs+dof*configCount);
@@ -19468,7 +19436,7 @@ int _simSimplifyMpPath(luaWrap_lua_State* L)
     {
         int mpHandle=luaToInt(L,1);
         CMotionPlanningTask* it=App::ct->motionPlanning->getObject(mpHandle);
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             int dof=it->getJointCount();
             if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,dof))
@@ -19494,8 +19462,8 @@ int _simSimplifyMpPath(luaWrap_lua_State* L)
                                 maxTimeInMs=luaToInt(L,6);
                             int outConfigCnt=0;
 
-                            float* outConfigs=simSimplifyMpPath_internal(mpHandle,&configs[0],configCnt,options,stepSize,increment,&outConfigCnt,maxTimeInMs,NULL,NULL,NULL);
-                            if (outConfigs!=NULL)
+                            float* outConfigs=simSimplifyMpPath_internal(mpHandle,&configs[0],configCnt,options,stepSize,increment,&outConfigCnt,maxTimeInMs,nullptr,nullptr,nullptr);
+                            if (outConfigs!=nullptr)
                             {
                                 pushFloatTableOntoStack(L,dof*outConfigCnt,outConfigs);
                                 pushFloatTableOntoStack(L,outConfigCnt,outConfigs+dof*outConfigCnt);
@@ -19528,7 +19496,7 @@ int _simGetMpConfigTransition(luaWrap_lua_State* L)
         int mpHandle=luaToInt(L,1);
         int options=luaToInt(L,4);
         CMotionPlanningTask* it=App::ct->motionPlanning->getObject(mpHandle);
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             int dof=it->getJointCount();
             // now check the args again, this time taking the table sizes into account
@@ -19542,7 +19510,7 @@ int _simGetMpConfigTransition(luaWrap_lua_State* L)
                 int res=checkOneGeneralInputArgument(L,5,lua_arg_number,1,false,true,&errorString);
                 if (res>=1)
                 {
-                    int* selectPtr=NULL;
+                    int* selectPtr=nullptr;
                     std::vector<int> selectDat;
                     if (res==2)
                     {
@@ -19561,7 +19529,7 @@ int _simGetMpConfigTransition(luaWrap_lua_State* L)
                         {
                             float stepSize1=luaToFloat(L,6);
                             float stepSize2=luaToFloat(L,7);
-                            float* wayPoints=NULL;
+                            float* wayPoints=nullptr;
                             std::vector<float> way;
                             res=checkOneGeneralInputArgument(L,8,lua_arg_number,14,true,true,&errorString);
                             if (res>=0)
@@ -19577,8 +19545,8 @@ int _simGetMpConfigTransition(luaWrap_lua_State* L)
                                 }
 
                                 int configCount=0;
-                                float* configs=simGetMpConfigTransition_internal(mpHandle,&startConfig[0],&goalConfig[0],options,selectPtr,stepSize1,stepSize2,wayPointCnt,wayPoints,&configCount,NULL,NULL);
-                                if (configs!=NULL)
+                                float* configs=simGetMpConfigTransition_internal(mpHandle,&startConfig[0],&goalConfig[0],options,selectPtr,stepSize1,stepSize2,wayPointCnt,wayPoints,&configCount,nullptr,nullptr);
+                                if (configs!=nullptr)
                                 {
                                     pushFloatTableOntoStack(L,dof*configCount,configs);
                                     pushFloatTableOntoStack(L,configCount,configs+dof*configCount);
@@ -19893,8 +19861,8 @@ int _simSetUIButtonLabel(luaWrap_lua_State* L)
     {
         std::string stra;
         std::string strb;
-        char* str1=NULL;
-        char* str2=NULL;
+        char* str1=nullptr;
+        char* str2=nullptr;
         int res=checkOneGeneralInputArgument(L,3,lua_arg_string,0,false,true,&errorString);
         if (res!=-1)
         {
@@ -19929,7 +19897,7 @@ int _simGetUIButtonLabel(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0))
     {
         char* label=simGetUIButtonLabel_internal(luaToInt(L,1),luaToInt(L,2));
-        if (label!=NULL)
+        if (label!=nullptr)
         {
             luaWrap_lua_pushstring(L,label);
             simReleaseBuffer_internal(label);
@@ -20059,7 +20027,7 @@ int _simSaveUI(luaWrap_lua_State* L)
         if (res2==2)
         {
             if (res==1)
-                retVal=simSaveUI_internal(0,NULL,luaWrap_lua_tostring(L,2));
+                retVal=simSaveUI_internal(0,nullptr,luaWrap_lua_tostring(L,2));
             else
             {
                 int tl=int(luaWrap_lua_objlen(L,1));
@@ -20162,20 +20130,20 @@ int _simSetUIButtonColor(luaWrap_lua_State* L)
         if (res!=-1)
         {
             if (res!=2)
-                acp[0]=NULL;
+                acp[0]=nullptr;
             res=checkOneGeneralInputArgument(L,4,lua_arg_number,3,true,true,&errorString);
             if (res!=-1)
             {
                 if (res!=2)
-                    acp[1]=NULL;
+                    acp[1]=nullptr;
                 res=checkOneGeneralInputArgument(L,5,lua_arg_number,3,true,true,&errorString);
                 if (res!=-1)
                 {
                     if (res!=2)
-                        acp[2]=NULL;
+                        acp[2]=nullptr;
                     for (int i=0;i<3;i++)
                     {
-                        if (acp[i]!=NULL)
+                        if (acp[i]!=nullptr)
                             getFloatsFromTable(L,3+i,3,acp[i]);
                     }
                     retVal=simSetUIButtonColor_internal(luaToInt(L,1),luaToInt(L,2),acp[0],acp[1],acp[2]);
@@ -20204,7 +20172,7 @@ int _simHandleChildScript(luaWrap_lua_State* L)
         std::string txt("The command simHandleChildScript is not supported anymore and was replaced&&n");
         txt+="with simHandleChildScripts, which operates in a slightly different manner. Make sure to&&n";
         txt+="adjust this script manually.";
-        simDisplayDialog_internal(title.c_str(),txt.c_str(),sim_dlgstyle_ok,"",NULL,NULL,NULL);
+        simDisplayDialog_internal(title.c_str(),txt.c_str(),sim_dlgstyle_ok,"",nullptr,nullptr,nullptr);
     }
 
     LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
@@ -20487,7 +20455,7 @@ int _simHandleChildScripts2_legacy(luaWrap_lua_State* L,std::string& functionNam
     int callType=luaWrap_lua_tointeger(L,1);
     int currentScriptID=getCurrentScriptID(L);
     CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(currentScriptID);
-    if (it!=NULL)
+    if (it!=nullptr)
     {
         if ( (it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript) )
         { // only main and child scripts can call this function
@@ -20525,15 +20493,15 @@ int handleChildScriptsRoutine_OLD(int callType,CLuaScriptObject* it,CInterfaceSt
     { // we have a main script here
         for (int i=0;i<int(App::ct->objCont->objectList.size());i++)
         {   // Do we have a parentless object?
-            C3DObject* q=App::ct->objCont->getObject(App::ct->objCont->objectList[i]);
-            if ( (q!=NULL)&&(q->getParent()==NULL) )
+            C3DObject* q=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
+            if ( (q!=nullptr)&&(q->getParentObject()==nullptr) )
                 q->getChildScriptsToRun_OLD(childScriptIDsToRun);
         }
     }
     else
     { // we have a script linked to a 3d object or a passive script here
-        C3DObject* obj=App::ct->objCont->getObject(it->getObjectIDThatScriptIsAttachedTo_child());
-        if (obj!=NULL)
+        C3DObject* obj=App::ct->objCont->getObjectFromHandle(it->getObjectIDThatScriptIsAttachedTo_child());
+        if (obj!=nullptr)
         {
             for (int i=0;i<int(obj->childList.size());i++)
                 obj->childList[i]->getChildScriptsToRun_OLD(childScriptIDsToRun);
@@ -20547,12 +20515,12 @@ int handleChildScriptsRoutine_OLD(int callType,CLuaScriptObject* it,CInterfaceSt
     for (int i=0;i<int(childScriptIDsToRun.size());i++)
     {
         CLuaScriptObject* as=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(childScriptIDsToRun[i]);
-        if (as!=NULL)//&&(!as->getScriptIsDisabled()) )
+        if (as!=nullptr)//&&(!as->getScriptIsDisabled()) )
         {
             if (as->getThreadedExecution())
             { // We have a threaded script. We just skip it and explore beyond:
-                C3DObject* obj=App::ct->objCont->getObject(as->getObjectIDThatScriptIsAttachedTo_child());
-                if (obj!=NULL)
+                C3DObject* obj=App::ct->objCont->getObjectFromHandle(as->getObjectIDThatScriptIsAttachedTo_child());
+                if (obj!=nullptr)
                 {
                     for (int j=0;j<int(obj->childList.size());j++)
                         obj->childList[j]->getChildScriptsToRun_OLD(childScriptIDsToRun); // append to the end of the list
@@ -20579,15 +20547,15 @@ int handleChildScriptsRoutine_OLD(int callType,CLuaScriptObject* it,CInterfaceSt
     for (int i=0;i<int(childScriptIDsToRun.size());i++)
     {
         CLuaScriptObject* as=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(childScriptIDsToRun[i]);
-        if (as!=NULL)
+        if (as!=nullptr)
         {
             if (!as->getScriptIsDisabled())
             {
-                C3DObject* obj=App::ct->objCont->getObject(as->getObjectIDThatScriptIsAttachedTo_child());
-                if ((obj!=NULL)&&((obj->getCumulativeModelProperty()&sim_modelproperty_scripts_inactive)==0))
+                C3DObject* obj=App::ct->objCont->getObjectFromHandle(as->getObjectIDThatScriptIsAttachedTo_child());
+                if ((obj!=nullptr)&&((obj->getCumulativeModelProperty()&sim_modelproperty_scripts_inactive)==0))
                 {
                     retVal++;
-                    as->runNonThreadedChildScript(callType,&inputArguments,NULL);
+                    as->runNonThreadedChildScript(callType,&inputArguments,nullptr);
                 }
             }
             if (!as->getAutomaticCascadingCallsDisabled_OLD())
@@ -20607,7 +20575,7 @@ int _simLaunchThreadedChildScripts_legacy(luaWrap_lua_State* L)
     int retVal=-1; // means error
     int currentScriptID=getCurrentScriptID(L);
     CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(currentScriptID);
-    if (it!=NULL)
+    if (it!=nullptr)
     {
         if (it->getScriptType()==sim_scripttype_mainscript)
         { // only main script can call this function
@@ -20634,15 +20602,15 @@ int launchThreadedChildScriptsRoutine_OLD(CLuaScriptObject* it)
     { // we have a main script here
         for (int i=0;i<int(App::ct->objCont->objectList.size());i++)
         {   // Do we have a parentless object?
-            C3DObject* q=App::ct->objCont->getObject(App::ct->objCont->objectList[i]);
-            if ( (q!=NULL)&&(q->getParent()==NULL) )
+            C3DObject* q=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
+            if ( (q!=nullptr)&&(q->getParentObject()==nullptr) )
                 q->getChildScriptsToRun_OLD(childScriptIDsToRun);
         }
     }
     else
     { // we have a script linked to a 3d object or a passive script here
-        C3DObject* obj=App::ct->objCont->getObject(it->getObjectIDThatScriptIsAttachedTo_child());
-        if (obj!=NULL)
+        C3DObject* obj=App::ct->objCont->getObjectFromHandle(it->getObjectIDThatScriptIsAttachedTo_child());
+        if (obj!=nullptr)
         {
             for (int i=0;i<int(obj->childList.size());i++)
                 obj->childList[i]->getChildScriptsToRun_OLD(childScriptIDsToRun);
@@ -20656,12 +20624,12 @@ int launchThreadedChildScriptsRoutine_OLD(CLuaScriptObject* it)
     for (int i=0;i<int(childScriptIDsToRun.size());i++)
     {
         CLuaScriptObject* as=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(childScriptIDsToRun[i]);
-        if (as!=NULL) //&&(!as->getScriptIsDisabled()) )
+        if (as!=nullptr) //&&(!as->getScriptIsDisabled()) )
         {
             if (!as->getThreadedExecution())
             { // We have a non-threaded script. We just skip it and explore beyond:
-                C3DObject* obj=App::ct->objCont->getObject(as->getObjectIDThatScriptIsAttachedTo_child());
-                if (obj!=NULL)
+                C3DObject* obj=App::ct->objCont->getObjectFromHandle(as->getObjectIDThatScriptIsAttachedTo_child());
+                if (obj!=nullptr)
                 {
                     for (int j=0;j<int(obj->childList.size());j++)
                         obj->childList[j]->getChildScriptsToRun_OLD(childScriptIDsToRun); // append to the end of the list
@@ -20688,12 +20656,12 @@ int launchThreadedChildScriptsRoutine_OLD(CLuaScriptObject* it)
     for (int i=0;i<int(childScriptIDsToRun.size());i++)
     {
         CLuaScriptObject* as=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(childScriptIDsToRun[i]);
-        if (as!=NULL)
+        if (as!=nullptr)
         {
             if (!as->getScriptIsDisabled())
             {
-                C3DObject* obj=App::ct->objCont->getObject(as->getObjectIDThatScriptIsAttachedTo_child());
-                if ((obj!=NULL)&&((obj->getCumulativeModelProperty()&sim_modelproperty_scripts_inactive)==0))
+                C3DObject* obj=App::ct->objCont->getObjectFromHandle(as->getObjectIDThatScriptIsAttachedTo_child());
+                if ((obj!=nullptr)&&((obj->getCumulativeModelProperty()&sim_modelproperty_scripts_inactive)==0))
                 {
                     retVal++;
                     as->launchThreadedChildScript();

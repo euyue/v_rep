@@ -31,7 +31,7 @@ void CPathEditMode::endEditMode(bool cancelChanges)
     }
     else
         delete _editionPathCont;
-    _editionPathCont=NULL;
+    _editionPathCont=nullptr;
 }
 
 CPathCont* CPathEditMode::getEditModePathContainer()
@@ -126,9 +126,9 @@ int CPathEditMode::getBezierPathPointCount()
 CSimplePathPoint* CPathEditMode::getSimplePathPoint(int editModeBufferIndex)
 {
     if (editModeBufferIndex<0)
-        return(NULL);
+        return(nullptr);
     if (editModeBufferIndex>=int(editModeBuffer.size()))
-        return(NULL);
+        return(nullptr);
     return(_editionPathCont->getSimplePathPoint(editModeBuffer[editModeBufferIndex]));
 }
 
@@ -151,7 +151,7 @@ void CPathEditMode::_copySelection(std::vector<int>* selection)
         if (toCopy[i])
         {
             CSimplePathPoint* it=_editionPathCont->getSimplePathPoint(i);
-            if (it!=NULL)
+            if (it!=nullptr)
                 editBufferPathPointsCopy.push_back(it->copyYourself());
         }
     }
@@ -178,7 +178,7 @@ void CPathEditMode::_insertNewPoint(int insertPosition)
     if (insertPosition==-1)
         insertPosition=0;
     CSimplePathPoint* it=_editionPathCont->getSimplePathPoint(insertPosition);
-    if (it==NULL)
+    if (it==nullptr)
     {
         it=new CSimplePathPoint();
         C7Vector tr(it->getTransformation());
@@ -258,14 +258,14 @@ void CPathEditMode::_keepXAxisAndAlignZAxis(std::vector<int>* selection)
 
 void CPathEditMode::_generatePath()
 {
-    if (_path!=NULL)
+    if (_path!=nullptr)
     {
         CPath* newPath=(CPath*)_path->copyYourself();
         newPath->pathContainer->enableActualization(false);
         newPath->pathContainer->removeAllSimplePathPoints();
         int i=0;
         CBezierPathPoint* it=_editionPathCont->getBezierPathPoint(i++);
-        while (it!=NULL)
+        while (it!=nullptr)
         {
             CSimplePathPoint* bp=new CSimplePathPoint();
             bp->setTransformation(it->getTransformation(),_editionPathCont->getAttributes());
@@ -296,7 +296,7 @@ void CPathEditMode::addMenu(VMenu* menu,C3DObject* viewableObject)
         menu->appendMenuItem(selSize==1,false,PATH_EDIT_MODE_INSERT_NEW_PATH_POINT_EMCMD,IDS_INSERT_NEW_PATH_POINT_MENU_ITEM);
     else
         menu->appendMenuItem(true,false,PATH_EDIT_MODE_INSERT_NEW_PATH_POINT_EMCMD,IDS_INSERT_NEW_PATH_POINT_AT_BEGINNING_MENU_ITEM);
-    menu->appendMenuItem((viewableObject!=NULL)&&(viewableObject->getObjectType()==sim_object_camera_type),false,PATH_EDIT_MODE_APPEND_NEW_PATH_POINT_FROM_CAMERA_EMCMD,IDS_APPEND_NEW_PATH_POINT_FROM_CAMERA_MENU_ITEM);
+    menu->appendMenuItem((viewableObject!=nullptr)&&(viewableObject->getObjectType()==sim_object_camera_type),false,PATH_EDIT_MODE_APPEND_NEW_PATH_POINT_FROM_CAMERA_EMCMD,IDS_APPEND_NEW_PATH_POINT_FROM_CAMERA_MENU_ITEM);
     menu->appendMenuItem(_editionPathCont->getBezierPathPointCount()>1,false,PATH_EDIT_MODE_MAKE_PATH_FROM_BEZIER_EMCMD,IDS_MAKE_PATH_FROM_BEZIER_PATH_MENU_ITEM);
     menu->appendMenuItem(selSize>0,false,PATH_EDIT_MODE_MAKE_DUMMIES_FROM_PATH_CTRL_POINTS_EMCMD,IDS_MAKE_DUMMIES_FROM_PATH_CTRL_POINTS_MENU_ITEM);
     menu->appendMenuItem(selSize>0,false,PATH_EDIT_MODE_INVERSE_ORDER_OF_SELECTED_PATH_CTRL_POINTS_EMCMD,IDS_INVERSE_ORDER_OF_SELECTED_PATH_CTRL_POINTS_MENU_ITEM);

@@ -37,8 +37,8 @@ void CQDlgPaths::refresh()
     bool sel=App::ct->objCont->isLastSelectionAPath();
 
     CPath* path=App::ct->objCont->getLastSelection_path();
-    CPathCont* pathCont=NULL;
-    if (path!=NULL)
+    CPathCont* pathCont=nullptr;
+    if (path!=nullptr)
         pathCont=path->pathContainer;
 
     ui->qqShowOrientation->setEnabled(sel&&noEditModeNoSim);
@@ -52,12 +52,12 @@ void CQDlgPaths::refresh()
     ui->qqShowShapingDialog->setEnabled(sel&&noEditModeNoSim);
     ui->qqShowShapingDialog->setChecked(CQDlgPathShaping::showWindow);
 
-    ui->qqShowOrientation->setChecked((pathCont!=NULL)&&((pathCont->getAttributes()&sim_pathproperty_show_orientation)!=0));
-    ui->qqShowPathLine->setChecked((pathCont!=NULL)&&((pathCont->getAttributes()&sim_pathproperty_show_line)!=0));
-    ui->qqShowPosition->setChecked((pathCont!=NULL)&&((pathCont->getAttributes()&sim_pathproperty_show_position)!=0));
+    ui->qqShowOrientation->setChecked((pathCont!=nullptr)&&((pathCont->getAttributes()&sim_pathproperty_show_orientation)!=0));
+    ui->qqShowPathLine->setChecked((pathCont!=nullptr)&&((pathCont->getAttributes()&sim_pathproperty_show_line)!=0));
+    ui->qqShowPosition->setChecked((pathCont!=nullptr)&&((pathCont->getAttributes()&sim_pathproperty_show_position)!=0));
     ui->qqDistanceCombo->clear();
 
-    if (pathCont!=NULL)
+    if (pathCont!=nullptr)
     {
         ui->qqLineSize->setText(tt::getIString(false,pathCont->getLineSize()).c_str());
         ui->qqControlPointSize->setText(tt::getFString(false,pathCont->getSquareSize(),3).c_str());
@@ -91,9 +91,9 @@ void CQDlgPaths::refresh()
 CPathCont* CQDlgPaths::getPathCont()
 {
     CPath* path=App::ct->objCont->getLastSelection_path();
-    if (path!=NULL)
+    if (path!=nullptr)
         return(path->pathContainer);
-    return(NULL);
+    return(nullptr);
 }
 
 CPath* CQDlgPaths::getPath()
@@ -107,7 +107,7 @@ void CQDlgPaths::on_qqShowOrientation_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CPathCont* pathCont=getPathCont();
-        if (pathCont!=NULL)
+        if (pathCont!=nullptr)
         {
             int attr=pathCont->getAttributes()^sim_pathproperty_show_orientation;
             App::appendSimulationThreadCommand(SET_ATTRIBUTES_PATHGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),attr);
@@ -123,7 +123,7 @@ void CQDlgPaths::on_qqShowPathLine_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CPathCont* pathCont=getPathCont();
-        if (pathCont!=NULL)
+        if (pathCont!=nullptr)
         {
             int attr=pathCont->getAttributes()^sim_pathproperty_show_line;
             App::appendSimulationThreadCommand(SET_ATTRIBUTES_PATHGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),attr);
@@ -139,7 +139,7 @@ void CQDlgPaths::on_qqShowPosition_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CPathCont* pathCont=getPathCont();
-        if (pathCont!=NULL)
+        if (pathCont!=nullptr)
         {
             int attr=pathCont->getAttributes()^sim_pathproperty_show_position;
             App::appendSimulationThreadCommand(SET_ATTRIBUTES_PATHGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),attr);
@@ -167,7 +167,7 @@ void CQDlgPaths::on_qqLineSize_editingFinished()
         CPathCont* pathCont=getPathCont();
         bool ok;
         int newVal=ui->qqLineSize->text().toInt(&ok);
-        if (ok&&(pathCont!=NULL))
+        if (ok&&(pathCont!=nullptr))
         {
             App::appendSimulationThreadCommand(SET_LINESIZE_PATHGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -185,7 +185,7 @@ void CQDlgPaths::on_qqControlPointSize_editingFinished()
         CPathCont* pathCont=getPathCont();
         bool ok;
         float newVal=ui->qqControlPointSize->text().toFloat(&ok);
-        if (ok&&(pathCont!=NULL))
+        if (ok&&(pathCont!=nullptr))
         {
             App::appendSimulationThreadCommand(SET_CTRLPTSIZE_PATHGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),-1,newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);

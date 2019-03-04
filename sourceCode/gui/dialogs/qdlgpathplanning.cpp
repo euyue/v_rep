@@ -40,7 +40,7 @@ void CQDlgPathPlanning::cancelEvent()
 
 void CQDlgPathPlanning::dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut)
 {
-    if ( (cmdIn!=NULL)&&(cmdIn->intParams[0]==_dlgType) )
+    if ( (cmdIn!=nullptr)&&(cmdIn->intParams[0]==_dlgType) )
     {
         if (cmdIn->intParams[1]==0)
             selectObjectInList(cmdIn->intParams[2]);
@@ -65,20 +65,20 @@ void CQDlgPathPlanning::refresh()
 
     ui->qqAddNew->setEnabled(noEditModeNoSim);
 
-    ui->qqGoalCombo->setEnabled(noEditModeNoSim&&(task!=NULL));
-    ui->qqPathCombo->setEnabled(noEditModeNoSim&&(task!=NULL));
-    ui->qqCheckTypeCombo->setEnabled(noEditModeNoSim&&(task!=NULL));
-    ui->qqRobotCombo->setEnabled(noEditModeNoSim&&(task!=NULL));
-    ui->qqObstacleCombo->setEnabled(noEditModeNoSim&&(task!=NULL));
-    ui->qqMinDist->setEnabled(noEditModeNoSim&&(task!=NULL)&&(!task->getCollisionDetection()));
-    ui->qqMaxDist->setEnabled(noEditModeNoSim&&(task!=NULL)&&(!task->getCollisionDetection())&&task->getObstacleMaxDistanceEnabled());
-    ui->qqAdjustSearchParameters->setEnabled(noEditModeNoSim&&(task!=NULL));
-    ui->qqUsePartialPath->setEnabled(noEditModeNoSim&&(task!=NULL));
-    ui->qqShowNodes->setEnabled(noEditModeNoSim&&(task!=NULL));
-    ui->qqMaxCalcTime->setEnabled(noEditModeNoSim&&(task!=NULL));
-    ui->qqPostProcessingPasses->setEnabled(noEditModeNoSim&&(task!=NULL));
+    ui->qqGoalCombo->setEnabled(noEditModeNoSim&&(task!=nullptr));
+    ui->qqPathCombo->setEnabled(noEditModeNoSim&&(task!=nullptr));
+    ui->qqCheckTypeCombo->setEnabled(noEditModeNoSim&&(task!=nullptr));
+    ui->qqRobotCombo->setEnabled(noEditModeNoSim&&(task!=nullptr));
+    ui->qqObstacleCombo->setEnabled(noEditModeNoSim&&(task!=nullptr));
+    ui->qqMinDist->setEnabled(noEditModeNoSim&&(task!=nullptr)&&(!task->getCollisionDetection()));
+    ui->qqMaxDist->setEnabled(noEditModeNoSim&&(task!=nullptr)&&(!task->getCollisionDetection())&&task->getObstacleMaxDistanceEnabled());
+    ui->qqAdjustSearchParameters->setEnabled(noEditModeNoSim&&(task!=nullptr));
+    ui->qqUsePartialPath->setEnabled(noEditModeNoSim&&(task!=nullptr));
+    ui->qqShowNodes->setEnabled(noEditModeNoSim&&(task!=nullptr));
+    ui->qqMaxCalcTime->setEnabled(noEditModeNoSim&&(task!=nullptr));
+    ui->qqPostProcessingPasses->setEnabled(noEditModeNoSim&&(task!=nullptr));
 
-    ui->qqComputePath->setEnabled(noEditModeNoSim&&(task!=NULL)&&task->isTaskValid());
+    ui->qqComputePath->setEnabled(noEditModeNoSim&&(task!=nullptr)&&task->isTaskValid());
 
 
     ui->qqGoalCombo->clear();
@@ -86,10 +86,10 @@ void CQDlgPathPlanning::refresh()
     ui->qqCheckTypeCombo->clear();
     ui->qqRobotCombo->clear();
     ui->qqObstacleCombo->clear();
-    ui->qqUsePartialPath->setChecked((task!=NULL)&&task->getPartialPathIsOk());
-    ui->qqShowNodes->setChecked((task!=NULL)&&task->getShowSearchTrees());
+    ui->qqUsePartialPath->setChecked((task!=nullptr)&&task->getPartialPathIsOk());
+    ui->qqShowNodes->setChecked((task!=nullptr)&&task->getShowSearchTrees());
 
-    if (task!=NULL)
+    if (task!=nullptr)
     {
         if (task->getCollisionDetection())
         {
@@ -130,10 +130,10 @@ void CQDlgPathPlanning::refresh()
         for (size_t i=0;i<App::ct->objCont->dummyList.size();i++)
         {
             CDummy* it2=App::ct->objCont->getDummy(App::ct->objCont->dummyList[i]);
-            if (it2->getID()!=task->getStartDummyID())
+            if (it2->getObjectHandle()!=task->getStartDummyID())
             {
-                names.push_back(it2->getName());
-                ids.push_back(it2->getID());
+                names.push_back(it2->getObjectName());
+                ids.push_back(it2->getObjectHandle());
             }
         }
         tt::orderStrings(names,ids);
@@ -155,8 +155,8 @@ void CQDlgPathPlanning::refresh()
         for (size_t i=0;i<App::ct->objCont->pathList.size();i++)
         {
             CPath* it2=App::ct->objCont->getPath(App::ct->objCont->pathList[i]);
-            names.push_back(it2->getName());
-            ids.push_back(it2->getID());
+            names.push_back(it2->getObjectName());
+            ids.push_back(it2->getObjectHandle());
         }
         tt::orderStrings(names,ids);
         for (size_t i=0;i<names.size();i++)
@@ -235,12 +235,12 @@ void CQDlgPathPlanning::fillComboWithCollisionOrDistanceEntities(QComboBox* comb
     for (size_t i=0;i<App::ct->objCont->shapeList.size();i++)
     {
         CShape* it=App::ct->objCont->getShape(App::ct->objCont->shapeList[i]);
-        if (it->getID()!=idToExclude)
+        if (it->getObjectHandle()!=idToExclude)
         {
             std::string name(tt::decorateString("[",strTranslate(IDSN_SHAPE),"] "));
-            name+=it->getName();
+            name+=it->getObjectName();
             names.push_back(name);
-            ids.push_back(it->getID());
+            ids.push_back(it->getObjectHandle());
         }
     }
     tt::orderStrings(names,ids);
@@ -256,12 +256,12 @@ void CQDlgPathPlanning::fillComboWithCollisionOrDistanceEntities(QComboBox* comb
         for (size_t i=0;i<App::ct->objCont->dummyList.size();i++)
         {
             CDummy* it=App::ct->objCont->getDummy(App::ct->objCont->dummyList[i]);
-            if (it->getID()!=idToExclude)
+            if (it->getObjectHandle()!=idToExclude)
             {
                 std::string name(tt::decorateString("[",strTranslate(IDSN_DUMMY),"] "));
-                name+=it->getName();
+                name+=it->getObjectName();
                 names.push_back(name);
-                ids.push_back(it->getID());
+                ids.push_back(it->getObjectHandle());
             }
         }
         tt::orderStrings(names,ids);
@@ -296,7 +296,7 @@ void CQDlgPathPlanning::updateObjectsInList()
         { // We have a holonomic path planning here:
             CDummy* startDummy=App::ct->objCont->getDummy(it->getStartDummyID());
             tmp=tmp.append(" [");
-            tmp=tmp.append(startDummy->getName().c_str());
+            tmp=tmp.append(startDummy->getObjectName().c_str());
             tmp=tmp.append("] (");
             tmp=tmp.append(IDSN_HOLONOMIC);
             tmp=tmp.append(")");
@@ -305,7 +305,7 @@ void CQDlgPathPlanning::updateObjectsInList()
         { // We have a holonomic path planning here:
             CDummy* startDummy=App::ct->objCont->getDummy(it->getStartDummyID());
             tmp=tmp.append(" [");
-            tmp=tmp.append(startDummy->getName().c_str());
+            tmp=tmp.append(startDummy->getObjectName().c_str());
             tmp=tmp.append("] (");
             tmp=tmp.append(IDSN_NON_HOLONOMIC);
             tmp=tmp.append(")");
@@ -333,7 +333,7 @@ void CQDlgPathPlanning::selectObjectInList(int objectID)
     for (int i=0;i<ui->qqList->count();i++)
     {
         QListWidgetItem* it=ui->qqList->item(i);
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             if (it->data(Qt::UserRole).toInt()==objectID)
             {
@@ -363,7 +363,7 @@ void CQDlgPathPlanning::on_qqList_itemChanged(QListWidgetItem *item)
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (item!=NULL)
+        if (item!=nullptr)
         {
             App::appendSimulationThreadCommand(RENAME_OBJECT_PATHPLANNINGGUITRIGGEREDCMD,item->data(Qt::UserRole).toInt(),-1,0.0,0.0,item->text().toStdString().c_str());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -380,7 +380,7 @@ void CQDlgPathPlanning::on_qqList_itemSelectionChanged()
         {
             int objID=getSelectedObjectID();
             CPathPlanningTask* it=App::ct->pathPlanning->getObject(objID);
-            if (it!=NULL)
+            if (it!=nullptr)
                 ((CEditBoxDelegate*)ui->qqList->itemDelegate())->initialText=it->getObjectName();
             else
                 ((CEditBoxDelegate*)ui->qqList->itemDelegate())->initialText="";
@@ -514,7 +514,7 @@ void CQDlgPathPlanning::on_qqAdjustSearchParameters_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CPathPlanningTask* it=App::ct->pathPlanning->getObject(getSelectedObjectID());
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             CQDlgPathPlanningParams theDialog(this);
             delKeyShortcut->setEnabled(false);

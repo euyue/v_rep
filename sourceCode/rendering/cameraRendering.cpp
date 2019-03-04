@@ -14,14 +14,14 @@ void displayCamera(CCamera* camera,CViewableBase* renderingObject,int displayAtt
         _displayBoundingBox(camera,displayAttrib,true,0.0);
 
     // Object display:
-    if (camera->getShouldObjectBeDisplayed(renderingObject->getID(),displayAttrib))
+    if (camera->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
     {
         if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE)==0)
         {
             if (camera->getLocalObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
-                glLoadName(camera->getModelSelectionID());
+                glLoadName(camera->getModelSelectionHandle());
             else
-                glLoadName(camera->getID());
+                glLoadName(camera->getObjectHandle());
         }
         else
             glLoadName(-1);
@@ -29,12 +29,12 @@ void displayCamera(CCamera* camera,CViewableBase* renderingObject,int displayAtt
         if ( (displayAttrib&sim_displayattribute_forcewireframe)&&(displayAttrib&sim_displayattribute_renderpass) )
             glPolygonMode (GL_FRONT_AND_BACK,GL_LINE);
 
-        _enableAuxClippingPlanes(camera->getID());
+        _enableAuxClippingPlanes(camera->getObjectHandle());
         camera->getColor(false)->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
         float cameraSize=camera->getCameraSize();
         glPushMatrix();
         glTranslatef(0.0f,0.0f,-cameraSize);
-        ogl::drawBox(0.4f*cameraSize,cameraSize,2.0f*cameraSize,true,NULL);
+        ogl::drawBox(0.4f*cameraSize,cameraSize,2.0f*cameraSize,true,nullptr);
         glPopMatrix();
         glPushMatrix();
         camera->getColor(true)->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);

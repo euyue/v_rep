@@ -179,7 +179,7 @@ void CQDlgJoints::refresh()
     }
 
     VDialog* dlg=App::mainWindow->dlgCont->getDialog(JOINT_DYN_DLG);
-    if (dlg!=NULL)
+    if (dlg!=nullptr)
         ((CQDlgJointDyn*)dlg)->refresh();
 
     selectLineEdit(lineEditToSelect);
@@ -222,7 +222,7 @@ void CQDlgJoints::on_qqMinimum_editingFinished()
         bool ok;
         float newVal=ui->qqMinimum->text().toFloat(&ok);
         CJoint* it=App::ct->objCont->getLastSelection_joint();
-        if (ok&&(it!=NULL))
+        if (ok&&(it!=nullptr))
         {
             if (it->getJointType()!=sim_joint_prismatic_subtype)
                 newVal*=gv::userToRad;
@@ -242,7 +242,7 @@ void CQDlgJoints::on_qqRange_editingFinished()
         bool ok;
         float newVal=ui->qqRange->text().toFloat(&ok);
         CJoint* it=App::ct->objCont->getLastSelection_joint();
-        if (ok&&(it!=NULL))
+        if (ok&&(it!=nullptr))
         {
             if (it->getJointType()!=sim_joint_prismatic_subtype)
                 newVal*=gv::userToRad;
@@ -262,7 +262,7 @@ void CQDlgJoints::on_qqPosition_editingFinished()
         bool ok;
         float newVal=ui->qqPosition->text().toFloat(&ok);
         CJoint* it=App::ct->objCont->getLastSelection_joint();
-        if (ok&&(it!=NULL))
+        if (ok&&(it!=nullptr))
         {
             if (it->getJointType()!=sim_joint_prismatic_subtype)
                 newVal*=gv::userToRad;
@@ -299,7 +299,7 @@ void CQDlgJoints::on_qqMaxStepSize_editingFinished()
         bool ok;
         float newVal=ui->qqMaxStepSize->text().toFloat(&ok);
         CJoint* it=App::ct->objCont->getLastSelection_joint();
-        if (ok&&(it!=NULL))
+        if (ok&&(it!=nullptr))
         {
             if (it->getJointType()!=sim_joint_prismatic_subtype)
                 newVal*=gv::userToRad;

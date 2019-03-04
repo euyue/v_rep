@@ -152,7 +152,7 @@ bool CUndoBufferCont::memorizeState()
         return(false);
     if (!App::ct->simulation->isSimulationStopped())
         return(false);
-    if (App::mainWindow==NULL)
+    if (App::mainWindow==nullptr)
         return(false); // we are in headless mode
 
     // If we arrived here, we might have something to save:
@@ -267,7 +267,7 @@ bool CUndoBufferCont::_isGoodToMemorizeUndoOrRedo()
 #ifdef SIM_WITH_GUI
     if (!App::ct->simulation->isSimulationStopped())
         return(false);
-    if (App::mainWindow==NULL)
+    if (App::mainWindow==nullptr)
         return(false);
     if (App::getEditModeType()!=NO_EDIT_MODE)
         return(false);
@@ -289,7 +289,7 @@ bool CUndoBufferCont::canUndo()
 {
     FUNCTION_DEBUG;
 #ifdef SIM_WITH_GUI
-    if (App::mainWindow==NULL)
+    if (App::mainWindow==nullptr)
         return(false); // we are in headless mode
     if (!_isGoodToMemorizeUndoOrRedo())
         return(false);
@@ -303,7 +303,7 @@ bool CUndoBufferCont::canRedo()
 {
     FUNCTION_DEBUG;
 #ifdef SIM_WITH_GUI
-    if (App::mainWindow==NULL)
+    if (App::mainWindow==nullptr)
         return(false); // we are in headless mode
     if (!_isGoodToMemorizeUndoOrRedo())
         return(false);
@@ -357,7 +357,7 @@ void CUndoBufferCont::undo()
     CUndoBufferCameras* cameraBuffers=_getFullBuffer(_currentStateIndex,theBuff);
     // 3. Load the buffer:
 
-    void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_abouttoundo,NULL,NULL,NULL);
+    void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_abouttoundo,nullptr,nullptr,nullptr);
     delete[] (char*)returnVal;
 
     _rememberSelectionState();
@@ -380,7 +380,7 @@ void CUndoBufferCont::undo()
 
     _undoPointSavingOrRestoringUnderWay=false;
     serObj.readClose();
-    if (App::mainWindow!=NULL)
+    if (App::mainWindow!=nullptr)
         App::mainWindow->refreshDimensions(); // this is important so that the new pages and views are set to the correct dimensions
 
     // 4. We select previously selected objects:
@@ -388,7 +388,7 @@ void CUndoBufferCont::undo()
 
     _inUndoRoutineNow=false;
     
-    returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_undoperformed,NULL,NULL,NULL);
+    returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_undoperformed,nullptr,nullptr,nullptr);
     delete[] (char*)returnVal;
     App::ct->setModificationFlag(16); // undo called
 
@@ -429,7 +429,7 @@ void CUndoBufferCont::redo()
 
     // 3. Load the buffer:
 
-    void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_abouttoredo,NULL,NULL,NULL);
+    void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_abouttoredo,nullptr,nullptr,nullptr);
     delete[] (char*)returnVal;
 
     _rememberSelectionState();
@@ -452,14 +452,14 @@ void CUndoBufferCont::redo()
 
     _undoPointSavingOrRestoringUnderWay=false;
     serObj.readClose();
-    if (App::mainWindow!=NULL)
+    if (App::mainWindow!=nullptr)
         App::mainWindow->refreshDimensions(); // this is important so that the new pages and views are set to the correct dimensions
 
 
     // 4. We select previously selected objects:
     _restoreSelectionState();
 
-    returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_redoperformed,NULL,NULL,NULL);
+    returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_redoperformed,nullptr,nullptr,nullptr);
     delete[] (char*)returnVal;
     App::ct->setModificationFlag(32); // redo called
 
@@ -475,13 +475,13 @@ CUndoBufferCameras* CUndoBufferCont::_getFullBuffer(int index,std::vector<char>&
     if ( (index>=int(_buffers.size()))||(index<0) )
     {
         fullBuff.clear();
-        return(NULL);
+        return(nullptr);
     }
-    CUndoBufferCameras* retVal=NULL;
+    CUndoBufferCameras* retVal=nullptr;
     if (index==0)
     { // the first one
         retVal=_buffers[index]->getCameraBuffers();
-        _buffers[index]->getRestored(NULL,fullBuff);
+        _buffers[index]->getRestored(nullptr,fullBuff);
     }
     else
     {
@@ -509,17 +509,17 @@ void CUndoBufferCont::_rememberSelectionState()
     std::vector<C3DObject*> sel;
     App::ct->objCont->getSelectedObjects(sel);
     for (int i=0;i<int(sel.size());i++)
-        _selectionState.push_back(sel[i]->getName());
+        _selectionState.push_back(sel[i]->getObjectName());
 }
 
 void CUndoBufferCont::_restoreSelectionState()
 {
     FUNCTION_DEBUG;
-    for (int i=0;i<int(_selectionState.size());i++)
+    for (size_t i=0;i<_selectionState.size();i++)
     {
-        C3DObject* obj=App::ct->objCont->getObject(_selectionState[i]);
-        if (obj!=NULL)
-            App::ct->objCont->addObjectToSelection(obj->getID());
+        C3DObject* obj=App::ct->objCont->getObjectFromName(_selectionState[i].c_str());
+        if (obj!=nullptr)
+            App::ct->objCont->addObjectToSelection(obj->getObjectHandle());
     }
     _selectionState.clear();
 }

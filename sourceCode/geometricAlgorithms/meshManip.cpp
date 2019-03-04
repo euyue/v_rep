@@ -8,7 +8,7 @@ CMeshManip::CMeshManip(float* vertices,int verticesNb,int* indices,int indicesNb
     // We first prepare the edges:
     edges.clear();
     for (int i=0;i<verticesNb/3;i++)
-        edges.push_back(NULL);
+        edges.push_back(nullptr);
     for (int i=0;i<indicesNb/3;i++)
     {
         int ind[3]={indices[3*i+0],indices[3*i+1],indices[3*i+2]};
@@ -200,7 +200,7 @@ void CMeshManip::useOnlyReferencedVertices(std::vector<float>* vertices,std::vec
 }
 
 bool CMeshManip::checkVerticesIndicesNormalsTexCoords(std::vector<float>& vertices,std::vector<int>& indices,std::vector<float>* normals,std::vector<float>* texCoords,bool checkDoubles,float tolerance,bool checkSameTriangles)
-{ // normals and texCoords can be NULL
+{ // normals and texCoords can be nullptr
     bool noError=true;
 
     // Basic check: check if vertices can be divided by 3
@@ -218,7 +218,7 @@ bool CMeshManip::checkVerticesIndicesNormalsTexCoords(std::vector<float>& vertic
     }
 
     // Basic check: check if normals match indices
-    if (normals!=NULL)
+    if (normals!=nullptr)
     {
         while ((normals->size()%9)!=0)
         {
@@ -234,12 +234,12 @@ bool CMeshManip::checkVerticesIndicesNormalsTexCoords(std::vector<float>& vertic
         { // we cannot save the normals!
             noError=false;
             normals->clear();
-            normals=NULL;
+            normals=nullptr;
         }
     }
 
     // Basic check: check if texture coordinates match indices
-    if (texCoords!=NULL)
+    if (texCoords!=nullptr)
     {
         while ((texCoords->size()%6)!=0)
         {
@@ -255,7 +255,7 @@ bool CMeshManip::checkVerticesIndicesNormalsTexCoords(std::vector<float>& vertic
         { // we cannot save the texture coordinates!
             noError=false;
             texCoords->clear();
-            texCoords=NULL;
+            texCoords=nullptr;
         }
     }
 
@@ -266,12 +266,12 @@ bool CMeshManip::checkVerticesIndicesNormalsTexCoords(std::vector<float>& vertic
         indices.clear();
         std::vector<float> tmpNorm;
         std::vector<float> tmpTexCoord;
-        if (normals!=NULL)
+        if (normals!=nullptr)
         {
             tmpNorm.assign(normals->begin(),normals->end());
             normals->clear();
         }
-        if (texCoords!=NULL)
+        if (texCoords!=nullptr)
         {
             tmpTexCoord.assign(texCoords->begin(),texCoords->end());
             texCoords->clear();
@@ -286,12 +286,12 @@ bool CMeshManip::checkVerticesIndicesNormalsTexCoords(std::vector<float>& vertic
                     indices.push_back(ind[0]);
                     indices.push_back(ind[1]);
                     indices.push_back(ind[2]);
-                    if (normals!=NULL)
+                    if (normals!=nullptr)
                     {
                         for (int j=0;j<9;j++)
                             normals->push_back(tmpNorm[9*i+j]);
                     }
-                    if (texCoords!=NULL)
+                    if (texCoords!=nullptr)
                     {
                         for (int j=0;j<6;j++)
                             texCoords->push_back(tmpTexCoord[6*i+j]);
@@ -309,9 +309,9 @@ bool CMeshManip::checkVerticesIndicesNormalsTexCoords(std::vector<float>& vertic
     {
         vertices.clear();
         indices.clear();
-        if (normals!=NULL)
+        if (normals!=nullptr)
             normals->clear();
-        if (texCoords!=NULL)
+        if (texCoords!=nullptr)
             texCoords->clear();
         return(false);
     }
@@ -343,13 +343,13 @@ bool CMeshManip::checkVerticesIndicesNormalsTexCoords(std::vector<float>& vertic
         std::vector<int> tmpInd(indices);
         indices.clear();
         std::vector<float> tmpNorm;
-        if (normals!=NULL)
+        if (normals!=nullptr)
         {
             tmpNorm.assign(normals->begin(),normals->end());
             normals->clear();
         }
         std::vector<float> tmpTexCoord;
-        if (texCoords!=NULL)
+        if (texCoords!=nullptr)
         {
             tmpTexCoord.assign(texCoords->begin(),texCoords->end());
             texCoords->clear();
@@ -364,12 +364,12 @@ bool CMeshManip::checkVerticesIndicesNormalsTexCoords(std::vector<float>& vertic
                     indices.push_back(ind[0]);
                     indices.push_back(ind[1]);
                     indices.push_back(ind[2]);
-                    if (normals!=NULL)
+                    if (normals!=nullptr)
                     {
                         for (int j=0;j<9;j++)
                             normals->push_back(tmpNorm[9*i+j]);
                     }
-                    if (texCoords!=NULL)
+                    if (texCoords!=nullptr)
                     {
                         for (int j=0;j<6;j++)
                             texCoords->push_back(tmpTexCoord[6*i+j]);
@@ -384,9 +384,9 @@ bool CMeshManip::checkVerticesIndicesNormalsTexCoords(std::vector<float>& vertic
     {
         vertices.clear();
         indices.clear();
-        if (normals!=NULL)
+        if (normals!=nullptr)
             normals->clear();
-        if (texCoords!=NULL)
+        if (texCoords!=nullptr)
             texCoords->clear();
         return(false);
     }
@@ -396,9 +396,9 @@ bool CMeshManip::checkVerticesIndicesNormalsTexCoords(std::vector<float>& vertic
     {
         vertices.clear();
         indices.clear();
-        if (normals!=NULL)
+        if (normals!=nullptr)
             normals->clear();
-        if (texCoords!=NULL)
+        if (texCoords!=nullptr)
             texCoords->clear();
         return(false);
     }
@@ -411,13 +411,13 @@ bool CMeshManip::checkVerticesIndicesNormalsTexCoords(std::vector<float>& vertic
         std::vector<int> tmpInd(indices);
         indices.clear();
         std::vector<float> tmpNorm;
-        if (normals!=NULL)
+        if (normals!=nullptr)
         {
             tmpNorm.assign(normals->begin(),normals->end());
             normals->clear();
         }
         std::vector<float> tmpTexCoord;
-        if (texCoords!=NULL)
+        if (texCoords!=nullptr)
         {
             tmpTexCoord.assign(texCoords->begin(),texCoords->end());
             texCoords->clear();
@@ -430,12 +430,12 @@ bool CMeshManip::checkVerticesIndicesNormalsTexCoords(std::vector<float>& vertic
                 indices.push_back(ind[0]);
                 indices.push_back(ind[1]);
                 indices.push_back(ind[2]);
-                if (normals!=NULL)
+                if (normals!=nullptr)
                 {
                     for (int j=0;j<9;j++)
                         normals->push_back(tmpNorm[9*i+j]);
                 }
-                if (texCoords!=NULL)
+                if (texCoords!=nullptr)
                 {
                     for (int j=0;j<6;j++)
                         texCoords->push_back(tmpTexCoord[6*i+j]);
@@ -449,9 +449,9 @@ bool CMeshManip::checkVerticesIndicesNormalsTexCoords(std::vector<float>& vertic
     {
         vertices.clear();
         indices.clear();
-        if (normals!=NULL)
+        if (normals!=nullptr)
             normals->clear();
-        if (texCoords!=NULL)
+        if (texCoords!=nullptr)
             texCoords->clear();
         return(false);
     }
@@ -462,7 +462,7 @@ bool CMeshManip::checkVerticesIndicesNormalsTexCoords(std::vector<float>& vertic
 }
 
 int CMeshManip::removeColinearTriangles(std::vector<float>& vertices,std::vector<int>& indices,std::vector<float>* normals,std::vector<float>* texCoords,float tolerance)
-{ // return value indicates the number of removed triangles. Call removeDoubleVertices beforehand. normals and texCoords can be NULL
+{ // return value indicates the number of removed triangles. Call removeDoubleVertices beforehand. normals and texCoords can be nullptr
     int initialTri=(int)indices.size()/3;
     float onLineSquareTolerance=tolerance*0.1f*tolerance*0.1f;
     for (int i=0;i<int(indices.size())/3;i++)
@@ -488,13 +488,13 @@ int CMeshManip::removeColinearTriangles(std::vector<float>& vertices,std::vector
     std::vector<int> tmpInd(indices);
     indices.clear();
     std::vector<float> tmpNorm;
-    if (normals!=NULL)
+    if (normals!=nullptr)
     {
         tmpNorm.assign(normals->begin(),normals->end());
         normals->clear();
     }
     std::vector<float> tmpTexCoord;
-    if (texCoords!=NULL)
+    if (texCoords!=nullptr)
     {
         tmpTexCoord.assign(texCoords->begin(),texCoords->end());
         texCoords->clear();
@@ -507,12 +507,12 @@ int CMeshManip::removeColinearTriangles(std::vector<float>& vertices,std::vector
             indices.push_back(ind[0]);
             indices.push_back(ind[1]);
             indices.push_back(ind[2]);
-            if (normals!=NULL)
+            if (normals!=nullptr)
             {
                 for (int j=0;j<9;j++)
                     normals->push_back(tmpNorm[9*i+j]);
             }
-            if (texCoords!=NULL)
+            if (texCoords!=nullptr)
             {
                 for (int j=0;j<6;j++)
                     texCoords->push_back(tmpTexCoord[6*i+j]);
@@ -559,7 +559,7 @@ void CMeshManip::removeDoubleVertices(std::vector<float>& vertices,std::vector<i
     int mult[3]={1,cells[0],cells[0]*cells[1]};
 
     std::vector<std::vector<int>*> ind;
-    ind.resize(cells[0]*cells[1]*cells[2],NULL);
+    ind.resize(cells[0]*cells[1]*cells[2],nullptr);
     for (int i=0;i<int(ind.size());i++)
         ind[i]=new std::vector<int>;
 
@@ -871,7 +871,7 @@ bool CMeshManip::reduceTriangleSize(std::vector<float>& vertices,std::vector<int
 { // return value true is success, false means there is nothing left!
     // if maxEdgeSize is 0.0f, then half of the maximum triangle edge is used as maxEdgeSize!
     // if verticeMergeTolerance is 0.0f, vertices are not merged!
-    // normals or texCoords can be NULL
+    // normals or texCoords can be nullptr
     // 1. We search for the largest triangle edge:      
     float l=maxEdgeSize;
     if (l<=0.0f)
@@ -1057,7 +1057,7 @@ bool CMeshManip::correctTriangleWinding(std::vector<float>* vertices,std::vector
     // The smallest index specifying the edge gives the position in edges array
     // eg. insertion of edge (4;6) belonging to triangle 3
     // edge[4]->Add(6); edge[4]->Add(3);
-    std::vector<std::vector<int>*> edges(vertices->size()/3,NULL);
+    std::vector<std::vector<int>*> edges(vertices->size()/3,nullptr);
     for (int i=0;i<int(indices->size())/3;i++)
     {
         int temp;
@@ -1076,7 +1076,7 @@ bool CMeshManip::correctTriangleWinding(std::vector<float>* vertices,std::vector
                 v[j][0]=v[j][1];
                 v[j][1]=temp;
             }
-            if (edges[v[j][0]]==NULL)
+            if (edges[v[j][0]]==nullptr)
             {
                 std::vector<int>* newList=new std::vector<int>;
                 edges[v[j][0]]=newList;
@@ -1093,7 +1093,7 @@ bool CMeshManip::correctTriangleWinding(std::vector<float>* vertices,std::vector
 
     for (int i=0;i<int(edges.size());i++)
     {
-        if (edges.at(i)!=NULL)
+        if (edges.at(i)!=nullptr)
         {
             for (int j=0;j<int(edges.at(i)->size())/2;j++)
             {   
@@ -1325,7 +1325,7 @@ bool CMeshManip::correctTriangleWinding(std::vector<float>* vertices,std::vector
     // Clean up the edge list
     for (int i=0;i<int(edges.size());i++)
     {
-        if (edges[i]!=NULL)
+        if (edges[i]!=nullptr)
             delete edges[i];
     }
     return(passes==1);
@@ -1439,14 +1439,14 @@ void CMeshManip::getProjectionOfPointOnLine(float x,float y,float z,
 
 bool CMeshManip::mergeWith( std::vector<float>* tVertices,std::vector<int>* tIndices,std::vector<float>* tNormals,
                     std::vector<float>* sVertices,std::vector<int>* sIndices,std::vector<float>* sNormals)
-{   // s will be merged with t. tNormals and sNormals can be NULL (but have to be NULL at the same time)
+{   // s will be merged with t. tNormals and sNormals can be nullptr (but have to be nullptr at the same time)
     // Rewrite later with correct stl function!!
     int pos=(int)tVertices->size()/3;
     for (int i=0;i<int(sVertices->size());i++)
         tVertices->push_back(sVertices->at(i));
     for (int i=0;i<int(sIndices->size());i++)
         tIndices->push_back(sIndices->at(i)+pos);
-    if ( (tNormals!=NULL)&&(sNormals!=NULL) )
+    if ( (tNormals!=nullptr)&&(sNormals!=nullptr) )
     {
         for (int i=0;i<int(sNormals->size());i++)
             tNormals->push_back(sNormals->at(i));

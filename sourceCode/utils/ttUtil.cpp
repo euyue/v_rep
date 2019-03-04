@@ -206,28 +206,28 @@ bool CTTUtil::removeSpacesAtBeginningAndEnd(std::string& line)
 std::string CTTUtil::getFormattedString(const char* a,const char* b,const char* c,const char* d,const char* e,const char* f,const char* g,const char* h)
 {
     std::string retVal("");
-    if (a==NULL)
+    if (a==nullptr)
         return(retVal);
     retVal+=a;
-    if (b==NULL)
+    if (b==nullptr)
         return(retVal);
     retVal+=b;
-    if (c==NULL)
+    if (c==nullptr)
         return(retVal);
     retVal+=c;
-    if (d==NULL)
+    if (d==nullptr)
         return(retVal);
     retVal+=d;
-    if (e==NULL)
+    if (e==nullptr)
         return(retVal);
     retVal+=e;
-    if (f==NULL)
+    if (f==nullptr)
         return(retVal);
     retVal+=f;
-    if (g==NULL)
+    if (g==nullptr)
         return(retVal);
     retVal+=g;
-    if (h==NULL)
+    if (h==nullptr)
         return(retVal);
     retVal+=h;
     return(retVal);

@@ -515,16 +515,16 @@ void CGeomWrap::getAllShapeComponentsCumulative(std::vector<CGeometric*>& shapeC
 CGeometric* CGeomWrap::getShapeComponentAtIndex(int& index)
 { // function has virtual/non-virtual counterpart!
     if (index<0)
-        return(NULL);
+        return(nullptr);
     for (int i=0;i<int(childList.size());i++)
     {
         CGeometric* retVal=childList[i]->getShapeComponentAtIndex(index);
-        if (retVal!=NULL)
+        if (retVal!=nullptr)
             return(retVal);
         if (index<0)
-            return(NULL);
+            return(nullptr);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 void CGeomWrap::preMultiplyAllVerticeLocalFrames(const C7Vector& preTr)

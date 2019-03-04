@@ -34,12 +34,12 @@ void CQDlgLights::refresh()
 
     CLight* it=App::ct->objCont->getLastSelection_light();
 
-    ui->qqEnabled->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqLocal->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqSize->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqLightColor->setEnabled((it!=NULL)&&noEditModeNoSim);
+    ui->qqEnabled->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqLocal->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqSize->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqLightColor->setEnabled((it!=nullptr)&&noEditModeNoSim);
 
-    if (it!=NULL)
+    if (it!=nullptr)
     {
         int lt=it->getLightType();
         ui->qqEnabled->setChecked(it->getLightActive()&&noEditModeNoSim);

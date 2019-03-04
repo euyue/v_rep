@@ -7,7 +7,6 @@
 #include "objCont.h"
 #include "global.h"
 #include "v_rep_internal.h"
-#include "shapeComponent.h"
 #include "geometricConstraintSolverInt.h"
 #include "pluginContainer.h"
 #include "geometric.h"
@@ -60,13 +59,13 @@ void CObjCont::simulationAboutToStart()
 {
     C3DObject::incrementModelPropertyValidityNumber();
     for (int i=0;i<int(objectList.size());i++)
-        getObject(objectList[i])->simulationAboutToStart();
+        getObjectFromHandle(objectList[i])->simulationAboutToStart();
 }
 
 void CObjCont::simulationEnded()
 {
     for (int i=0;i<int(objectList.size());i++)
-        getObject(objectList[i])->simulationEnded();
+        getObjectFromHandle(objectList[i])->simulationEnded();
     C3DObject::incrementModelPropertyValidityNumber();
 }
 
@@ -111,11 +110,11 @@ bool CObjCont::loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool jus
                 C3Vector bbs;
                 float ndss;
                 App::ct->environment->modelThumbnail_notSerializedHere.serializeAdditionalModelInfos(ar,tr,bbs,ndss);
-                if (optionalModelTr!=NULL)
+                if (optionalModelTr!=nullptr)
                     optionalModelTr[0]=tr;
-                if (optionalModelBoundingBoxSize!=NULL)
+                if (optionalModelBoundingBoxSize!=nullptr)
                     optionalModelBoundingBoxSize[0]=bbs;
-                if (optionalModelNonDefaultTranslationStepSize!=NULL)
+                if (optionalModelNonDefaultTranslationStepSize!=nullptr)
                     optionalModelNonDefaultTranslationStepSize[0]=ndss;
                 noHit=false;
             }
@@ -164,14 +163,14 @@ bool CObjCont::loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool jus
             //------------------------------------------------------------
 
             C3DObject* it=load3DObject(ar,theName,noHit);
-            if (it!=NULL) 
+            if (it!=nullptr) 
             {
                 loadedObjectList.push_back(it);
                 noHit=false;
             }
 
             CTextureObject* theTextureData=App::ct->textureCont->loadTextureObject(ar,theName,noHit);
-            if (theTextureData!=NULL)
+            if (theTextureData!=nullptr)
             {
                 loadedTextureList.push_back(theTextureData);
                 noHit=false;
@@ -345,7 +344,7 @@ bool CObjCont::loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool jus
     // Following to avoid the flickering when loading something (also during undo/redo):
     for (size_t i=0;i<App::ct->objCont->objectList.size();i++)
     {
-        C3DObject* it=App::ct->objCont->getObject(App::ct->objCont->objectList[i]);
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
         it->bufferMainDisplayStateVariables();
         it->bufferedMainDisplayStateVariablesToDisplay();
     }
@@ -364,7 +363,7 @@ bool CObjCont::loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool jus
         for (size_t i=0;i<loadedObjectList.size();i++)
         {
             stack.pushNumberOntoStack(double(i+1)); // key or index
-            stack.pushNumberOntoStack(loadedObjectList[i]->getID());
+            stack.pushNumberOntoStack(loadedObjectList[i]->getObjectHandle());
             stack.insertDataIntoStackTable();
         }
         stack.insertDataIntoStackTable();
@@ -424,9 +423,9 @@ void CObjCont::addObjectsToSceneAndPerformMappings(std::vector<C3DObject*>* load
     std::vector<int> objectMapping;
     for (size_t i=0;i<loadedObjectList->size();i++)
     {
-        objectMapping.push_back(loadedObjectList->at(i)->getID()); // Old ID
+        objectMapping.push_back(loadedObjectList->at(i)->getObjectHandle()); // Old ID
         addObjectToSceneWithSuffixOffset(loadedObjectList->at(i),objectIsACopy,suffixOffset,false);
-        objectMapping.push_back(loadedObjectList->at(i)->getID()); // New ID
+        objectMapping.push_back(loadedObjectList->at(i)->getObjectHandle()); // New ID
 
         if (loadedObjectList->at(i)->getObjectType()==sim_object_shape_type)
         {
@@ -452,10 +451,10 @@ void CObjCont::addObjectsToSceneAndPerformMappings(std::vector<C3DObject*>* load
             if (fileVrepVersion<30301)
             { // Following for backward compatibility (09/03/2016)
                 CDynMaterialObject* mat=shape->getDynMaterial();
-                if (mat->getEngineBoolParam(sim_bullet_body_sticky,NULL))
+                if (mat->getEngineBoolParam(sim_bullet_body_sticky,nullptr))
                 { // Formely sticky contact objects need to be adjusted for the new Bullet:
                     if (shape->getShapeIsDynamicallyStatic())
-                        mat->setEngineFloatParam(sim_bullet_body_friction,mat->getEngineFloatParam(sim_bullet_body_oldfriction,NULL)); // the new Bullet friction
+                        mat->setEngineFloatParam(sim_bullet_body_friction,mat->getEngineFloatParam(sim_bullet_body_oldfriction,nullptr)); // the new Bullet friction
                     else
                         mat->setEngineFloatParam(sim_bullet_body_friction,0.25f); // the new Bullet friction
                 }
@@ -647,10 +646,10 @@ void CObjCont::addObjectsToSceneAndPerformMappings(std::vector<C3DObject*>* load
     // We cannot use App::ct->textureCont->updateAllDependencies, since the shape list is not yet actualized!
     App::ct->textureCont->clearAllDependencies();
     App::ct->buttonBlockContainer->setTextureDependencies();
-    for (size_t i=0;i<_objectIndex.size();i++) // here we cannot use shapeList, because not yet actualized!!
+    for (size_t i=0;i<_objectHandleIndex.size();i++) // here we cannot use shapeList, because not yet actualized!!
     {
-        if ( (_objectIndex[i]!=NULL)&&(_objectIndex[i]->getObjectType()==sim_object_shape_type) )
-            ((CShape*)_objectIndex[i])->geomData->setTextureDependencies(_objectIndex[i]->getID());
+        if ( (_objectHandleIndex[i]!=nullptr)&&(_objectHandleIndex[i]->getObjectType()==sim_object_shape_type) )
+            ((CShape*)_objectHandleIndex[i])->geomData->setTextureDependencies(_objectHandleIndex[i]->getObjectHandle());
     }
 
 
@@ -661,21 +660,6 @@ void CObjCont::addObjectsToSceneAndPerformMappings(std::vector<C3DObject*>* load
         App::ct->pageContainer->performObjectLoadingMapping(&objectMapping);
 
     actualizeObjectInformation();
-
-    // Following for backward compatibility (6/8/2014) (not that important if left out):
-    for (size_t i=0;i<loadedObjectList->size();i++)
-    {
-        if (loadedObjectList->at(i)->getObjectType()==sim_object_joint_type)
-        {
-            CJoint* joint=(CJoint*)loadedObjectList->at(i);
-            if (joint->getJointCallbackCallOrder_backwardCompatibility()!=0)
-            {
-                CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(joint->getID());
-                if (script!=NULL)
-                    script->setExecutionOrder(joint->getJointCallbackCallOrder_backwardCompatibility()+1);
-            }
-        }
-    }
 
     // Now clean-up suffixes equal or above those added, but only for models or objects copied into the scene (global suffix clean-up can be done in the environment dialog):
     if (model) // condition was added on 29/9/2014
@@ -711,7 +695,7 @@ void CObjCont::addObjectsToSceneAndPerformMappings(std::vector<C3DObject*>* load
 
     // Here we call the initializeInitialValues for all pages & views
     for (size_t i=0;i<loadedObjectList->size();i++)
-        App::ct->pageContainer->initializeInitialValues(simulationRunning,loadedObjectList->at(i)->getID());
+        App::ct->pageContainer->initializeInitialValues(simulationRunning,loadedObjectList->at(i)->getObjectHandle());
 //**************************************************************************************
 
     // Here make sure that referenced objects still exists (when keeping original references):
@@ -720,7 +704,7 @@ void CObjCont::addObjectsToSceneAndPerformMappings(std::vector<C3DObject*>* load
     {
         std::map<std::string,int> uniquePersistentIds;
         for (size_t i=0;i<objectList.size();i++)
-            uniquePersistentIds[getObject(objectList[i])->getUniquePersistentIdString()]=objectList[i];
+            uniquePersistentIds[getObjectFromHandle(objectList[i])->getUniquePersistentIdString()]=objectList[i];
         for (size_t i=0;i<App::ct->collisions->collisionObjects.size();i++)
             uniquePersistentIds[App::ct->collisions->collisionObjects[i]->getUniquePersistentIdString()]=App::ct->collisions->collisionObjects[i]->getObjectID();
         for (size_t i=0;i<App::ct->distances->distanceObjects.size();i++)
@@ -739,7 +723,7 @@ void CObjCont::addObjectsToSceneAndPerformMappings(std::vector<C3DObject*>* load
     if (model)
     {
         for (size_t i=0;i<loadedObjectList->size();i++)
-            addObjectToSelection(loadedObjectList->at(i)->getID());
+            addObjectToSelection(loadedObjectList->at(i)->getObjectHandle());
     }
 
     // Now display the load operation issues:
@@ -752,13 +736,13 @@ void CObjCont::addObjectsToSceneAndPerformMappings(std::vector<C3DObject*>* load
             std::string newTxt("NAME_NOT_FOUND");
             int handle2=getLoadingMapping(&luaScriptMapping,handle);
             CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(handle2);
-            if (script!=NULL)
+            if (script!=nullptr)
                 newTxt=script->getShortDescriptiveName();
             _loadOperationIssuesToBeDisplayed.replace(startPos,strlen("@@REPLACE@@"),newTxt);
             _loadOperationIssuesToBeDisplayed_objectHandles.erase(_loadOperationIssuesToBeDisplayed_objectHandles.begin(),_loadOperationIssuesToBeDisplayed_objectHandles.begin()+1);
             startPos=_loadOperationIssuesToBeDisplayed.find("@@REPLACE@@");
         }
-        int h=simAuxiliaryConsoleOpen_internal("Load operation issues",30,4,NULL,NULL,NULL,NULL);
+        int h=simAuxiliaryConsoleOpen_internal("Load operation issues",30,4,nullptr,nullptr,nullptr,nullptr);
         simAuxiliaryConsolePrint_internal(h,_loadOperationIssuesToBeDisplayed.c_str());
 
     }
@@ -782,7 +766,7 @@ int CObjCont::getSuffixOffsetForObjectToAdd(std::vector<C3DObject*>* loadedObjec
     // 3DObjects:
     for (size_t i=0;i<loadedObjectList->size();i++)
     {
-        int s=tt::getNameSuffixNumber(loadedObjectList->at(i)->getName().c_str(),true);
+        int s=tt::getNameSuffixNumber(loadedObjectList->at(i)->getObjectName().c_str(),true);
         if (i==0)
             smallestSuffix=s;
         else
@@ -860,12 +844,12 @@ bool CObjCont::loadModel(CSer& ar,bool justLoadThumbnail,bool forceModelAsCopy,C
     bool retVal=loadModelOrScene(ar,true,false,justLoadThumbnail,forceModelAsCopy,optionalModelTr,optionalModelBoundingBoxSize,optionalModelNonDefaultTranslationStepSize);
     if (!justLoadThumbnail)
     {
-        void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_modelloaded,NULL,NULL,NULL);
+        void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_modelloaded,nullptr,nullptr,nullptr);
         delete[] (char*)returnVal;
-        returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_model_loaded,NULL,NULL,NULL); // for backward compatibility
+        returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_model_loaded,nullptr,nullptr,nullptr); // for backward compatibility
         delete[] (char*)returnVal;
 
-        App::ct->outsideCommandQueue->addCommand(sim_message_model_loaded,0,0,0,0,NULL,0); // only for Lua
+        App::ct->outsideCommandQueue->addCommand(sim_message_model_loaded,0,0,0,0,nullptr,0); // only for Lua
         App::ct->setModificationFlag(4); // model loaded
     }
     return(retVal);
@@ -990,7 +974,7 @@ C3DObject* CObjCont::load3DObject(CSer& ar,std::string theName,bool &noHit)
     // We try to replace it with a dummy (2009/12/09):
     unsigned char dat[14];
     if (ar.readBytesButKeepPointerUnchanged(dat,14)!=14)
-        return(NULL); // No, this is not a 3DObject! (not enough to read)
+        return(nullptr); // No, this is not a 3DObject! (not enough to read)
     if ((dat[4]=='3')&&(dat[5]=='d')&&(dat[6]=='o')&&(dat[11]==57)&&(dat[12]==58)&&(dat[13]==59))
     { // yes we have a 3DObject of an unknown type!
         ar >> byteQuantity; // Undo/redo will never arrive here
@@ -999,19 +983,19 @@ C3DObject* CObjCont::load3DObject(CSer& ar,std::string theName,bool &noHit)
         noHit=false;
         return(newUnknownType);
     }
-    return(NULL); // No, this is not a 3DObject!
+    return(nullptr); // No, this is not a 3DObject!
 }
 
 bool CObjCont::loadScene(CSer& ar,bool forUndoRedoOperation)
 {   // We have another similar routine for XML files further down
     removeAllObjects(true);
-    bool retVal=loadModelOrScene(ar,false,true,false,false,NULL,NULL,NULL);
+    bool retVal=loadModelOrScene(ar,false,true,false,false,nullptr,nullptr,nullptr);
     if (!forUndoRedoOperation)
     {
-        void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_sceneloaded,NULL,NULL,NULL);
+        void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_sceneloaded,nullptr,nullptr,nullptr);
         delete[] (char*)returnVal;
         App::ct->setModificationFlag(8); // scene loaded
-        App::ct->outsideCommandQueue->addCommand(sim_message_scene_loaded,0,0,0,0,NULL,0);
+        App::ct->outsideCommandQueue->addCommand(sim_message_scene_loaded,0,0,0,0,nullptr,0);
     }
     return(retVal);
 }
@@ -1056,14 +1040,14 @@ C3DObject* CObjCont::getObjectWithUniqueID(int uniqueID)
 {
     for (int i=0;i<int(objectList.size());i++)
     {
-        C3DObject* it=getObject(objectList[i]);
-        if (it!=NULL)
+        C3DObject* it=getObjectFromHandle(objectList[i]);
+        if (it!=nullptr)
         {
             if (it->getUniqueID()==uniqueID)
                 return(it);
         }
     }
-    return(NULL);
+    return(nullptr);
 }
 
 std::string CObjCont::getSimilarNameWithHighestSuffix(std::string objectName,bool dash)
@@ -1073,10 +1057,10 @@ std::string CObjCont::getSimilarNameWithHighestSuffix(std::string objectName,boo
     std::string highestSuffixName;
     for (int i=0;i<int(objectList.size());i++)
     {
-        C3DObject* it=getObject(objectList[i]);
-        if (it!=NULL)
+        C3DObject* it=getObjectFromHandle(objectList[i]);
+        if (it!=nullptr)
         {
-            std::string nm(it->getName());
+            std::string nm(it->getObjectName());
             if (tt::getNameWithoutSuffixNumber(nm.c_str(),dash).compare(nameWithoutSuffix)==0)
             {
                 int suffixNb=tt::getNameSuffixNumber(nm.c_str(),dash);
@@ -1119,7 +1103,7 @@ void CObjCont::saveScene(CSer& ar)
 
     // Textures:
     int textCnt=0;
-    while (App::ct->textureCont->getObjectAtIndex(textCnt)!=NULL)
+    while (App::ct->textureCont->getObjectAtIndex(textCnt)!=nullptr)
     {
         CTextureObject* it=App::ct->textureCont->getObjectAtIndex(textCnt);
         App::ct->textureCont->storeTextureObject(ar,it);
@@ -1162,7 +1146,7 @@ void CObjCont::saveScene(CSer& ar)
 
     for (int i=0;i<int(objectList.size());i++)
     {
-        C3DObject* it=getObject(objectList[i]);
+        C3DObject* it=getObjectFromHandle(objectList[i]);
         store3DObject(ar,it);
     }
 
@@ -1318,7 +1302,7 @@ void CObjCont::exportIkContent(CExtIkSer& ar)
 
     for (int i=0;i<int(objectList.size());i++)
     {
-        C3DObject* it=getObject(objectList[i]);
+        C3DObject* it=getObjectFromHandle(objectList[i]);
 
         ar.writeInt(it->getObjectType());
 
@@ -1391,13 +1375,13 @@ void CObjCont::getAllCollidableObjectsFromSceneExcept(const std::vector<C3DObjec
 {
     for (size_t i=0;i<objectList.size();i++)
     {
-        C3DObject* it=getObject(objectList[i]);
+        C3DObject* it=getObjectFromHandle(objectList[i]);
         if (it->isPotentiallyCollidable())
         {
             if (it->getCumulativeObjectSpecialProperty()&sim_objectspecialproperty_collidable)
             { // Make sure we don't have it in the exception list:
                 bool okToAdd=true;
-                if (exceptionObjects!=NULL)
+                if (exceptionObjects!=nullptr)
                 {
                     for (size_t j=0;j<exceptionObjects->size();j++)
                     {
@@ -1419,13 +1403,13 @@ void CObjCont::getAllMeasurableObjectsFromSceneExcept(const std::vector<C3DObjec
 {
     for (size_t i=0;i<objectList.size();i++)
     {
-        C3DObject* it=getObject(objectList[i]);
+        C3DObject* it=getObjectFromHandle(objectList[i]);
         if (it->isPotentiallyMeasurable())
         {
             if (it->getCumulativeObjectSpecialProperty()&sim_objectspecialproperty_measurable)
             { // Make sure we don't have it in the exception list:
                 bool okToAdd=true;
-                if (exceptionObjects!=NULL)
+                if (exceptionObjects!=nullptr)
                 {
                     for (size_t j=0;j<exceptionObjects->size();j++)
                     {
@@ -1447,13 +1431,13 @@ void CObjCont::getAllDetectableObjectsFromSceneExcept(const std::vector<C3DObjec
 {
     for (size_t i=0;i<objectList.size();i++)
     {
-        C3DObject* it=getObject(objectList[i]);
+        C3DObject* it=getObjectFromHandle(objectList[i]);
         if (it->isPotentiallyDetectable())
         {
             if ( (it->getCumulativeObjectSpecialProperty()&detectableMask)||(detectableMask==-1) )
             { // Make sure we don't have it in the exception list:
                 bool okToAdd=true;
-                if (exceptionObjects!=NULL)
+                if (exceptionObjects!=nullptr)
                 {
                     for (size_t j=0;j<exceptionObjects->size();j++)
                     {
@@ -1515,10 +1499,10 @@ bool CObjCont::getAllShapesAndDummiesFromSceneExcept(std::vector<C3DObject*>& ex
 void CObjCont::getSelectedObjects(std::vector<C3DObject*>& selection)
 {
     selection.clear();
-    for (int i=0;i<int(_selectedObjectIDs.size());i++)
+    for (int i=0;i<int(_selectedObjectHandles.size());i++)
     {
-        C3DObject* it=getObject(_selectedObjectIDs[i]);
-        if (it!=NULL)
+        C3DObject* it=getObjectFromHandle(_selectedObjectHandles[i]);
+        if (it!=nullptr)
             selection.push_back(it);
     }
 }
@@ -1526,7 +1510,7 @@ void CObjCont::getSelectedObjects(std::vector<C3DObject*>& selection)
 void CObjCont::getSelectedObjects(std::vector<int>& selection)
 {
     selection.clear();
-    selection.assign(_selectedObjectIDs.begin(),_selectedObjectIDs.end());
+    selection.assign(_selectedObjectHandles.begin(),_selectedObjectHandles.end());
 }
 
 void CObjCont::setSelectedObjects(const std::vector<int>& selection)
@@ -1539,85 +1523,85 @@ void CObjCont::setSelectedObjects(const std::vector<int>& selection)
 C3DObject* CObjCont::getSelectedObject()
 {
     if (getSelSize()!=0)
-        return(_objectIndex[getSelID(getSelSize()-1)]);
-    return(NULL);
+        return(_objectHandleIndex[getSelID(getSelSize()-1)]);
+    return(nullptr);
 }
 
-void CObjCont::xorAddObjectToSelection(int identifier)
+void CObjCont::xorAddObjectToSelection(int objectHandle)
 {
-    if (identifier!=-1)
+    if (objectHandle!=-1)
     {
-        if (identifier>=NON_OBJECT_PICKING_ID_PATH_PTS_START) // individual path points!
+        if (objectHandle>=NON_OBJECT_PICKING_ID_PATH_PTS_START) // individual path points!
         {
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=NULL)
-                App::mainWindow->editModeContainer->pathPointManipulation->xorAddPathPointToSelection_nonEditMode(identifier);
+            if (App::mainWindow!=nullptr)
+                App::mainWindow->editModeContainer->pathPointManipulation->xorAddPathPointToSelection_nonEditMode(objectHandle);
 #endif
         }
         else
         {
-            if (!isObjectSelected(identifier))
+            if (!isObjectSelected(objectHandle))
             {
-                _selectedObjectIDs.push_back(identifier);
-                _selectedObjectsBool[identifier>>3]=_selectedObjectsBool[identifier>>3]|(1<<(identifier&7));
-                App::ct->collections->mark(identifier); //For groups
-                App::ct->buttonBlockContainer->a3DObjectWasSelected(identifier);
+                _selectedObjectHandles.push_back(objectHandle);
+                _selectedObjectsBool[objectHandle>>3]=_selectedObjectsBool[objectHandle>>3]|(1<<(objectHandle&7));
+                App::ct->collections->mark(objectHandle); //For groups
+                App::ct->buttonBlockContainer->a3DObjectWasSelected(objectHandle);
             }
             else
             {
                 int i;
                 for (i=0;i<getSelSize();i++)
                 {
-                    if (getSelID(i)==identifier)
+                    if (getSelID(i)==objectHandle)
                         break;
                 }
-                _selectedObjectIDs.erase(_selectedObjectIDs.begin()+i);
-                _selectedObjectsBool[identifier>>3]=_selectedObjectsBool[identifier>>3]&(255-(1<<(identifier&7)));
-                App::ct->collections->unmark(identifier);   //For groups    
+                _selectedObjectHandles.erase(_selectedObjectHandles.begin()+i);
+                _selectedObjectsBool[objectHandle>>3]=_selectedObjectsBool[objectHandle>>3]&(255-(1<<(objectHandle&7)));
+                App::ct->collections->unmark(objectHandle);   //For groups
             }
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=NULL)
+            if (App::mainWindow!=nullptr)
                 App::mainWindow->editModeContainer->announceObjectSelectionChanged();
 #endif
         }
     }
     else
     {
-        _selectedObjectIDs.clear();
+        _selectedObjectHandles.clear();
         for (int i=0;i<int(_selectedObjectsBool.size());i++)
             _selectedObjectsBool[i]=0;
         App::ct->collections->unmarkAll();      //For groups
 #ifdef SIM_WITH_GUI
-        if (App::mainWindow!=NULL)
+        if (App::mainWindow!=nullptr)
             App::mainWindow->editModeContainer->announceObjectSelectionChanged();
 #endif
     }
     App::setLightDialogRefreshFlag();
 }
 
-void CObjCont::addObjectToSelection(int identifier)
+void CObjCont::addObjectToSelection(int objectHandle)
 {
-    if (identifier>=0)
+    if (objectHandle>=0)
     {
-        if (identifier>=NON_OBJECT_PICKING_ID_PATH_PTS_START) // individual path points!
+        if (objectHandle>=NON_OBJECT_PICKING_ID_PATH_PTS_START) // individual path points!
         {
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=NULL)
-                App::mainWindow->editModeContainer->pathPointManipulation->addPathPointToSelection_nonEditMode(identifier);
+            if (App::mainWindow!=nullptr)
+                App::mainWindow->editModeContainer->pathPointManipulation->addPathPointToSelection_nonEditMode(objectHandle);
 #endif
         }
         else
         {
-            if (getObject(identifier)!=NULL)
+            if (getObjectFromHandle(objectHandle)!=nullptr)
             {
-                if (!isObjectSelected(identifier))
+                if (!isObjectSelected(objectHandle))
                 {
-                    _selectedObjectIDs.push_back(identifier);
-                    _selectedObjectsBool[identifier>>3]=_selectedObjectsBool[identifier>>3]|(1<<(identifier&7));
-                    App::ct->collections->mark(identifier); //For groups
-                    App::ct->buttonBlockContainer->a3DObjectWasSelected(identifier);
+                    _selectedObjectHandles.push_back(objectHandle);
+                    _selectedObjectsBool[objectHandle>>3]=_selectedObjectsBool[objectHandle>>3]|(1<<(objectHandle&7));
+                    App::ct->collections->mark(objectHandle); //For groups
+                    App::ct->buttonBlockContainer->a3DObjectWasSelected(objectHandle);
 #ifdef SIM_WITH_GUI
-                    if (App::mainWindow!=NULL)
+                    if (App::mainWindow!=nullptr)
                         App::mainWindow->editModeContainer->announceObjectSelectionChanged();
 #endif
                 }
@@ -1629,17 +1613,17 @@ void CObjCont::addObjectToSelection(int identifier)
 
 
 
-void CObjCont::removeObjectFromSelection(int identifier)
+void CObjCont::removeObjectFromSelection(int objectHandle)
 {
     for (int i=0;i<getSelSize();i++)
     {
-        if (getSelID(i)==identifier)
+        if (getSelID(i)==objectHandle)
         {
-            _selectedObjectIDs.erase(_selectedObjectIDs.begin()+i);
-            _selectedObjectsBool[identifier>>3]=_selectedObjectsBool[identifier>>3]&(255-(1<<(identifier&7)));
-            App::ct->collections->unmark(identifier);   //For groups
+            _selectedObjectHandles.erase(_selectedObjectHandles.begin()+i);
+            _selectedObjectsBool[objectHandle>>3]=_selectedObjectsBool[objectHandle>>3]&(255-(1<<(objectHandle&7)));
+            App::ct->collections->unmark(objectHandle);   //For groups
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=NULL)
+            if (App::mainWindow!=nullptr)
                 App::mainWindow->editModeContainer->announceObjectSelectionChanged();
 #endif
             break;
@@ -1650,30 +1634,30 @@ void CObjCont::removeObjectFromSelection(int identifier)
 
 int CObjCont::getSelSize()
 {
-    return((int)_selectedObjectIDs.size());
+    return((int)_selectedObjectHandles.size());
 }
 int CObjCont::getSelID(int i)
 {
-    return(_selectedObjectIDs[i]);
+    return(_selectedObjectHandles[i]);
 }
 
 
-bool CObjCont::selectObject(int objectIdentifier)
+bool CObjCont::selectObject(int objectHandle)
 // No checking if object really exists.
 // -1 is a valid parameter (no object is selected)
 {
-    _selectedObjectIDs.clear();
+    _selectedObjectHandles.clear();
     for (int i=0;i<int(_selectedObjectsBool.size());i++)
         _selectedObjectsBool[i]=0;
     App::ct->collections->unmarkAll();          //For groups
-    if (objectIdentifier!=-1)
+    if (objectHandle!=-1)
     {
-        _selectedObjectIDs.push_back(objectIdentifier);
-        _selectedObjectsBool[objectIdentifier>>3]=_selectedObjectsBool[objectIdentifier>>3]|(1<<(objectIdentifier&7));
-        App::ct->collections->mark(objectIdentifier);       //For groups
+        _selectedObjectHandles.push_back(objectHandle);
+        _selectedObjectsBool[objectHandle>>3]=_selectedObjectsBool[objectHandle>>3]|(1<<(objectHandle&7));
+        App::ct->collections->mark(objectHandle);       //For groups
     }
 #ifdef SIM_WITH_GUI
-    if (App::mainWindow!=NULL)
+    if (App::mainWindow!=nullptr)
         App::mainWindow->editModeContainer->announceObjectSelectionChanged();
 #endif
     App::setLightDialogRefreshFlag();
@@ -1682,18 +1666,18 @@ bool CObjCont::selectObject(int objectIdentifier)
 
 void CObjCont::selectAllObjects()
 {
-    _selectedObjectIDs.clear();
+    _selectedObjectHandles.clear();
     for (int i=0;i<int(_selectedObjectsBool.size());i++)
         _selectedObjectsBool[i]=0;
     App::ct->collections->unmarkAll();
     for (int i=0;i<int(objectList.size());i++)
     {
-        _selectedObjectIDs.push_back(objectList[i]);
+        _selectedObjectHandles.push_back(objectList[i]);
         _selectedObjectsBool[objectList[i]>>3]=_selectedObjectsBool[objectList[i]>>3]|(1<<(objectList[i]&7));
         App::ct->collections->mark(objectList[i]);
     }
 #ifdef SIM_WITH_GUI
-    if (App::mainWindow!=NULL)
+    if (App::mainWindow!=nullptr)
         App::mainWindow->editModeContainer->announceObjectSelectionChanged();
 #endif
     App::setLightDialogRefreshFlag();
@@ -1701,12 +1685,12 @@ void CObjCont::selectAllObjects()
 
 void CObjCont::deselectObjects()
 {
-    _selectedObjectIDs.clear();
+    _selectedObjectHandles.clear();
     for (int i=0;i<int(_selectedObjectsBool.size());i++)
         _selectedObjectsBool[i]=0;
     App::ct->collections->unmarkAll();
 #ifdef SIM_WITH_GUI
-    if (App::mainWindow!=NULL)
+    if (App::mainWindow!=nullptr)
         App::mainWindow->editModeContainer->announceObjectSelectionChanged();
 #endif
     App::setLightDialogRefreshFlag();
@@ -1714,23 +1698,23 @@ void CObjCont::deselectObjects()
 
 bool CObjCont::isSelectionSame(std::vector<int>& sel,bool actualize)
 {
-    if (_selectedObjectIDs.size()!=sel.size())
+    if (_selectedObjectHandles.size()!=sel.size())
     {
         if (actualize)
         {
             sel.clear();
-            sel.assign(_selectedObjectIDs.begin(),_selectedObjectIDs.end());
+            sel.assign(_selectedObjectHandles.begin(),_selectedObjectHandles.end());
         }
         return(false);
     }
-    for (int i=0;i<int(_selectedObjectIDs.size());i++)
+    for (int i=0;i<int(_selectedObjectHandles.size());i++)
     {
-        if (_selectedObjectIDs[i]!=sel[i])
+        if (_selectedObjectHandles[i]!=sel[i])
         {
             if (actualize)
             {
                 sel.clear();
-                sel.assign(_selectedObjectIDs.begin(),_selectedObjectIDs.end());
+                sel.assign(_selectedObjectHandles.begin(),_selectedObjectHandles.end());
             }
             return(false);
         }
@@ -1738,155 +1722,155 @@ bool CObjCont::isSelectionSame(std::vector<int>& sel,bool actualize)
     return(true);
 }
 
-CShape* CObjCont::getShape(int identifier)
+CShape* CObjCont::getShape(int objectHandle)
 {
-    if (identifier<0)
-        return(NULL);
-    if (identifier>=int(_objectIndex.size()))
-        return(NULL);
-    if (_objectIndex[identifier]==NULL)
-        return(NULL);
-    if (_objectIndex[identifier]->getObjectType()!=sim_object_shape_type)
-        return(NULL);
-    return((CShape*)_objectIndex[identifier]);
+    if (objectHandle<0)
+        return(nullptr);
+    if (objectHandle>=int(_objectHandleIndex.size()))
+        return(nullptr);
+    if (_objectHandleIndex[objectHandle]==nullptr)
+        return(nullptr);
+    if (_objectHandleIndex[objectHandle]->getObjectType()!=sim_object_shape_type)
+        return(nullptr);
+    return((CShape*)_objectHandleIndex[objectHandle]);
 }
 
-CMirror* CObjCont::getMirror(int identifier)
+CMirror* CObjCont::getMirror(int objectHandle)
 {
-    if (identifier<0)
-        return(NULL);
-    if (identifier>=int(_objectIndex.size()))
-        return(NULL);
-    if (_objectIndex[identifier]==NULL)
-        return(NULL);
-    if (_objectIndex[identifier]->getObjectType()!=sim_object_mirror_type)
-        return(NULL);
-    return((CMirror*)_objectIndex[identifier]);
+    if (objectHandle<0)
+        return(nullptr);
+    if (objectHandle>=int(_objectHandleIndex.size()))
+        return(nullptr);
+    if (_objectHandleIndex[objectHandle]==nullptr)
+        return(nullptr);
+    if (_objectHandleIndex[objectHandle]->getObjectType()!=sim_object_mirror_type)
+        return(nullptr);
+    return((CMirror*)_objectHandleIndex[objectHandle]);
 }
 
-COctree* CObjCont::getOctree(int identifier)
+COctree* CObjCont::getOctree(int objectHandle)
 {
-    if (identifier<0)
-        return(NULL);
-    if (identifier>=int(_objectIndex.size()))
-        return(NULL);
-    if (_objectIndex[identifier]==NULL)
-        return(NULL);
-    if (_objectIndex[identifier]->getObjectType()!=sim_object_octree_type)
-        return(NULL);
-    return((COctree*)_objectIndex[identifier]);
+    if (objectHandle<0)
+        return(nullptr);
+    if (objectHandle>=int(_objectHandleIndex.size()))
+        return(nullptr);
+    if (_objectHandleIndex[objectHandle]==nullptr)
+        return(nullptr);
+    if (_objectHandleIndex[objectHandle]->getObjectType()!=sim_object_octree_type)
+        return(nullptr);
+    return((COctree*)_objectHandleIndex[objectHandle]);
 }
 
-CPointCloud* CObjCont::getPointCloud(int identifier)
+CPointCloud* CObjCont::getPointCloud(int objectHandle)
 {
-    if (identifier<0)
-        return(NULL);
-    if (identifier>=int(_objectIndex.size()))
-        return(NULL);
-    if (_objectIndex[identifier]==NULL)
-        return(NULL);
-    if (_objectIndex[identifier]->getObjectType()!=sim_object_pointcloud_type)
-        return(NULL);
-    return((CPointCloud*)_objectIndex[identifier]);
+    if (objectHandle<0)
+        return(nullptr);
+    if (objectHandle>=int(_objectHandleIndex.size()))
+        return(nullptr);
+    if (_objectHandleIndex[objectHandle]==nullptr)
+        return(nullptr);
+    if (_objectHandleIndex[objectHandle]->getObjectType()!=sim_object_pointcloud_type)
+        return(nullptr);
+    return((CPointCloud*)_objectHandleIndex[objectHandle]);
 }
 
-CProxSensor* CObjCont::getProximitySensor(int identifier)
+CProxSensor* CObjCont::getProximitySensor(int objectHandle)
 {
-    if (identifier<0)
-        return(NULL);
-    if (identifier>=int(_objectIndex.size()))
-        return(NULL);
-    if (_objectIndex[identifier]==NULL)
-        return(NULL);
-    if (_objectIndex[identifier]->getObjectType()!=sim_object_proximitysensor_type)
-        return(NULL);
-    return((CProxSensor*)_objectIndex[identifier]);
+    if (objectHandle<0)
+        return(nullptr);
+    if (objectHandle>=int(_objectHandleIndex.size()))
+        return(nullptr);
+    if (_objectHandleIndex[objectHandle]==nullptr)
+        return(nullptr);
+    if (_objectHandleIndex[objectHandle]->getObjectType()!=sim_object_proximitysensor_type)
+        return(nullptr);
+    return((CProxSensor*)_objectHandleIndex[objectHandle]);
 }
-CVisionSensor* CObjCont::getVisionSensor(int identifier)
+CVisionSensor* CObjCont::getVisionSensor(int objectHandle)
 {
-    if (identifier<0)
-        return(NULL);
-    if (identifier>=int(_objectIndex.size()))
-        return(NULL);
-    if (_objectIndex[identifier]==NULL)
-        return(NULL);
-    if (_objectIndex[identifier]->getObjectType()!=sim_object_visionsensor_type)
-        return(NULL);
-    return((CVisionSensor*)_objectIndex[identifier]);
+    if (objectHandle<0)
+        return(nullptr);
+    if (objectHandle>=int(_objectHandleIndex.size()))
+        return(nullptr);
+    if (_objectHandleIndex[objectHandle]==nullptr)
+        return(nullptr);
+    if (_objectHandleIndex[objectHandle]->getObjectType()!=sim_object_visionsensor_type)
+        return(nullptr);
+    return((CVisionSensor*)_objectHandleIndex[objectHandle]);
 }
-CPath* CObjCont::getPath(int identifier)
+CPath* CObjCont::getPath(int objectHandle)
 {
-    if (identifier<0)
-        return(NULL);
-    if (identifier>=int(_objectIndex.size()))
-        return(NULL);
-    if (_objectIndex[identifier]==NULL)
-        return(NULL);
-    if (_objectIndex[identifier]->getObjectType()!=sim_object_path_type)
-        return(NULL);
-    return((CPath*)_objectIndex[identifier]);
+    if (objectHandle<0)
+        return(nullptr);
+    if (objectHandle>=int(_objectHandleIndex.size()))
+        return(nullptr);
+    if (_objectHandleIndex[objectHandle]==nullptr)
+        return(nullptr);
+    if (_objectHandleIndex[objectHandle]->getObjectType()!=sim_object_path_type)
+        return(nullptr);
+    return((CPath*)_objectHandleIndex[objectHandle]);
 }
-CMill* CObjCont::getMill(int identifier)
+CMill* CObjCont::getMill(int objectHandle)
 {
-    if (identifier<0)
-        return(NULL);
-    if (identifier>=int(_objectIndex.size()))
-        return(NULL);
-    if (_objectIndex[identifier]==NULL)
-        return(NULL);
-    if (_objectIndex[identifier]->getObjectType()!=sim_object_mill_type)
+    if (objectHandle<0)
+        return(nullptr);
+    if (objectHandle>=int(_objectHandleIndex.size()))
+        return(nullptr);
+    if (_objectHandleIndex[objectHandle]==nullptr)
+        return(nullptr);
+    if (_objectHandleIndex[objectHandle]->getObjectType()!=sim_object_mill_type)
 
-        return(NULL);
-    return((CMill*)_objectIndex[identifier]);
+        return(nullptr);
+    return((CMill*)_objectHandleIndex[objectHandle]);
 }
-CForceSensor* CObjCont::getForceSensor(int identifier)
+CForceSensor* CObjCont::getForceSensor(int objectHandle)
 {
-    if (identifier<0)
-        return(NULL);
-    if (identifier>=int(_objectIndex.size()))
-        return(NULL);
-    if (_objectIndex[identifier]==NULL)
-        return(NULL);
-    if (_objectIndex[identifier]->getObjectType()!=sim_object_forcesensor_type)
-        return(NULL);
-    return((CForceSensor*)_objectIndex[identifier]);
+    if (objectHandle<0)
+        return(nullptr);
+    if (objectHandle>=int(_objectHandleIndex.size()))
+        return(nullptr);
+    if (_objectHandleIndex[objectHandle]==nullptr)
+        return(nullptr);
+    if (_objectHandleIndex[objectHandle]->getObjectType()!=sim_object_forcesensor_type)
+        return(nullptr);
+    return((CForceSensor*)_objectHandleIndex[objectHandle]);
 }
-CCamera* CObjCont::getCamera(int identifier)
+CCamera* CObjCont::getCamera(int objectHandle)
 {
-    if (identifier<0)
-        return(NULL);
-    if (identifier>=int(_objectIndex.size()))
-        return(NULL);
-    if (_objectIndex[identifier]==NULL)
-        return(NULL);
-    if (_objectIndex[identifier]->getObjectType()!=sim_object_camera_type)
-        return(NULL);
-    return((CCamera*)_objectIndex[identifier]);
+    if (objectHandle<0)
+        return(nullptr);
+    if (objectHandle>=int(_objectHandleIndex.size()))
+        return(nullptr);
+    if (_objectHandleIndex[objectHandle]==nullptr)
+        return(nullptr);
+    if (_objectHandleIndex[objectHandle]->getObjectType()!=sim_object_camera_type)
+        return(nullptr);
+    return((CCamera*)_objectHandleIndex[objectHandle]);
 }
-CLight* CObjCont::getLight(int identifier)
+CLight* CObjCont::getLight(int objectHandle)
 {
-    if (identifier<0)
-        return(NULL);
-    if (identifier>=int(_objectIndex.size()))
-        return(NULL);
-    if (_objectIndex[identifier]==NULL)
-        return(NULL);
-    if (_objectIndex[identifier]->getObjectType()!=sim_object_light_type)
-        return(NULL);
-    return((CLight*)_objectIndex[identifier]);
+    if (objectHandle<0)
+        return(nullptr);
+    if (objectHandle>=int(_objectHandleIndex.size()))
+        return(nullptr);
+    if (_objectHandleIndex[objectHandle]==nullptr)
+        return(nullptr);
+    if (_objectHandleIndex[objectHandle]->getObjectType()!=sim_object_light_type)
+        return(nullptr);
+    return((CLight*)_objectHandleIndex[objectHandle]);
 }
 
-CGraph* CObjCont::getGraph(int identifier)
+CGraph* CObjCont::getGraph(int objectHandle)
 {
-    if (identifier<0)
-        return(NULL);
-    if (identifier>=int(_objectIndex.size()))
-        return(NULL);
-    if (_objectIndex[identifier]==NULL)
-        return(NULL);
-    if (_objectIndex[identifier]->getObjectType()!=sim_object_graph_type)
-        return(NULL);
-    return((CGraph*)_objectIndex[identifier]);
+    if (objectHandle<0)
+        return(nullptr);
+    if (objectHandle>=int(_objectHandleIndex.size()))
+        return(nullptr);
+    if (_objectHandleIndex[objectHandle]==nullptr)
+        return(nullptr);
+    if (_objectHandleIndex[objectHandle]->getObjectType()!=sim_object_graph_type)
+        return(nullptr);
+    return((CGraph*)_objectHandleIndex[objectHandle]);
 }
 
 //------------------ Object destruction announcement -------------------------
@@ -1894,7 +1878,7 @@ CGraph* CObjCont::getGraph(int identifier)
 void CObjCont::announceCollectionWillBeErased(int groupID)
 {
     for (int i=0;i<int(objectList.size());i++)
-        getObject(objectList[i])->announceCollectionWillBeErased(groupID,false); // this never triggers 3DObject destruction!
+        getObjectFromHandle(objectList[i])->announceCollectionWillBeErased(groupID,false); // this never triggers 3DObject destruction!
     App::ct->collisions->announceCollectionWillBeErased(groupID); // This can trigger a collision destruction!
     App::ct->distances->announceCollectionWillBeErased(groupID); // This can trigger a distance destruction!
     App::ct->ikGroups->announceCollectionWillBeErased(groupID); // This will never trigger an IK group destruction! (at least for now!)
@@ -1905,29 +1889,29 @@ void CObjCont::announceCollectionWillBeErased(int groupID)
 void CObjCont::announceGcsObjectWillBeErased(int gcsObjectID)
 {
     for (int i=0;i<int(objectList.size());i++)
-        getObject(objectList[i])->announceGcsObjectWillBeErased(gcsObjectID,false); // this never triggers 3DObject destruction!
+        getObjectFromHandle(objectList[i])->announceGcsObjectWillBeErased(gcsObjectID,false); // this never triggers 3DObject destruction!
 }
 
 void CObjCont::announceCollisionWillBeErased(int collisionID)
 {
     for (int i=0;i<int(objectList.size());i++)
-        getObject(objectList[i])->announceCollisionWillBeErased(collisionID,false); // this never triggers 3DObject destruction!
+        getObjectFromHandle(objectList[i])->announceCollisionWillBeErased(collisionID,false); // this never triggers 3DObject destruction!
 }
 void CObjCont::announceDistanceWillBeErased(int distanceID)
 {
     for (int i=0;i<int(objectList.size());i++)
-        getObject(objectList[i])->announceDistanceWillBeErased(distanceID,false); // this never triggers 3DObject destruction!
+        getObjectFromHandle(objectList[i])->announceDistanceWillBeErased(distanceID,false); // this never triggers 3DObject destruction!
 }
 
 void CObjCont::announce2DElementWillBeErased(int elementID)
 {
-    if (App::ct->textureCont!=NULL)
+    if (App::ct->textureCont!=nullptr)
         App::ct->textureCont->announceGeneralObjectWillBeErased(elementID,-1);
 }
 
 void CObjCont::announce2DElementButtonWillBeErased(int elementID,int buttonID)
 {
-    if (App::ct->textureCont!=NULL)
+    if (App::ct->textureCont!=nullptr)
         App::ct->textureCont->announceGeneralObjectWillBeErased(elementID,buttonID);
 }
 
@@ -1935,10 +1919,10 @@ void CObjCont::actualizeMechanismIDs()
 {
     for (int i=0;i<int(objectList.size());i++)
     {
-        C3DObject* it=getObject(objectList[i]);
-        if (it->getParent()==NULL)
+        C3DObject* it=getObjectFromHandle(objectList[i]);
+        if (it->getParentObject()==nullptr)
         {
-            CGeometricConstraintSolverInt work(it->getID(),-1); 
+            CGeometricConstraintSolverInt work(it->getObjectHandle(),-1);
             int mechanismID=work.getMechanismID();
             std::vector<C3DObject*> childrenAndSelf;
             it->getAllObjectsRecursive(&childrenAndSelf,true);
@@ -1949,10 +1933,10 @@ void CObjCont::actualizeMechanismIDs()
 }
 
 //----------------------------------------------------------------------------
-void CObjCont::setAbsoluteAngle(int identifier,float angle,int index)
+void CObjCont::setAbsoluteAngle(int objectHandle,float angle,int index)
 { // Angle is specified in radian!
-    C3DObject* it=getObject(identifier);
-    if (it==NULL)
+    C3DObject* it=getObjectFromHandle(objectHandle);
+    if (it==nullptr)
         return;
     C7Vector cumul(it->getCumulativeTransformationPart1());
     C7Vector parentInverse(it->getParentCumulativeTransformation().getInverse());
@@ -1962,10 +1946,10 @@ void CObjCont::setAbsoluteAngle(int identifier,float angle,int index)
     it->setLocalTransformation(parentInverse*cumul);
 }
 
-void CObjCont::setAbsolutePosition(int identifier,float pos,int index)
+void CObjCont::setAbsolutePosition(int objectHandle,float pos,int index)
 {
-    C3DObject* it=getObject(identifier);
-    if (it==NULL)
+    C3DObject* it=getObjectFromHandle(objectHandle);
+    if (it==nullptr)
         return;
     C7Vector cumul(it->getCumulativeTransformationPart1());
     C7Vector parentInverse(it->getParentCumulativeTransformation().getInverse());
@@ -1973,10 +1957,10 @@ void CObjCont::setAbsolutePosition(int identifier,float pos,int index)
     it->setLocalTransformation(parentInverse*cumul);
 }
 
-void CObjCont::setAbsolutePosition(int identifier,const C3Vector& p)
+void CObjCont::setAbsolutePosition(int objectHandle,const C3Vector& p)
 {
-    C3DObject* it=getObject(identifier);
-    if (it==NULL)
+    C3DObject* it=getObjectFromHandle(objectHandle);
+    if (it==nullptr)
         return;
     C7Vector cumul(it->getCumulativeTransformationPart1());
     C7Vector parentInverse(it->getParentCumulativeTransformation().getInverse());
@@ -1984,10 +1968,10 @@ void CObjCont::setAbsolutePosition(int identifier,const C3Vector& p)
     it->setLocalTransformation(parentInverse*cumul);
 }
 
-void CObjCont::setAbsoluteAngles(int identifier,const C3Vector& euler)
+void CObjCont::setAbsoluteAngles(int objectHandle,const C3Vector& euler)
 {   // Here euler elements are in radians!!!
-    C3DObject* it=getObject(identifier);
-    if (it==NULL)
+    C3DObject* it=getObjectFromHandle(objectHandle);
+    if (it==nullptr)
         return;
     C7Vector cumul(it->getCumulativeTransformationPart1());
     C7Vector parentInverse(it->getParentCumulativeTransformation().getInverse());
@@ -1997,295 +1981,295 @@ void CObjCont::setAbsoluteAngles(int identifier,const C3Vector& euler)
 
 int CObjCont::getSimpleShapeNumberInSelection()
 {
-    return(getSimpleShapeNumberInSelection(&_selectedObjectIDs));
+    return(getSimpleShapeNumberInSelection(&_selectedObjectHandles));
 }
 int CObjCont::getShapeNumberInSelection()
 {
-    return(getShapeNumberInSelection(&_selectedObjectIDs));
+    return(getShapeNumberInSelection(&_selectedObjectHandles));
 }
 int CObjCont::getMirrorNumberInSelection()
 {
-    return(getMirrorNumberInSelection(&_selectedObjectIDs));
+    return(getMirrorNumberInSelection(&_selectedObjectHandles));
 }
 int CObjCont::getOctreeNumberInSelection()
 {
-    return(getOctreeNumberInSelection(&_selectedObjectIDs));
+    return(getOctreeNumberInSelection(&_selectedObjectHandles));
 }
 int CObjCont::getPointCloudNumberInSelection()
 {
-    return(getPointCloudNumberInSelection(&_selectedObjectIDs));
+    return(getPointCloudNumberInSelection(&_selectedObjectHandles));
 }
 int CObjCont::getJointNumberInSelection()
 {
-    return(getJointNumberInSelection(&_selectedObjectIDs));
+    return(getJointNumberInSelection(&_selectedObjectHandles));
 }
 int CObjCont::getCompoundNumberInSelection()
 {
-    return(getCompoundNumberInSelection(&_selectedObjectIDs));
+    return(getCompoundNumberInSelection(&_selectedObjectHandles));
 }
 int CObjCont::getGraphNumberInSelection()
 {
-    return(getGraphNumberInSelection(&_selectedObjectIDs));
+    return(getGraphNumberInSelection(&_selectedObjectHandles));
 }
 int CObjCont::getCameraNumberInSelection()
 {
-    return(getCameraNumberInSelection(&_selectedObjectIDs));
+    return(getCameraNumberInSelection(&_selectedObjectHandles));
 }
 int CObjCont::getLightNumberInSelection()
 {
-    return(getLightNumberInSelection(&_selectedObjectIDs));
+    return(getLightNumberInSelection(&_selectedObjectHandles));
 }
 int CObjCont::getDummyNumberInSelection()
 {
-    return(getDummyNumberInSelection(&_selectedObjectIDs));
+    return(getDummyNumberInSelection(&_selectedObjectHandles));
 }
 int CObjCont::getProxSensorNumberInSelection()
 {
-    return(getProxSensorNumberInSelection(&_selectedObjectIDs));
+    return(getProxSensorNumberInSelection(&_selectedObjectHandles));
 }
 int CObjCont::getVisionSensorNumberInSelection()
 {
-    return(getVisionSensorNumberInSelection(&_selectedObjectIDs));
+    return(getVisionSensorNumberInSelection(&_selectedObjectHandles));
 }
 int CObjCont::getPathNumberInSelection()
 {
-    return(getPathNumberInSelection(&_selectedObjectIDs));
+    return(getPathNumberInSelection(&_selectedObjectHandles));
 }
 int CObjCont::getMillNumberInSelection()
 {
-    return(getMillNumberInSelection(&_selectedObjectIDs));
+    return(getMillNumberInSelection(&_selectedObjectHandles));
 }
 int CObjCont::getForceSensorNumberInSelection()
 {
-    return(getForceSensorNumberInSelection(&_selectedObjectIDs));
+    return(getForceSensorNumberInSelection(&_selectedObjectHandles));
 }
 bool CObjCont::isLastSelectionAShape()
 {
-    return(isLastSelectionAShape(&_selectedObjectIDs));
+    return(isLastSelectionAShape(&_selectedObjectHandles));
 }
 bool CObjCont::isLastSelectionAMirror()
 {
-    return(isLastSelectionAMirror(&_selectedObjectIDs));
+    return(isLastSelectionAMirror(&_selectedObjectHandles));
 }
 bool CObjCont::isLastSelectionAnOctree()
 {
-    return(isLastSelectionAnOctree(&_selectedObjectIDs));
+    return(isLastSelectionAnOctree(&_selectedObjectHandles));
 }
 bool CObjCont::isLastSelectionAPointCloud()
 {
-    return(isLastSelectionAPointCloud(&_selectedObjectIDs));
+    return(isLastSelectionAPointCloud(&_selectedObjectHandles));
 }
 bool CObjCont::isLastSelectionASimpleShape()
 {
-    return(isLastSelectionASimpleShape(&_selectedObjectIDs));
+    return(isLastSelectionASimpleShape(&_selectedObjectHandles));
 }
 bool CObjCont::isLastSelectionAJoint()
 {
-    return(isLastSelectionAJoint(&_selectedObjectIDs));
+    return(isLastSelectionAJoint(&_selectedObjectHandles));
 }
 bool CObjCont::isLastSelectionACompound()
 {
-    return(isLastSelectionACompound(&_selectedObjectIDs));
+    return(isLastSelectionACompound(&_selectedObjectHandles));
 }
 bool CObjCont::isLastSelectionAGraph()
 {
-    return(isLastSelectionAGraph(&_selectedObjectIDs));
+    return(isLastSelectionAGraph(&_selectedObjectHandles));
 }
 bool CObjCont::isLastSelectionACamera()
 {
-    return(isLastSelectionACamera(&_selectedObjectIDs));
+    return(isLastSelectionACamera(&_selectedObjectHandles));
 }
 bool CObjCont::isLastSelectionALight()
 {
-    return(isLastSelectionALight(&_selectedObjectIDs));
+    return(isLastSelectionALight(&_selectedObjectHandles));
 }
 bool CObjCont::isLastSelectionADummy()
 {
-    return(isLastSelectionADummy(&_selectedObjectIDs));
+    return(isLastSelectionADummy(&_selectedObjectHandles));
 }
 bool CObjCont::isLastSelectionAProxSensor()
 {
-    return(isLastSelectionAProxSensor(&_selectedObjectIDs));
+    return(isLastSelectionAProxSensor(&_selectedObjectHandles));
 }
 bool CObjCont::isLastSelectionAVisionSensor()
 {
-    return(isLastSelectionAVisionSensor(&_selectedObjectIDs));
+    return(isLastSelectionAVisionSensor(&_selectedObjectHandles));
 }
 bool CObjCont::isLastSelectionAPath()
 {
-    return(isLastSelectionAPath(&_selectedObjectIDs));
+    return(isLastSelectionAPath(&_selectedObjectHandles));
 }
 bool CObjCont::isLastSelectionAMill()
 {
-    return(isLastSelectionAMill(&_selectedObjectIDs));
+    return(isLastSelectionAMill(&_selectedObjectHandles));
 }
 bool CObjCont::isLastSelectionAForceSensor()
 {
-    return(isLastSelectionAForceSensor(&_selectedObjectIDs));
+    return(isLastSelectionAForceSensor(&_selectedObjectHandles));
 }
 
 C3DObject* CObjCont::getLastSelection_object()
 {
-    return(getLastSelection(&_selectedObjectIDs));
+    return(getLastSelection(&_selectedObjectHandles));
 }
 
 CMirror* CObjCont::getLastSelection_mirror()
 {
-    C3DObject* it=getLastSelection(&_selectedObjectIDs);
-    if (it!=NULL)
+    C3DObject* it=getLastSelection(&_selectedObjectHandles);
+    if (it!=nullptr)
     {
         if (it->getObjectType()==sim_object_mirror_type)
             return((CMirror*)it);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 COctree* CObjCont::getLastSelection_octree()
 {
-    C3DObject* it=getLastSelection(&_selectedObjectIDs);
-    if (it!=NULL)
+    C3DObject* it=getLastSelection(&_selectedObjectHandles);
+    if (it!=nullptr)
     {
         if (it->getObjectType()==sim_object_octree_type)
             return((COctree*)it);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 CPointCloud* CObjCont::getLastSelection_pointCloud()
 {
-    C3DObject* it=getLastSelection(&_selectedObjectIDs);
-    if (it!=NULL)
+    C3DObject* it=getLastSelection(&_selectedObjectHandles);
+    if (it!=nullptr)
     {
         if (it->getObjectType()==sim_object_pointcloud_type)
             return((CPointCloud*)it);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 CShape* CObjCont::getLastSelection_shape()
 {
-    C3DObject* it=getLastSelection(&_selectedObjectIDs);
-    if (it!=NULL)
+    C3DObject* it=getLastSelection(&_selectedObjectHandles);
+    if (it!=nullptr)
     {
         if (it->getObjectType()==sim_object_shape_type)
             return((CShape*)it);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 CJoint* CObjCont::getLastSelection_joint()
 {
-    C3DObject* it=getLastSelection(&_selectedObjectIDs);
-    if (it!=NULL)
+    C3DObject* it=getLastSelection(&_selectedObjectHandles);
+    if (it!=nullptr)
     {
         if (it->getObjectType()==sim_object_joint_type)
             return((CJoint*)it);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 CGraph* CObjCont::getLastSelection_graph()
 {
-    C3DObject* it=getLastSelection(&_selectedObjectIDs);
-    if (it!=NULL)
+    C3DObject* it=getLastSelection(&_selectedObjectHandles);
+    if (it!=nullptr)
     {
         if (it->getObjectType()==sim_object_graph_type)
             return((CGraph*)it);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 CCamera* CObjCont::getLastSelection_camera()
 {
-    C3DObject* it=getLastSelection(&_selectedObjectIDs);
-    if (it!=NULL)
+    C3DObject* it=getLastSelection(&_selectedObjectHandles);
+    if (it!=nullptr)
     {
         if (it->getObjectType()==sim_object_camera_type)
             return((CCamera*)it);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 CLight* CObjCont::getLastSelection_light()
 {
-    C3DObject* it=getLastSelection(&_selectedObjectIDs);
-    if (it!=NULL)
+    C3DObject* it=getLastSelection(&_selectedObjectHandles);
+    if (it!=nullptr)
     {
         if (it->getObjectType()==sim_object_light_type)
             return((CLight*)it);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 CDummy* CObjCont::getLastSelection_dummy()
 {
-    C3DObject* it=getLastSelection(&_selectedObjectIDs);
-    if (it!=NULL)
+    C3DObject* it=getLastSelection(&_selectedObjectHandles);
+    if (it!=nullptr)
     {
         if (it->getObjectType()==sim_object_dummy_type)
             return((CDummy*)it);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 CProxSensor* CObjCont::getLastSelection_proxSensor()
 {
-    C3DObject* it=getLastSelection(&_selectedObjectIDs);
-    if (it!=NULL)
+    C3DObject* it=getLastSelection(&_selectedObjectHandles);
+    if (it!=nullptr)
     {
         if (it->getObjectType()==sim_object_proximitysensor_type)
             return((CProxSensor*)it);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 CVisionSensor* CObjCont::getLastSelection_visionSensor()
 {
-    C3DObject* it=getLastSelection(&_selectedObjectIDs);
-    if (it!=NULL)
+    C3DObject* it=getLastSelection(&_selectedObjectHandles);
+    if (it!=nullptr)
     {
         if (it->getObjectType()==sim_object_visionsensor_type)
             return((CVisionSensor*)it);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 CPath* CObjCont::getLastSelection_path()
 {
-    C3DObject* it=getLastSelection(&_selectedObjectIDs);
-    if (it!=NULL)
+    C3DObject* it=getLastSelection(&_selectedObjectHandles);
+    if (it!=nullptr)
     {
         if (it->getObjectType()==sim_object_path_type)
             return((CPath*)it);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 CMill* CObjCont::getLastSelection_mill()
 {
-    C3DObject* it=getLastSelection(&_selectedObjectIDs);
-    if (it!=NULL)
+    C3DObject* it=getLastSelection(&_selectedObjectHandles);
+    if (it!=nullptr)
     {
         if (it->getObjectType()==sim_object_mill_type)
             return((CMill*)it);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 CForceSensor* CObjCont::getLastSelection_forceSensor()
 {
-    C3DObject* it=getLastSelection(&_selectedObjectIDs);
-    if (it!=NULL)
+    C3DObject* it=getLastSelection(&_selectedObjectHandles);
+    if (it!=nullptr)
     {
         if (it->getObjectType()==sim_object_forcesensor_type)
             return((CForceSensor*)it);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 int CObjCont::getLastSelectionID()
 {
-    return(getLastSelectionID(&_selectedObjectIDs));
+    return(getLastSelectionID(&_selectedObjectHandles));
 }
 
 int CObjCont::getSimpleShapeNumberInSelection(std::vector<int>* selection)
@@ -2294,7 +2278,7 @@ int CObjCont::getSimpleShapeNumberInSelection(std::vector<int>* selection)
     for (int i=0;i<int(selection->size());i++)
     {
         CShape* it=getShape(selection->at(i));
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             if (!it->isCompound()) 
                 counter++;
@@ -2308,7 +2292,7 @@ int CObjCont::getShapeNumberInSelection(std::vector<int>* selection)
     for (int i=0;i<int(selection->size());i++)
     {
         CShape* it=getShape(selection->at(i));
-        if (it!=NULL)
+        if (it!=nullptr)
             counter++;
     }
     return (counter);
@@ -2319,7 +2303,7 @@ int CObjCont::getMirrorNumberInSelection(std::vector<int>* selection)
     for (int i=0;i<int(selection->size());i++)
     {
         CMirror* it=getMirror(selection->at(i));
-        if (it!=NULL)
+        if (it!=nullptr)
             counter++;
     }
     return (counter);
@@ -2330,7 +2314,7 @@ int CObjCont::getOctreeNumberInSelection(std::vector<int>* selection)
     for (int i=0;i<int(selection->size());i++)
     {
         COctree* it=getOctree(selection->at(i));
-        if (it!=NULL)
+        if (it!=nullptr)
             counter++;
     }
     return (counter);
@@ -2341,7 +2325,7 @@ int CObjCont::getPointCloudNumberInSelection(std::vector<int>* selection)
     for (int i=0;i<int(selection->size());i++)
     {
         CPointCloud* it=getPointCloud(selection->at(i));
-        if (it!=NULL)
+        if (it!=nullptr)
             counter++;
     }
     return (counter);
@@ -2352,7 +2336,7 @@ int CObjCont::getJointNumberInSelection(std::vector<int>* selection)
     for (int i=0;i<int(selection->size());i++)
     {
         CJoint* it=getJoint(selection->at(i));
-        if (it!=NULL) 
+        if (it!=nullptr) 
             counter++;
     }
     return (counter);
@@ -2363,7 +2347,7 @@ int CObjCont::getGraphNumberInSelection(std::vector<int>* selection)
     for (int i=0;i<int(selection->size());i++)
     {
         CGraph* it=getGraph(selection->at(i));
-        if (it!=NULL) 
+        if (it!=nullptr) 
             counter++;
     }
     return (counter);
@@ -2374,7 +2358,7 @@ int CObjCont::getCompoundNumberInSelection(std::vector<int>* selection)
     for (int i=0;i<int(selection->size());i++)
     {
         CShape* it=getShape(selection->at(i));
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             if (it->isCompound())
                 counter++;
@@ -2388,7 +2372,7 @@ int CObjCont::getCameraNumberInSelection(std::vector<int>* selection)
     for (int i=0;i<int(selection->size());i++)
     {
         CCamera* it=getCamera(selection->at(i));
-        if (it!=NULL) 
+        if (it!=nullptr) 
             counter++;  
     }
     return (counter);
@@ -2399,7 +2383,7 @@ int CObjCont::getLightNumberInSelection(std::vector<int>* selection)
     for (int i=0;i<int(selection->size());i++)
     {
         CLight* it=getLight(selection->at(i));
-        if (it!=NULL) 
+        if (it!=nullptr) 
             counter++;  
     }
     return (counter);
@@ -2410,7 +2394,7 @@ int CObjCont::getDummyNumberInSelection(std::vector<int>* selection)
     for (int i=0;i<int(selection->size());i++)
     {
         CDummy* it=getDummy(selection->at(i));
-        if (it!=NULL) 
+        if (it!=nullptr) 
             counter++;
     }
     return (counter);
@@ -2421,7 +2405,7 @@ int CObjCont::getProxSensorNumberInSelection(std::vector<int>* selection)
     for (int i=0;i<int(selection->size());i++)
     {
         CProxSensor* it=getProximitySensor(selection->at(i));
-        if (it!=NULL) 
+        if (it!=nullptr) 
             counter++;
     }
     return (counter);
@@ -2432,7 +2416,7 @@ int CObjCont::getVisionSensorNumberInSelection(std::vector<int>* selection)
     for (int i=0;i<int(selection->size());i++)
     {
         CVisionSensor* it=getVisionSensor(selection->at(i));
-        if (it!=NULL) 
+        if (it!=nullptr) 
             counter++;
     }
     return (counter);
@@ -2443,7 +2427,7 @@ int CObjCont::getPathNumberInSelection(std::vector<int>* selection)
     for (int i=0;i<int(selection->size());i++)
     {
         CPath* it=getPath(selection->at(i));
-        if (it!=NULL) 
+        if (it!=nullptr) 
             counter++;
     }
     return (counter);
@@ -2454,7 +2438,7 @@ int CObjCont::getMillNumberInSelection(std::vector<int>* selection)
     for (int i=0;i<int(selection->size());i++)
     {
         CMill* it=getMill(selection->at(i));
-        if (it!=NULL) 
+        if (it!=nullptr) 
             counter++;
     }
     return (counter);
@@ -2465,7 +2449,7 @@ int CObjCont::getForceSensorNumberInSelection(std::vector<int>* selection)
     for (int i=0;i<int(selection->size());i++)
     {
         CForceSensor* it=getForceSensor(selection->at(i));
-        if (it!=NULL) 
+        if (it!=nullptr) 
             counter++;
     }
     return (counter);
@@ -2475,7 +2459,7 @@ bool CObjCont::isLastSelectionAShape(std::vector<int>* selection)
     if (selection->size()==0) 
         return(false);
     CShape* it=getShape(selection->at(selection->size()-1));
-    if (it!=NULL)
+    if (it!=nullptr)
         return(true);
     return(false);
 }
@@ -2484,7 +2468,7 @@ bool CObjCont::isLastSelectionASimpleShape(std::vector<int>* selection)
     if (selection->size()==0) 
         return(false);
     CShape* it=getShape(selection->at(selection->size()-1));
-    if (it!=NULL)
+    if (it!=nullptr)
     {
         if (!it->isCompound()) 
             return(true);
@@ -2496,7 +2480,7 @@ bool CObjCont::isLastSelectionAJoint(std::vector<int>* selection)
     if (selection->size()==0) 
         return(false);
     CJoint* it=getJoint(selection->at(selection->size()-1));
-    if (it!=NULL) 
+    if (it!=nullptr) 
         return(true);
     return(false);
 }
@@ -2505,7 +2489,7 @@ bool CObjCont::isLastSelectionAMirror(std::vector<int>* selection)
     if (selection->size()==0) 
         return(false);
     CMirror* it=getMirror(selection->at(selection->size()-1));
-    if (it!=NULL) 
+    if (it!=nullptr) 
         return(true);
     return(false);
 }
@@ -2514,7 +2498,7 @@ bool CObjCont::isLastSelectionAnOctree(std::vector<int>* selection)
     if (selection->size()==0)
         return(false);
     COctree* it=getOctree(selection->at(selection->size()-1));
-    if (it!=NULL)
+    if (it!=nullptr)
         return(true);
     return(false);
 }
@@ -2523,7 +2507,7 @@ bool CObjCont::isLastSelectionAPointCloud(std::vector<int>* selection)
     if (selection->size()==0)
         return(false);
     CPointCloud* it=getPointCloud(selection->at(selection->size()-1));
-    if (it!=NULL)
+    if (it!=nullptr)
         return(true);
     return(false);
 }
@@ -2532,7 +2516,7 @@ bool CObjCont::isLastSelectionACompound(std::vector<int>* selection)
     if (selection->size()==0)
         return(false);
     CShape* it=getShape(selection->at(selection->size()-1));
-    if (it!=NULL)
+    if (it!=nullptr)
     {
         if (it->isCompound()) 
             return(true);
@@ -2544,7 +2528,7 @@ bool CObjCont::isLastSelectionAGraph(std::vector<int>* selection)
     if (selection->size()==0) 
         return(false);
     CGraph* it=getGraph(selection->at(selection->size()-1));
-    if (it!=NULL) 
+    if (it!=nullptr) 
         return(true);
     return(false);
 }
@@ -2553,7 +2537,7 @@ bool CObjCont::isLastSelectionACamera(std::vector<int>* selection)
     if (selection->size()==0) 
         return(false);
     CCamera* it=getCamera(selection->at(selection->size()-1));
-    if (it!=NULL)
+    if (it!=nullptr)
         return(true);
     return(false);
 }
@@ -2562,7 +2546,7 @@ bool CObjCont::isLastSelectionALight(std::vector<int>* selection)
     if (selection->size()==0) 
         return(false);
     CLight* it=getLight(selection->at(selection->size()-1));
-    if (it!=NULL)
+    if (it!=nullptr)
         return(true);
     return(false);
 }
@@ -2571,7 +2555,7 @@ bool CObjCont::isLastSelectionADummy(std::vector<int>* selection)
     if (selection->size()==0) 
         return(false);
     CDummy* it=getDummy(selection->at(selection->size()-1));
-    if (it!=NULL) 
+    if (it!=nullptr) 
         return(true);
     return(false);
 }
@@ -2580,7 +2564,7 @@ bool CObjCont::isLastSelectionAProxSensor(std::vector<int>* selection)
     if (selection->size()==0) 
         return(false);
     CProxSensor* it=getProximitySensor(selection->at(selection->size()-1));
-    if (it!=NULL) 
+    if (it!=nullptr) 
         return(true);
     return(false);
 }
@@ -2589,7 +2573,7 @@ bool CObjCont::isLastSelectionAVisionSensor(std::vector<int>* selection)
     if (selection->size()==0) 
         return(false);
     CVisionSensor* it=getVisionSensor(selection->at(selection->size()-1));
-    if (it!=NULL) 
+    if (it!=nullptr) 
         return(true);
     return(false);
 }
@@ -2598,7 +2582,7 @@ bool CObjCont::isLastSelectionAPath(std::vector<int>* selection)
     if (selection->size()==0) 
         return(false);
     CPath* it=getPath(selection->at(selection->size()-1));
-    if (it!=NULL) 
+    if (it!=nullptr) 
         return(true);
     return(false);
 }
@@ -2607,7 +2591,7 @@ bool CObjCont::isLastSelectionAMill(std::vector<int>* selection)
     if (selection->size()==0) 
         return(false);
     CMill* it=getMill(selection->at(selection->size()-1));
-    if (it!=NULL) 
+    if (it!=nullptr) 
         return(true);
     return(false);
 }
@@ -2616,15 +2600,15 @@ bool CObjCont::isLastSelectionAForceSensor(std::vector<int>* selection)
     if (selection->size()==0) 
         return(false);
     CForceSensor* it=getForceSensor(selection->at(selection->size()-1));
-    if (it!=NULL) 
+    if (it!=nullptr) 
         return(true);
     return(false);
 }
 C3DObject* CObjCont::getLastSelection(std::vector<int>* selection)
 {
     if (selection->size()==0) 
-        return(NULL);
-    return(_objectIndex[selection->at(selection->size()-1)]);
+        return(nullptr);
+    return(_objectHandleIndex[selection->at(selection->size()-1)]);
 }
 
 int CObjCont::getLastSelectionID(std::vector<int>* selection)
@@ -2638,7 +2622,7 @@ bool CObjCont::doesObjectExist(C3DObject* obj)
 {
     for (int i=0;i<int(objectList.size());i++)
     {
-        C3DObject* obj2=getObject(objectList[i]);
+        C3DObject* obj2=getObjectFromHandle(objectList[i]);
         if (obj==obj2)
             return(true);
     }
@@ -2647,7 +2631,7 @@ bool CObjCont::doesObjectExist(C3DObject* obj)
 
 bool CObjCont::isObjectInSelection(int objectID)
 {
-    return(isObjectInSelection(objectID,&_selectedObjectIDs));
+    return(isObjectInSelection(objectID,&_selectedObjectHandles));
 }
 bool CObjCont::isObjectInSelection(int objectID,std::vector<int>* selection)
 {
@@ -2669,12 +2653,12 @@ int CObjCont::getRenderingPosition(int objID)
     return(-1);
 }
 
-void CObjCont::changePoseAndKeepRestInPlace(int identifier,C7Vector& m,bool changePositionX,
+void CObjCont::changePoseAndKeepRestInPlace(int objectHandle,C7Vector& m,bool changePositionX,
         bool changePositionY,bool changePositionZ,bool changeOrientation)
 {   // Changes the orientation/position of an object (identifier) with
     // keeping all its children in place. m is the new pose.
-    C3DObject* it=CObjCont::getObject(identifier);
-    if (it==NULL) 
+    C3DObject* it=CObjCont::getObjectFromHandle(objectHandle);
+    if (it==nullptr) 
         return;
     C7Vector oldRel(it->getLocalTransformationPart1());
     C7Vector oldRelActuatorPartIncl(it->getLocalTransformation());
@@ -2703,22 +2687,22 @@ void CObjCont::changePoseAndKeepRestInPlace(int identifier,C7Vector& m,bool chan
 void CObjCont::removeFromSelectionAllExceptModelBase(bool keepObjectsSelectedThatAreNotBuiltOnAModelBase)
 { // One model base per hierarchy tree!
     FUNCTION_DEBUG;
-    std::vector<int> sel(_selectedObjectIDs);
+    std::vector<int> sel(_selectedObjectHandles);
     deselectObjects();
     std::vector<C3DObject*> modelBases;
     std::vector<C3DObject*> nonModelBasesBuildOnNothing;
     for (int i=0;i<int(sel.size());i++)
     {
-        C3DObject* it=getObject(sel[i]);
+        C3DObject* it=getObjectFromHandle(sel[i]);
         if (it->getModelBase())
             modelBases.push_back(it);
         else
         {
             C3DObject* objIt=it;
             bool addIt=true;
-            while (objIt->getParent()!=NULL)
+            while (objIt->getParentObject()!=nullptr)
             {
-                objIt=objIt->getParent();
+                objIt=objIt->getParentObject();
                 if (objIt->getModelBase())
                 {
                     addIt=false;
@@ -2733,9 +2717,9 @@ void CObjCont::removeFromSelectionAllExceptModelBase(bool keepObjectsSelectedTha
     {
         C3DObject* it=modelBases[i];
         bool isIndependentBase=true;
-        while (it->getParent()!=NULL)
+        while (it->getParentObject()!=nullptr)
         {
-            it=it->getParent();
+            it=it->getParentObject();
             for (int j=0;j<int(modelBases.size());j++)
             {
                 if (modelBases[j]==it)
@@ -2746,12 +2730,12 @@ void CObjCont::removeFromSelectionAllExceptModelBase(bool keepObjectsSelectedTha
             }
         }
         if (isIndependentBase)
-            addObjectToSelection(modelBases[i]->getID());
+            addObjectToSelection(modelBases[i]->getObjectHandle());
     }
     if (keepObjectsSelectedThatAreNotBuiltOnAModelBase)
     {
         for (int i=0;i<int(nonModelBasesBuildOnNothing.size());i++)
-            addObjectToSelection(nonModelBasesBuildOnNothing[i]->getID());
+            addObjectToSelection(nonModelBasesBuildOnNothing[i]->getObjectHandle());
     }
 }
 
@@ -2762,7 +2746,7 @@ void CObjCont::getMinAndMaxNameSuffixes(int& minSuffix,int& maxSuffix)
     maxSuffix=-1;
     for (size_t i=0;i<objectList.size();i++)
     {
-        int s=tt::getNameSuffixNumber(_objectIndex[objectList[i]]->getName().c_str(),true);
+        int s=tt::getNameSuffixNumber(_objectHandleIndex[objectList[i]]->getObjectName().c_str(),true);
         if (i==0)
         {
             minSuffix=s;
@@ -2782,16 +2766,16 @@ bool CObjCont::canSuffix1BeSetToSuffix2(int suffix1,int suffix2)
 {
     for (int i=0;i<int(objectList.size());i++)
     {
-        int s1=tt::getNameSuffixNumber(_objectIndex[objectList[i]]->getName().c_str(),true);
+        int s1=tt::getNameSuffixNumber(_objectHandleIndex[objectList[i]]->getObjectName().c_str(),true);
         if (s1==suffix1)
         {
-            std::string name1(tt::getNameWithoutSuffixNumber(_objectIndex[objectList[i]]->getName().c_str(),true));
+            std::string name1(tt::getNameWithoutSuffixNumber(_objectHandleIndex[objectList[i]]->getObjectName().c_str(),true));
             for (int j=0;j<int(objectList.size());j++)
             {
-                int s2=tt::getNameSuffixNumber(_objectIndex[objectList[j]]->getName().c_str(),true);
+                int s2=tt::getNameSuffixNumber(_objectHandleIndex[objectList[j]]->getObjectName().c_str(),true);
                 if (s2==suffix2)
                 {
-                    std::string name2(tt::getNameWithoutSuffixNumber(_objectIndex[objectList[j]]->getName().c_str(),true));
+                    std::string name2(tt::getNameWithoutSuffixNumber(_objectHandleIndex[objectList[j]]->getObjectName().c_str(),true));
                     if (name1==name2)
                         return(false); // NO! We would have a name clash!
                 }
@@ -2803,13 +2787,13 @@ bool CObjCont::canSuffix1BeSetToSuffix2(int suffix1,int suffix2)
 
 void CObjCont::setSuffix1ToSuffix2(int suffix1,int suffix2)
 {
-    for (int i=0;i<int(objectList.size());i++)
+    for (size_t i=0;i<objectList.size();i++)
     {
-        int s1=tt::getNameSuffixNumber(_objectIndex[objectList[i]]->getName().c_str(),true);
+        int s1=tt::getNameSuffixNumber(_objectHandleIndex[objectList[i]]->getObjectName().c_str(),true);
         if (s1==suffix1)
         {
-            std::string name1(tt::getNameWithoutSuffixNumber(_objectIndex[objectList[i]]->getName().c_str(),true));
-            _objectIndex[objectList[i]]->setName(tt::generateNewName_dash(name1,suffix2+1));
+            std::string name1(tt::getNameWithoutSuffixNumber(_objectHandleIndex[objectList[i]]->getObjectName().c_str(),true));
+            App::ct->objCont->renameObject(objectList[i],tt::generateNewName_dash(name1,suffix2+1).c_str());
         }
     }
 }
@@ -2825,12 +2809,12 @@ bool CObjCont::addObjectToSceneWithSuffixOffset(C3DObject* newObject,bool object
 
     // Handle cases where two object names are the same, 
     // and replace all spaces and illegal chars:
-    std::string newObjName=newObject->getName();
+    std::string newObjName=newObject->getObjectName();
     if (objectIsACopy)
         newObjName=tt::generateNewName_dash(newObjName,suffixOffset);
     else
     {
-        if (getObject(newObjName)!=NULL)
+        if (getObjectFromName(newObjName.c_str())!=nullptr)
         {
             // Following faster with many objects:
             std::string baseName(tt::getNameWithoutSuffixNumber(newObjName.c_str(),false));
@@ -2839,10 +2823,10 @@ bool CObjCont::addObjectToSceneWithSuffixOffset(C3DObject* newObject,bool object
             std::vector<int> dummyValues;
             for (size_t i=0;i<objectList.size();i++)
             {
-                std::string baseNameIt(tt::getNameWithoutSuffixNumber(_objectIndex[objectList[i]]->getName().c_str(),false));
+                std::string baseNameIt(tt::getNameWithoutSuffixNumber(_objectHandleIndex[objectList[i]]->getObjectName().c_str(),false));
                 if (baseName.compare(baseNameIt)==0)
                 {
-                    suffixes.push_back(tt::getNameSuffixNumber(_objectIndex[objectList[i]]->getName().c_str(),false));
+                    suffixes.push_back(tt::getNameSuffixNumber(_objectHandleIndex[objectList[i]]->getObjectName().c_str(),false));
                     dummyValues.push_back(0);
                 }
             }
@@ -2857,14 +2841,14 @@ bool CObjCont::addObjectToSceneWithSuffixOffset(C3DObject* newObject,bool object
             newObjName=tt::generateNewName_noDash(baseName,lastS+1+1);
         }
         // Following was too slow with many objects:
-        //      while (getObject(newObjName)!=NULL)
+        //      while (getObject(newObjName)!=nullptr)
         //          newObjName=tt::generateNewName_noDash(newObjName);
     }
-    newObject->setName(newObjName);
+    newObject->setObjectName_objectNotYetInScene(newObjName);
 
     // Now a similar procedure, but with the alt object names:
-    std::string newObjAltName=newObject->getAltName();
-    if (getObjectFromAltName(newObjAltName)!=NULL)
+    std::string newObjAltName=newObject->getObjectAltName();
+    if (getObjectFromAltName(newObjAltName.c_str())!=nullptr)
     {
         // Following faster with many objects:
         std::string baseAltName(tt::getNameWithoutSuffixNumber(newObjAltName.c_str(),false));
@@ -2873,10 +2857,10 @@ bool CObjCont::addObjectToSceneWithSuffixOffset(C3DObject* newObject,bool object
         std::vector<int> dummyValues;
         for (size_t i=0;i<objectList.size();i++)
         {
-            std::string baseAltNameIt(tt::getNameWithoutSuffixNumber(_objectIndex[objectList[i]]->getAltName().c_str(),false));
+            std::string baseAltNameIt(tt::getNameWithoutSuffixNumber(_objectHandleIndex[objectList[i]]->getObjectAltName().c_str(),false));
             if (baseAltName.compare(baseAltNameIt)==0)
             {
-                suffixes.push_back(tt::getNameSuffixNumber(_objectIndex[objectList[i]]->getAltName().c_str(),false));
+                suffixes.push_back(tt::getNameSuffixNumber(_objectHandleIndex[objectList[i]]->getObjectAltName().c_str(),false));
                 dummyValues.push_back(0);
             }
         }
@@ -2891,13 +2875,13 @@ bool CObjCont::addObjectToSceneWithSuffixOffset(C3DObject* newObject,bool object
         newObjAltName=tt::generateNewName_noDash(baseAltName,lastS+1+1);
     }
     // Following was too slow with many objects:
-    //      while (getObjectFromAltName(newObjAltName)!=NULL)
+    //      while (getObjectFromAltName(newObjAltName)!=nullptr)
     //          newObjAltName=tt::generateNewName_noDash(newObjAltName);
-    newObject->setAltName(newObjAltName);
+    newObject->setObjectAltName_objectNotYetInScene(newObjAltName);
 
     // Give the object a new identifier
     int i=_nextObjectHandle;
-    while (_objectIndex[i]!=NULL)
+    while (_objectHandleIndex[i]!=nullptr)
     {
         i++;
         if (i>=(SIM_IDEND_3DOBJECT-SIM_IDSTART_3DOBJECT))
@@ -2908,14 +2892,17 @@ bool CObjCont::addObjectToSceneWithSuffixOffset(C3DObject* newObject,bool object
     if (_nextObjectHandle>=(SIM_IDEND_3DOBJECT-SIM_IDSTART_3DOBJECT))
         _nextObjectHandle=SIM_IDSTART_3DOBJECT;
     // set the new handle to the object:
-    newObject->setID(i);
+    newObject->setObjectHandle(i);
     objectList.push_back(i); // Added at the end of the list --> rendered first
     // Set the object in the index list:
-    _objectIndex[i]=newObject;
+    _objectHandleIndex[i]=newObject;
+
+    _objectNameMap[newObject->getObjectName()]=newObject->getObjectHandle();
+    _objectAltNameMap[newObject->getObjectAltName()]=newObject->getObjectHandle();
 
     if (newObject->getObjectType()==sim_object_graph_type)
     { // If the simulation is running, we have to empty the buffer!!! (otherwise we might have old and new data mixed together (e.g. old data in future, new data in present!)
-        if ((App::ct->simulation!=NULL)&&(!App::ct->simulation->isSimulationStopped()))
+        if ((App::ct->simulation!=nullptr)&&(!App::ct->simulation->isSimulationStopped()))
         {
             CGraph* graph=(CGraph*)newObject;
             graph->resetGraph();
@@ -2931,7 +2918,7 @@ bool CObjCont::addObjectToSceneWithSuffixOffset(C3DObject* newObject,bool object
         stack.pushStringOntoStack("objectHandles",0);
         stack.pushTableOntoStack();
         stack.pushNumberOntoStack(double(1)); // key or index
-        stack.pushNumberOntoStack(newObject->getID());
+        stack.pushNumberOntoStack(newObject->getObjectHandle());
         stack.insertDataIntoStackTable();
         stack.insertDataIntoStackTable();
         App::ct->luaScriptContainer->callAddOnMainChildCustomizationWithData(sim_syscb_aftercreate,&stack);
@@ -3085,8 +3072,8 @@ int CObjCont::getLoadingMapping(std::vector<int>* map,int oldVal)
 void CObjCont::removeAllObjects(bool generateBeforeAfterDeleteCallback)
 {
 #ifdef SIM_WITH_GUI
-    if (App::mainWindow!=NULL)
-        App::mainWindow->editModeContainer->processCommand(ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD,NULL);
+    if (App::mainWindow!=nullptr)
+        App::mainWindow->editModeContainer->processCommand(ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD,nullptr);
 #endif
     deselectObjects();
 
@@ -3097,8 +3084,8 @@ void CObjCont::removeAllObjects(bool generateBeforeAfterDeleteCallback)
 
     deselectObjects();
     objectList.clear();
-    _objectIndex.clear();
-    _objectIndex.resize(SIM_IDEND_3DOBJECT-SIM_IDSTART_3DOBJECT,NULL);
+    _objectHandleIndex.clear();
+    _objectHandleIndex.resize(SIM_IDEND_3DOBJECT-SIM_IDSTART_3DOBJECT,nullptr);
     _selectedObjectsBool.clear();
     _selectedObjectsBool.resize((SIM_IDEND_3DOBJECT-SIM_IDSTART_3DOBJECT)/8,0);
 
@@ -3136,15 +3123,15 @@ bool CObjCont::makeObjectChildOf(C3DObject* childObject,C3DObject* parentObject)
     // Careful: this routine should be able to be used for objects in the object
     // container, but also for objects in the copy buffer!!!! So don't make
     // use of any 'getObject(id)' or similar function!!!!! <-- this is a very old comment. Is it still true??
-    if (childObject==NULL) 
+    if (childObject==nullptr) 
         return(false);
     // Check if the child has already his desired parent (so that we don't have to call the actualization (heavy and will also refresh all dialogs) (added on 2009/12/15)
-    if (childObject->getParent()==parentObject)
+    if (childObject->getParentObject()==parentObject)
         return(true);
-    if (parentObject==NULL)
+    if (parentObject==nullptr)
     {
         C7Vector oldAbsoluteTransf(childObject->getCumulativeTransformationPart1());
-        childObject->setParent(NULL);
+        childObject->setParentObject(nullptr);
         childObject->setLocalTransformation(oldAbsoluteTransf);
         if (childObject->getObjectType()==sim_object_shape_type)
             ((CShape*)childObject)->setParentFollowsDynamic(false);
@@ -3158,7 +3145,7 @@ bool CObjCont::makeObjectChildOf(C3DObject* childObject,C3DObject* parentObject)
     C7Vector oldAbsoluteTransf(childObject->getCumulativeTransformationPart1());
     C7Vector parentInverse(parentObject->getCumulativeTransformation().getInverse());
     childObject->setLocalTransformation(parentInverse*oldAbsoluteTransf);
-    childObject->setParent(parentObject);
+    childObject->setParentObject(parentObject);
 
     if ( (childObject->getObjectType()==sim_object_shape_type)&&((CShape*)childObject)->getSetAutomaticallyToNonStaticIfGetsParent() )
     {
@@ -3190,15 +3177,15 @@ void CObjCont::removeSceneDependencies()
 {
     for (size_t i=0;i<objectList.size();i++)
     {
-        C3DObject* it=getObject(objectList[i]);
+        C3DObject* it=getObjectFromHandle(objectList[i]);
         it->removeSceneDependencies();
     }
 }
 
-void CObjCont::setAbsoluteConfiguration(int identifier,const C7Vector& v,bool keepChildrenInPlace)
+void CObjCont::setAbsoluteConfiguration(int objectHandle,const C7Vector& v,bool keepChildrenInPlace)
 {
-    C3DObject* it=getObject(identifier);
-    if (it==NULL)
+    C3DObject* it=getObjectFromHandle(objectHandle);
+    if (it==nullptr)
         return;
     C7Vector childPreTr(it->getLocalTransformation());
     C7Vector parentInverse(it->getParentCumulativeTransformation().getInverse());
@@ -3231,14 +3218,14 @@ void CObjCont::actualizeObjectInformation()
         // Following rewritten on 2009/03/15 to make it faster:
         for (size_t i=0;i<objectList.size();i++)
         {
-            C3DObject* it=_objectIndex[objectList[i]];
+            C3DObject* it=_objectHandleIndex[objectList[i]];
             it->childList.clear();
         }
         for (size_t i=0;i<objectList.size();i++)
         {
-            C3DObject* it=_objectIndex[objectList[i]];
-            C3DObject* parent=it->getParent();
-            if (parent!=NULL)
+            C3DObject* it=_objectHandleIndex[objectList[i]];
+            C3DObject* parent=it->getParentObject();
+            if (parent!=nullptr)
                 parent->childList.push_back(it);
         }
 
@@ -3261,35 +3248,35 @@ void CObjCont::actualizeObjectInformation()
 
         for (size_t i=0;i<objectList.size();i++)
         {
-            if (_objectIndex[objectList[i]]->getObjectType()==sim_object_joint_type)
+            if (_objectHandleIndex[objectList[i]]->getObjectType()==sim_object_joint_type)
                 jointList.push_back(objectList[i]);
-            if (_objectIndex[objectList[i]]->getObjectType()==sim_object_dummy_type)
+            if (_objectHandleIndex[objectList[i]]->getObjectType()==sim_object_dummy_type)
                 dummyList.push_back(objectList[i]);
-            if (_objectIndex[objectList[i]]->getParent()==NULL)
+            if (_objectHandleIndex[objectList[i]]->getParentObject()==nullptr)
                 orphanList.push_back(objectList[i]);
-            if (_objectIndex[objectList[i]]->getObjectType()==sim_object_camera_type)
+            if (_objectHandleIndex[objectList[i]]->getObjectType()==sim_object_camera_type)
                 cameraList.push_back(objectList[i]);
-            if (_objectIndex[objectList[i]]->getObjectType()==sim_object_light_type)
+            if (_objectHandleIndex[objectList[i]]->getObjectType()==sim_object_light_type)
                 lightList.push_back(objectList[i]);
-            if (_objectIndex[objectList[i]]->getObjectType()==sim_object_mirror_type)
+            if (_objectHandleIndex[objectList[i]]->getObjectType()==sim_object_mirror_type)
                 mirrorList.push_back(objectList[i]);
-            if (_objectIndex[objectList[i]]->getObjectType()==sim_object_octree_type)
+            if (_objectHandleIndex[objectList[i]]->getObjectType()==sim_object_octree_type)
                 octreeList.push_back(objectList[i]);
-            if (_objectIndex[objectList[i]]->getObjectType()==sim_object_pointcloud_type)
+            if (_objectHandleIndex[objectList[i]]->getObjectType()==sim_object_pointcloud_type)
                 pointCloudList.push_back(objectList[i]);
-            if (_objectIndex[objectList[i]]->getObjectType()==sim_object_graph_type)
+            if (_objectHandleIndex[objectList[i]]->getObjectType()==sim_object_graph_type)
                 graphList.push_back(objectList[i]);
-            if (_objectIndex[objectList[i]]->getObjectType()==sim_object_proximitysensor_type)
+            if (_objectHandleIndex[objectList[i]]->getObjectType()==sim_object_proximitysensor_type)
                 proximitySensorList.push_back(objectList[i]);
-            if (_objectIndex[objectList[i]]->getObjectType()==sim_object_visionsensor_type)
+            if (_objectHandleIndex[objectList[i]]->getObjectType()==sim_object_visionsensor_type)
                 visionSensorList.push_back(objectList[i]);
-            if (_objectIndex[objectList[i]]->getObjectType()==sim_object_path_type)
+            if (_objectHandleIndex[objectList[i]]->getObjectType()==sim_object_path_type)
                 pathList.push_back(objectList[i]);
-            if (_objectIndex[objectList[i]]->getObjectType()==sim_object_shape_type)
+            if (_objectHandleIndex[objectList[i]]->getObjectType()==sim_object_shape_type)
                 shapeList.push_back(objectList[i]);
-            if (_objectIndex[objectList[i]]->getObjectType()==sim_object_mill_type)
+            if (_objectHandleIndex[objectList[i]]->getObjectType()==sim_object_mill_type)
                 millList.push_back(objectList[i]);
-            if (_objectIndex[objectList[i]]->getObjectType()==sim_object_forcesensor_type)
+            if (_objectHandleIndex[objectList[i]]->getObjectType()==sim_object_forcesensor_type)
                 forceSensorList.push_back(objectList[i]);
         }
         // We actualize the direct linked joint list of each joint: (2009-01-27)
@@ -3304,7 +3291,7 @@ void CObjCont::actualizeObjectInformation()
                 {
                     if ((anAct->getJointMode()==sim_jointmode_dependent)||(anAct->getJointMode()==sim_jointmode_reserved_previously_ikdependent))
                     {
-                        if (anAct->getDependencyJointID()==it->getID())
+                        if (anAct->getDependencyJointID()==it->getObjectHandle())
                             it->directDependentJoints.push_back(anAct);
                     }
                 }
@@ -3323,28 +3310,23 @@ void CObjCont::actualizeObjectInformation()
     App::setFullDialogRefreshFlag();
 }
 
-
-int CObjCont::getObjectIdentifier(const std::string& objectName)
+int CObjCont::getObjectHandleFromName(const char* objectName) const
 {
-    for (size_t i=0;i<objectList.size();i++)
-    {
-        if (_objectIndex[objectList[i]]->getName().compare(objectName)==0)
-            return(objectList[i]);
-    }
+    std::map<std::string,int>::const_iterator it=_objectNameMap.find(objectName);
+    if (it!=_objectNameMap.end())
+        return(it->second);
     return(-1);
 }
 
-int CObjCont::getObjectIdentifierFromAltName(const std::string& objectAltName)
+int CObjCont::getObjectHandleFromAltName(const char* objectAltName) const
 {
-    for (size_t i=0;i<objectList.size();i++)
-    {
-        if (_objectIndex[objectList[i]]->getAltName().compare(objectAltName)==0)
-            return(objectList[i]);
-    }
+    std::map<std::string,int>::const_iterator it=_objectAltNameMap.find(objectAltName);
+    if (it!=_objectAltNameMap.end())
+        return(it->second);
     return(-1);
 }
 
-int CObjCont::getHighestObjectID()
+int CObjCont::getHighestObjectHandle()
 {
     int highest=-1;
     for (int i=0;i<int(objectList.size());i++)
@@ -3355,49 +3337,87 @@ int CObjCont::getHighestObjectID()
     return(highest);
 }
 
-C3DObject* CObjCont::getObject(int identifier)
+bool CObjCont::renameObject(int objectHandle,const char* newName)
 {
-    if (identifier<0)
-        return(NULL);
-    if (identifier>=int(_objectIndex.size()))
-        return(NULL);
-    return(_objectIndex[identifier]);
+    bool retVal=false;
+    C3DObject* it=getObjectFromHandle(objectHandle);
+    if (it!=nullptr)
+    {
+        C3DObject* it2=getObjectFromName(newName);
+        if ( (it2==nullptr)||(it2==it) )
+        {
+            std::map<std::string,int>::iterator mapIt=_objectNameMap.find(it->getObjectName());
+            _objectNameMap.erase(mapIt);
+            it->setObjectName_objectNotYetInScene(std::string(newName)); // only time we call setObjectName_objectNotYetInScene when it is not true
+            _objectNameMap[newName]=it->getObjectHandle();
+            retVal=true;
+        }
+    }
+    return(retVal);
 }
 
-CDummy* CObjCont::getDummy(int identifier)
+bool CObjCont::altRenameObject(int objectHandle,const char* newName)
 {
-    if (identifier<0)
-        return(NULL);
-    if (identifier>=int(_objectIndex.size()))
-        return(NULL);
-    if (_objectIndex[identifier]==NULL)
-        return(NULL);
-    if (_objectIndex[identifier]->getObjectType()!=sim_object_dummy_type)
-        return(NULL);
-    return((CDummy*)_objectIndex[identifier]);
+    bool retVal=false;
+    C3DObject* it=getObjectFromHandle(objectHandle);
+    if (it!=nullptr)
+    {
+        C3DObject* it2=getObjectFromAltName(newName);
+        if ( (it2==nullptr)||(it2==it) )
+        {
+            std::map<std::string,int>::iterator mapIt=_objectAltNameMap.find(it->getObjectAltName());
+            _objectAltNameMap.erase(mapIt);
+            it->setObjectAltName_objectNotYetInScene(std::string(newName)); // only time we call setObjectAltName_objectNotYetInScene when it is not true
+            _objectAltNameMap[newName]=it->getObjectHandle();
+            retVal=true;
+        }
+    }
+    return(retVal);
 }
 
-CJoint* CObjCont::getJoint(int identifier)
+C3DObject* CObjCont::getObjectFromHandle(int objectHandle) const
 {
-    if (identifier<0)
-        return(NULL);
-    if (identifier>=int(_objectIndex.size()))
-        return(NULL);
-    if (_objectIndex[identifier]==NULL)
-        return(NULL);
-    if (_objectIndex[identifier]->getObjectType()!=sim_object_joint_type)
-        return(NULL);
-    return((CJoint*)_objectIndex[identifier]);
+    if (objectHandle<0)
+        return(nullptr);
+    if (objectHandle>=int(_objectHandleIndex.size()))
+        return(nullptr);
+    return(_objectHandleIndex[objectHandle]);
 }
 
-C3DObject* CObjCont::getObject(const std::string& name)
+CDummy* CObjCont::getDummy(int objectHandle) const
 {
-    return(getObject(getObjectIdentifier(name)));
+    if (objectHandle<0)
+        return(nullptr);
+    if (objectHandle>=int(_objectHandleIndex.size()))
+        return(nullptr);
+    if (_objectHandleIndex[objectHandle]==nullptr)
+        return(nullptr);
+    if (_objectHandleIndex[objectHandle]->getObjectType()!=sim_object_dummy_type)
+        return(nullptr);
+    return((CDummy*)_objectHandleIndex[objectHandle]);
 }
 
-C3DObject* CObjCont::getObjectFromAltName(const std::string& altName)
+CJoint* CObjCont::getJoint(int objectHandle) const
 {
-    return(getObject(getObjectIdentifierFromAltName(altName)));
+    if (objectHandle<0)
+        return(nullptr);
+    if (objectHandle>=int(_objectHandleIndex.size()))
+        return(nullptr);
+    if (_objectHandleIndex[objectHandle]==nullptr)
+        return(nullptr);
+    if (_objectHandleIndex[objectHandle]->getObjectType()!=sim_object_joint_type)
+        return(nullptr);
+    return((CJoint*)_objectHandleIndex[objectHandle]);
+}
+
+C3DObject* CObjCont::getObjectFromName(const char* name) const
+{
+    return(getObjectFromHandle(getObjectHandleFromName(name)));
+}
+
+C3DObject* CObjCont::getObjectFromAltName(const char* altName) const
+{
+    return(getObjectFromHandle(getObjectHandleFromAltName(altName)));
 }
 
 void CObjCont::eraseSeveralObjects(const std::vector<int>& objHandles,bool generateBeforeAfterDeleteCallback)
@@ -3422,7 +3442,7 @@ void CObjCont::eraseSeveralObjects(const std::vector<int>& objHandles,bool gener
     }
 
     for (size_t i=0;i<objHandles.size();i++)
-        eraseObject(getObject(objHandles[i]),false);
+        eraseObject(getObjectFromHandle(objHandles[i]),false);
 
     if (generateBeforeAfterDeleteCallback)
         App::ct->luaScriptContainer->callAddOnMainChildCustomizationWithData(sim_syscb_afterdelete,&stack);
@@ -3432,7 +3452,7 @@ bool CObjCont::eraseObject(C3DObject* it,bool generateBeforeAfterDeleteCallback)
 {
     deselectObjects();
 
-    if (it==NULL) 
+    if (it==nullptr) 
         return(false);
 
     CInterfaceStack stack;
@@ -3441,7 +3461,7 @@ bool CObjCont::eraseObject(C3DObject* it,bool generateBeforeAfterDeleteCallback)
         stack.pushTableOntoStack();
         stack.pushStringOntoStack("objectHandles",0);
         stack.pushTableOntoStack();
-        stack.pushNumberOntoStack(double(it->getID())); // key or index
+        stack.pushNumberOntoStack(double(it->getObjectHandle())); // key or index
         stack.pushBoolOntoStack(true);
         stack.insertDataIntoStackTable();
         stack.insertDataIntoStackTable();
@@ -3452,19 +3472,27 @@ bool CObjCont::eraseObject(C3DObject* it,bool generateBeforeAfterDeleteCallback)
     }
 
     // We announce the object will be erased:
-    announceObjectWillBeErased(it->getID()); // this may trigger other "interesting" things, such as customization script runs, etc.
+    announceObjectWillBeErased(it->getObjectHandle()); // this may trigger other "interesting" things, such as customization script runs, etc.
     deselectObjects(); // to make sure, since above might have changed selection again
 
     // We remove the object from the object list
     size_t i;
     for (i=0;i<objectList.size();i++)
     {
-        if (objectList[i]==it->getID()) 
+        if (objectList[i]==it->getObjectHandle())
             break;
     }
     objectList.erase(objectList.begin()+i);
     // Now remove the object from the index
-    _objectIndex[it->getID()]=NULL;
+    _objectHandleIndex[it->getObjectHandle()]=nullptr;
+
+    std::map<std::string,int>::iterator mapIt=_objectNameMap.find(it->getObjectName());
+    if (mapIt!=_objectNameMap.end())
+        _objectNameMap.erase(mapIt);
+    mapIt=_objectAltNameMap.find(it->getObjectAltName());
+    if (mapIt!=_objectAltNameMap.end())
+        _objectAltNameMap.erase(mapIt);
+
     delete it;
     C3DObject::incrementModelPropertyValidityNumber();
     actualizeObjectInformation();
@@ -3487,8 +3515,8 @@ void CObjCont::announceObjectWillBeErased(int objectID)
 
     for (int i=0;i<int(objectList.size());i++)
     {
-        C3DObject* it=getObject(objectList[i]);
-        if (it->getID()!=objectID)
+        C3DObject* it=getObjectFromHandle(objectList[i]);
+        if (it->getObjectHandle()!=objectID)
             it->announceObjectWillBeErased(objectID,false);
     }
     // First objects that won't trigger any more destructions:
@@ -3514,7 +3542,7 @@ void CObjCont::announceObjectWillBeErased(int objectID)
 void CObjCont::announceIkGroupWillBeErased(int ikGroupID)
 {
     for (int i=0;i<int(objectList.size());i++)
-        getObject(objectList[i])->announceIkObjectWillBeErased(ikGroupID,false); // this never triggers 3DObject destruction!
+        getObjectFromHandle(objectList[i])->announceIkObjectWillBeErased(ikGroupID,false); // this never triggers 3DObject destruction!
     App::ct->ikGroups->announceIkGroupWillBeErased(ikGroupID); // This will never trigger an Ik group destruction
     App::ct->motionPlanning->announceIkGroupWillBeErased(ikGroupID); // This can trigger a motion planning object destruction!
 }

@@ -24,20 +24,20 @@ void CUndoBufferCameras::preRestoreCameras()
             SCamBuff buff;
             buff.localTr=cam->getLocalTransformation();
             buff.orthoViewSize=cam->getOrthoViewSize();
-            _preRestoreCameraBuffers[cam->getName()]=buff;
-            if ((cam->getUseParentObjectAsManipulationProxy())&&(cam->getParent()!=NULL))
+            _preRestoreCameraBuffers[cam->getObjectName()]=buff;
+            if ((cam->getUseParentObjectAsManipulationProxy())&&(cam->getParentObject()!=nullptr))
             {
                 bool present=false;
                 for (int i=0;i<int(cameraProxies.size());i++)
                 {
-                    if (cameraProxies[i]==cam->getParent())
+                    if (cameraProxies[i]==cam->getParentObject())
                     {
                         present=true;
                         break;
                     }
                 }
                 if (!present)
-                    cameraProxies.push_back(cam->getParent());
+                    cameraProxies.push_back(cam->getParentObject());
             }
         }
 
@@ -46,7 +46,7 @@ void CUndoBufferCameras::preRestoreCameras()
         {
             SCamBuff buff;
             buff.localTr=cameraProxies[cnt]->getLocalTransformation();
-            _preRestoreCameraProxyBuffers[cameraProxies[cnt]->getName()]=buff;
+            _preRestoreCameraProxyBuffers[cameraProxies[cnt]->getObjectName()]=buff;
         }
     }
 }
@@ -60,7 +60,7 @@ void CUndoBufferCameras::restoreCameras()
         for (int cnt=0;cnt<int(App::ct->objCont->cameraList.size());cnt++)
         {
             CCamera* cam=App::ct->objCont->getCamera(App::ct->objCont->cameraList[cnt]);
-            std::map<std::string,SCamBuff>::iterator it=_cameraBuffers.find(cam->getName());
+            std::map<std::string,SCamBuff>::iterator it=_cameraBuffers.find(cam->getObjectName());
             if (it!=_cameraBuffers.end())
             {
                 cam->setLocalTransformation(it->second.localTr);
@@ -68,26 +68,26 @@ void CUndoBufferCameras::restoreCameras()
                 cam->bufferMainDisplayStateVariables();
                 cam->bufferedMainDisplayStateVariablesToDisplay();
             }
-            if ((cam->getUseParentObjectAsManipulationProxy())&&(cam->getParent()!=NULL))
+            if ((cam->getUseParentObjectAsManipulationProxy())&&(cam->getParentObject()!=nullptr))
             {
                 bool present=false;
                 for (int i=0;i<int(cameraProxies.size());i++)
                 {
-                    if (cameraProxies[i]==cam->getParent())
+                    if (cameraProxies[i]==cam->getParentObject())
                     {
                         present=true;
                         break;
                     }
                 }
                 if (!present)
-                    cameraProxies.push_back(cam->getParent());
+                    cameraProxies.push_back(cam->getParentObject());
             }
         }
 
         for (int cnt=0;cnt<int(App::ct->objCont->objectList.size());cnt++)
         {
-            C3DObject* obj=App::ct->objCont->getObject(App::ct->objCont->objectList[cnt]);
-            std::map<std::string,SCamBuff>::iterator it=_cameraProxyBuffers.find(obj->getName());
+            C3DObject* obj=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[cnt]);
+            std::map<std::string,SCamBuff>::iterator it=_cameraProxyBuffers.find(obj->getObjectName());
             if (it!=_cameraProxyBuffers.end())
             {
                 obj->setLocalTransformation(it->second.localTr);
@@ -101,7 +101,7 @@ void CUndoBufferCameras::restoreCameras()
         for (int cnt=0;cnt<int(App::ct->objCont->cameraList.size());cnt++)
         {
             CCamera* cam=App::ct->objCont->getCamera(App::ct->objCont->cameraList[cnt]);
-            std::map<std::string,SCamBuff>::iterator it=_preRestoreCameraBuffers.find(cam->getName());
+            std::map<std::string,SCamBuff>::iterator it=_preRestoreCameraBuffers.find(cam->getObjectName());
             if (it!=_preRestoreCameraBuffers.end())
             {
                 cam->setLocalTransformation(it->second.localTr);
@@ -114,8 +114,8 @@ void CUndoBufferCameras::restoreCameras()
 
         for (int cnt=0;cnt<int(App::ct->objCont->objectList.size());cnt++)
         {
-            C3DObject* obj=App::ct->objCont->getObject(App::ct->objCont->objectList[cnt]);
-            std::map<std::string,SCamBuff>::iterator it=_preRestoreCameraProxyBuffers.find(obj->getName());
+            C3DObject* obj=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[cnt]);
+            std::map<std::string,SCamBuff>::iterator it=_preRestoreCameraProxyBuffers.find(obj->getObjectName());
             if (it!=_preRestoreCameraProxyBuffers.end())
             {
                 obj->setLocalTransformation(it->second.localTr);
@@ -139,24 +139,24 @@ void CUndoBufferCameras::storeCameras()
             SCamBuff buff;
             buff.localTr=cam->getLocalTransformation();
             buff.orthoViewSize=cam->getOrthoViewSize();
-            _cameraBuffers[cam->getName()]=buff;
+            _cameraBuffers[cam->getObjectName()]=buff;
             C7Vector tr;
             tr.setIdentity();
             cam->setLocalTransformation(tr);
             cam->setOrthoViewSize(1.0f);
-            if ((cam->getUseParentObjectAsManipulationProxy())&&(cam->getParent()!=NULL))
+            if ((cam->getUseParentObjectAsManipulationProxy())&&(cam->getParentObject()!=nullptr))
             {
                 bool present=false;
                 for (int i=0;i<int(cameraProxies.size());i++)
                 {
-                    if (cameraProxies[i]==cam->getParent())
+                    if (cameraProxies[i]==cam->getParentObject())
                     {
                         present=true;
                         break;
                     }
                 }
                 if (!present)
-                    cameraProxies.push_back(cam->getParent());
+                    cameraProxies.push_back(cam->getParentObject());
             }
         }
 
@@ -165,7 +165,7 @@ void CUndoBufferCameras::storeCameras()
         {
             SCamBuff buff;
             buff.localTr=cameraProxies[cnt]->getLocalTransformation();
-            _cameraProxyBuffers[cameraProxies[cnt]->getName()]=buff;
+            _cameraProxyBuffers[cameraProxies[cnt]->getObjectName()]=buff;
             C7Vector tr;
             tr.setIdentity();
             cameraProxies[cnt]->setLocalTransformation(tr);

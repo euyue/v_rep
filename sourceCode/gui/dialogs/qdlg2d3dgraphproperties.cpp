@@ -28,7 +28,7 @@ CQDlg2D3DGraphProperties::CQDlg2D3DGraphProperties(QWidget *parent) :
     CEditBoxDelegate* delegate=new CEditBoxDelegate();
     ui->qqList->setItemDelegate(delegate);
     _graphHandle=-1;
-    if (App::mainWindow!=NULL)
+    if (App::mainWindow!=nullptr)
         App::mainWindow->dlgCont->close(GRAPH2DAND3DCURVES_DLG);
 }
 
@@ -39,7 +39,7 @@ CQDlg2D3DGraphProperties::~CQDlg2D3DGraphProperties()
 
 void CQDlg2D3DGraphProperties::dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut)
 {
-    if ( (cmdIn!=NULL)&&(cmdIn->intParams[0]==_dlgType) )
+    if ( (cmdIn!=nullptr)&&(cmdIn->intParams[0]==_dlgType) )
     {
         if (cmdIn->intParams[1]==0)
             selectObjectInList(cmdIn->intParams[2]);
@@ -69,7 +69,7 @@ void CQDlg2D3DGraphProperties::_initialize(int graphHandle,bool xyGraph)
     _graphHandle=graphHandle;
     _xyGraph=xyGraph;
     CGraph* graph=App::ct->objCont->getGraph(_graphHandle);
-    if (graph!=NULL)
+    if (graph!=nullptr)
     {
         std::string txt;
         if (_xyGraph)
@@ -83,7 +83,7 @@ void CQDlg2D3DGraphProperties::_initialize(int graphHandle,bool xyGraph)
             txt=IDSN_3D_CURVES;
         }
         txt+=" (";
-        txt+=graph->getName();
+        txt+=graph->getObjectName();
         txt+=")";
         setWindowTitle(txt.c_str());
     }
@@ -97,20 +97,20 @@ bool CQDlg2D3DGraphProperties::isLinkedDataValid()
         return(false);
     if (App::getEditModeType()!=NO_EDIT_MODE)
         return(false);
-    if (App::ct->objCont->getGraph(_graphHandle)!=NULL)
+    if (App::ct->objCont->getGraph(_graphHandle)!=nullptr)
         return(App::ct->objCont->getLastSelectionID()==_graphHandle);
     return(false);
 }
 
 void CQDlg2D3DGraphProperties::display(int graphHandle,bool xyGraph,QWidget* theParentWindow)
 {
-    if (App::mainWindow==NULL)
+    if (App::mainWindow==nullptr)
         return;
     App::mainWindow->dlgCont->close(GRAPH2DAND3DCURVES_DLG);
     if (App::mainWindow->dlgCont->openOrBringToFront(GRAPH2DAND3DCURVES_DLG))
     {
         CQDlg2D3DGraphProperties* dlg=(CQDlg2D3DGraphProperties*)App::mainWindow->dlgCont->getDialog(GRAPH2DAND3DCURVES_DLG);
-        if (dlg!=NULL)
+        if (dlg!=nullptr)
             dlg->_initialize(graphHandle,xyGraph);
     }
 }
@@ -146,31 +146,31 @@ void CQDlg2D3DGraphProperties::refresh()
 
 
     CGraph* it=App::ct->objCont->getLastSelection_graph();
-    CGraphDataComb* graphData=NULL;
+    CGraphDataComb* graphData=nullptr;
     int graphDataId=getSelectedObjectID();
     if (_xyGraph)
         graphData=it->getGraphData2D(graphDataId);
     else
         graphData=it->getGraphData3D(graphDataId);
 
-    ui->qqVisible->setEnabled(graphData!=NULL);
-    ui->qqDisplayLabel->setEnabled(graphData!=NULL);
-    ui->qqLinkPoints->setEnabled(graphData!=NULL);
-    ui->qqAdjustColor->setEnabled(graphData!=NULL);
-    ui->qqDuplicate->setEnabled(graphData!=NULL);
-    ui->qqWidth->setEnabled((graphData!=NULL)&&(!_xyGraph));
-    ui->qqRelativeToGraph->setEnabled((graphData!=NULL)&&(!_xyGraph));
-    ui->qqRelativeToWorld->setEnabled((graphData!=NULL)&&(!_xyGraph));
-    ui->qqAlwaysOnTop->setEnabled((graphData!=NULL)&&(!_xyGraph));
+    ui->qqVisible->setEnabled(graphData!=nullptr);
+    ui->qqDisplayLabel->setEnabled(graphData!=nullptr);
+    ui->qqLinkPoints->setEnabled(graphData!=nullptr);
+    ui->qqAdjustColor->setEnabled(graphData!=nullptr);
+    ui->qqDuplicate->setEnabled(graphData!=nullptr);
+    ui->qqWidth->setEnabled((graphData!=nullptr)&&(!_xyGraph));
+    ui->qqRelativeToGraph->setEnabled((graphData!=nullptr)&&(!_xyGraph));
+    ui->qqRelativeToWorld->setEnabled((graphData!=nullptr)&&(!_xyGraph));
+    ui->qqAlwaysOnTop->setEnabled((graphData!=nullptr)&&(!_xyGraph));
 
-    ui->qqVisible->setChecked((graphData!=NULL)&&graphData->getVisible());
-    ui->qqDisplayLabel->setChecked((graphData!=NULL)&&graphData->getLabel());
-    ui->qqLinkPoints->setChecked((graphData!=NULL)&&graphData->getLinkPoints());
-    ui->qqRelativeToGraph->setChecked((graphData!=NULL)&&(!graphData->getCurveRelativeToWorld()));
-    ui->qqRelativeToWorld->setChecked((graphData!=NULL)&&(graphData->getCurveRelativeToWorld()));
-    ui->qqAlwaysOnTop->setChecked((graphData!=NULL)&&(graphData->getVisibleOnTopOfEverything()));
+    ui->qqVisible->setChecked((graphData!=nullptr)&&graphData->getVisible());
+    ui->qqDisplayLabel->setChecked((graphData!=nullptr)&&graphData->getLabel());
+    ui->qqLinkPoints->setChecked((graphData!=nullptr)&&graphData->getLinkPoints());
+    ui->qqRelativeToGraph->setChecked((graphData!=nullptr)&&(!graphData->getCurveRelativeToWorld()));
+    ui->qqRelativeToWorld->setChecked((graphData!=nullptr)&&(graphData->getCurveRelativeToWorld()));
+    ui->qqAlwaysOnTop->setChecked((graphData!=nullptr)&&(graphData->getVisibleOnTopOfEverything()));
 
-    if ((graphData!=NULL)&&(!_xyGraph))
+    if ((graphData!=nullptr)&&(!_xyGraph))
         ui->qqWidth->setText(tt::getIString(false,int(graphData->get3DCurveWidth()+0.1f)).c_str());
     else
         ui->qqWidth->setText("");
@@ -252,7 +252,7 @@ void CQDlg2D3DGraphProperties::selectObjectInList(int objectID)
     for (int i=0;i<ui->qqList->count();i++)
     {
         QListWidgetItem* it=ui->qqList->item(i);
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             if (it->data(Qt::UserRole).toInt()==objectID)
             {
@@ -297,7 +297,7 @@ void CQDlg2D3DGraphProperties::on_qqList_itemSelectionChanged()
             grData=it->getGraphData2D(objID);
         else
             grData=it->getGraphData3D(objID);
-        if (grData!=NULL)
+        if (grData!=nullptr)
             ((CEditBoxDelegate*)ui->qqList->itemDelegate())->initialText=grData->getName();
         else
             ((CEditBoxDelegate*)ui->qqList->itemDelegate())->initialText="";
@@ -311,7 +311,7 @@ void CQDlg2D3DGraphProperties::on_qqList_itemChanged(QListWidgetItem *item)
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (item!=NULL)
+        if (item!=nullptr)
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId=RENAME_CURVE_GRAPHCURVEGUITRIGGEREDCMD;

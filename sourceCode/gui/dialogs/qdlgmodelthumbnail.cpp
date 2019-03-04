@@ -73,7 +73,7 @@ void CQDlgModelThumbnail::actualizeBitmap()
     C3Vector maxC(-999.0f,-999.0f,-999.0f);
     for (size_t i=0;i<sel.size();i++)
     {
-        C3DObject* it=App::ct->objCont->getObject(sel[i]);
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(sel[i]);
         bool display=true;
         if (it->getObjectType()==sim_object_proximitysensor_type)
         {
@@ -315,10 +315,10 @@ void CQDlgModelThumbnail::on_qqFromFile_clicked()
             if (n<3)
             {
                 delete[] data;
-                data=NULL;
+                data=nullptr;
             }
 
-            if (data==NULL)
+            if (data==nullptr)
                 App::uiThread->messageBox_critical(App::mainWindow,strTranslate("Thumbnail"),strTranslate(IDS_TEXTURE_FILE_COULD_NOT_BE_LOADED),VMESSAGEBOX_OKELI);
             else
             {

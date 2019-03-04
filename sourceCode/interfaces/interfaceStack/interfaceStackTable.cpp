@@ -149,7 +149,7 @@ bool CInterfaceStackTable::getDoubleArray(double* array,int count) const
 CInterfaceStackObject* CInterfaceStackTable::getMapObject(const std::string& fieldName) const
 {
     if (_isTableArray)
-        return(NULL);
+        return(nullptr);
     size_t p=fieldName.find('.',0);
     if (p==std::string::npos)
     {
@@ -185,7 +185,7 @@ CInterfaceStackObject* CInterfaceStackTable::getMapObject(const std::string& fie
             }
         }
     }
-    return(NULL);
+    return(nullptr);
 }
 
 bool CInterfaceStackTable::removeFromKey(const CInterfaceStackObject* keyToRemove)
@@ -298,14 +298,14 @@ void CInterfaceStackTable::appendArrayOrMapObject(CInterfaceStackObject* obj,CIn
 CInterfaceStackObject* CInterfaceStackTable::getArrayItemAtIndex(int ind) const
 {
     if ( (!_isTableArray)||(ind>=(int)_tableObjects.size()) )
-        return(NULL);
+        return(nullptr);
     return(_tableObjects[ind]);
 }
 
 CInterfaceStackObject* CInterfaceStackTable::getMapItemAtIndex(int ind,std::string& stringKey,double& numberKey,bool& boolKey,int& keyType) const
 {
     if ( (_isTableArray)||(ind>=(int)_tableObjects.size()/2) )
-        return(NULL);
+        return(nullptr);
     keyType=_tableObjects[2*ind+0]->getObjectType();
     if (keyType==STACK_OBJECT_BOOL)
     {
@@ -320,7 +320,7 @@ CInterfaceStackObject* CInterfaceStackTable::getMapItemAtIndex(int ind,std::stri
     if (keyType==STACK_OBJECT_STRING)
     {
         CInterfaceStackString* keyObj=(CInterfaceStackString*)_tableObjects[2*ind+0];
-        stringKey=keyObj->getValue(NULL);
+        stringKey=keyObj->getValue(nullptr);
     }
     return(_tableObjects[2*ind+1]);
 }
@@ -482,7 +482,7 @@ std::string CInterfaceStackTable::getObjectData() const
         int boolTrue=-1;
         std::vector<std::pair<double,int>> numberKeys;
         std::vector<std::pair<std::string,int>> stringKeys;
-        for (size_t i=0;i<_tableObjects.size()/2;i++)
+        for (int i=0;i<int(_tableObjects.size()/2);i++)
         {
             CInterfaceStackObject* key=_tableObjects[2*i+0];
             if (key->getObjectType()==STACK_OBJECT_BOOL)
@@ -495,7 +495,7 @@ std::string CInterfaceStackTable::getObjectData() const
             else if (key->getObjectType()==STACK_OBJECT_NUMBER)
                 numberKeys.push_back(std::make_pair(((CInterfaceStackNumber*)key)->getValue(),i));
             else if (key->getObjectType()==STACK_OBJECT_STRING)
-                stringKeys.push_back(std::make_pair(((CInterfaceStackString*)key)->getValue(NULL),i));
+                stringKeys.push_back(std::make_pair(((CInterfaceStackString*)key)->getValue(nullptr),i));
             else
             { // should normally not happen. We push unordered
                 retVal.push_back((char)key->getObjectType());

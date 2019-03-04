@@ -78,7 +78,7 @@ bool CVisionSensor::isPotentiallyCuttable() const
 float* CVisionSensor::readPortionOfImage(int posX,int posY,int sizeX,int sizeY,int rgbGreyOrDepth)
 {
     if ( (posX<0)||(posY<0)||(sizeX<1)||(sizeY<1)||(posX+sizeX>_resolutionX)||(posY+sizeY>_resolutionY) )
-        return(NULL);
+        return(nullptr);
     float* buff;
     if (rgbGreyOrDepth==0)
         buff=new float[sizeX*sizeY*3];
@@ -116,8 +116,8 @@ float* CVisionSensor::readPortionOfImage(int posX,int posY,int sizeX,int sizeY,i
 unsigned char* CVisionSensor::readPortionOfCharImage(int posX,int posY,int sizeX,int sizeY,float cutoffRgba,bool imgIsGreyScale)
 {
     if ( (posX<0)||(posY<0)||(sizeX<1)||(sizeY<1)||(posX+sizeX>_resolutionX)||(posY+sizeY>_resolutionY) )
-        return(NULL);
-    unsigned char* buff=NULL;
+        return(nullptr);
+    unsigned char* buff=nullptr;
     if (cutoffRgba==0.0f)
     {
         if (imgIsGreyScale)
@@ -290,12 +290,12 @@ void CVisionSensor::commonInit()
     _extWindowedViewPos[1]=0;
 
 #ifdef SIM_WITH_OPENGL
-    _contextFboAndTexture=NULL;
+    _contextFboAndTexture=nullptr;
 #endif
 
-    _rgbBuffer=NULL;
-    _previousRgbBuffer=NULL;
-    _depthBuffer=NULL;
+    _rgbBuffer=nullptr;
+    _previousRgbBuffer=nullptr;
+    _depthBuffer=nullptr;
     _reserveBuffers();
 
     _objectManipulationModePermissions=0x013;
@@ -489,7 +489,7 @@ void CVisionSensor::setDesiredResolution(int r[2])
     _resolutionX=_desiredResolution[0];
     _resolutionY=_desiredResolution[1];
     _reserveBuffers();
-    if (_composedFilter!=NULL)
+    if (_composedFilter!=nullptr)
         _composedFilter->removeBuffers();
 }
 
@@ -676,10 +676,10 @@ bool CVisionSensor::setExternalImage(const float* img,bool imgIsGreyScale)
     bool returnValue=_computeDefaultReturnValuesAndApplyFilters(); // this might overwrite the default return values
 
 #ifdef SIM_WITH_OPENGL
-    if (_contextFboAndTexture==NULL)
+    if (_contextFboAndTexture==nullptr)
         createGlContextAndFboAndTextureObjectIfNeeded_executedViaUiThread(false);
 
-    if (_contextFboAndTexture!=NULL)
+    if (_contextFboAndTexture!=nullptr)
         _contextFboAndTexture->textureObject->setImage(false,false,true,_rgbBuffer); // Update the texture
 #endif
     return(returnValue);
@@ -707,10 +707,10 @@ bool CVisionSensor::setExternalCharImage(const unsigned char* img,bool imgIsGrey
     bool returnValue=_computeDefaultReturnValuesAndApplyFilters(); // this might overwrite the default return values
 
 #ifdef SIM_WITH_OPENGL
-    if (_contextFboAndTexture==NULL)
+    if (_contextFboAndTexture==nullptr)
         createGlContextAndFboAndTextureObjectIfNeeded_executedViaUiThread(false);
 
-    if (_contextFboAndTexture!=NULL)
+    if (_contextFboAndTexture!=nullptr)
         _contextFboAndTexture->textureObject->setImage(false,false,true,_rgbBuffer); // Update the texture
 #endif
     return(returnValue);
@@ -738,7 +738,7 @@ bool CVisionSensor::handleSensor()
     int stTime=VDateTime::getTimeInMs();
     detectEntity(_detectableEntityID,_detectableEntityID==-1,false,false,false,false);
 #ifdef SIM_WITH_OPENGL
-    if (_contextFboAndTexture!=NULL)
+    if (_contextFboAndTexture!=nullptr)
         _contextFboAndTexture->textureObject->setImage(false,false,true,_rgbBuffer); // Update the texture
 #endif
     sensorResult.calcTimeInMs=VDateTime::getTimeDiffInMs(stTime);
@@ -807,7 +807,7 @@ bool CVisionSensor::checkSensor(int entityID,bool overrideRenderableFlagsForNonC
 float* CVisionSensor::checkSensorEx(int entityID,bool imageBuffer,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections)
 { // This function should only be used by simCheckVisionSensor(Ex) functions! It will temporarily buffer current result
     if (_useExternalImage) // added those 2 lines on 2010/12/21
-        return(NULL);
+        return(nullptr);
 
     // 1. We save current state:
     SHandlingResult cop;
@@ -837,7 +837,7 @@ float* CVisionSensor::checkSensorEx(int entityID,bool imageBuffer,bool entityIsM
     bool all=(entityID==-1);
     detectEntity(entityID,all,true,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,hideEdgesIfModel,overrideRenderableFlagsForNonCollections); // we don't swap image buffers!
     // 3. Prepare return buffer:
-    float* retBuffer=NULL;
+    float* retBuffer=nullptr;
     int l=_resolutionX*_resolutionY;
     if (imageBuffer)
         l*=3;
@@ -894,7 +894,7 @@ bool CVisionSensor::detectEntity(int entityID,bool detectAll,bool dontSwapImageB
     // vision sensors in the UI thread. So, we handle everything in the UI thread by default:
     bool onlyGuiThread=true;
 #ifdef SIM_WITH_GUI
-    if (App::mainWindow==NULL)
+    if (App::mainWindow==nullptr)
     { // headless
         if (App::userSettings->visionSensorsUseGuiThread_headless==0)
             onlyGuiThread=false;
@@ -1066,7 +1066,7 @@ void CVisionSensor::_extRenderer_prepareView(int extRendererIndex)
     data[16]=&fogDensity;
     data[17]=&fogEnabled;
     data[18]=&_orthoViewSize;
-    data[19]=&_objectID;
+    data[19]=&_objectHandle;
     data[20]=_extWindowedViewPos;
     data[21]=_extWindowedViewPos+1;
 
@@ -1113,9 +1113,9 @@ void CVisionSensor::_extRenderer_prepareLights()
             data[8]=tr.Q.data;
             float lightSize=light->getLightSize();
             data[9]=&lightSize;
-            bool lightIsVisible=light->getShouldObjectBeDisplayed(_objectID,0);
+            bool lightIsVisible=light->getShouldObjectBeDisplayed(_objectHandle,0);
             data[11]=&lightIsVisible;
-            int lightHandle=light->getID();
+            int lightHandle=light->getObjectHandle();
             data[13]=&lightHandle;
 
             // Following actually free since V-REP 3.3.0
@@ -1135,7 +1135,7 @@ void CVisionSensor::_extRenderer_prepareMirrors()
     for (unsigned int li=0;li<App::ct->objCont->mirrorList.size();li++)
     {
         CMirror* mirror=App::ct->objCont->getMirror(App::ct->objCont->mirrorList[li]);
-        bool visible=mirror->getShouldObjectBeDisplayed(_objectID,_attributesForRendering);
+        bool visible=mirror->getShouldObjectBeDisplayed(_objectHandle,_attributesForRendering);
         if (mirror->getIsMirror()&&visible)
         {
             bool active=mirror->getActive()&&(!App::ct->mainSettings->mirrorsDisabled);
@@ -1280,7 +1280,7 @@ void CVisionSensor::renderForDetection(int entityID,bool detectAll,bool entityIs
         {
             App::ct->environment->activateAmbientLight(false);
             App::ct->environment->deactivateFog();
-            _activateNonAmbientLights(-2,NULL);
+            _activateNonAmbientLights(-2,nullptr);
         }
 
         glInitNames();
@@ -1358,7 +1358,7 @@ void CVisionSensor::_drawObjects(int entityID,bool detectAll,bool entityIsModelA
     C3DObject* viewBoxObject=_getInfoOfWhatNeedsToBeRendered(entityID,detectAll,rendAttrib,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,overrideRenderableFlagsForNonCollections,toRender);
 
     //************ Viewbox thing ***************
-    if (viewBoxObject!=NULL)
+    if (viewBoxObject!=nullptr)
     { // we set the same position as the camera, but we keep the initial orientation
         // If the camera is in ortho view mode, we additionally shift it along the viewing axis
         // to be sure we don't cover anything visible with the far side of the box (the near side is clipped by model settings)
@@ -1385,7 +1385,7 @@ void CVisionSensor::_drawObjects(int entityID,bool detectAll,bool entityIsModelA
         _enableAuxClippingPlanes(-1);
 
         if ((rendAttrib&sim_displayattribute_noopenglcallbacks)==0)
-            CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,0,rendAttrib,_objectID,-1);
+            CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,0,rendAttrib,_objectHandle,-1);
     }
 #endif
 
@@ -1394,7 +1394,7 @@ void CVisionSensor::_drawObjects(int entityID,bool detectAll,bool entityIsModelA
     {
         // first non-transparent attached drawing objects:
         for (int i=0;i<int(toRender.size());i++)
-            App::ct->drawingCont->drawObjectsParentedWith(false,false,toRender[i]->getID(),rendAttrib,getCumulativeTransformation().getMatrix());
+            App::ct->drawingCont->drawObjectsParentedWith(false,false,toRender[i]->getObjectHandle(),rendAttrib,getCumulativeTransformation().getMatrix());
 
         // Now the same as above but for non-attached drawing objects:
         App::ct->drawingCont->drawObjectsParentedWith(false,false,-1,rendAttrib,getCumulativeTransformation().getMatrix());
@@ -1414,7 +1414,7 @@ void CVisionSensor::_drawObjects(int entityID,bool detectAll,bool entityIsModelA
     if (getInternalRendering())
     {
         if ((rendAttrib&sim_displayattribute_noopenglcallbacks)==0)
-            CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,1,rendAttrib,_objectID,-1);
+            CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,1,rendAttrib,_objectHandle,-1);
 
         _disableAuxClippingPlanes();
     }
@@ -1454,7 +1454,7 @@ void CVisionSensor::_drawObjects(int entityID,bool detectAll,bool entityIsModelA
         _enableAuxClippingPlanes(-1);
 
         if ((rendAttrib&sim_displayattribute_noopenglcallbacks)==0)
-            CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,2,rendAttrib,_objectID,-1);
+            CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,2,rendAttrib,_objectHandle,-1);
     }
 #endif
 
@@ -1463,7 +1463,7 @@ void CVisionSensor::_drawObjects(int entityID,bool detectAll,bool entityIsModelA
     {
         // Transparent attached drawing objects:
         for (int i=0;i<int(toRender.size());i++)
-            App::ct->drawingCont->drawObjectsParentedWith(false,true,toRender[i]->getID(),rendAttrib,getCumulativeTransformation().getMatrix());
+            App::ct->drawingCont->drawObjectsParentedWith(false,true,toRender[i]->getObjectHandle(),rendAttrib,getCumulativeTransformation().getMatrix());
 
         // Now the same as above but for non-attached drawing objects:
         App::ct->drawingCont->drawObjectsParentedWith(false,true,-1,rendAttrib,getCumulativeTransformation().getMatrix());
@@ -1477,7 +1477,7 @@ void CVisionSensor::_drawObjects(int entityID,bool detectAll,bool entityIsModelA
     if (getInternalRendering())
     {
         if ((rendAttrib&sim_displayattribute_noopenglcallbacks)==0)
-            CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,3,rendAttrib,_objectID,-1);
+            CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,3,rendAttrib,_objectHandle,-1);
     }
 #endif
 
@@ -1486,7 +1486,7 @@ void CVisionSensor::_drawObjects(int entityID,bool detectAll,bool entityIsModelA
     {
         // overlay attached drawing objects:
         for (int i=0;i<int(toRender.size());i++)
-            App::ct->drawingCont->drawObjectsParentedWith(true,true,toRender[i]->getID(),rendAttrib,getCumulativeTransformation().getMatrix());
+            App::ct->drawingCont->drawObjectsParentedWith(true,true,toRender[i]->getObjectHandle(),rendAttrib,getCumulativeTransformation().getMatrix());
 
         // Now the same as above but for non-attached drawing objects:
         App::ct->drawingCont->drawObjectsParentedWith(true,true,-1,rendAttrib,getCumulativeTransformation().getMatrix());
@@ -1500,35 +1500,35 @@ void CVisionSensor::_drawObjects(int entityID,bool detectAll,bool entityIsModelA
     if (getInternalRendering())
     {
         if ((rendAttrib&sim_displayattribute_noopenglcallbacks)==0)
-            CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,4,rendAttrib,_objectID,-1);
+            CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,4,rendAttrib,_objectHandle,-1);
 
         _disableAuxClippingPlanes();
 
         if ((rendAttrib&sim_displayattribute_noopenglcallbacks)==0)
-            CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,5,rendAttrib,_objectID,-1);
+            CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,5,rendAttrib,_objectHandle,-1);
     }
 #endif
 }
 
 C3DObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(int entityID,bool detectAll,int rendAttrib,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool overrideRenderableFlagsForNonCollections,std::vector<C3DObject*>& toRender)
 {
-    C3DObject* object=App::ct->objCont->getObject(entityID);
-    CRegCollection* collection=NULL;
+    C3DObject* object=App::ct->objCont->getObjectFromHandle(entityID);
+    CRegCollection* collection=nullptr;
     std::vector<int> transparentObjects;
     std::vector<float> transparentObjectsDist;
     C7Vector camTrInv(getCumulativeTransformationPart1().getInverse());
-    C3DObject* viewBoxObject=NULL;
+    C3DObject* viewBoxObject=nullptr;
 
-    if (object==NULL)
+    if (object==nullptr)
     {
         collection=App::ct->collections->getCollection(entityID);
-        if (collection!=NULL)
+        if (collection!=nullptr)
         {
             bool overridePropertyFlag=collection->getOverridesObjectMainProperties();
             for (int i=0;i<int(collection->collectionObjects.size());i++)
             {
-                C3DObject* it=App::ct->objCont->getObject(collection->collectionObjects[i]);
-                if (it!=NULL)
+                C3DObject* it=App::ct->objCont->getObjectFromHandle(collection->collectionObjects[i]);
+                if (it!=nullptr)
                 {
                     if  ( ((it->getCumulativeObjectSpecialProperty()&sim_objectspecialproperty_renderable)!=0)||overridePropertyFlag||(rendAttrib&sim_displayattribute_ignorerenderableflag) )
                     { // supposed to be rendered
@@ -1539,7 +1539,7 @@ C3DObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(int entityID,bool dete
                             {
                                 C7Vector obj(it->getCumulativeTransformationPart1());
                                 transparentObjectsDist.push_back(-(camTrInv*obj).X(2)-it->getTransparentObjectDistanceOffset());
-                                transparentObjects.push_back(it->getID());
+                                transparentObjects.push_back(it->getObjectHandle());
                             }
                             else
                                 toRender.push_back(it);
@@ -1553,7 +1553,7 @@ C3DObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(int entityID,bool dete
                                 {
                                     C7Vector obj(it->getCumulativeTransformationPart1());
                                     transparentObjectsDist.push_back(-(camTrInv*obj).X(2)-it->getTransparentObjectDistanceOffset());
-                                    transparentObjects.push_back(it->getID());
+                                    transparentObjects.push_back(it->getObjectHandle());
                                 }
                                 else
                                     toRender.push_back(it);
@@ -1561,10 +1561,10 @@ C3DObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(int entityID,bool dete
                             else
                                 toRender.push_back(it);
                         }
-                        if (it->getParent()!=NULL)
+                        if (it->getParentObject()!=nullptr)
                         { // We need this because the dummy that is the base of the skybox is not renderable!
-                            if (it->getParent()->getName()==IDSOGL_SKYBOX_DO_NOT_RENAME)
-                                viewBoxObject=it->getParent();
+                            if (it->getParentObject()->getObjectName()==IDSOGL_SKYBOX_DO_NOT_RENAME)
+                                viewBoxObject=it->getParentObject();
                         }
                     }
                 }
@@ -1576,8 +1576,8 @@ C3DObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(int entityID,bool dete
             {
                 for (int i=0;i<int(App::ct->objCont->objectList.size());i++)
                 {
-                    C3DObject* it=App::ct->objCont->getObject(App::ct->objCont->objectList[i]);
-                    if (it!=NULL)
+                    C3DObject* it=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
+                    if (it!=nullptr)
                     {
                         if  ( ( (it->getCumulativeObjectSpecialProperty()&sim_objectspecialproperty_renderable)!=0 )||overrideRenderableFlagsForNonCollections||(rendAttrib&sim_displayattribute_ignorerenderableflag) )
                         { // supposed to be rendered
@@ -1588,7 +1588,7 @@ C3DObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(int entityID,bool dete
                                 {
                                     C7Vector obj(it->getCumulativeTransformationPart1());
                                     transparentObjectsDist.push_back(-(camTrInv*obj).X(2)-it->getTransparentObjectDistanceOffset());
-                                    transparentObjects.push_back(it->getID());
+                                    transparentObjects.push_back(it->getObjectHandle());
                                 }
                                 else
                                     toRender.push_back(it);
@@ -1602,7 +1602,7 @@ C3DObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(int entityID,bool dete
                                     {
                                         C7Vector obj(it->getCumulativeTransformationPart1());
                                         transparentObjectsDist.push_back(-(camTrInv*obj).X(2)-it->getTransparentObjectDistanceOffset());
-                                        transparentObjects.push_back(it->getID());
+                                        transparentObjects.push_back(it->getObjectHandle());
                                     }
                                     else
                                         toRender.push_back(it);
@@ -1610,10 +1610,10 @@ C3DObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(int entityID,bool dete
                                 else
                                     toRender.push_back(it);
                             }
-                            if (it->getParent()!=NULL)
+                            if (it->getParentObject()!=nullptr)
                             { // We need this because the dummy that is the base of the skybox is not renderable!
-                                if (it->getParent()->getName()==IDSOGL_SKYBOX_DO_NOT_RENAME)
-                                    viewBoxObject=it->getParent();
+                                if (it->getParentObject()->getObjectName()==IDSOGL_SKYBOX_DO_NOT_RENAME)
+                                    viewBoxObject=it->getParentObject();
                             }
                         }
                     }
@@ -1628,21 +1628,21 @@ C3DObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(int entityID,bool dete
             if  ( ( (object->getCumulativeObjectSpecialProperty()&sim_objectspecialproperty_renderable)!=0 )||overrideRenderableFlagsForNonCollections||(rendAttrib&sim_displayattribute_ignorerenderableflag) )
             {
                 toRender.push_back(object);
-                if (object->getParent()!=NULL)
+                if (object->getParentObject()!=nullptr)
                 { // We need this because the dummy that is the base of the skybox is not renderable!
-                    if (object->getParent()->getName()==IDSOGL_SKYBOX_DO_NOT_RENAME)
-                        viewBoxObject=object->getParent();
+                    if (object->getParentObject()->getObjectName()==IDSOGL_SKYBOX_DO_NOT_RENAME)
+                        viewBoxObject=object->getParentObject();
                 }
             }
         }
         else
         { // we have a model here that we want to render. We render also non-renderable object. And only those currently visible:
             std::vector<int> rootSel;
-            rootSel.push_back(object->getID());
+            rootSel.push_back(object->getObjectHandle());
             CSceneObjectOperations::addRootObjectChildrenToSelection(rootSel);
             for (int i=0;i<int(rootSel.size());i++)
             {
-                C3DObject* it=App::ct->objCont->getObject(rootSel[i]);
+                C3DObject* it=App::ct->objCont->getObjectFromHandle(rootSel[i]);
                 if (App::ct->mainSettings->getActiveLayers()&it->layer)
                 { // ok, currently visible
                     if (it->getObjectType()==sim_object_shape_type)
@@ -1652,7 +1652,7 @@ C3DObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(int entityID,bool dete
                         {
                             C7Vector obj(it->getCumulativeTransformationPart1());
                             transparentObjectsDist.push_back(-(camTrInv*obj).X(2)-it->getTransparentObjectDistanceOffset());
-                            transparentObjects.push_back(it->getID());
+                            transparentObjects.push_back(it->getObjectHandle());
                         }
                         else
                             toRender.push_back(it);
@@ -1666,7 +1666,7 @@ C3DObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(int entityID,bool dete
                             {
                                 C7Vector obj(it->getCumulativeTransformationPart1());
                                 transparentObjectsDist.push_back(-(camTrInv*obj).X(2)-it->getTransparentObjectDistanceOffset());
-                                transparentObjects.push_back(it->getID());
+                                transparentObjects.push_back(it->getObjectHandle());
                             }
                             else
                                 toRender.push_back(it);
@@ -1681,7 +1681,7 @@ C3DObject* CVisionSensor::_getInfoOfWhatNeedsToBeRendered(int entityID,bool dete
 
     tt::orderAscending(transparentObjectsDist,transparentObjects);
     for (int i=0;i<int(transparentObjects.size());i++)
-        toRender.push_back(App::ct->objCont->getObject(transparentObjects[i]));
+        toRender.push_back(App::ct->objCont->getObjectFromHandle(transparentObjects[i]));
 
     return(viewBoxObject);
 }
@@ -1695,19 +1695,19 @@ int CVisionSensor::_getActiveMirrors(int entityID,bool detectAll,bool entityIsMo
     if (_renderMode!=0)
         return(0);
 
-    C3DObject* object=App::ct->objCont->getObject(entityID);
-    CRegCollection* collection=NULL;
+    C3DObject* object=App::ct->objCont->getObjectFromHandle(entityID);
+    CRegCollection* collection=nullptr;
     std::vector<C3DObject*> toRender;
-    if (object==NULL)
+    if (object==nullptr)
     {
         collection=App::ct->collections->getCollection(entityID);
-        if (collection!=NULL)
+        if (collection!=nullptr)
         {
             bool overridePropertyFlag=collection->getOverridesObjectMainProperties();
             for (int i=0;i<int(collection->collectionObjects.size());i++)
             {
-                C3DObject* it=App::ct->objCont->getObject(collection->collectionObjects[i]);
-                if (it!=NULL)
+                C3DObject* it=App::ct->objCont->getObjectFromHandle(collection->collectionObjects[i]);
+                if (it!=nullptr)
                 {
                     if  ( ((it->getCumulativeObjectSpecialProperty()&sim_objectspecialproperty_renderable)!=0)||overridePropertyFlag||(rendAttrib&sim_displayattribute_ignorerenderableflag) )
                     { // supposed to be rendered
@@ -1722,8 +1722,8 @@ int CVisionSensor::_getActiveMirrors(int entityID,bool detectAll,bool entityIsMo
             {
                 for (int i=0;i<int(App::ct->objCont->objectList.size());i++)
                 {
-                    C3DObject* it=App::ct->objCont->getObject(App::ct->objCont->objectList[i]);
-                    if (it!=NULL)
+                    C3DObject* it=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
+                    if (it!=nullptr)
                     {
                         if  ( ( (it->getCumulativeObjectSpecialProperty()&sim_objectspecialproperty_renderable)!=0 )||overrideRenderableFlagsForNonCollections||(rendAttrib&sim_displayattribute_ignorerenderableflag) )
                         { // supposed to be rendered
@@ -1746,11 +1746,11 @@ int CVisionSensor::_getActiveMirrors(int entityID,bool detectAll,bool entityIsMo
         else
         { // we have a model here that we want to render. We render also non-renderable object. And only those currently visible:
             std::vector<int> rootSel;
-            rootSel.push_back(object->getID());
+            rootSel.push_back(object->getObjectHandle());
             CSceneObjectOperations::addRootObjectChildrenToSelection(rootSel);
             for (int i=0;i<int(rootSel.size());i++)
             {
-                C3DObject* it=App::ct->objCont->getObject(rootSel[i]);
+                C3DObject* it=App::ct->objCont->getObjectFromHandle(rootSel[i]);
                 if (App::ct->mainSettings->getActiveLayers()&it->layer)
                 { // ok, currently visible
                     toRender.push_back(it);
@@ -1767,7 +1767,7 @@ int CVisionSensor::_getActiveMirrors(int entityID,bool detectAll,bool entityIsMo
             CMirror* mi=(CMirror*)it;
             if (mi->getActive()&&mi->getIsMirror())
             {
-                activeMirrors.push_back(it->getID());
+                activeMirrors.push_back(it->getObjectHandle());
                 retVal++;
             }
         }
@@ -1861,16 +1861,16 @@ C3DObject* CVisionSensor::copyYourself()
     return(newVisionSensor);
 }
 
-bool CVisionSensor::announceObjectWillBeErased(int objID,bool copyBuffer)
+bool CVisionSensor::announceObjectWillBeErased(int objectHandle,bool copyBuffer)
 {   // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     // This routine can be called for objCont-objects, but also for objects
     // in the copy-buffer!! So never make use of any 
-    // 'ct::objCont->getObject(id)'-call or similar
+    // 'ct::objCont->getObject(objectHandle)'-call or similar
     // Return value true means 'this' has to be erased too!
-    if (_detectableEntityID==objID)
+    if (_detectableEntityID==objectHandle)
         _detectableEntityID=-1;
-    bool retVal=announceObjectWillBeErasedMain(objID,copyBuffer);
+    bool retVal=announceObjectWillBeErasedMain(objectHandle,copyBuffer);
     return(retVal);
 }
 
@@ -1962,7 +1962,7 @@ void CVisionSensor::initializeInitialValues(bool simulationIsRunning)
     sensorResult.sensorWasTriggered=false;
     sensorResult.sensorResultIsValid=false;
     sensorResult.calcTimeInMs=0;
-    if (_composedFilter!=NULL)
+    if (_composedFilter!=nullptr)
         _composedFilter->initializeInitialValues(simulationIsRunning);
     if (simulationIsRunning)
     {
@@ -1973,7 +1973,7 @@ void CVisionSensor::initializeInitialValues(bool simulationIsRunning)
 #ifdef SIM_WITH_OPENGL
         _removeGlContextAndFboAndTextureObjectIfNeeded();
 #endif
-        if (_composedFilter!=NULL)
+        if (_composedFilter!=nullptr)
         {
             _composedFilter->drawingContainer.removeAllObjects();
             _composedFilter->simulationEnded();
@@ -1992,7 +1992,7 @@ void CVisionSensor::simulationEnded()
 #ifdef SIM_WITH_OPENGL
     _removeGlContextAndFboAndTextureObjectIfNeeded();
 #endif
-    if (_composedFilter!=NULL)
+    if (_composedFilter!=nullptr)
     {
         _composedFilter->drawingContainer.removeAllObjects();
         _composedFilter->simulationEnded();
@@ -2155,7 +2155,7 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
     if (applyFilter)
     {
         float* outputImage=CImageProcess::createRGBImage(_resolutionX,_resolutionY);
-        float* outputDepthBuffer=NULL;
+        float* outputDepthBuffer=nullptr;
         if (_composedFilter->includesDepthBufferModification())
             outputDepthBuffer=CImageProcess::createIntensityImage(_resolutionX,_resolutionY);
         int s=_resolutionX*_resolutionY*3;
@@ -2472,19 +2472,19 @@ void CVisionSensor::createGlContextAndFboAndTextureObjectIfNeeded_executedViaUiT
 void CVisionSensor::createGlContextAndFboAndTextureObjectIfNeeded(bool useStencilBuffer)
 {
     FUNCTION_DEBUG;
-    if ((_contextFboAndTexture!=NULL)&&(_contextFboAndTexture->frameBufferObject->getUsingStencilBuffer()!=useStencilBuffer))
+    if ((_contextFboAndTexture!=nullptr)&&(_contextFboAndTexture->frameBufferObject->getUsingStencilBuffer()!=useStencilBuffer))
         _removeGlContextAndFboAndTextureObjectIfNeeded(); // if settings have changed (e.g. mirror was added), remove everything
 
-    if (_contextFboAndTexture==NULL)
+    if (_contextFboAndTexture==nullptr)
     { // our objects are not yet there. Build them:
 
 #ifdef USING_QOPENGLWIDGET
-        QOpenGLWidget* otherWidgetToShareResourcesWith=NULL;
+        QOpenGLWidget* otherWidgetToShareResourcesWith=nullptr;
 #else
-        QGLWidget* otherWidgetToShareResourcesWith=NULL;
+        QGLWidget* otherWidgetToShareResourcesWith=nullptr;
 #endif
 #ifdef SIM_WITH_GUI
-        if (App::mainWindow!=NULL)
+        if (App::mainWindow!=nullptr)
             otherWidgetToShareResourcesWith=App::mainWindow->openglWidget;
 #endif
 
@@ -2496,7 +2496,7 @@ void CVisionSensor::createGlContextAndFboAndTextureObjectIfNeeded(bool useStenci
         int offscreenContextType=COffscreenGlContext::QT_WINDOW_HIDE_TP;
 #ifdef LIN_VREP
 #ifdef SIM_WITH_GUI
-        if (App::mainWindow==NULL) // headless mode
+        if (App::mainWindow==nullptr) // headless mode
 #endif
             offscreenContextType=COffscreenGlContext::QT_OFFSCREEN_TP;
 #endif
@@ -2537,13 +2537,13 @@ void CVisionSensor::createGlContextAndFboAndTextureObjectIfNeeded(bool useStenci
 void CVisionSensor::_removeGlContextAndFboAndTextureObjectIfNeeded()
 {
     FUNCTION_DEBUG;
-    if (_contextFboAndTexture!=NULL)
+    if (_contextFboAndTexture!=nullptr)
     {
         if (_contextFboAndTexture->canDeleteNow())
             delete _contextFboAndTexture;
         else
             _contextFboAndTexture->deleteLater(); // We are in the wrong thread to delete it here
-        _contextFboAndTexture=NULL;
+        _contextFboAndTexture=nullptr;
     }
 }
 
@@ -2626,7 +2626,7 @@ void CVisionSensor::_handleMirrors(const std::vector<int>& activeMirrors,int ent
             glTranslatef(mtri.X(0),mtri.X(1),mtri.X(2));
             glRotatef(mtriAxis(0)*radToDeg_f,mtriAxis(1),mtriAxis(2),mtriAxis(3));
             glFrontFace (GL_CW);
-            CMirror::currentMirrorContentBeingRendered=myMirror->getID();
+            CMirror::currentMirrorContentBeingRendered=myMirror->getObjectHandle();
             _drawObjects(entityID,detectAll,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,hideEdgesIfModel,overrideRenderableFlagsForNonCollections);
             CMirror::currentMirrorContentBeingRendered=-1;
             glFrontFace (GL_CCW);
@@ -2660,11 +2660,11 @@ void CVisionSensor::_handleMirrors(const std::vector<int>& activeMirrors,int ent
 }
 
 void CVisionSensor::lookAt(CSView* viewObject,int viewPos[2],int viewSize[2])
-{   // viewPos and viewSize can be NULL.
+{   // viewPos and viewSize can be nullptr.
     FUNCTION_DEBUG;
     int currentWinSize[2];
     int currentWinPos[2];
-    if (viewObject!=NULL)
+    if (viewObject!=nullptr)
     {
         viewObject->getViewSize(currentWinSize);
         viewObject->getViewPosition(currentWinPos);
@@ -2691,7 +2691,7 @@ void CVisionSensor::lookAt(CSView* viewObject,int viewPos[2],int viewSize[2])
     glClearColor(0.3f,0.3f,0.3f,1.0f);
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
-    if ( (_contextFboAndTexture!=NULL)||getApplyExternalRenderedImage() )
+    if ( (_contextFboAndTexture!=nullptr)||getApplyExternalRenderedImage() )
     {
         float r0=float(currentWinSize[1])/float(currentWinSize[0]);
         float r1=float(_resolutionY)/float(_resolutionX);
@@ -2762,7 +2762,7 @@ void CVisionSensor::lookAt(CSView* viewObject,int viewPos[2],int viewSize[2])
         else
             _endTextureDisplay();
 
-        if (_composedFilter!=NULL)
+        if (_composedFilter!=nullptr)
             _composedFilter->displayOverlay(c0,c1);
     }
 
@@ -2773,8 +2773,8 @@ void CVisionSensor::lookAt(CSView* viewObject,int viewPos[2],int viewSize[2])
 
 CTextureObject* CVisionSensor::getTextureObject()
 {
-    if (_contextFboAndTexture!=NULL)
+    if (_contextFboAndTexture!=nullptr)
         return(_contextFboAndTexture->textureObject);
-    return(NULL);
+    return(nullptr);
 }
 #endif

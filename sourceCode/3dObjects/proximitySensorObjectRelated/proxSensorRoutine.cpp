@@ -12,8 +12,8 @@ bool CProxSensorRoutine::detectEntity(int sensorID,int entityID,bool closestFeat
     bool returnValue=false;
     detectedObject=-1;
     CProxSensor* sensor=App::ct->objCont->getProximitySensor(sensorID);
-    C3DObject* object=App::ct->objCont->getObject(entityID);
-    if (sensor==NULL)
+    C3DObject* object=App::ct->objCont->getObjectFromHandle(entityID);
+    if (sensor==nullptr)
         return(false); // should never happen!
     App::ct->calcInfo->proximitySensorSimulationStart();
     if (sensor->getRandomizedDetection())
@@ -23,7 +23,7 @@ bool CProxSensorRoutine::detectEntity(int sensorID,int entityID,bool closestFeat
         sensor->calculateFreshRandomizedRays();
     }
 
-    if (object!=NULL)
+    if (object!=nullptr)
     { // Detecting one object:
         if ( ((object->getCumulativeObjectSpecialProperty()&sensor->getSensableType())!=0)||overrideDetectableFlagIfNonCollection )
         {
@@ -58,7 +58,7 @@ bool CProxSensorRoutine::detectEntity(int sensorID,int entityID,bool closestFeat
                 int detectObjId=_detectObject(sensor,group[i],detectedPt,dist,triNormal,closestFeatureMode,angleLimitation,maxAngle,frontFace,backFace,minThreshold,occlusionCheckCallback);
                 returnValue|=(detectObjId>=0);
                 if (detectObjId>=0)
-                    detectedObject=group[i]->getID();
+                    detectedObject=group[i]->getObjectHandle();
                 if (detectObjId==-2)
                 {
                     returnValue=false;
@@ -81,7 +81,7 @@ bool CProxSensorRoutine::detectPrimitive(int sensorID,float* vertexPointer,int i
 {
     bool returnValue=false;
     CProxSensor* sens=App::ct->objCont->getProximitySensor(sensorID);
-    if (sens==NULL)
+    if (sens==nullptr)
         return(false); // should never happen!
 
     if (sens->getRandomizedDetection())
@@ -258,7 +258,7 @@ int CProxSensorRoutine::_detectDummy(CProxSensor* sensor,CDummy* dummy,C3Vector&
         if (theDistance<dist)
         {
             bool doIt=true;
-            if (occlusionCheckCallback!=NULL)
+            if (occlusionCheckCallback!=nullptr)
                 doIt=!occlusionCheckCallback(dummyCTM.X.data);
             if (doIt)
             {
@@ -267,7 +267,7 @@ int CProxSensorRoutine::_detectDummy(CProxSensor* sensor,CDummy* dummy,C3Vector&
                     dist=theDistance;
                     detectedPt=dummyCTM.X;
                     triNormalNotNormalized=detectedPt;
-                    return(dummy->getID());
+                    return(dummy->getObjectHandle());
                 }
                 else
                     return(-2);
@@ -300,7 +300,7 @@ int CProxSensorRoutine::_detectShape(CProxSensor* sensor,CShape* shape,C3Vector&
 
     if (sensor->getRandomizedDetection())
     {
-        char* closeDetectionTriggered=NULL;
+        char* closeDetectionTriggered=nullptr;
         char dummyVal=0;
         if (sensor->convexVolume->getSmallestDistanceEnabled())
             closeDetectionTriggered=&dummyVal;
@@ -323,7 +323,7 @@ int CProxSensorRoutine::_detectShape(CProxSensor* sensor,CShape* shape,C3Vector&
             bool result=CPluginContainer::mesh_getRayProxSensorDistance_ifSmaller(
                             shape->geomData->collInfo,(inv*shape->getCumulativeTransformation()).getMatrix(),distTmp,lp,sensor->convexVolume->getSmallestDistanceAllowed(),lvFar,cosAngle,
                             detectedPtTmp,!closestFeatureMode,frontFace,backFace,closeDetectionTriggered,triNormalNotNormalizedTmp,(void*)occlusionCheckCallback);
-            if ((closeDetectionTriggered!=NULL)&&(closeDetectionTriggered[0]!=0))
+            if ((closeDetectionTriggered!=nullptr)&&(closeDetectionTriggered[0]!=0))
             { // We triggered the sensor in the forbiden zone
                 normalDetectionCnt=0;
                 retVal=-2;
@@ -341,7 +341,7 @@ int CProxSensorRoutine::_detectShape(CProxSensor* sensor,CShape* shape,C3Vector&
 
         if (normalDetectionCnt>=requiredDetectionCount)
         {
-            retVal=shape->getID();
+            retVal=shape->getObjectHandle();
             dist=averageDetectionDist/float(normalDetectionCnt);
             detectedPt=averageDetectionVector/float(normalDetectionCnt);
             triNormalNotNormalized=averageNormalVector/float(normalDetectionCnt);
@@ -353,7 +353,7 @@ int CProxSensorRoutine::_detectShape(CProxSensor* sensor,CShape* shape,C3Vector&
         { // ray-type sensor here:
             C3Vector lp(0.0f,0.0f,sensor->convexVolume->getOffset());
             C3Vector lvFar(0.0f,0.0f,sensor->convexVolume->getRange());
-            char* closeDetectionTriggered=NULL;
+            char* closeDetectionTriggered=nullptr;
             char dummy=0;
             if (sensor->convexVolume->getSmallestDistanceEnabled())
                 closeDetectionTriggered=&dummy;
@@ -362,12 +362,12 @@ int CProxSensorRoutine::_detectShape(CProxSensor* sensor,CShape* shape,C3Vector&
                     shape->geomData->collInfo,shapeRTM,dist,lp,sensor->convexVolume->getSmallestDistanceAllowed(),lvFar,cosAngle,
                     detectedPt,!closestFeatureMode,frontFace,backFace,closeDetectionTriggered,triNormalNotNormalized,(void*)occlusionCheckCallback);
 
-            if ((closeDetectionTriggered!=NULL)&&(closeDetectionTriggered[0]!=0))
+            if ((closeDetectionTriggered!=nullptr)&&(closeDetectionTriggered[0]!=0))
                 retVal=-2; // We triggered the sensor in the forbiden zone: to inform the calling routine, we do following:
             else
             {
                 if (result)
-                    retVal=shape->getID();
+                    retVal=shape->getObjectHandle();
             }
         }
         else
@@ -375,17 +375,17 @@ int CProxSensorRoutine::_detectShape(CProxSensor* sensor,CShape* shape,C3Vector&
             if ( CPluginContainer::mesh_getProxSensorDistance_ifSmaller(
                     shape->geomData->collInfo,shapeRTM,dist,&sensor->convexVolume->planesInside,
                     &sensor->convexVolume->planesOutside,cosAngle,
-                    detectedPt,!closestFeatureMode,frontFace,backFace,NULL,triNormalNotNormalized,(void*)occlusionCheckCallback) )
+                    detectedPt,!closestFeatureMode,frontFace,backFace,nullptr,triNormalNotNormalized,(void*)occlusionCheckCallback) )
             {
                 if (sensor->convexVolume->getSmallestDistanceEnabled())
                 {
                     if (dist<sensor->convexVolume->getSmallestDistanceAllowed())
                         retVal=-2;
                     else
-                        retVal=shape->getID();
+                        retVal=shape->getObjectHandle();
                 }
                 else
-                    retVal=shape->getID();
+                    retVal=shape->getObjectHandle();
             }
         }
     }
@@ -397,7 +397,7 @@ int CProxSensorRoutine::_detectOctree(CProxSensor* sensor,COctree* octree,C3Vect
 { // -2: sensor triggered in the forbidden zone, -1: sensor didn't trigger. Otherwise the object handle that triggered the sensor
     if (dist==0.0)
         return(-1);
-    if (octree->getOctreeInfo()==NULL)
+    if (octree->getOctreeInfo()==nullptr)
         return(-1);
     if (!_doesSensorVolumeOverlapWithObjectBoundingBox(sensor,octree))
         return(-1);
@@ -455,7 +455,7 @@ int CProxSensorRoutine::_detectOctree(CProxSensor* sensor,COctree* octree,C3Vect
 
         if (normalDetectionCnt>=requiredDetectionCount)
         {
-            retVal=octree->getID();
+            retVal=octree->getObjectHandle();
             dist=averageDetectionDist/float(normalDetectionCnt);
             detectedPt=averageDetectionVector/float(normalDetectionCnt);
             triNormalNotNormalized=averageNormalVector/float(normalDetectionCnt);
@@ -477,7 +477,7 @@ int CProxSensorRoutine::_detectOctree(CProxSensor* sensor,COctree* octree,C3Vect
                         retVal=-2;
                 }
                 if (retVal!=-2)
-                    retVal=octree->getID();
+                    retVal=octree->getObjectHandle();
             }
         }
         else
@@ -490,10 +490,10 @@ int CProxSensorRoutine::_detectOctree(CProxSensor* sensor,COctree* octree,C3Vect
                     if (dist<sensor->convexVolume->getSmallestDistanceAllowed())
                         retVal=-2;
                     else
-                        retVal=octree->getID();
+                        retVal=octree->getObjectHandle();
                 }
                 else
-                    retVal=octree->getID();
+                    retVal=octree->getObjectHandle();
             }
         }
     }
@@ -504,7 +504,7 @@ int CProxSensorRoutine::_detectPointCloud(CProxSensor* sensor,CPointCloud* point
 { // -2: sensor triggered in the forbidden zone, -1: sensor didn't trigger. Otherwise the object handle that triggered the sensor
     if (dist==0.0)
         return(-1);
-    if (pointCloud->getPointCloudInfo()==NULL)
+    if (pointCloud->getPointCloudInfo()==nullptr)
         return(-1);
     if (sensor->getRandomizedDetection())
         return(-1); // randomized detection doesn't work with points!
@@ -537,7 +537,7 @@ int CProxSensorRoutine::_detectPointCloud(CProxSensor* sensor,CPointCloud* point
         if (doIt)
         {
             triNormalNotNormalized=detectedPt;
-            retVal=pointCloud->getID();
+            retVal=pointCloud->getObjectHandle();
         }
     }
 
@@ -638,7 +638,7 @@ int CProxSensorRoutine::_detectObject(CProxSensor* sensor,C3DObject* object,C3Ve
 OCCLUSION_CHECK_CALLBACK CProxSensorRoutine::_prepareOcclusionCheck(const CProxSensor* sensor,const std::vector<C3DObject*>& objectsToDetect,bool frontFace,bool backFace,bool checkOcclusions)
 {
     if ( (!checkOcclusions)||(objectsToDetect.size()==0) )
-        return(NULL);
+        return(nullptr);
     _occlusionCheckDat.occlusionCheck=true;
 
     for (size_t i=0;i<objectsToDetect.size();i++)
@@ -696,12 +696,12 @@ bool CProxSensorRoutine::_checkForOcclusion(const float _detectedPt[])
         if (_occlusionCheckDat.objects[j]->getObjectType()==sim_object_shape_type)
         {
             ((CShape*)_occlusionCheckDat.objects[j])->geomData->initializeCalculationStructureIfNeeded();
-            result=CPluginContainer::mesh_getRayProxSensorDistance_ifSmaller(((CShape*)_occlusionCheckDat.objects[j])->geomData->collInfo,_occlusionCheckDat.objectRelToSensorM[j],dist,lp,0.0f,lvFar,2.0f,detectedPtTmp,false,_occlusionCheckDat.frontFace,_occlusionCheckDat.backFace,NULL,triNormalNotNormalized,NULL);
+            result=CPluginContainer::mesh_getRayProxSensorDistance_ifSmaller(((CShape*)_occlusionCheckDat.objects[j])->geomData->collInfo,_occlusionCheckDat.objectRelToSensorM[j],dist,lp,0.0f,lvFar,2.0f,detectedPtTmp,false,_occlusionCheckDat.frontFace,_occlusionCheckDat.backFace,nullptr,triNormalNotNormalized,nullptr);
         }
         if (_occlusionCheckDat.objects[j]->getObjectType()==sim_object_octree_type)
         {
-            if (((COctree*)_occlusionCheckDat.objects[j])->getOctreeInfo()!=NULL)
-                result=CPluginContainer::mesh_getRayProxSensorOctreeDistanceIfSmaller(((COctree*)_occlusionCheckDat.objects[j])->getOctreeInfo(),_occlusionCheckDat.objectRelToSensorM[j],dist,lp,lvFar,2.0f,detectedPtTmp,false,_occlusionCheckDat.frontFace,_occlusionCheckDat.backFace,triNormalNotNormalized,NULL);
+            if (((COctree*)_occlusionCheckDat.objects[j])->getOctreeInfo()!=nullptr)
+                result=CPluginContainer::mesh_getRayProxSensorOctreeDistanceIfSmaller(((COctree*)_occlusionCheckDat.objects[j])->getOctreeInfo(),_occlusionCheckDat.objectRelToSensorM[j],dist,lp,lvFar,2.0f,detectedPtTmp,false,_occlusionCheckDat.frontFace,_occlusionCheckDat.backFace,triNormalNotNormalized,nullptr);
         }
         if (result)
         {

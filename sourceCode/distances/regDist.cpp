@@ -95,7 +95,7 @@ std::string CRegDist::getObjectPartnersName() const
     theName=theName.append(" (");
     if (object1ID<SIM_IDSTART_COLLECTION)
     {
-        C3DObject* it=App::ct->objCont->getObject(object1ID);
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(object1ID);
         int t=it->getObjectType();
         if (t==sim_object_shape_type)
             theName+=IDSN_SHAPE;
@@ -106,12 +106,12 @@ std::string CRegDist::getObjectPartnersName() const
         if (t==sim_object_dummy_type)
             theName+=IDSN_DUMMY;
         theName+=":";
-        theName+=it->getName();
+        theName+=it->getObjectName();
     }
     else
     {
         CRegCollection* it=App::ct->collections->getCollection(object1ID);
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             theName+=strTranslate(IDSN_COLLECTION);
             theName+=":";
@@ -122,7 +122,7 @@ std::string CRegDist::getObjectPartnersName() const
     if (object2ID>=SIM_IDSTART_COLLECTION)
     {
         CRegCollection* it=App::ct->collections->getCollection(object2ID);
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             theName+=strTranslate(IDSN_COLLECTION);
             theName+=":";
@@ -133,7 +133,7 @@ std::string CRegDist::getObjectPartnersName() const
     {
         if (object2ID!=-1)
         {
-            C3DObject* it=App::ct->objCont->getObject(object2ID);
+            C3DObject* it=App::ct->objCont->getObjectFromHandle(object2ID);
             int t=it->getObjectType();
             if (t==sim_object_shape_type)
                 theName+=IDSN_SHAPE;
@@ -144,7 +144,7 @@ std::string CRegDist::getObjectPartnersName() const
             if (t==sim_object_dummy_type)
                 theName+=IDSN_DUMMY;
             theName+=":";
-            theName+=it->getName();
+            theName+=it->getObjectName();
         }
         else
             theName+=strTranslate(IDS_ALL_OTHER_ENTITIES);

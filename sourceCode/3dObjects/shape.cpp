@@ -6,8 +6,6 @@
 #include "tt.h"
 #include "algos.h"
 #include "statDistObj.h"
-#include "shapeComponent.h"
-#include "geomObject.h"
 #include "app.h"
 #include "geomWrap.h"
 #include "geometric.h"
@@ -30,7 +28,7 @@ void CShape::setDebugObbStructures(bool d)
 
 CShape::CShape()
 {
-    geomData=NULL;
+    geomData=nullptr;
     commonInit();
 }
 
@@ -83,7 +81,7 @@ bool CShape::getRigidBodyWasAlreadyPutToSleepOnce()
 
 void CShape::actualizeContainsTransparentComponent()
 {
-    if (geomData!=NULL) // important
+    if (geomData!=nullptr) // important
         _containsTransparentComponents=geomData->geomInfo->getContainsTransparentComponents();
 }
 
@@ -94,7 +92,7 @@ bool CShape::getContainsTransparentComponent()
 
 void CShape::prepareVerticesIndicesNormalsAndEdgesForSerialization()
 {
-    if (geomData!=NULL)
+    if (geomData!=nullptr)
         geomData->prepareVerticesIndicesNormalsAndEdgesForSerialization();
 }
 
@@ -120,18 +118,18 @@ unsigned short CShape::getDynamicCollisionMask()
 
 C3DObject* CShape::getLastParentForLocalGlobalCollidable()
 {
-    if (_lastParentForLocalGlobalCollidable!=NULL)
+    if (_lastParentForLocalGlobalCollidable!=nullptr)
         return(_lastParentForLocalGlobalCollidable);
     C3DObject* it=this;
-    while (it->getParent()!=NULL)
-        it=it->getParent();
+    while (it->getParentObject()!=nullptr)
+        it=it->getParentObject();
     _lastParentForLocalGlobalCollidable=it;
     return(_lastParentForLocalGlobalCollidable);
 }
 
 void CShape::clearLastParentForLocalGlobalCollidable()
 {
-    _lastParentForLocalGlobalCollidable=NULL;
+    _lastParentForLocalGlobalCollidable=nullptr;
 }
 
 void CShape::setParentFollowsDynamic(bool f)
@@ -224,7 +222,7 @@ void CShape::commonInit()
     _shapeIsDynamicallyRespondable=false; // keep false, otherwise too many "default" problems
     _dynamicCollisionMask=0xffff;
     _parentFollowsDynamic=false;
-    _lastParentForLocalGlobalCollidable=NULL;
+    _lastParentForLocalGlobalCollidable=nullptr;
     _initialDynamicLinearVelocity.clear();
     _initialDynamicAngularVelocity.clear();
 
@@ -335,12 +333,12 @@ void CShape::setShapeIsDynamicallyStatic(bool sta)
 
 void CShape::setInsideAndOutsideFacesSameColor_DEPRECATED(bool s)
 {
-    if ((geomData!=NULL)&&(geomData->geomInfo->isGeometric()))
+    if ((geomData!=nullptr)&&(geomData->geomInfo->isGeometric()))
         ((CGeometric*)geomData->geomInfo)->setInsideAndOutsideFacesSameColor_DEPRECATED(s);
 }
 bool CShape::getInsideAndOutsideFacesSameColor_DEPRECATED()
 {
-    if ((geomData!=NULL)&&(geomData->geomInfo->isGeometric()))
+    if ((geomData!=nullptr)&&(geomData->geomInfo->isGeometric()))
         return(((CGeometric*)geomData->geomInfo)->getInsideAndOutsideFacesSameColor_DEPRECATED());
     return(true);
 }
@@ -352,7 +350,7 @@ bool CShape::isCompound() const
 
 int CShape::getEdgeWidth_DEPRECATED()
 {
-    if ((geomData!=NULL)&&(geomData->geomInfo->isGeometric()))
+    if ((geomData!=nullptr)&&(geomData->geomInfo->isGeometric()))
         return(((CGeometric*)geomData->geomInfo)->getEdgeWidth_DEPRECATED());
     return(0);
 }
@@ -360,7 +358,7 @@ int CShape::getEdgeWidth_DEPRECATED()
 void CShape::setEdgeWidth_DEPRECATED(int w)
 {
     w=tt::getLimitedInt(1,4,w);
-    if ((geomData!=NULL)&&(geomData->geomInfo->isGeometric()))
+    if ((geomData!=nullptr)&&(geomData->geomInfo->isGeometric()))
         ((CGeometric*)geomData->geomInfo)->setEdgeWidth_DEPRECATED(w);
 }
 
@@ -372,7 +370,7 @@ bool CShape::getExportableMeshAtIndex(int index,std::vector<float>& vertices,std
     {
         std::vector<float> visibleVertices;
         std::vector<int> visibleIndices;
-        geomData->geomInfo->getCumulativeMeshes(visibleVertices,&visibleIndices,NULL);
+        geomData->geomInfo->getCumulativeMeshes(visibleVertices,&visibleIndices,nullptr);
 
         C7Vector m(getCumulativeTransformationPart1());
         C3Vector v;
@@ -389,18 +387,18 @@ bool CShape::getExportableMeshAtIndex(int index,std::vector<float>& vertices,std
         indices.assign(visibleIndices.begin(),visibleIndices.end());
         return(true);
     }
-    return(App::ct->drawingCont->getExportableMeshAtIndex(getID(),index-1,vertices,indices));
+    return(App::ct->drawingCont->getExportableMeshAtIndex(getObjectHandle(),index-1,vertices,indices));
 }
 
 void CShape::display_extRenderer(CViewableBase* renderingObject,int displayAttrib)
 {
-    if (getShouldObjectBeDisplayed(renderingObject->getID(),displayAttrib))
+    if (getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
     {
         if (renderingObject->isObjectInsideView(getCumulativeTransformation(),geomData->getBoundingBoxHalfSizes()))
         { // the bounding box is inside of the view (at least some part of it!)
             C7Vector tr=getCumulativeTransformationPart1_forDisplay((displayAttrib&sim_displayattribute_forvisionsensor)==0);
             int componentIndex=0;
-            geomData->geomInfo->display_extRenderer(geomData,displayAttrib,tr,_objectID,componentIndex);
+            geomData->geomInfo->display_extRenderer(geomData,displayAttrib,tr,_objectHandle,componentIndex);
         }
     }
 }
@@ -422,15 +420,15 @@ void CShape::scaleObjectNonIsometrically(float x,float y,float z)
     _dynamicsFullRefreshFlag=true;
 }
 
-bool CShape::announceObjectWillBeErased(int objID,bool copyBuffer)
+bool CShape::announceObjectWillBeErased(int objectHandle,bool copyBuffer)
 {   // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     // This routine can be called for objCont-objects, but also for objects
     // in the copy-buffer!! So never make use of any 
-    // 'ct::objCont->getObject(id)'-call or similar
+    // 'ct::objCont->getObject(objectHandle)'-call or similar
     // Return value true means 'this' has to be erased too!
-    bool retVal=announceObjectWillBeErasedMain(objID,copyBuffer);
-    geomData->announce3DObjectWillBeErased(objID); // for textures based on vision sensors
+    bool retVal=announceObjectWillBeErasedMain(objectHandle,copyBuffer);
+    geomData->announce3DObjectWillBeErased(objectHandle); // for textures based on vision sensors
     return(retVal);
 }
 
@@ -567,7 +565,7 @@ bool CShape::applyMilling()
 
         setLocalTransformation(getLocalTransformation()*xTr);
         // we have to correct the attached drawing objects:
-        App::ct->drawingCont->adjustForFrameChange(getID(),xTr.getInverse());
+        App::ct->drawingCont->adjustForFrameChange(getObjectHandle(),xTr.getInverse());
         for (int j=0;j<int(childList.size());j++) // adjust for the children:
         {
             childList[j]->setLocalTransformation(xTr.getInverse()*childList[j]->getLocalTransformationPart1());
@@ -642,16 +640,6 @@ void CShape::serialize(CSer& ar)
             if (theName.compare(SER_END_OF_OBJECT)!=0)
             {
                 bool noHit=true;
-                if (theName.compare("Geo")==0)
-                { // keep for backward compatibility (nov. 2012). For serialization version 15 and previous
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    CGeomObject_OLD* geomData_OLD_BACKWARD_COMPATIBILITY_NOV_2012=new CGeomObject_OLD();
-                    geomData_OLD_BACKWARD_COMPATIBILITY_NOV_2012->serialize(ar);
-                    geomData=geomData_OLD_BACKWARD_COMPATIBILITY_NOV_2012->buildEquivalentGeomProxy();
-                    delete geomData_OLD_BACKWARD_COMPATIBILITY_NOV_2012;
-                    geomData->geomInfo->containsOnlyPureConvexShapes(); // needed since there was a bug where pure planes and pure discs were considered as convex
-                }
                 if (theName.compare("Ge2")==0)
                 {
                     noHit=false;
@@ -764,7 +752,7 @@ bool CShape::reorientGeometry(int type)
     // Now we have to compute the new local transformation:
     setLocalTransformation(getLocalTransformationPart1()*mCorr);
     // we have to correct the attached drawing objects:
-    App::ct->drawingCont->adjustForFrameChange(getID(),mCorrInv);
+    App::ct->drawingCont->adjustForFrameChange(getObjectHandle(),mCorrInv);
     incrementMemorizedConfigurationValidCounter();
     for (int i=0;i<int(childList.size());i++)
     {
@@ -799,63 +787,63 @@ void CShape::initializeCalculationStructureIfNeeded()
 
 bool CShape::getCulling()
 {
-    if ((geomData!=NULL)&&(geomData->geomInfo->isGeometric()))
+    if ((geomData!=nullptr)&&(geomData->geomInfo->isGeometric()))
         return(((CGeometric*)geomData->geomInfo)->getCulling());
     return(false);
 }
 
 void CShape::setCulling(bool culState)
 {
-    if ((geomData!=NULL)&&(geomData->geomInfo->isGeometric()))
+    if ((geomData!=nullptr)&&(geomData->geomInfo->isGeometric()))
         ((CGeometric*)geomData->geomInfo)->setCulling(culState);
 }
 
 bool CShape::getVisibleEdges()
 {
-    if ((geomData!=NULL)&&(geomData->geomInfo->isGeometric()))
+    if ((geomData!=nullptr)&&(geomData->geomInfo->isGeometric()))
         return(((CGeometric*)geomData->geomInfo)->getVisibleEdges());
     return(false);
 }
 
 void CShape::setVisibleEdges(bool v)
 {
-    if ((geomData!=NULL)&&(geomData->geomInfo->isGeometric()))
+    if ((geomData!=nullptr)&&(geomData->geomInfo->isGeometric()))
         ((CGeometric*)geomData->geomInfo)->setVisibleEdges(v);
 }
 
 bool CShape::getHideEdgeBorders()
 {
-    if (geomData!=NULL)
+    if (geomData!=nullptr)
         return(geomData->geomInfo->getHideEdgeBorders());
     return(false);
 }
 
 void CShape::setHideEdgeBorders(bool v)
 {
-    if (geomData!=NULL)
+    if (geomData!=nullptr)
         geomData->geomInfo->setHideEdgeBorders(v);
 }
 
 bool CShape::getShapeWireframe()
 {
-    if ((geomData!=NULL)&&(geomData->geomInfo->isGeometric()))
+    if ((geomData!=nullptr)&&(geomData->geomInfo->isGeometric()))
         return(((CGeometric*)geomData->geomInfo)->getWireframe());
     return(false);
 }
 
 void CShape::setShapeWireframe(bool w)
 {
-    if ((geomData!=NULL)&&(geomData->geomInfo->isGeometric()))
+    if ((geomData!=nullptr)&&(geomData->geomInfo->isGeometric()))
         ((CGeometric*)geomData->geomInfo)->setWireframe(w);
 }
 
 bool CShape::doesShapeCollideWithShape(CShape* collidee,std::vector<float>* intersections)
-{   // If intersections is different from NULL, we check for all intersections and
+{   // If intersections is different from nullptr, we check for all intersections and
     // intersection segments are appended to the vector
 
     std::vector<float> _intersect;
-    std::vector<float>* _intersectP=NULL;
-    if (intersections!=NULL)
+    std::vector<float>* _intersectP=nullptr;
+    if (intersections!=nullptr)
         _intersectP=&_intersect;
 
     C4X4Matrix shapeACTM=getCumulativeTransformation().getMatrix();
@@ -869,9 +857,9 @@ bool CShape::doesShapeCollideWithShape(CShape* collidee,std::vector<float>* inte
     C4X4Matrix collObjMatr[2]={shapeACTM,shapeBCTM};
     const void* collInfos[2]={geomData->collInfo,collidee->geomData->collInfo};
 
-    if ( CPluginContainer::mesh_getMeshMeshCollision(geomData->collInfo,collidee->geomData->collInfo,collObjMatr,collInfos,false,_intersectP,NULL))
+    if ( CPluginContainer::mesh_getMeshMeshCollision(geomData->collInfo,collidee->geomData->collInfo,collObjMatr,collInfos,false,_intersectP,nullptr))
     { // There was a collision
-        if (intersections!=NULL)
+        if (intersections!=nullptr)
             intersections->insert(intersections->end(),_intersect.begin(),_intersect.end());
         return(true);
     }
@@ -928,7 +916,7 @@ C3DObject* CShape::copyYourself()
 {   
     CShape* newShape=(CShape*)copyYourselfMain();
 
-    if (geomData!=NULL)
+    if (geomData!=nullptr)
         newShape->geomData=geomData->copyYourself();
 
     delete newShape->_dynMaterial;
@@ -954,7 +942,7 @@ C3DObject* CShape::copyYourself()
 
 void CShape::setColor(const char* colorName,int colorComponent,const float* rgbData)
 {
-    if (geomData!=NULL)
+    if (geomData!=nullptr)
     {
         geomData->geomInfo->setColor(colorName,colorComponent,rgbData);
         if (colorComponent==sim_colorcomponent_transparency)
@@ -964,7 +952,7 @@ void CShape::setColor(const char* colorName,int colorComponent,const float* rgbD
 
 bool CShape::getColor(const char* colorName,int colorComponent,float* rgbData)
 {
-    if (geomData!=NULL)
+    if (geomData!=nullptr)
         return(geomData->geomInfo->getColor(colorName,colorComponent,rgbData));
     return(false);
 }

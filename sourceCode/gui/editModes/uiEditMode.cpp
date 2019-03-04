@@ -19,10 +19,10 @@ CUiEditMode::~CUiEditMode()
 void CUiEditMode::addMenu(VMenu* menu)
 {
     CButtonBlock* it=_buttonBlockContainer->getBlockWithID(_buttonBlockContainer->getBlockInEdition());
-    menu->appendMenuItem(it!=NULL,false,UI_EDIT_MODE_COPY_UI_EMCMD,IDS_COPY_SELECTED_2D_ELEMENT_MENU_ITEM);
-    menu->appendMenuItem(_buttonBlockContainer->getCopyOfBlock_forEditMode()!=NULL,false,UI_EDIT_MODE_PASTE_UI_EMCMD,IDS_PASTE_BUFFER_MENU_ITEM);
-    menu->appendMenuItem(it!=NULL,false,UI_EDIT_MODE_DELETE_UI_EMCMD,IDS_DELETE_SELECTED_2D_ELEMENT_MENU_ITEM);
-    menu->appendMenuItem(it!=NULL,false,UI_EDIT_MODE_CUT_UI_EMCMD,IDS_CUT_SELECTED_2D_ELEMENT_MENU_ITEM);
+    menu->appendMenuItem(it!=nullptr,false,UI_EDIT_MODE_COPY_UI_EMCMD,IDS_COPY_SELECTED_2D_ELEMENT_MENU_ITEM);
+    menu->appendMenuItem(_buttonBlockContainer->getCopyOfBlock_forEditMode()!=nullptr,false,UI_EDIT_MODE_PASTE_UI_EMCMD,IDS_PASTE_BUFFER_MENU_ITEM);
+    menu->appendMenuItem(it!=nullptr,false,UI_EDIT_MODE_DELETE_UI_EMCMD,IDS_DELETE_SELECTED_2D_ELEMENT_MENU_ITEM);
+    menu->appendMenuItem(it!=nullptr,false,UI_EDIT_MODE_CUT_UI_EMCMD,IDS_CUT_SELECTED_2D_ELEMENT_MENU_ITEM);
 
     menu->appendMenuSeparator();
 

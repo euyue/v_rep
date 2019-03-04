@@ -92,7 +92,7 @@ std::string CRegCollision::getObjectPartnersName() const
     theName=theName.append(" (");
     if (object1ID<SIM_IDSTART_COLLECTION)
     {
-        C3DObject* it=App::ct->objCont->getObject(object1ID);
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(object1ID);
         int t=it->getObjectType();
         if (t==sim_object_shape_type)
             theName+=IDSN_SHAPE;
@@ -103,12 +103,12 @@ std::string CRegCollision::getObjectPartnersName() const
         if (t==sim_object_dummy_type)
             theName+=IDSN_DUMMY;
         theName+=":";
-        theName+=it->getName();
+        theName+=it->getObjectName();
     }
     else
     {
         CRegCollection* it=App::ct->collections->getCollection(object1ID);
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             theName+=strTranslate(IDSN_COLLECTION);
             theName+=":";
@@ -119,7 +119,7 @@ std::string CRegCollision::getObjectPartnersName() const
     if (object2ID>=SIM_IDSTART_COLLECTION)
     {
         CRegCollection* it=App::ct->collections->getCollection(object2ID);
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             theName+=strTranslate(IDSN_COLLECTION);
             theName+=":";
@@ -130,7 +130,7 @@ std::string CRegCollision::getObjectPartnersName() const
     {
         if (object2ID!=-1)
         {
-            C3DObject* it=App::ct->objCont->getObject(object2ID);
+            C3DObject* it=App::ct->objCont->getObjectFromHandle(object2ID);
             int t=it->getObjectType();
             if (t==sim_object_shape_type)
                 theName+=IDSN_SHAPE;
@@ -141,7 +141,7 @@ std::string CRegCollision::getObjectPartnersName() const
             if (t==sim_object_dummy_type)
                 theName+=IDSN_DUMMY;
             theName+=":";
-            theName+=it->getName();
+            theName+=it->getObjectName();
         }
         else
             theName+=strTranslate(IDS_ALL_OTHER_ENTITIES);
@@ -162,8 +162,8 @@ int CRegCollision::getCollisionColor(int entityID) const
     // Here we need to check for the special case where object2ID==-1 (which means all other objects)
     if ((object2ID==-1)&&collideeChangesColor&&(entityID<SIM_IDSTART_COLLECTION))
     {
-        C3DObject* it=App::ct->objCont->getObject(entityID);
-        if ( (it!=NULL)&&(it->getCumulativeObjectSpecialProperty()&sim_objectspecialproperty_collidable) )
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(entityID);
+        if ( (it!=nullptr)&&(it->getCumulativeObjectSpecialProperty()&sim_objectspecialproperty_collidable) )
         {
             if (object1ID<SIM_IDSTART_COLLECTION)
             {
@@ -263,18 +263,18 @@ bool CRegCollision::canComputeCollisionContour() const
         if (object2ID>=SIM_IDSTART_COLLECTION)
             return(true); // collection/collection
         else
-            return(App::ct->objCont->getShape(object2ID)!=NULL); // collection/shape
+            return(App::ct->objCont->getShape(object2ID)!=nullptr); // collection/shape
     }
     else
     {
-        if (App::ct->objCont->getShape(object1ID)==NULL)
+        if (App::ct->objCont->getShape(object1ID)==nullptr)
             return(false); // non-shape/something
         if (object2ID==-1)
             return(true); // shape/allOtherObjects
         if (object2ID>=SIM_IDSTART_COLLECTION)
             return(true); // shape/collection
         else
-            return(App::ct->objCont->getShape(object2ID)!=NULL); // shape/shape
+            return(App::ct->objCont->getShape(object2ID)!=nullptr); // shape/shape
     }
 }
 
@@ -346,7 +346,7 @@ bool CRegCollision::handleCollision()
             intersections.push_back(collCont[i]);
     }
     else
-        collisionResult=CCollisionRoutine::doEntitiesCollide(object1ID,object2ID,NULL,false,false,_collObjectHandles);
+        collisionResult=CCollisionRoutine::doEntitiesCollide(object1ID,object2ID,nullptr,false,false,_collObjectHandles);
     _calcTimeInMs=VDateTime::getTimeDiffInMs(stT);
     _collisionResultValid=true;
     return(collisionResult);
@@ -358,7 +358,7 @@ int CRegCollision::readCollision(int collObjHandles[2]) const
     {
         if (collisionResult)
         {
-            if (collObjHandles!=NULL)
+            if (collObjHandles!=nullptr)
             {
                 collObjHandles[0]=_collObjectHandles[0];
                 collObjHandles[1]=_collObjectHandles[1];

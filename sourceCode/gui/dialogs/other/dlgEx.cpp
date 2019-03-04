@@ -106,12 +106,12 @@ QLineEdit* CDlgEx::getSelectedLineEdit()
         if (wl[i]->selectedText().size()>0)
             return(wl[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 void CDlgEx::selectLineEdit(QLineEdit* edit)
 {
-    if (edit!=NULL)
+    if (edit!=nullptr)
     {
         edit->setFocus();
         edit->selectAll();

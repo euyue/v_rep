@@ -45,19 +45,19 @@ void CQDlgMirrors::refresh()
     ui->qqDisableAllClippingPlanes->setChecked(App::ct->mainSettings->clippingPlanesDisabled);
 
 
-    ui->qqEnabled->setEnabled((it!=NULL)&&noEditModeAndNoSim);
-    ui->qqWidth->setEnabled((it!=NULL)&&noEditModeAndNoSim);
-    ui->qqHeight->setEnabled((it!=NULL)&&noEditModeAndNoSim);
-    ui->qqReflectance->setEnabled((it!=NULL)&&it->getIsMirror()&&noEditModeAndNoSim);
-    ui->qqColor->setEnabled((it!=NULL)&&noEditModeAndNoSim);
+    ui->qqEnabled->setEnabled((it!=nullptr)&&noEditModeAndNoSim);
+    ui->qqWidth->setEnabled((it!=nullptr)&&noEditModeAndNoSim);
+    ui->qqHeight->setEnabled((it!=nullptr)&&noEditModeAndNoSim);
+    ui->qqReflectance->setEnabled((it!=nullptr)&&it->getIsMirror()&&noEditModeAndNoSim);
+    ui->qqColor->setEnabled((it!=nullptr)&&noEditModeAndNoSim);
 
-    ui->qqIsMirror->setEnabled((it!=NULL)&&noEditModeAndNoSim);
-    ui->qqIsClippingPlane->setEnabled((it!=NULL)&&noEditModeAndNoSim);
+    ui->qqIsMirror->setEnabled((it!=nullptr)&&noEditModeAndNoSim);
+    ui->qqIsClippingPlane->setEnabled((it!=nullptr)&&noEditModeAndNoSim);
 
-    ui->qqEntityCombo->setEnabled((it!=NULL)&&noEditModeAndNoSim);
+    ui->qqEntityCombo->setEnabled((it!=nullptr)&&noEditModeAndNoSim);
     ui->qqEntityCombo->clear();
 
-    if (it!=NULL)
+    if (it!=nullptr)
     {
         ui->qqEnabled->setChecked(it->getActive()&&noEditModeAndNoSim);
 
@@ -94,11 +94,11 @@ void CQDlgMirrors::refresh()
             // Now objects:
             for (int i=0;i<int(App::ct->objCont->objectList.size());i++)
             {
-                C3DObject* it=App::ct->objCont->getObject(App::ct->objCont->objectList[i]);
+                C3DObject* it=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
                 std::string name(tt::decorateString("[",strTranslate(IDS_OBJECT),"] "));
-                name+=it->getName();
+                name+=it->getObjectName();
                 names.push_back(name);
-                ids.push_back(it->getID());
+                ids.push_back(it->getObjectHandle());
             }
             tt::orderStrings(names,ids);
             for (int i=0;i<int(names.size());i++)
@@ -178,7 +178,7 @@ void CQDlgMirrors::on_qqColor_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CMirror* it=App::ct->objCont->getLastSelection_mirror();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             if (it->getIsMirror())
                 CQDlgColor::displayDlg(COLOR_ID_MIRROR,App::ct->objCont->getLastSelectionID(),-1,0,App::mainWindow);

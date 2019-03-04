@@ -30,7 +30,7 @@ xmlNode* CXmlSer::readOpen()
 {
     if (_xmlDocument.LoadFile(_filename.c_str())==tinyxml2::XML_NO_ERROR)
         return(_xmlDocument.FirstChildElement("V-REP"));
-    return(NULL);
+    return(nullptr);
 }
 
 xmlNode* CXmlSer::createNode(const char* name)
@@ -297,7 +297,7 @@ bool CXmlSer::getBoolAttribute(const xmlNode* node,const char* attribName,bool& 
 {
     const char* str=node->Attribute(attribName);
     attrib=false;
-    if (str!=NULL)
+    if (str!=nullptr)
     {
         try
         {
@@ -315,7 +315,7 @@ bool CXmlSer::getBoolAttribute(const xmlNode* node,const char* attribName,bool& 
 bool CXmlSer::getBoolAttribute(const xmlNode* node,const char* attribName)
 {
     const char* str=node->Attribute(attribName);
-    if (str!=NULL)
+    if (str!=nullptr)
     {
         try
         {
@@ -333,7 +333,7 @@ bool CXmlSer::getIntAttribute(const xmlNode* node,const char* attribName,int& at
 {
     const char* str=node->Attribute(attribName);
     attrib=0;
-    if (str!=NULL)
+    if (str!=nullptr)
     {
         try
         {
@@ -352,7 +352,7 @@ bool CXmlSer::getIntAttribute(const xmlNode* node,const char* attribName,int& at
 int CXmlSer::getIntAttribute(const xmlNode* node,const char* attribName)
 {
     const char* str=node->Attribute(attribName);
-    if (str!=NULL)
+    if (str!=nullptr)
     {
         try
         {
@@ -371,7 +371,7 @@ bool CXmlSer::getInt2Attribute(const xmlNode* node,const char* attribName,int at
     for (int i=0;i<2;i++)
         attrib[i]=0;
     const char* str=node->Attribute(attribName);
-    if (str!=NULL)
+    if (str!=nullptr)
     {
         std::string buff;
         std::stringstream ss(str);
@@ -401,7 +401,7 @@ bool CXmlSer::getInt2Attribute(const xmlNode* node,const char* attribName,int& a
     attrib1=0;
     attrib2=0;
     const char* str=node->Attribute(attribName);
-    if (str!=NULL)
+    if (str!=nullptr)
     {
         std::string buff;
         std::stringstream ss(str);
@@ -447,7 +447,7 @@ bool CXmlSer::getInt3Attribute(const xmlNode* node,const char* attribName,int at
     for (int i=0;i<3;i++)
         attrib[i]=0;
     const char* str=node->Attribute(attribName);
-    if (str!=NULL)
+    if (str!=nullptr)
     {
         std::string buff;
         std::stringstream ss(str);
@@ -478,7 +478,7 @@ bool CXmlSer::getInt3Attribute(const xmlNode* node,const char* attribName,int& a
     attrib2=0;
     attrib3=0;
     const char* str=node->Attribute(attribName);
-    if (str!=NULL)
+    if (str!=nullptr)
     {
         std::string buff;
         std::stringstream ss(str);
@@ -537,7 +537,7 @@ bool CXmlSer::getIntArrayAttribute(const xmlNode* node,const char* attribName,in
     for (unsigned int i=0;i<cnt;i++)
         attrib[i]=0;
     const char* str=node->Attribute(attribName);
-    if (str!=NULL)
+    if (str!=nullptr)
     {
         std::string buff;
         std::stringstream ss(str);
@@ -568,7 +568,7 @@ int CXmlSer::getIntVectorAttribute(const xmlNode* node,const char* attribName,st
     for (unsigned int i=0;i<cnt;i++)
         attrib[i]=0;
     const char* str=node->Attribute(attribName);
-    if (str!=NULL)
+    if (str!=nullptr)
     {
         std::string buff;
         std::stringstream ss(str);
@@ -597,7 +597,7 @@ bool CXmlSer::getFloatAttribute(const xmlNode* node,const char* attribName,float
 {
     attrib=0.0f;
     const char* str=node->Attribute(attribName);
-    if (str!=NULL)
+    if (str!=nullptr)
     {
         try
         {
@@ -616,7 +616,7 @@ bool CXmlSer::getFloatAttribute(const xmlNode* node,const char* attribName,doubl
 {
     attrib=0.0;
     const char* str=node->Attribute(attribName);
-    if (str!=NULL)
+    if (str!=nullptr)
     {
         try
         {
@@ -635,7 +635,7 @@ bool CXmlSer::getFloatAttribute(const xmlNode* node,const char* attribName,doubl
 double CXmlSer::getFloatAttribute(const xmlNode* node,const char* attribName)
 {
     const char* str=node->Attribute(attribName);
-    if (str!=NULL)
+    if (str!=nullptr)
     {
         try
         {
@@ -654,7 +654,7 @@ bool CXmlSer::getFloat2Attribute(const xmlNode* node,const char* attribName,floa
     for (int i=0;i<2;i++)
         attrib[i]=0.0f;
     const char* str=node->Attribute(attribName);
-    if (str!=NULL)
+    if (str!=nullptr)
     {
         std::string buff;
         std::stringstream ss(str);
@@ -684,7 +684,7 @@ bool CXmlSer::getFloat2Attribute(const xmlNode* node,const char* attribName,doub
     for (int i=0;i<2;i++)
         attrib[i]=0.0;
     const char* str=node->Attribute(attribName);
-    if (str!=NULL)
+    if (str!=nullptr)
     {
         std::string buff;
         std::stringstream ss(str);
@@ -714,7 +714,7 @@ bool CXmlSer::getFloat2Attribute(const xmlNode* node,const char* attribName,floa
     attrib1=0.0f;
     attrib2=0.0f;
     const char* str=node->Attribute(attribName);
-    if (str!=NULL)
+    if (str!=nullptr)
     {
         std::string buff;
         std::stringstream ss(str);
@@ -754,7 +754,7 @@ bool CXmlSer::getFloat2Attribute(const xmlNode* node,const char* attribName,doub
     attrib1=0.0;
     attrib2=0.0;
     const char* str=node->Attribute(attribName);
-    if (str!=NULL)
+    if (str!=nullptr)
     {
         std::string buff;
         std::stringstream ss(str);
@@ -806,7 +806,7 @@ bool CXmlSer::getFloat3Attribute(const xmlNode* node,const char* attribName,floa
     for (int i=0;i<3;i++)
         attrib[i]=0.0f;
     const char* str=node->Attribute(attribName);
-    if (str!=NULL)
+    if (str!=nullptr)
     {
         std::string buff;
         std::stringstream ss(str);
@@ -836,7 +836,7 @@ bool CXmlSer::getFloat3Attribute(const xmlNode* node,const char* attribName,doub
     for (int i=0;i<3;i++)
         attrib[i]=0.0;
     const char* str=node->Attribute(attribName);
-    if (str!=NULL)
+    if (str!=nullptr)
     {
         std::string buff;
         std::stringstream ss(str);
@@ -867,7 +867,7 @@ bool CXmlSer::getFloat3Attribute(const xmlNode* node,const char* attribName,floa
     attrib2=0.0f;
     attrib3=0.0f;
     const char* str=node->Attribute(attribName);
-    if (str!=NULL)
+    if (str!=nullptr)
     {
         std::string buff;
         std::stringstream ss(str);
@@ -921,7 +921,7 @@ bool CXmlSer::getFloat3Attribute(const xmlNode* node,const char* attribName,doub
     attrib2=0.0;
     attrib3=0.0;
     const char* str=node->Attribute(attribName);
-    if (str!=NULL)
+    if (str!=nullptr)
     {
         std::string buff;
         std::stringstream ss(str);
@@ -986,7 +986,7 @@ bool CXmlSer::getFloat4Attribute(const xmlNode* node,const char* attribName,floa
     for (int i=0;i<4;i++)
         attrib[i]=0.0f;
     const char* str=node->Attribute(attribName);
-    if (str!=NULL)
+    if (str!=nullptr)
     {
         std::string buff;
         std::stringstream ss(str);
@@ -1016,7 +1016,7 @@ bool CXmlSer::getFloat4Attribute(const xmlNode* node,const char* attribName,doub
     for (int i=0;i<4;i++)
         attrib[i]=0.0;
     const char* str=node->Attribute(attribName);
-    if (str!=NULL)
+    if (str!=nullptr)
     {
         std::string buff;
         std::stringstream ss(str);
@@ -1048,7 +1048,7 @@ bool CXmlSer::getFloat4Attribute(const xmlNode* node,const char* attribName,floa
     attrib3=0.0f;
     attrib4=0.0f;
     const char* str=node->Attribute(attribName);
-    if (str!=NULL)
+    if (str!=nullptr)
     {
         std::string buff;
         std::stringstream ss(str);
@@ -1116,7 +1116,7 @@ bool CXmlSer::getFloat4Attribute(const xmlNode* node,const char* attribName,doub
     attrib3=0.0;
     attrib4=0.0;
     const char* str=node->Attribute(attribName);
-    if (str!=NULL)
+    if (str!=nullptr)
     {
         std::string buff;
         std::stringstream ss(str);
@@ -1195,7 +1195,7 @@ int CXmlSer::getFloatVectorAttribute(const xmlNode* node,const char* attribName,
     for (unsigned int i=0;i<cnt;i++)
         attrib[i]=0.0f;
     const char* str=node->Attribute(attribName);
-    if (str!=NULL)
+    if (str!=nullptr)
     {
         std::string buff;
         std::stringstream ss(str);
@@ -1226,7 +1226,7 @@ int CXmlSer::getFloatVectorAttribute(const xmlNode* node,const char* attribName,
     for (unsigned int i=0;i<cnt;i++)
         attrib[i]=0.0;
     const char* str=node->Attribute(attribName);
-    if (str!=NULL)
+    if (str!=nullptr)
     {
         std::string buff;
         std::stringstream ss(str);
@@ -1256,7 +1256,7 @@ bool CXmlSer::getFloatArrayAttribute(const xmlNode* node,const char* attribName,
     for (unsigned int i=0;i<cnt;i++)
         attrib[i]=0.0f;
     const char* str=node->Attribute(attribName);
-    if (str!=NULL)
+    if (str!=nullptr)
     {
         std::string buff;
         std::stringstream ss(str);
@@ -1286,7 +1286,7 @@ bool CXmlSer::getFloatArrayAttribute(const xmlNode* node,const char* attribName,
     for (unsigned int i=0;i<cnt;i++)
         attrib[i]=0.0;
     const char* str=node->Attribute(attribName);
-    if (str!=NULL)
+    if (str!=nullptr)
     {
         std::string buff;
         std::stringstream ss(str);
@@ -1314,7 +1314,7 @@ bool CXmlSer::getFloatArrayAttribute(const xmlNode* node,const char* attribName,
 bool CXmlSer::getStringAttribute(const xmlNode* node,const char* attribName,std::string& attrib)
 {
     const char* str=node->Attribute(attribName);
-    if (str!=NULL)
+    if (str!=nullptr)
     {
         attrib=str;
         return(true);
@@ -1326,7 +1326,7 @@ bool CXmlSer::getStringAttribute(const xmlNode* node,const char* attribName,std:
 std::string CXmlSer::getStringAttribute(const xmlNode* node,const char* attribName)
 {
     const char* str=node->Attribute(attribName);
-    if (str!=NULL)
+    if (str!=nullptr)
         return(std::string(str));
     return(std::string(""));
 }

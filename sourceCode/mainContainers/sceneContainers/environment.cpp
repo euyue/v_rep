@@ -348,7 +348,7 @@ int CEnvironment::setEnableCustomContactHandlingViaScript(bool c,const char* scr
 
     // We remove a script that might be associated:
     CLuaScriptObject* script=App::ct->luaScriptContainer->getCustomContactHandlingScript_callback_OLD();
-    if (script!=NULL)
+    if (script!=nullptr)
         App::ct->luaScriptContainer->removeScript(script->getScriptID());
 
     if (_useCustomContactHandlingViaScript_OLD&&App::userSettings->enableOldCustomContactHandlingEdition)

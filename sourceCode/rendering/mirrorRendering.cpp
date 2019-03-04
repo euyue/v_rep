@@ -13,14 +13,14 @@ void displayMirror(CMirror* mirror,CViewableBase* renderingObject,int displayAtt
         _displayBoundingBox(mirror,displayAttrib,true,0.0);
 
     // Object display:
-    if (mirror->getShouldObjectBeDisplayed(renderingObject->getID(),displayAttrib))
+    if (mirror->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
     {
         if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE)==0)
         {
             if (mirror->getLocalObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
-                glLoadName(mirror->getModelSelectionID());
+                glLoadName(mirror->getModelSelectionHandle());
             else
-                glLoadName(mirror->getID());
+                glLoadName(mirror->getObjectHandle());
         }
         else
             glLoadName(-1);
@@ -28,8 +28,8 @@ void displayMirror(CMirror* mirror,CViewableBase* renderingObject,int displayAtt
         if ( (displayAttrib&sim_displayattribute_forcewireframe)&&(displayAttrib&sim_displayattribute_renderpass) )
             glPolygonMode (GL_FRONT_AND_BACK,GL_LINE);
 
-        _enableAuxClippingPlanes(mirror->getID());
-        if (((displayAttrib&sim_displayattribute_pickpass)||((mirror->currentMirrorContentBeingRendered!=mirror->getID())&&(mirror->currentMirrorContentBeingRendered!=-1)))&&mirror->getIsMirror())
+        _enableAuxClippingPlanes(mirror->getObjectHandle());
+        if (((displayAttrib&sim_displayattribute_pickpass)||((mirror->currentMirrorContentBeingRendered!=mirror->getObjectHandle())&&(mirror->currentMirrorContentBeingRendered!=-1)))&&mirror->getIsMirror())
         {
             ogl::disableLighting_useWithCare(); // only temporarily
             ogl::setMaterialColor(mirror->mirrorColor,ogl::colorBlack,ogl::colorBlack);

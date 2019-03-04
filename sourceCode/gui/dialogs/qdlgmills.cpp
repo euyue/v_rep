@@ -57,7 +57,7 @@ void CQDlgMills::refresh()
     ui->qqExplicitHandling->setChecked(isMill&&it->getExplicitHandling());
     ui->qqEntityToCut->clear();
 
-    if (it!=NULL)
+    if (it!=nullptr)
     { // Last selection is a mill
         ui->qqBaseSize->setText(tt::getFString(false,it->getSize(),3).c_str());
 
@@ -87,9 +87,9 @@ void CQDlgMills::refresh()
         {
             CShape* it=App::ct->objCont->getShape(App::ct->objCont->shapeList[i]);
             std::string name(tt::decorateString("[",strTranslate(IDSN_SHAPE),"] "));
-            name+=it->getName();
+            name+=it->getObjectName();
             names.push_back(name);
-            ids.push_back(it->getID());
+            ids.push_back(it->getObjectHandle());
         }
         tt::orderStrings(names,ids);
         for (int i=0;i<int(names.size());i++)
@@ -127,7 +127,7 @@ void CQDlgMills::on_qqExplicitHandling_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CMill* theMill=App::ct->objCont->getLastSelection_mill();
-        if (theMill!=NULL)
+        if (theMill!=nullptr)
         {
             App::appendSimulationThreadCommand(TOGGLE_EXPLICITHANDLING_MILLGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -145,7 +145,7 @@ void CQDlgMills::on_qqBaseSize_editingFinished()
         CMill* it=App::ct->objCont->getLastSelection_mill();
         bool ok;
         float newVal=ui->qqBaseSize->text().toFloat(&ok);
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             if (ok)
             {
@@ -175,15 +175,15 @@ void CQDlgMills::on_qqEntityToCut_currentIndexChanged(int index)
         {
             int objID=ui->qqEntityToCut->itemData(ui->qqEntityToCut->currentIndex()).toInt();
             CMill* it=App::ct->objCont->getLastSelection_mill();
-            if (it!=NULL)
+            if (it!=nullptr)
             {
                 if (objID!=-1)
                 {
                     bool displayWarning=false;
                     if ((objID<SIM_IDSTART_COLLECTION)&&(objID>=0))
                     {
-                        C3DObject* it2=App::ct->objCont->getObject(objID);
-                        if (it2!=NULL)
+                        C3DObject* it2=App::ct->objCont->getObjectFromHandle(objID);
+                        if (it2!=nullptr)
                             displayWarning|=((it2->getLocalObjectSpecialProperty()&sim_objectspecialproperty_cuttable)==0);
                     }
                     if (displayWarning)

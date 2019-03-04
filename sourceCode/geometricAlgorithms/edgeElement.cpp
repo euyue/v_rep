@@ -17,5 +17,5 @@ CEdgeElement::CEdgeElement(int v0,int v1,int tri,CEdgeElement* nextEl,int positi
 CEdgeElement::~CEdgeElement()
 {
     delete next;
-    next=NULL;
+    next=nullptr;
 }

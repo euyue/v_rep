@@ -7,7 +7,7 @@ int CSerialPort::_qserialPort_nextHandle=0;
 CSerialPort::CSerialPort(bool wasOpenedFromAScript,bool useQSerialPort)
 {
     _useQSerialPort=useQSerialPort;
-    _qserialPort=NULL;
+    _qserialPort=nullptr;
     _portHandle=-1;
     _portNumber_backwardCompatibility=-1;
     _wasOpenedFromAScript=wasOpenedFromAScript;
@@ -58,7 +58,7 @@ bool CSerialPort::open(const char* portString,int nBaud)
         if (_portHandle<0)
         {
             delete _qserialPort;
-            _qserialPort=NULL;
+            _qserialPort=nullptr;
         }
     }
     return (_portHandle>=0);
@@ -74,7 +74,7 @@ bool CSerialPort::close()
         {
             _qserialPort->close();
             delete _qserialPort;
-            _qserialPort=NULL;
+            _qserialPort=nullptr;
             return(true);
         }
     }

@@ -81,7 +81,7 @@ CRegCollectionEl* CRegCollection::getSubCollection(int subGroupID)
         if (subCollectionList[i]->getSubCollectionID()==subGroupID)
             return(subCollectionList[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 void CRegCollection::addSubCollection(CRegCollectionEl* subGr)
@@ -89,7 +89,7 @@ void CRegCollection::addSubCollection(CRegCollectionEl* subGr)
     bool full=(subCollectionList.size()!=0);
     // We set a new ID:
     int i=0;
-    while (getSubCollection(i)!=NULL)
+    while (getSubCollection(i)!=nullptr)
         i++;
     subGr->setSubCollectionID(i);
     subCollectionList.push_back(subGr);
@@ -106,8 +106,8 @@ bool CRegCollection::actualizeCollection(bool full)
     // First we remove all sub groups which are not valid anymore:
     while (i<subCollectionList.size())
     {
-        C3DObject* it=App::ct->objCont->getObject(subCollectionList[i]->getMainObject());
-        if (it==NULL)
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(subCollectionList[i]->getMainObject());
+        if (it==nullptr)
         {
             if (subCollectionList[i]->getCollectionType()!=GROUP_EVERYTHING)
             {

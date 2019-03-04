@@ -44,7 +44,7 @@ bool VVarious::executeExternalApplication(const std::string& file,const std::str
         if (file[0]=='@')
             cmd.erase(cmd.begin());
     }
-    return (reinterpret_cast<long long>(ShellExecuteA(NULL,"open",cmd.c_str(),arguments.c_str(),NULL,sh))>32);
+    return (reinterpret_cast<long long>(ShellExecuteA(nullptr,"open",cmd.c_str(),arguments.c_str(),nullptr,sh))>32);
 #else // WIN_VREP
     // Check here: http://stackoverflow.com/questions/859517/osx-equivalent-of-shellexecute
 #ifdef SIM_WITHOUT_QT_AT_ALL
@@ -68,7 +68,7 @@ bool VVarious::executeExternalApplication(const std::string& file,const std::str
     std::vector<char*> argsp;
     std::vector<std::string> args;
     for (int i=0;i<10;i++)
-        argsp.push_back(NULL);
+        argsp.push_back(nullptr);
     std::string w;
     std::string argu(arguments);
     while (tt::extractSpaceSeparatedWord2(argu,w,true,true,false,false,false))
@@ -104,7 +104,7 @@ bool VVarious::executeExternalApplication(const std::string& file,const std::str
     std::string word;
     while (tt::extractSpaceSeparatedWord(args,word))
         strList << QString(word.c_str());
-    return(QProcess::startDetached(cmd,strList,QString::fromLocal8Bit(switchToDirectory.c_str()),NULL));
+    return(QProcess::startDetached(cmd,strList,QString::fromLocal8Bit(switchToDirectory.c_str()),nullptr));
 #endif
 #endif // WIN_VREP
 }
@@ -116,7 +116,7 @@ std::string VVarious::getModulePath()
     {
         char curDirAndFile[2048];
 #ifdef _WIN32
-        GetModuleFileNameA(NULL,curDirAndFile,2000);
+        GetModuleFileNameA(nullptr,curDirAndFile,2000);
         int i=0;
         while (true)
         {
@@ -300,7 +300,7 @@ WLibrary VVarious::openLibrary(const char* filename)
     if (!lib->load())
     {
         delete lib;
-        lib=NULL;
+        lib=nullptr;
     }
     return(lib);
 #endif // SIM_WITHOUT_QT_AT_ALL
@@ -316,7 +316,7 @@ void VVarious::closeLibrary(WLibrary lib)
         dlclose(lib);
 #endif
 #else // SIM_WITHOUT_QT_AT_ALL
-    if (lib!=NULL)
+    if (lib!=nullptr)
     {
         lib->unload();
         delete lib;
@@ -328,17 +328,17 @@ WLibraryFunc VVarious::resolveLibraryFuncName(WLibrary lib,const char* funcName)
 {
 #ifdef SIM_WITHOUT_QT_AT_ALL
 #ifdef WIN_VREP
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return GetProcAddress(lib,funcName);
 #else
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return dlsym(lib,funcName);
 #endif
 #else // SIM_WITHOUT_QT_AT_ALL
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return((void*)lib->resolve(funcName));
 #endif // SIM_WITHOUT_QT_AT_ALL
-    return(NULL);
+    return(nullptr);
 }
 
 bool VVarious::copyTextToClipboard(const std::string& text)

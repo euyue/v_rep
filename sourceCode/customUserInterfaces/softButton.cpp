@@ -24,8 +24,8 @@ CSoftButton::CSoftButton(std::string theLabel,int w,int h,int theLength,int theH
     textColor[2]=0.0f;
     label=theLabel;
     downLabel=theLabel;
-    _textureProperty=NULL;
-    arrayColors=NULL;
+    _textureProperty=nullptr;
+    arrayColors=nullptr;
     _buttonAttributes=sim_buttonproperty_button|sim_buttonproperty_enabled|sim_buttonproperty_horizontallycentered|sim_buttonproperty_verticallycentered;
     sliderPos=0.0f;
     if (theLength<1)
@@ -105,37 +105,37 @@ CSoftButton::~CSoftButton()
 
 void CSoftButton::announce3DObjectWillBeErased(int objID)
 {
-    if (_textureProperty!=NULL)
+    if (_textureProperty!=nullptr)
     {
         if (_textureProperty->announceObjectWillBeErased(objID))
         {
             delete _textureProperty;
-            _textureProperty=NULL;
+            _textureProperty=nullptr;
         }
     }
 }
 
 void CSoftButton::perform3DObjectLoadingMapping(std::vector<int>* map)
 {
-    if (App::ct->objCont!=NULL)
+    if (App::ct->objCont!=nullptr)
     {
-        if (_textureProperty!=NULL)
+        if (_textureProperty!=nullptr)
             _textureProperty->performObjectLoadingMapping(map);
     }
 }
 
 void CSoftButton::performTextureObjectLoadingMapping(std::vector<int>* map)
 {
-    if (App::ct->objCont!=NULL)
+    if (App::ct->objCont!=nullptr)
     {
-        if (_textureProperty!=NULL)
+        if (_textureProperty!=nullptr)
             _textureProperty->performTextureObjectLoadingMapping(map);
     }
 }
 
 void CSoftButton::setTextureDependencies(int buttonBlockID)
 {
-    if (_textureProperty!=NULL)
+    if (_textureProperty!=nullptr)
         _textureProperty->addTextureDependencies(buttonBlockID,_buttonUniqueID);
 }
 
@@ -156,7 +156,7 @@ bool CSoftButton::getVertical()
 void CSoftButton::enableArray(bool enable)
 {
     delete[] arrayColors;
-    arrayColors=NULL;
+    arrayColors=nullptr;
     if (enable)
     {
         arrayColors=new float[length*height*3];
@@ -167,7 +167,7 @@ void CSoftButton::enableArray(bool enable)
 
 bool CSoftButton::setArrayColor(int x,int y,const float col[3])
 {
-    if (arrayColors==NULL)
+    if (arrayColors==nullptr)
         return(false);
     if ( (x<0)||(x>=length)||(y<0)||(y>=height) )
         return(false);
@@ -179,7 +179,7 @@ bool CSoftButton::setArrayColor(int x,int y,const float col[3])
 
 bool CSoftButton::isArrayEnabled()
 {
-    return(arrayColors!=NULL);
+    return(arrayColors!=nullptr);
 }
 
 int CSoftButton::getLength()
@@ -233,7 +233,7 @@ CSoftButton* CSoftButton::copyYourself()
     CSoftButton* newButton=new CSoftButton(label,xPos,yPos,length,height);
     newButton->buttonID=buttonID;
     newButton->_buttonAttributes=_buttonAttributes;
-    if (arrayColors!=NULL)
+    if (arrayColors!=nullptr)
     {
         newButton->arrayColors=new float[length*height*3];
         for (int i=0;i<length*height*3;i++)
@@ -247,7 +247,7 @@ CSoftButton* CSoftButton::copyYourself()
     }
     newButton->downLabel=downLabel;
     newButton->sliderPos=sliderPos;
-    if (_textureProperty!=NULL)
+    if (_textureProperty!=nullptr)
         newButton->_textureProperty=_textureProperty->copyYourself();
 
     return(newButton);
@@ -255,12 +255,12 @@ CSoftButton* CSoftButton::copyYourself()
 
 void CSoftButton::removeVisionSensorTexture()
 {
-    if (_textureProperty!=NULL)
+    if (_textureProperty!=nullptr)
     {
         if ((_textureProperty->getTextureObjectID()<SIM_IDSTART_TEXTURE)||(_textureProperty->getTextureObjectID()>SIM_IDEND_TEXTURE))
         {
             delete _textureProperty;
-            _textureProperty=NULL;
+            _textureProperty=nullptr;
         }
     }
 }
@@ -281,7 +281,7 @@ void CSoftButton::serialize(CSer& ar)
         ar << textColor[0] << textColor[1] << textColor[2];
         ar.flush();
 
-        if (_textureProperty!=NULL)
+        if (_textureProperty!=nullptr)
         {
             ar.storeDataName("Toj");
             ar.setCountingMode();
@@ -335,7 +335,7 @@ int CSoftButton::_nextButtonUniqueID=1; // start at 1 because 0 is for the block
 #ifdef SIM_WITH_GUI
 void CSoftButton::drawArray(VPoint p,VPoint s)
 {
-    if (arrayColors==NULL)
+    if (arrayColors==nullptr)
         return;
 
     ogl::setAlpha(0.5f);

@@ -205,7 +205,7 @@ void CJoint::commonInit()
     _vortexIntParams.push_back(0); // simi_vortex_joint_relaxationenabledbc. 1 bit per dof
     _vortexIntParams.push_back(0); // simi_vortex_joint_frictionenabledbc. 1 bit per dof
     _vortexIntParams.push_back(1+2+4+8+16+32); // simi_vortex_joint_frictionproportionalbc. 1 bit per dof
-    _vortexIntParams.push_back(_objectID); // simi_vortex_joint_objectid
+    _vortexIntParams.push_back(_objectHandle); // simi_vortex_joint_objectid
     _vortexIntParams.push_back(-1); // simi_vortex_joint_dependentobjectid
     _vortexIntParams.push_back(0); // reserved for future ext.
     // VORTEX_JOINT_INT_PARAM_CNT_CURRENT=7
@@ -219,7 +219,7 @@ void CJoint::commonInit()
     // NEWTON_JOINT_FLOAT_PARAM_CNT_CURRENT=2
 
     // next is index 0:
-    _newtonIntParams.push_back(_objectID); // simi_newton_joint_objectid. The ID is redefined in each session
+    _newtonIntParams.push_back(_objectHandle); // simi_newton_joint_objectid. The ID is redefined in each session
     _newtonIntParams.push_back(-1); // simi_newton_joint_dependentobjectid
     // NEWTON_JOINT_INT_PARAM_CNT_CURRENT=2
     // ----------------------------------------------------
@@ -340,7 +340,7 @@ void CJoint::getDynamicJointErrorsFull(C3Vector& linear,C3Vector& angular)
 
 float CJoint::getEngineFloatParam(int what,bool* ok)
 {
-    if (ok!=NULL)
+    if (ok!=nullptr)
         ok[0]=true;
     if ((what>sim_bullet_joint_float_start)&&(what<sim_bullet_joint_float_end))
     {
@@ -362,20 +362,20 @@ float CJoint::getEngineFloatParam(int what,bool* ok)
         int w=what-sim_newton_joint_dependencyfactor+simi_newton_joint_dependencyfactor;
         return(_newtonFloatParams[w]);
     }
-    if (ok!=NULL)
+    if (ok!=nullptr)
         ok[0]=false;
     return(0.0);
 }
 
 int CJoint::getEngineIntParam(int what,bool* ok)
 {
-    if (ok!=NULL)
+    if (ok!=nullptr)
         ok[0]=true;
     if ((what>sim_bullet_joint_int_start)&&(what<sim_bullet_joint_int_end))
     {
         // no int params for now
         // search for bji11032016
-        if (ok!=NULL)
+        if (ok!=nullptr)
             ok[0]=false;
         return(0);
     }
@@ -383,7 +383,7 @@ int CJoint::getEngineIntParam(int what,bool* ok)
     {
         // no int params for now
         // search for oji11032016
-        if (ok!=NULL)
+        if (ok!=nullptr)
             ok[0]=false;
         return(0);
     }
@@ -397,20 +397,20 @@ int CJoint::getEngineIntParam(int what,bool* ok)
         int w=what-sim_newton_joint_objectid+simi_newton_joint_objectid;
         return(_newtonIntParams[w]);
     }
-    if (ok!=NULL)
+    if (ok!=nullptr)
         ok[0]=false;
     return(0);
 }
 
 bool CJoint::getEngineBoolParam(int what,bool* ok)
 {
-    if (ok!=NULL)
+    if (ok!=nullptr)
         ok[0]=true;
     if ((what>sim_bullet_joint_bool_start)&&(what<sim_bullet_joint_bool_end))
     {
         // No bool params for now
         // search for bjb11032016
-        if (ok!=NULL)
+        if (ok!=nullptr)
             ok[0]=false;
         return(0);
     }
@@ -418,7 +418,7 @@ bool CJoint::getEngineBoolParam(int what,bool* ok)
     {
         // No bool params for now
         // search for ojb11032016
-        if (ok!=NULL)
+        if (ok!=nullptr)
             ok[0]=false;
         return(0);
     }
@@ -433,11 +433,11 @@ bool CJoint::getEngineBoolParam(int what,bool* ok)
     {
         // No bool params for now
         // search for njb11032016
-        if (ok!=NULL)
+        if (ok!=nullptr)
             ok[0]=false;
         return(0);
     }
-    if (ok!=NULL)
+    if (ok!=nullptr)
         ok[0]=false;
     return(0);
 }
@@ -640,7 +640,7 @@ void CJoint::setVortexFloatParams(const std::vector<float>& p)
 
 void CJoint::getVortexIntParams(std::vector<int>& p)
 {
-    _vortexIntParams[4]=_objectID;
+    _vortexIntParams[4]=_objectHandle;
     p.assign(_vortexIntParams.begin(),_vortexIntParams.end());
 }
 
@@ -677,7 +677,7 @@ void CJoint::setNewtonFloatParams(const std::vector<float>& p)
 
 void CJoint::getNewtonIntParams(std::vector<int>& p)
 {
-    _newtonIntParams[0]=_objectID;
+    _newtonIntParams[0]=_objectHandle;
     p.assign(_newtonIntParams.begin(),_newtonIntParams.end());
 }
 
@@ -786,17 +786,17 @@ void CJoint::setEnableDynamicMotorCustomControl_OLD(bool c,const char* scriptCon
     _dynamicMotorCustomControl_OLD=c;
 
     // We remove a script that might be associated:
-    CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(getID());
+    CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(getObjectHandle());
     if (script)
         App::ct->luaScriptContainer->removeScript(script->getScriptID());
 
-    if (_dynamicMotorCustomControl_OLD&&(scriptContent!=NULL))
+    if (_dynamicMotorCustomControl_OLD&&(scriptContent!=nullptr))
     { // we have to add a script
         CLuaScriptObject* script=new CLuaScriptObject(sim_scripttype_jointctrlcallback);
         if (scriptContent)
             script->setScriptText(scriptContent);
         App::ct->luaScriptContainer->insertScript(script);
-        script->setObjectIDThatScriptIsAttachedTo_callback_OLD(getID());
+        script->setObjectIDThatScriptIsAttachedTo_callback_OLD(getObjectHandle());
     }
 }
 
@@ -895,7 +895,7 @@ void CJoint::setDependencyJointID(int depJointID)
             if (iterat->getJointMode()!=_jointMode)
                 break; // We might have a loop, but it is interupted by another jointMode!! (e.g. IK dependency VS direct dependency)
             int joint=iterat->getDependencyJointID();
-            if (joint==getID())
+            if (joint==getObjectHandle())
             { // We have an illegal loop! We disable it:
                 iterat->setDependencyJointID(-1);
                 break;
@@ -1625,7 +1625,7 @@ void CJoint::handleDynJointControl(bool init,int loopCnt,int totalLoops,float cu
         floatParams[9]=upperLimitVel;
         for (int i=0;i<callbackCount;i++)
         {
-            int res=((jointCtrlCallback)getAllJointCtrlCallbacks()[i])(getID(),App::ct->dynamicsContainer->getDynamicEngineType(NULL),0,intParams,floatParams,retParams);
+            int res=((jointCtrlCallback)getAllJointCtrlCallbacks()[i])(getObjectHandle(),App::ct->dynamicsContainer->getDynamicEngineType(nullptr),0,intParams,floatParams,retParams);
             if (res==0)
             { // override... we don't want any control on this joint (free joint)
                 forceTorque=0.0f;
@@ -1646,19 +1646,19 @@ void CJoint::handleDynJointControl(bool init,int loopCnt,int totalLoops,float cu
 
     if (handleJointHere)
     { // The plugins didn't want to handle that joint
-        CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(getID());
-        if (script!=NULL)
+        CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(getObjectHandle());
+        if (script!=nullptr)
         {
             if (!script->getContainsJointCallbackFunction())
-                script=NULL;
+                script=nullptr;
         }
-        CLuaScriptObject* cScript=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(getID());
-        if (cScript!=NULL)
+        CLuaScriptObject* cScript=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(getObjectHandle());
+        if (cScript!=nullptr)
         {
             if (!cScript->getContainsJointCallbackFunction())
-                cScript=NULL;
+                cScript=nullptr;
         }
-        if ( (script!=NULL)||(cScript!=NULL) )
+        if ( (script!=nullptr)||(cScript!=nullptr) )
         { // a child or customization scripts want to handle the joint (new calling method)
             // 1. We prepare the in/out stacks:
             CInterfaceStack inStack;
@@ -1673,7 +1673,7 @@ void CJoint::handleDynJointControl(bool init,int loopCnt,int totalLoops,float cu
             inStack.pushBoolOntoStack(cycl);
             inStack.insertDataIntoStackTable();
             inStack.pushStringOntoStack("handle",0);
-            inStack.pushNumberOntoStack(getID());
+            inStack.pushNumberOntoStack(getObjectHandle());
             inStack.insertDataIntoStackTable();
             inStack.pushStringOntoStack("lowLimit",0);
             inStack.pushNumberOntoStack(lowL);
@@ -1714,9 +1714,9 @@ void CJoint::handleDynJointControl(bool init,int loopCnt,int totalLoops,float cu
             CInterfaceStack outStack;
 
             // 2. Call the script(s):
-            if (script!=NULL)
+            if (script!=nullptr)
                 script->runNonThreadedChildScript(sim_syscb_jointcallback,&inStack,&outStack);
-            if ( (cScript!=NULL)&&(outStack.getStackSize()==0) )
+            if ( (cScript!=nullptr)&&(outStack.getStackSize()==0) )
                 cScript->runCustomizationScript(sim_syscb_jointcallback,&inStack,&outStack);
 
             // 3. Collect the return values:
@@ -1794,8 +1794,8 @@ void CJoint::handleDynJointControl(bool init,int loopCnt,int totalLoops,float cu
             }
             else
             { // we have a custom control here (joint control callback script, OLD). We keep this back backward compatibility
-                CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(getID());
-                if (script!=NULL)
+                CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(getObjectHandle());
+                if (script!=nullptr)
                 { // using the DEPRECATED joint control callback scripts
                     std::vector<bool> inDataBool;
                     std::vector<int> inDataInt;
@@ -1805,7 +1805,7 @@ void CJoint::handleDynJointControl(bool init,int loopCnt,int totalLoops,float cu
                     inDataBool.push_back(init);
                     inDataBool.push_back(rev);
                     inDataBool.push_back(cycl);
-                    inDataInt.push_back(getID());
+                    inDataInt.push_back(getObjectHandle());
                     inDataInt.push_back(loopCnt);
                     inDataInt.push_back(totalLoops);
                     inDataFloat.push_back(currentPos);
@@ -2774,7 +2774,7 @@ void CJoint::setPosition(float parameter,bool useTempValues)
         if (_dependencyJointID!=-1)
         {
             CJoint* anAct=App::ct->objCont->getJoint(_dependencyJointID);
-            if (anAct!=NULL)
+            if (anAct!=nullptr)
                 linked=_dependencyJointCoeff*anAct->getPosition(useTempValues);
         }
         if (useTempValues)  
@@ -2979,25 +2979,25 @@ void CJoint::applyTempParametersEx()
     }
 }
 
-bool CJoint::announceObjectWillBeErased(int objID,bool copyBuffer)
+bool CJoint::announceObjectWillBeErased(int objectHandle,bool copyBuffer)
 {   // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     // This routine can be called for objCont-objects, but also for objects
     // in the copy-buffer!! So never make use of any 
-    // 'ct::objCont->getObject(id)'-call or similar
+    // 'ct::objCont->getObject(objectHandle)'-call or similar
     // Return value true means 'this' has to be erased too!
-    bool retVal=announceObjectWillBeErasedMain(objID,copyBuffer);
-    if (_dependencyJointID==objID)
+    bool retVal=announceObjectWillBeErasedMain(objectHandle,copyBuffer);
+    if (_dependencyJointID==objectHandle)
         _dependencyJointID=-1;
-    if (_vortexIntParams[5]==objID) // that's the Vortex dependency joint
+    if (_vortexIntParams[5]==objectHandle) // that's the Vortex dependency joint
         _vortexIntParams[5]=-1;
-    if (_newtonIntParams[1]==objID) // that's the Vortex dependency joint
+    if (_newtonIntParams[1]==objectHandle) // that's the Vortex dependency joint
         _newtonIntParams[1]=-1;
 
     // We check if the joint is listed in the directDependentJoints:
     for (int i=0;i<int(directDependentJoints.size());i++)
     {
-        if (directDependentJoints[i]->getID()==objID)
+        if (directDependentJoints[i]->getObjectHandle()==objectHandle)
             directDependentJoints.erase(directDependentJoints.begin()+i);
     }
     return(retVal);

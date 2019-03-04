@@ -20,7 +20,7 @@ void CInterfaceStackNull::printContent(int spaces) const
 {
     for (int i=0;i<spaces;i++)
         printf(" ");
-    printf("NULL\n");
+    printf("nullptr\n");
 }
 
 std::string CInterfaceStackNull::getObjectData() const

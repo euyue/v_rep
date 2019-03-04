@@ -35,8 +35,8 @@ void CMemorizedConfContainer::memorize()
     removeMemorized();
     for (int i=0;i<int(App::ct->objCont->objectList.size());i++)
     {
-        C3DObject* it=App::ct->objCont->getObject(App::ct->objCont->objectList[i]);
-        if (it!=NULL)
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
+        if (it!=nullptr)
             configurations.push_back(new CMemorizedConf(it));
     }
 }
@@ -77,9 +77,9 @@ void CMemorizedConfContainer::removeMemorized()
 char* CMemorizedConfContainer::getObjectConfiguration(int objID)
 {
     std::vector<char> data;
-    C3DObject* it=App::ct->objCont->getObject(objID);
-    if (it==NULL)
-        return(NULL);
+    C3DObject* it=App::ct->objCont->getObjectFromHandle(objID);
+    if (it==nullptr)
+        return(nullptr);
     CMemorizedConf temp(it);
     temp.serializeToMemory(data);
     char* retBuffer=new char[data.size()+4];
@@ -91,7 +91,7 @@ char* CMemorizedConfContainer::getObjectConfiguration(int objID)
 
 void CMemorizedConfContainer::setObjectConfiguration(const char* data)
 {
-    if (data==NULL)
+    if (data==nullptr)
         return;
     std::vector<char> arr;
     int l=((int*)data)[0];
@@ -105,12 +105,12 @@ void CMemorizedConfContainer::setObjectConfiguration(const char* data)
 char* CMemorizedConfContainer::getConfigurationTree(int objID)
 {
     std::vector<char> data;
-    C3DObject* it=App::ct->objCont->getObject(objID);
+    C3DObject* it=App::ct->objCont->getObjectFromHandle(objID);
     std::vector<C3DObject*> sel;
-    if (it==NULL)
+    if (it==nullptr)
     { // We memorize everything:
         for (int i=0;i<int(App::ct->objCont->objectList.size());i++)
-            sel.push_back(App::ct->objCont->getObject(App::ct->objCont->objectList[i]));
+            sel.push_back(App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]));
     }
     else
     { // We memorize just the object and all its children:
@@ -130,7 +130,7 @@ char* CMemorizedConfContainer::getConfigurationTree(int objID)
 
 void CMemorizedConfContainer::setConfigurationTree(const char* data)
 {
-    if (data==NULL)
+    if (data==nullptr)
         return;
     int l=((int*)data)[0];
     std::vector<char> arr;

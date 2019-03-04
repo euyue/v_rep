@@ -44,7 +44,7 @@ void CQDlgGraphs::cancelEvent()
 
 void CQDlgGraphs::dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut)
 {
-    if ( (cmdIn!=NULL)&&(cmdIn->intParams[0]==_dlgType) )
+    if ( (cmdIn!=nullptr)&&(cmdIn->intParams[0]==_dlgType) )
     {
         if (cmdIn->intParams[1]==0)
             selectObjectInList(cmdIn->intParams[2]);
@@ -60,8 +60,8 @@ void CQDlgGraphs::refresh()
     bool sel=App::ct->objCont->isLastSelectionAGraph();
 
     int streamId=-1;
-    CGraph* it=NULL;
-    CGraphData* graphData=NULL;
+    CGraph* it=nullptr;
+    CGraphData* graphData=nullptr;
     if (sel)
     {
         it=App::ct->objCont->getLastSelection_graph();
@@ -83,16 +83,16 @@ void CQDlgGraphs::refresh()
 
     ui->qqRecordingList->setEnabled(sel&&noEditModeAndNoSim);
 
-    ui->qqTransformationCombo->setEnabled(sel&&noEditModeAndNoSim&&(graphData!=NULL));
-    ui->qqTransformationCoeff->setEnabled(sel&&noEditModeAndNoSim&&(graphData!=NULL));
-    ui->qqTransformationOffset->setEnabled(sel&&noEditModeAndNoSim&&(graphData!=NULL));
-    ui->qqMovingAveragePeriod->setEnabled(sel&&noEditModeAndNoSim&&(graphData!=NULL));
+    ui->qqTransformationCombo->setEnabled(sel&&noEditModeAndNoSim&&(graphData!=nullptr));
+    ui->qqTransformationCoeff->setEnabled(sel&&noEditModeAndNoSim&&(graphData!=nullptr));
+    ui->qqTransformationOffset->setEnabled(sel&&noEditModeAndNoSim&&(graphData!=nullptr));
+    ui->qqMovingAveragePeriod->setEnabled(sel&&noEditModeAndNoSim&&(graphData!=nullptr));
 
-    ui->qqTimeGraphVisible->setEnabled(sel&&noEditModeAndNoSim&&(graphData!=NULL));
-    ui->qqShowLabel->setEnabled(sel&&noEditModeAndNoSim&&(graphData!=NULL));
-    ui->qqLinkPoints->setEnabled(sel&&noEditModeAndNoSim&&(graphData!=NULL));
-    ui->qqAdjustCurveColor->setEnabled(sel&&noEditModeAndNoSim&&(graphData!=NULL));
-    ui->qqDuplicateToStatic->setEnabled(sel&&noEditModeAndNoSim&&(graphData!=NULL));
+    ui->qqTimeGraphVisible->setEnabled(sel&&noEditModeAndNoSim&&(graphData!=nullptr));
+    ui->qqShowLabel->setEnabled(sel&&noEditModeAndNoSim&&(graphData!=nullptr));
+    ui->qqLinkPoints->setEnabled(sel&&noEditModeAndNoSim&&(graphData!=nullptr));
+    ui->qqAdjustCurveColor->setEnabled(sel&&noEditModeAndNoSim&&(graphData!=nullptr));
+    ui->qqDuplicateToStatic->setEnabled(sel&&noEditModeAndNoSim&&(graphData!=nullptr));
 
     ui->qqEditXYGraphs->setEnabled(sel&&noEditModeAndNoSim);
     ui->qqEdit3DCurves->setEnabled(sel&&noEditModeAndNoSim);
@@ -101,9 +101,9 @@ void CQDlgGraphs::refresh()
     ui->qqBufferIsCyclic->setChecked(sel&&it->getCyclic());
     ui->qqShowXYZPlanes->setChecked(sel&&it->xYZPlanesDisplay);
 
-    ui->qqTimeGraphVisible->setChecked(sel&&(graphData!=NULL)&&graphData->getVisible());
-    ui->qqShowLabel->setChecked(sel&&(graphData!=NULL)&&graphData->getLabel());
-    ui->qqLinkPoints->setChecked(sel&&(graphData!=NULL)&&graphData->getLinkPoints());
+    ui->qqTimeGraphVisible->setChecked(sel&&(graphData!=nullptr)&&graphData->getVisible());
+    ui->qqShowLabel->setChecked(sel&&(graphData!=nullptr)&&graphData->getLabel());
+    ui->qqLinkPoints->setChecked(sel&&(graphData!=nullptr)&&graphData->getLinkPoints());
 
     ui->qqTransformationCombo->clear();
 
@@ -124,7 +124,7 @@ void CQDlgGraphs::refresh()
         ui->qqTransformationCombo->addItem(strTranslate(IDS_INTEGRAL),QVariant(DATA_STREAM_INTEGRAL));
         ui->qqTransformationCombo->addItem(strTranslate(IDS_CUMULATIVE),QVariant(DATA_STREAM_CUMULATIVE));
 
-        if (graphData!=NULL)
+        if (graphData!=nullptr)
         {
             for (int i=0;i<ui->qqTransformationCombo->count();i++)
             {
@@ -207,7 +207,7 @@ void CQDlgGraphs::selectObjectInList(int objectID)
     for (int i=0;i<ui->qqRecordingList->count();i++)
     {
         QListWidgetItem* it=ui->qqRecordingList->item(i);
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             if (it->data(Qt::UserRole).toInt()==objectID)
             {
@@ -264,7 +264,7 @@ void CQDlgGraphs::on_qqRecordingList_itemSelectionChanged()
         CGraph* it=App::ct->objCont->getLastSelection_graph();
         int objID=getSelectedObjectID();
         CGraphData* grData=it->getGraphData(objID);
-        if (grData!=NULL)
+        if (grData!=nullptr)
             ((CEditBoxDelegate*)ui->qqRecordingList->itemDelegate())->initialText=grData->getName();
         else
             ((CEditBoxDelegate*)ui->qqRecordingList->itemDelegate())->initialText="";
@@ -281,7 +281,7 @@ void CQDlgGraphs::on_qqRecordingList_itemChanged(QListWidgetItem *item)
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (item!=NULL)
+        if (item!=nullptr)
         {
             App::appendSimulationThreadCommand(RENAME_DATASTREAM_GRAPHGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),item->data(Qt::UserRole).toInt(),0.0,0.0,item->text().toStdString().c_str());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -483,10 +483,10 @@ void CQDlgGraphs::on_qqAdjustCurveColor_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CGraph* it=App::ct->objCont->getLastSelection_graph();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             CGraphData* grData=it->getGraphData(getSelectedObjectID());
-            if (grData!=NULL)
+            if (grData!=nullptr)
                 CQDlgColor::displayDlg(COLOR_ID_GRAPH_TIMECURVE,App::ct->objCont->getLastSelectionID(),grData->getIdentifier(),sim_colorcomponent_ambient_diffuse,App::mainWindow);
         }
     }
@@ -507,8 +507,8 @@ void CQDlgGraphs::on_qqEditXYGraphs_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CGraph* it=App::ct->objCont->getLastSelection_graph();
-        if (it!=NULL)
-            CQDlg2D3DGraphProperties::display(it->getID(),true,App::mainWindow);
+        if (it!=nullptr)
+            CQDlg2D3DGraphProperties::display(it->getObjectHandle(),true,App::mainWindow);
     }
 }
 
@@ -517,7 +517,7 @@ void CQDlgGraphs::on_qqEdit3DCurves_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CGraph* it=App::ct->objCont->getLastSelection_graph();
-        if (it!=NULL)
-            CQDlg2D3DGraphProperties::display(it->getID(),false,App::mainWindow);
+        if (it!=nullptr)
+            CQDlg2D3DGraphProperties::display(it->getObjectHandle(),false,App::mainWindow);
     }
 }

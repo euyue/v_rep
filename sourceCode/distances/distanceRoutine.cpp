@@ -52,7 +52,7 @@ bool CDistanceRoutine::getOctreesHaveCoherentMovement(COctree* octree1,COctree* 
     C7Vector tr2(m2);
     for (size_t i=0;i<_objectCoherency.size();i++)
     {
-        if ( (_objectCoherency[i].object1Id==octree1->getID())&&(_objectCoherency[i].object2Id==octree2->getID()) )
+        if ( (_objectCoherency[i].object1Id==octree1->getObjectHandle())&&(_objectCoherency[i].object2Id==octree2->getObjectHandle()) )
         {
             float s1=0.2*sqrt(pow(hs1(0),2.0)+pow(hs1(1),2.0)+pow(hs1(2),2.0));
             float s2=0.2*sqrt(pow(hs2(0),2.0)+pow(hs2(1),2.0)+pow(hs2(2),2.0));
@@ -67,8 +67,8 @@ bool CDistanceRoutine::getOctreesHaveCoherentMovement(COctree* octree1,COctree* 
         }
     }
     SMovementCoherency co;
-    co.object1Id=octree1->getID();
-    co.object2Id=octree2->getID();
+    co.object1Id=octree1->getObjectHandle();
+    co.object2Id=octree2->getObjectHandle();
     co.object1Tr=tr1;
     co.object2Tr=tr2;
     _objectCoherency.push_back(co);
@@ -83,27 +83,27 @@ bool CDistanceRoutine::getDistanceBetweenEntitiesIfSmaller(int entity1ID,int ent
 
     bool returnValue=false;
     // We first check if objects are valid:
-    C3DObject* object1=App::ct->objCont->getObject(entity1ID);
-    C3DObject* object2=App::ct->objCont->getObject(entity2ID);
-    CRegCollection* collection1=NULL;
-    CRegCollection* collection2=NULL;
-    if (object1==NULL)
+    C3DObject* object1=App::ct->objCont->getObjectFromHandle(entity1ID);
+    C3DObject* object2=App::ct->objCont->getObjectFromHandle(entity2ID);
+    CRegCollection* collection1=nullptr;
+    CRegCollection* collection2=nullptr;
+    if (object1==nullptr)
     {
         collection1=App::ct->collections->getCollection(entity1ID);
-        if (collection1==NULL)
+        if (collection1==nullptr)
             return(false);
     }
-    if (object2==NULL)
+    if (object2==nullptr)
     {
         collection2=App::ct->collections->getCollection(entity2ID);
-        if ( (collection2==NULL)&&(entity2ID!=-1) )
+        if ( (collection2==nullptr)&&(entity2ID!=-1) )
             return(false);
     }
 
     App::ct->calcInfo->distanceCalculationStart();
-    if (object1!=NULL)
+    if (object1!=nullptr)
     { // We have an object against...
-        if (object2!=NULL)
+        if (object2!=nullptr)
         { // ...another object
 
             bool doTheCheck=true;
@@ -149,7 +149,7 @@ bool CDistanceRoutine::getDistanceBetweenEntitiesIfSmaller(int entity1ID,int ent
         App::ct->collections->getMeasurableObjectsFromCollection(entity1ID,group1);
         if (group1.size()!=0)
         {
-            if (object2!=NULL)
+            if (object2!=nullptr)
             { //...an object
                 std::vector<C3DObject*> pairs;
                 _generateValidPairsFromGroupObject(group1,object2,pairs);
@@ -267,9 +267,9 @@ bool CDistanceRoutine::_getDummyDummyDistanceIfSmaller(CDummy* dummy1,CDummy* du
         ray[5]=v1(2);
         ray[6]=newDist;
         dist=newDist;
-        cache1[0]=dummy1->getID();
+        cache1[0]=dummy1->getObjectHandle();
         cache1[1]=-1;
-        cache2[0]=dummy2->getID();
+        cache2[0]=dummy2->getObjectHandle();
         cache2[1]=-1;
         return(true);
     }
@@ -303,9 +303,9 @@ bool CDistanceRoutine::_getShapeDummyDistanceIfSmaller(CShape* shape,CDummy* dum
         rayPart0.copyTo(ray);
         rayPart1.copyTo(ray+3);
         ray[6]=dist;
-        cache1[0]=shape->getID();
+        cache1[0]=shape->getObjectHandle();
         cache1[1]=buffer;
-        cache2[0]=dummy->getID();
+        cache2[0]=dummy->getObjectHandle();
         cache2[1]=-1;
         return(true);
     }
@@ -365,9 +365,9 @@ bool CDistanceRoutine::_getShapeShapeDistanceIfSmaller(CShape* shape1,CShape* sh
         ray[4]=distances[4];
         ray[5]=distances[5];
         ray[6]=distances[6];
-        cache1[0]=shape1->getID();
+        cache1[0]=shape1->getObjectHandle();
         cache1[1]=buffer[0];
-        cache2[0]=shape2->getID();
+        cache2[0]=shape2->getObjectHandle();
         cache2[1]=buffer[1];
         return(true);
     }
@@ -379,7 +379,7 @@ bool CDistanceRoutine::_getOctreeDummyDistanceIfSmaller(COctree* octree,CDummy* 
     // If the distance is bigger, 'dist' doesn't change and the return value is false
     // ray contains the point on object1 (0-2), the point on object2 (3-5) and the distance (6)
 
-    if (octree->getOctreeInfo()==NULL)
+    if (octree->getOctreeInfo()==nullptr)
         return(false); // Octree is empty
     if ( ( (octree->getCumulativeObjectSpecialProperty()&sim_objectspecialproperty_measurable)==0 )&&(!overrideMeasurableFlagOctree) )
         return(false);
@@ -404,9 +404,9 @@ bool CDistanceRoutine::_getOctreeDummyDistanceIfSmaller(COctree* octree,CDummy* 
         ray[5]=_ray[5];
         ray[6]=_ray[6];
         dist=ray[6];
-        cache1[0]=octree->getID();
+        cache1[0]=octree->getObjectHandle();
         cache1[1]=insertExtendedCacheValue(cacheV);
-        cache2[0]=dummy->getID();
+        cache2[0]=dummy->getObjectHandle();
         cache2[1]=-1;
         return(true);
     }
@@ -433,7 +433,7 @@ bool CDistanceRoutine::_getOctreeShapeDistanceIfSmaller(COctree* octree,CShape* 
     // If the distance is bigger, 'dist' doesn't change and the return value is false
     // ray contains the point on object1 (0-2), the point on object2 (3-5) and the distance (6)
 
-    if (octree->getOctreeInfo()==NULL)
+    if (octree->getOctreeInfo()==nullptr)
         return(false); // Octree is empty
     if ( ( (octree->getCumulativeObjectSpecialProperty()&sim_objectspecialproperty_measurable)==0 )&&(!overrideMeasurableFlagOctree) )
         return(false);
@@ -460,9 +460,9 @@ bool CDistanceRoutine::_getOctreeShapeDistanceIfSmaller(COctree* octree,CShape* 
         ray[5]=_ray[5];
         ray[6]=_ray[6];
         dist=ray[6];
-        cache1[0]=octree->getID();
+        cache1[0]=octree->getObjectHandle();
         cache1[1]=insertExtendedCacheValue(cache1V);
-        cache2[0]=shape->getID();
+        cache2[0]=shape->getObjectHandle();
         return(true);
     }
     return(false);
@@ -489,9 +489,9 @@ bool CDistanceRoutine::_getOctreeOctreeDistanceIfSmaller(COctree* octree1,COctre
 
     if (octree1==octree2)
         return(false);
-    if (octree1->getOctreeInfo()==NULL)
+    if (octree1->getOctreeInfo()==nullptr)
         return(false); // Octree is empty
-    if (octree2->getOctreeInfo()==NULL)
+    if (octree2->getOctreeInfo()==nullptr)
         return(false); // Octree is empty
     if ( ( (octree1->getCumulativeObjectSpecialProperty()&sim_objectspecialproperty_measurable)==0 )&&(!overrideMeasurableFlagOctree1) )
         return(false);
@@ -523,9 +523,9 @@ bool CDistanceRoutine::_getOctreeOctreeDistanceIfSmaller(COctree* octree1,COctre
         ray[5]=_ray[5];
         ray[6]=_ray[6];
         dist=ray[6];
-        cache1[0]=octree1->getID();
+        cache1[0]=octree1->getObjectHandle();
         cache1[1]=insertExtendedCacheValue(cache1V);
-        cache2[0]=octree2->getID();
+        cache2[0]=octree2->getObjectHandle();
         cache2[1]=insertExtendedCacheValue(cache2V);
         return(true);
     }
@@ -538,7 +538,7 @@ bool CDistanceRoutine::_getPointCloudDummyDistanceIfSmaller(CPointCloud* pointCl
     // If the distance is bigger, 'dist' doesn't change and the return value is false
     // ray contains the point on object1 (0-2), the point on object2 (3-5) and the distance (6)
 
-    if (pointCloud->getPointCloudInfo()==NULL)
+    if (pointCloud->getPointCloudInfo()==nullptr)
         return(false); // PointCloud is empty
     if ( ( (pointCloud->getCumulativeObjectSpecialProperty()&sim_objectspecialproperty_measurable)==0 )&&(!overrideMeasurableFlagPointCloud) )
         return(false);
@@ -563,9 +563,9 @@ bool CDistanceRoutine::_getPointCloudDummyDistanceIfSmaller(CPointCloud* pointCl
         ray[5]=_ray[5];
         ray[6]=_ray[6];
         dist=ray[6];
-        cache1[0]=pointCloud->getID();
+        cache1[0]=pointCloud->getObjectHandle();
         cache1[1]=insertExtendedCacheValue(cacheV);
-        cache2[0]=dummy->getID();
+        cache2[0]=dummy->getObjectHandle();
         cache2[1]=-1;
         return(true);
     }
@@ -592,7 +592,7 @@ bool CDistanceRoutine::_getPointCloudShapeDistanceIfSmaller(CPointCloud* pointCl
     // If the distance is bigger, 'dist' doesn't change and the return value is false
     // ray contains the point on object1 (0-2), the point on object2 (3-5) and the distance (6)
 
-    if (pointCloud->getPointCloudInfo()==NULL)
+    if (pointCloud->getPointCloudInfo()==nullptr)
         return(false); // Point cloud is empty
     if ( ( (pointCloud->getCumulativeObjectSpecialProperty()&sim_objectspecialproperty_measurable)==0 )&&(!overrideMeasurableFlagPointCloud) )
         return(false);
@@ -619,9 +619,9 @@ bool CDistanceRoutine::_getPointCloudShapeDistanceIfSmaller(CPointCloud* pointCl
         ray[5]=_ray[5];
         ray[6]=_ray[6];
         dist=ray[6];
-        cache1[0]=pointCloud->getID();
+        cache1[0]=pointCloud->getObjectHandle();
         cache1[1]=insertExtendedCacheValue(cache1V);
-        cache2[0]=shape->getID();
+        cache2[0]=shape->getObjectHandle();
         return(true);
     }
     return(false);
@@ -646,9 +646,9 @@ bool CDistanceRoutine::_getOctreePointCloudDistanceIfSmaller(COctree* octree,CPo
     // If the distance is bigger, 'dist' doesn't change and the return value is false
     // ray contains the point on object1 (0-2), the point on object2 (3-5) and the distance (6)
 
-    if (octree->getOctreeInfo()==NULL)
+    if (octree->getOctreeInfo()==nullptr)
         return(false); // Octree is empty
-    if (pointCloud->getPointCloudInfo()==NULL)
+    if (pointCloud->getPointCloudInfo()==nullptr)
         return(false); // PointCloud is empty
     if ( ( (octree->getCumulativeObjectSpecialProperty()&sim_objectspecialproperty_measurable)==0 )&&(!overrideMeasurableFlagOctree) )
         return(false);
@@ -675,9 +675,9 @@ bool CDistanceRoutine::_getOctreePointCloudDistanceIfSmaller(COctree* octree,CPo
         ray[5]=_ray[5];
         ray[6]=_ray[6];
         dist=ray[6];
-        cache1[0]=octree->getID();
+        cache1[0]=octree->getObjectHandle();
         cache1[1]=insertExtendedCacheValue(cache1V);
-        cache2[0]=pointCloud->getID();
+        cache2[0]=pointCloud->getObjectHandle();
         cache2[1]=insertExtendedCacheValue(cache2V);
         return(true);
     }
@@ -706,9 +706,9 @@ bool CDistanceRoutine::_getPointCloudPointCloudDistanceIfSmaller(CPointCloud* po
 
     if (pointCloud1==pointCloud2)
         return(false);
-    if (pointCloud1->getPointCloudInfo()==NULL)
+    if (pointCloud1->getPointCloudInfo()==nullptr)
         return(false); // Octree is empty
-    if (pointCloud2->getPointCloudInfo()==NULL)
+    if (pointCloud2->getPointCloudInfo()==nullptr)
         return(false); // Octree is empty
     if ( ( (pointCloud1->getCumulativeObjectSpecialProperty()&sim_objectspecialproperty_measurable)==0 )&&(!overrideMeasurableFlagPointCloud1) )
         return(false);
@@ -734,9 +734,9 @@ bool CDistanceRoutine::_getPointCloudPointCloudDistanceIfSmaller(CPointCloud* po
         ray[5]=_ray[5];
         ray[6]=_ray[6];
         dist=ray[6];
-        cache1[0]=pointCloud1->getID();
+        cache1[0]=pointCloud1->getObjectHandle();
         cache1[1]=insertExtendedCacheValue(cache1V);
-        cache2[0]=pointCloud2->getID();
+        cache2[0]=pointCloud2->getObjectHandle();
         cache2[1]=insertExtendedCacheValue(cache2V);
         return(true);
     }
@@ -904,11 +904,11 @@ bool CDistanceRoutine::_getCachedDistanceIfSmaller(float& dist,float ray[7],int 
         return(isSmaller); // Distance caching is turned off
     if ( (cache1[0]<0)||(cache2[0]<0) )
         return(isSmaller);
-    C3DObject* object1=App::ct->objCont->getObject(cache1[0]);
-    if (object1==NULL)
+    C3DObject* object1=App::ct->objCont->getObjectFromHandle(cache1[0]);
+    if (object1==nullptr)
         return(isSmaller);
-    C3DObject* object2=App::ct->objCont->getObject(cache2[0]);
-    if (object2==NULL)
+    C3DObject* object2=App::ct->objCont->getObjectFromHandle(cache2[0]);
+    if (object2==nullptr)
         return(isSmaller);
 
     if (object1->getObjectType()==sim_object_shape_type)
@@ -1003,7 +1003,7 @@ bool CDistanceRoutine::_getCachedDistanceIfSmaller_pairs(std::vector<C3DObject*>
     {
         C3DObject* object1=unorderedPairsCanBeModified[2*i+0];
         C3DObject* object2=unorderedPairsCanBeModified[2*i+1];
-        if ( (object1->getID()==cache1[0])&&(object2->getID()==cache2[0]) )
+        if ( (object1->getObjectHandle()==cache1[0])&&(object2->getObjectHandle()==cache2[0]) )
         { // we have found the pair!
             isSmaller|=_getCachedDistanceIfSmaller(dist,ray,cache1,cache2,overrideMeasurableFlagObject1,overrideMeasurableFlagObject2,cachedPairWasProcessed);
             unorderedPairsCanBeModified.erase(unorderedPairsCanBeModified.begin()+2*i,unorderedPairsCanBeModified.begin()+2*i+2);
@@ -1143,7 +1143,7 @@ bool CDistanceRoutine::_getCachedDistancePointCloudPointCloudIfSmaller(CPointClo
 
     long long int extCache1=getExtendedCacheValue(cache1[1]);
     long long int extCache2=getExtendedCacheValue(cache2[1]);
-    if ( (extCache1==0)||(extCache2==0)||(ptCloud1->getPointCloudInfo()==NULL)||(ptCloud2->getPointCloudInfo()==NULL) )
+    if ( (extCache1==0)||(extCache2==0)||(ptCloud1->getPointCloudInfo()==nullptr)||(ptCloud2->getPointCloudInfo()==nullptr) )
         return(isSmaller);
     C4X4Matrix pts1M;
     C4X4Matrix pts2M;
@@ -1151,7 +1151,7 @@ bool CDistanceRoutine::_getCachedDistancePointCloudPointCloudIfSmaller(CPointClo
     int pts2Cnt;
     const float* pts1=CPluginContainer::mesh_getPointCloudPointsFromCache(ptCloud1->getPointCloudInfo(),ptCloud1->getCumulativeTransformation().getMatrix(),extCache1,pts1Cnt,pts1M);
     const float* pts2=CPluginContainer::mesh_getPointCloudPointsFromCache(ptCloud2->getPointCloudInfo(),ptCloud2->getCumulativeTransformation().getMatrix(),extCache2,pts2Cnt,pts2M);
-    if ( (pts1==NULL)||(pts2==NULL) )
+    if ( (pts1==nullptr)||(pts2==nullptr) )
         return(isSmaller);
     for (int i=0;i<pts1Cnt;i++)
     {
@@ -1192,12 +1192,12 @@ bool CDistanceRoutine::_getCachedDistancePointCloudDummyIfSmaller(CPointCloud* p
     bool isSmaller=false;
 
     long long int extCache1=getExtendedCacheValue(cache1[1]);
-    if ( (extCache1==0)||(pointCloud->getPointCloudInfo()==NULL) )
+    if ( (extCache1==0)||(pointCloud->getPointCloudInfo()==nullptr) )
         return(isSmaller);
     C4X4Matrix pts1M;
     int pts1Cnt;
     const float* pts1=CPluginContainer::mesh_getPointCloudPointsFromCache(pointCloud->getPointCloudInfo(),pointCloud->getCumulativeTransformation().getMatrix(),extCache1,pts1Cnt,pts1M);
-    if (pts1==NULL)
+    if (pts1==nullptr)
         return(isSmaller);
     C3Vector theSinglePoint(dummy->getCumulativeTransformation().X);
     for (int i=0;i<pts1Cnt;i++)
@@ -1233,7 +1233,7 @@ bool CDistanceRoutine::_getCachedDistanceOctreeDummyIfSmaller(COctree* octree,CD
     bool isSmaller=false;
 
     long long int extCache1=getExtendedCacheValue(cache1[1]);
-    if ( (extCache1==0)||(octree->getOctreeInfo()==NULL) )
+    if ( (extCache1==0)||(octree->getOctreeInfo()==nullptr) )
         return(isSmaller);
     C4X4Matrix cellM;
     float cellSize;
@@ -1331,9 +1331,9 @@ bool CDistanceRoutine::_getCachedDistanceOctreePointCloudIfSmaller(COctree* octr
 
     long long int extCache1=getExtendedCacheValue(cache1[1]);
     long long int extCache2=getExtendedCacheValue(cache2[1]);
-    if ( (extCache1==0)||(octree->getOctreeInfo()==NULL) )
+    if ( (extCache1==0)||(octree->getOctreeInfo()==nullptr) )
         return(isSmaller);
-    if ( (extCache2==0)||(pointCloud->getPointCloudInfo()==NULL) )
+    if ( (extCache2==0)||(pointCloud->getPointCloudInfo()==nullptr) )
         return(isSmaller);
     C4X4Matrix cellM;
     float cellSize;
@@ -1344,7 +1344,7 @@ bool CDistanceRoutine::_getCachedDistanceOctreePointCloudIfSmaller(COctree* octr
     C4X4Matrix ptCloudM;
     int ptCnt;
     float* pts=CPluginContainer::mesh_getPointCloudPointsFromCache(pointCloud->getPointCloudInfo(),pointCloud->getCumulativeTransformation().getMatrix(),extCache2,ptCnt,ptCloudM);
-    if (pts==NULL)
+    if (pts==nullptr)
         return(isSmaller);
     C4X4Matrix ptCloudMRelToCellM(cellM.getInverse()*ptCloudM);
     for (int i=0;i<ptCnt;i++)
@@ -1413,7 +1413,7 @@ bool CDistanceRoutine::_getCachedDistanceOctreeShapeIfSmaller(COctree* octree,CS
         return(isSmaller);
 
     long long int extCache1=getExtendedCacheValue(cache1[1]);
-    if ( (extCache1==0)||(octree->getOctreeInfo()==NULL) )
+    if ( (extCache1==0)||(octree->getOctreeInfo()==nullptr) )
         return(isSmaller);
     C4X4Matrix cellM;
     float cellSize;
@@ -1481,12 +1481,12 @@ bool CDistanceRoutine::_getCachedDistancePointCloudShapeIfSmaller(CPointCloud* p
         return(isSmaller);
 
     long long int extCache1=getExtendedCacheValue(cache1[1]);
-    if ( (extCache1==0)||(pointCloud->getPointCloudInfo()==NULL) )
+    if ( (extCache1==0)||(pointCloud->getPointCloudInfo()==nullptr) )
         return(isSmaller);
     C4X4Matrix pts1M;
     int pts1Cnt;
     const float* pts1=CPluginContainer::mesh_getPointCloudPointsFromCache(pointCloud->getPointCloudInfo(),pointCloud->getCumulativeTransformation().getMatrix(),extCache1,pts1Cnt,pts1M);
-    if (pts1==NULL)
+    if (pts1==nullptr)
         return(isSmaller);
 
     if ( (cache2[1]<0)||(CPluginContainer::mesh_getCalculatedTriangleCount(shape->geomData->collInfo)*3<=(cache2[1]*3+2)) )

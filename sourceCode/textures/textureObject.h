@@ -12,17 +12,17 @@ public:
     virtual ~CTextureObject();
 
     void setObjectID(int newID);
-    int getObjectID();
-    bool isSame(CTextureObject* obj);
+    int getObjectID() const;
+    bool isSame(const CTextureObject* obj) const;
     void setObjectName(const char* newName);
-    std::string getObjectName();
-    void getTextureSize(int& sizeX,int& sizeY);
-    void setImage(bool rgba,bool horizFlip,bool vertFlip,unsigned char* data);
-    CTextureObject* copyYourself();
+    std::string getObjectName() const;
+    void getTextureSize(int& sizeX,int& sizeY) const;
+    void setImage(bool rgba,bool horizFlip,bool vertFlip,const unsigned char* data);
+    CTextureObject* copyYourself() const;
     void serialize(CSer& ar);
     void setTextureBuffer(const std::vector<unsigned char>& tb);
-    void getTextureBuffer(std::vector<unsigned char>& tb);
-    unsigned char* getTextureBufferPointer();
+    void getTextureBuffer(std::vector<unsigned char>& tb) const;
+    const unsigned char* getTextureBufferPointer() const;
     void lightenUp();
     void setRandomContent();
 
@@ -31,14 +31,14 @@ public:
     void clearAllDependencies();
     void transferDependenciesToThere(CTextureObject* receivingObject);
 
-    char* readPortionOfTexture(int posX,int posY,int sizeX,int sizeY);
+    char* readPortionOfTexture(int posX,int posY,int sizeX,int sizeY) const;
     bool writePortionOfTexture(const unsigned char* rgbData,int posX,int posY,int sizeX,int sizeY,bool circular,float interpol);
 
-    unsigned int getCurrentTextureContentUniqueId();
+    unsigned int getCurrentTextureContentUniqueId() const;
 
     void setOglTextureName(unsigned int n);
-    unsigned int getOglTextureName();
-    bool getChangedFlag();
+    unsigned int getOglTextureName() const;
+    bool getChangedFlag() const;
     void setChangedFlag(bool c);
 
 protected:

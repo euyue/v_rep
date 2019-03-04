@@ -35,7 +35,7 @@ public:
     void scaleObjectNonIsometrically(float x,float y,float z);
     void serialize(CSer& ar);
     void serializeWExtIk(CExtIkSer& ar);
-    bool announceObjectWillBeErased(int objID,bool copyBuffer);
+    bool announceObjectWillBeErased(int objectHandle,bool copyBuffer);
     void announceCollectionWillBeErased(int groupID,bool copyBuffer);
     void announceCollisionWillBeErased(int collisionID,bool copyBuffer);
     void announceDistanceWillBeErased(int distanceID,bool copyBuffer);
@@ -195,7 +195,7 @@ protected:
 #ifdef SIM_WITH_OPENGL
 public:
     // Following function is inherited from 3DObject
-    void lookAt(CSView* viewObject,int viewPos[2]=NULL,int viewSize[2]=NULL);
+    void lookAt(CSView* viewObject,int viewPos[2]=nullptr,int viewSize[2]=nullptr);
     CTextureObject* getTextureObject();
 
     void createGlContextAndFboAndTextureObjectIfNeeded(bool useStencilBuffer);

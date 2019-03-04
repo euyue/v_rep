@@ -82,14 +82,14 @@ void CmpObject::setData(int jointCnt,const int* jointHandles,const int* jointSte
     _ikGroup=(CDummyIkGroup*)_simGetIkGroupObject_internal(_ikGroupId);
 
     _tipDummy=(CDummyDummy*)_simGetObject_internal(_tipFrameId);
-    if (_tipDummy!=NULL)
+    if (_tipDummy!=nullptr)
     {
         int targetDummyID;
         _simGetDummyLinkType_internal(_tipDummy,&targetDummyID);
         _targetDummy=(CDummyDummy*)_simGetObject_internal(targetDummyID);
     }
     else
-        _targetDummy=NULL;
+        _targetDummy=nullptr;
 }
 
 int CmpObject::getPhase1NodesRenderData(int index,float** pos)
@@ -182,7 +182,7 @@ char CmpObject::calculateNodes(const char* serializationData,int serializationDa
     _serializationDataSize=serializationDataSize;
     CDummy3DObject* baseFrameObj=(CDummy3DObject*)_simGetObject_internal(_baseFrameId);
     CDummy3DObject* tipFrameObj=(CDummy3DObject*)_simGetObject_internal(_tipFrameId);
-    if ((baseFrameObj==NULL)||(tipFrameObj==NULL))
+    if ((baseFrameObj==nullptr)||(tipFrameObj==nullptr))
         return(0);
     std::vector<float> jointPositions;
     std::vector<float> jointRangesSpecial;
@@ -192,7 +192,7 @@ char CmpObject::calculateNodes(const char* serializationData,int serializationDa
     for (int i=0;i<int(_jointHandles.size());i++)
     {
         CDummyJoint* theJ=_jointObjects[i];
-        if (theJ==NULL)
+        if (theJ==nullptr)
             return(0);
         int jtype=_simGetJointType_internal(theJ);
         if (jtype==sim_joint_spherical_subtype)
@@ -300,7 +300,7 @@ int CmpObject::getRobotConfigFromTipPose(const float* tipPos,const float* tipQua
     //                    normally one would use 1.0f for every joint. But if for instance we want to find configurations that have their
     //                    first joint close to the specified referenceConfigs, one would use 0.0f for all entries, except for the first one
 
-    // configConstraints and referenceConfigs can be NULL
+    // configConstraints and referenceConfigs can be nullptr
     // tipPose needs to be relative to the Ik base!
 
     // if ((options&4)!=0) we use IK in an earlier stage to determine which config to pick. WIll produce closer matches with a given config, but slower
@@ -325,12 +325,12 @@ int CmpObject::getRobotConfigFromTipPose(const float* tipPos,const float* tipQua
 
     if (keepAway)
         correctionPasses=0; // works only when we want to be close to a given configuration
-    if (referenceConfigs==NULL)
+    if (referenceConfigs==nullptr)
         configCount=0;
     if (configCount==0)
         correctionPasses=0;
     std::vector<float> jointWeights(_jointHandles.size(),1.0f);
-    if (configConstraints!=NULL)
+    if (configConstraints!=nullptr)
     {
         for (int i=0;i<int(_jointHandles.size());i++)
             jointWeights[i]=configConstraints[i];
@@ -342,18 +342,18 @@ int CmpObject::getRobotConfigFromTipPose(const float* tipPos,const float* tipQua
 
     // Get some objects and transformations first:
     CDummy3DObject* baseObject=(CDummy3DObject*)_simGetObject_internal(_baseFrameId);
-    if ((baseObject==NULL)||(_tipDummy==NULL))
+    if ((baseObject==nullptr)||(_tipDummy==nullptr))
         return(0);
-    if (_targetDummy==NULL)
+    if (_targetDummy==nullptr)
         return(0);
     CDummy3DObject* targetParent=(CDummy3DObject*)_simGetParentObject_internal(_targetDummy);
-//  if ((targetParent==NULL)||(_ikGroup==NULL))
-    if (_ikGroup==NULL)
+//  if ((targetParent==nullptr)||(_ikGroup==nullptr))
+    if (_ikGroup==nullptr)
         return(0);
 
     C7Vector targetParentTr;
     targetParentTr.setIdentity();
-    if (targetParent!=NULL)
+    if (targetParent!=nullptr)
         _simGetObjectCumulativeTransformation_internal(targetParent,targetParentTr.X.data,targetParentTr.Q.data,0);
     C7Vector baseTr;
     _simGetObjectCumulativeTransformation_internal(baseObject,baseTr.X.data,baseTr.Q.data,1);
@@ -516,7 +516,7 @@ int CmpObject::getRobotConfigFromTipPose(const float* tipPos,const float* tipQua
 
 bool CmpObject::_performIkThenCheckForCollision(const float* initialJointPositions,float* finalJointPositions,const C7Vector& targetNewLocal,const float* desiredJointPositions,const int* jointBehaviour,int correctionPasses,int collisionCheckMask)
 {
-    if ((jointBehaviour==NULL)||(desiredJointPositions==NULL)||(correctionPasses==0))
+    if ((jointBehaviour==nullptr)||(desiredJointPositions==nullptr)||(correctionPasses==0))
         return(_performIkThenCheckForCollision__(initialJointPositions,finalJointPositions,targetNewLocal,collisionCheckMask));
     if (_performIkThenCheckForCollision__(initialJointPositions,finalJointPositions,targetNewLocal,0))
     { // ok, we reached the desired tip configuration. Now let's try to come closer to the desired joint configurations:
@@ -731,10 +731,10 @@ float* CmpObject::findPath(const float* startConfig,const float* goalConfig,int 
     {
         if (activityToConsole)
             printf("Start or goal configuration is colliding.\n");
-        return(NULL);
+        return(nullptr);
     }
 
-    float* retVal=NULL;
+    float* retVal=nullptr;
 
     CmpPhase2Node* startN=new CmpPhase2Node((int)_cyclicJointFlags.size(),startConfig,tipStartTransf);
     _nodeListFromStart.push_back(startN);
@@ -777,12 +777,12 @@ float* CmpObject::findPath(const float* startConfig,const float* goalConfig,int 
                     printf("*");
                 CmpPhase2Node* closest=_getPhase2ClosestNode(*current,randNode);
                 closest=_extendNode(*current,closest,randNode,stepSize,false,collisionCheckMask);
-                if (closest!=NULL)
+                if (closest!=nullptr)
                 { // ok, we could extend the node a bit
                     // Let's try to connect the extension to the other list:
                     CmpPhase2Node* closestConnect=_getPhase2ClosestNode(*nextCurrent,closest);
                     closestConnect=_extendNode(*nextCurrent,closestConnect,closest,stepSize,true,collisionCheckMask);
-                    if (closestConnect!=NULL)
+                    if (closestConnect!=nullptr)
                     { // ok, we can perform the connection. We have found a path!
                         if (activityToConsole)
                             printf("Found a path from start to goal.\n");
@@ -790,13 +790,13 @@ float* CmpObject::findPath(const float* startConfig,const float* goalConfig,int 
                         if (current==&_nodeListFromStart)
                         { // current list is from start
                             CmpPhase2Node* iterat=closest;
-                            while (iterat!=NULL)
+                            while (iterat!=nullptr)
                             {
                                 _nodeListFoundPath.insert(_nodeListFoundPath.begin(),iterat->copyYourself((int)_cyclicJointFlags.size()));
                                 iterat=iterat->parentNode;
                             }
                             iterat=closestConnect;
-                            while (iterat!=NULL)
+                            while (iterat!=nullptr)
                             {
                                 _nodeListFoundPath.push_back(iterat->copyYourself((int)_cyclicJointFlags.size()));
                                 iterat=iterat->parentNode;
@@ -805,13 +805,13 @@ float* CmpObject::findPath(const float* startConfig,const float* goalConfig,int 
                         else
                         { // current list is from goal
                             CmpPhase2Node* iterat=closest;
-                            while (iterat!=NULL)
+                            while (iterat!=nullptr)
                             {
                                 _nodeListFoundPath.push_back(iterat->copyYourself((int)_cyclicJointFlags.size()));
                                 iterat=iterat->parentNode;
                             }
                             iterat=closestConnect;
-                            while (iterat!=NULL)
+                            while (iterat!=nullptr)
                             {
                                 _nodeListFoundPath.insert(_nodeListFoundPath.begin(),iterat->copyYourself((int)_cyclicJointFlags.size()));
                                 iterat=iterat->parentNode;
@@ -907,7 +907,7 @@ float* CmpObject::findPath(const float* startConfig,const float* goalConfig,int 
 
 
 CmpPhase2Node* CmpObject::_extendNode(std::vector<CmpPhase2Node*>& nodeList,CmpPhase2Node* toBeExtendedNode,CmpPhase2Node* goalNode,float stepSize,bool connect,int collisionCheckMask)
-{   // return value is !=NULL if extension was performed and connect is false
+{   // return value is !=nullptr if extension was performed and connect is false
     // If connect is true, then return value indicates that connection can be performed
     std::vector<float> extensionVectorPiece(_cyclicJointFlags.size(),0.0f);
     std::vector<float> jointPos(_cyclicJointFlags.size(),0.0f);
@@ -929,10 +929,10 @@ CmpPhase2Node* CmpObject::_extendNode(std::vector<CmpPhase2Node*>& nodeList,CmpP
         if (_applyJointPosToRobotAndCheckForCollisions_phase2(&jointPos[0],tipTransf,collisionCheckMask))
         { // we collided
             if (connect)
-                return(NULL);
+                return(nullptr);
             if (insertedNodes!=0)
                 return(toBeExtendedNode);
-            return(NULL);
+            return(nullptr);
         }
 
         // no collision in this configuration. We extend the node:
@@ -944,7 +944,7 @@ CmpPhase2Node* CmpObject::_extendNode(std::vector<CmpPhase2Node*>& nodeList,CmpP
             return(toBeExtendedNode);
         insertedNodes++;
     }
-    return(NULL);
+    return(nullptr);
 }
 
 bool CmpObject::_applyJointPosToRobotAndCheckForCollisions_phase2(const float* jointValues,C7Vector& tipTransf,int collisionCheckMask)
@@ -1030,7 +1030,7 @@ int CmpObject::_getPhase2Vector(const float* startConfig,const float* goalConfig
 CmpPhase2Node* CmpObject::_getPhase2ClosestNode(const std::vector<CmpPhase2Node*>& nodeList,const CmpPhase2Node* aNode)
 { // returns the node in the list 'nodeList' that is closest to 'aNode'
     float smallestSqDist=FLT_MAX;
-    CmpPhase2Node* retNode=NULL;
+    CmpPhase2Node* retNode=nullptr;
     for (int ni=0;ni<int(nodeList.size());ni++)
     {
         CmpPhase2Node* anotherNode=nodeList[ni];
@@ -1215,7 +1215,7 @@ float* CmpObject::findIkPath(const float* startConfig,const float* goalPos,const
         collisionCheckMask-=2;
 
 
-    float* retVal=NULL;
+    float* retVal=nullptr;
 
     outputConfigsCnt[0]=0;
 
@@ -1231,7 +1231,7 @@ float* CmpObject::findIkPath(const float* startConfig,const float* goalPos,const
     {
         if (activityToConsole)
             printf("Start configuration is colliding.\n");
-        return(NULL);
+        return(nullptr);
     }
 
     // We add a first node:
@@ -1275,7 +1275,7 @@ float* CmpObject::findIkPath(const float* startConfig,const float* goalPos,const
             C7Vector targetParentTr;
             targetParentTr.setIdentity();
             CDummy3DObject* targetParent=(CDummy3DObject*)_simGetParentObject_internal(_targetDummy);
-            if (targetParent!=NULL)
+            if (targetParent!=nullptr)
                 _simGetObjectCumulativeTransformation_internal(targetParent,targetParentTr.X.data,targetParentTr.Q.data,0);
             C7Vector targetParentTrInv(targetParentTr.getInverse());
             for (int i=0;i<stepCount;i++)
@@ -1436,7 +1436,7 @@ float* CmpObject::simplifyPath(const float* pathBuffer,int configCnt,int options
         collisionCheckMask-=2;
 
 
-    float* retVal=NULL;
+    float* retVal=nullptr;
     outputConfigsCnt[0]=0;
     _clearAllPhase2Nodes();
 
@@ -1523,7 +1523,7 @@ float* CmpObject::getConfigTransition(const float* startConfig,const float* goal
     if ((options&32)!=0)
         collisionCheckMask-=2;
 
-    float* retVal=NULL;
+    float* retVal=nullptr;
 
     outputConfigsCnt[0]=0;
     _clearAllPhase2Nodes();
@@ -1533,14 +1533,14 @@ float* CmpObject::getConfigTransition(const float* startConfig,const float* goal
     {
         if (activityToConsole)
             printf("Start or goal configuration is colliding.\n");
-        return(NULL);
+        return(nullptr);
     }
 
     std::vector<C7Vector> waypts;
     std::vector<float> wayptsdist;
 
     float wayPointsTotalDistance=0.0f;
-    if ((wayPointCnt<3)||(wayPoints==NULL))
+    if ((wayPointCnt<3)||(wayPoints==nullptr))
     { // now way points (i.e. just a straight line)
         if (activityToConsole)
             printf("Not using any way points.\n");
@@ -1604,7 +1604,7 @@ float* CmpObject::getConfigTransition(const float* startConfig,const float* goal
             C7Vector targetParentTr;
             targetParentTr.setIdentity();
             CDummy3DObject* targetParent=(CDummy3DObject*)_simGetParentObject_internal(_targetDummy);
-            if (targetParent!=NULL)
+            if (targetParent!=nullptr)
                 _simGetObjectCumulativeTransformation_internal(targetParent,targetParentTr.X.data,targetParentTr.Q.data,0);
             C7Vector targetParentTrInv(targetParentTr.getInverse());
 

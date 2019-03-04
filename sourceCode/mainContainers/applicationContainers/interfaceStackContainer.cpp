@@ -16,7 +16,7 @@ CInterfaceStackContainer::~CInterfaceStackContainer()
 int CInterfaceStackContainer::addStack(CInterfaceStack* stack)
 {
     int id=SIM_IDSTART_INTERFACESTACK;
-    while (getStack(id)!=NULL)
+    while (getStack(id)!=nullptr)
         id++;
     _allStacks.push_back(stack);
     stack->setId(id);
@@ -44,5 +44,5 @@ CInterfaceStack* CInterfaceStackContainer::getStack(int id)
         if (_allStacks[i]->getId()==id)
             return(_allStacks[i]);
     }
-    return(NULL);
+    return(nullptr);
 }

@@ -152,15 +152,15 @@ C3DObject* CMill::copyYourself()
     return(newMill);
 }
 
-bool CMill::announceObjectWillBeErased(int objID,bool copyBuffer)
+bool CMill::announceObjectWillBeErased(int objectHandle,bool copyBuffer)
 {   // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     // This routine can be called for objCont-objects, but also for objects
     // in the copy-buffer!! So never make use of any 
-    // 'ct::objCont->getObject(id)'-call or similar
+    // 'ct::objCont->getObject(objectHandle)'-call or similar
     // Return value true means 'this' has to be erased too!
-    bool retVal=announceObjectWillBeErasedMain(objID,copyBuffer);
-    if (_millableObject==objID)
+    bool retVal=announceObjectWillBeErasedMain(objectHandle,copyBuffer);
+    if (_millableObject==objectHandle)
         _millableObject=-1;
     return(retVal);
 }
@@ -331,7 +331,7 @@ void CMill::serialize(CSer& ar)
                 {
                     noHit=false;
                     ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    if (convexVolume!=NULL)
+                    if (convexVolume!=nullptr)
                         delete convexVolume;
                     convexVolume=new CConvexVolume();
                     convexVolume->serialize(ar);
@@ -433,7 +433,7 @@ int CMill::handleMill(bool exceptExplicitHandling,float& milledSurface,float& mi
     int cutObjectHandle=-1;
     milledSurface=0.0f;
     milledVolume=0.0f;
-    _milledObjectCount=CCuttingRoutine::cutEntity(getID(),_millableObject,cutObjectHandle,milledSurface,milledVolume,justForInitialization,false);
+    _milledObjectCount=CCuttingRoutine::cutEntity(getObjectHandle(),_millableObject,cutObjectHandle,milledSurface,milledVolume,justForInitialization,false);
     _milledSurface=milledSurface;
     _milledVolume=milledVolume;
     _calcTimeInMs=VDateTime::getTimeDiffInMs(stTime);

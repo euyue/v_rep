@@ -338,7 +338,7 @@ void CPathCont::handlePath_keepObjectUnchanged(float deltaTime,double& pos_,floa
 
 void CPathCont::_handleAttachedDummies(CPath* it)
 {
-    if (it==NULL)
+    if (it==nullptr)
         return; // can happen during object creation
     std::vector<C3DObject*> childrensChildren;
     for (int i=0;i<int(it->childList.size());i++)
@@ -723,7 +723,7 @@ bool CPathCont::getConfigurationOnBezierCurveClosestTo(C3Vector& pt,C7Vector& co
         for (int i=0;i<int(_bezierPathPoints.size());i++)
         {
             CBezierPathPoint* bez0=_bezierPathPoints[i];
-            CBezierPathPoint* bez1=NULL;
+            CBezierPathPoint* bez1=nullptr;
             if (i==int(_bezierPathPoints.size())-1)
             {
                 if ( (_attributes&sim_pathproperty_closed_path)&&(i!=2) )
@@ -770,7 +770,7 @@ bool CPathCont::getPositionOnPathClosestTo(const C3Vector& pt,float& distOnPath)
     for (int i=0;i<int(_bezierPathPoints.size());i++)
     {
         CBezierPathPoint* bez0=_bezierPathPoints[i];
-        CBezierPathPoint* bez1=NULL;
+        CBezierPathPoint* bez1=nullptr;
         if (i==int(_bezierPathPoints.size())-1)
         {
             if ( (_attributes&sim_pathproperty_closed_path)&&(i!=2) )
@@ -857,13 +857,13 @@ void CPathCont::removeSimplePathPoint(int position)
 CSimplePathPoint* CPathCont::getSimplePathPoint(int position)
 {
     if ( (position<0)||(position>=int(_simplePathPoints.size())) )
-        return(NULL);
+        return(nullptr);
     return(_simplePathPoints[position]);
 }
 CBezierPathPoint* CPathCont::getBezierPathPoint(int position)
 {
     if ( (position<0)||(position>=int(_bezierPathPoints.size())) )
-        return(NULL);
+        return(nullptr);
     return(_bezierPathPoints[position]);
 }
 int CPathCont::getSimplePathPointCount()
@@ -950,7 +950,7 @@ void CPathCont::_recomputeBezierPathElementLengths()
     for (int i=0;i<int(_bezierPathPoints.size());i++)
     {
         CBezierPathPoint* it0=_bezierPathPoints[i+0];
-        CBezierPathPoint* it1=NULL;
+        CBezierPathPoint* it1=nullptr;
         if (i==int(_bezierPathPoints.size())-1)
             it1=_bezierPathPoints[0];
         else
@@ -1105,13 +1105,13 @@ void CPathCont::_recomputeBezierPathMaxVelocities()
                 break;
             if ( (_attributes&sim_pathproperty_closed_path)||(i!=0) )
             {
-                CBezierPathPoint* bp_b=NULL;
+                CBezierPathPoint* bp_b=nullptr;
                 if (i==0)
                     bp_b=_bezierPathPoints[_bezierPathPoints.size()-1];
                 else
                     bp_b=_bezierPathPoints[i-1];
                 CBezierPathPoint* bp_0=_bezierPathPoints[i+0];
-                CBezierPathPoint* bp_a=NULL;
+                CBezierPathPoint* bp_a=nullptr;
                 if (i==int(_bezierPathPoints.size())-1)
                     bp_a=_bezierPathPoints[0];
                 else
@@ -1150,13 +1150,13 @@ void CPathCont::_recomputeBezierPathMaxVelocities()
                 break;
             if ( (_attributes&sim_pathproperty_closed_path)||(i!=0) )
             {
-                CBezierPathPoint* bp_b=NULL;
+                CBezierPathPoint* bp_b=nullptr;
                 if (i==0)
                     bp_b=_bezierPathPoints[_bezierPathPoints.size()-1];
                 else
                     bp_b=_bezierPathPoints[i-1];
                 CBezierPathPoint* bp_0=_bezierPathPoints[i+0];
-                CBezierPathPoint* bp_a=NULL;
+                CBezierPathPoint* bp_a=nullptr;
                 if (i==int(_bezierPathPoints.size())-1)
                     bp_a=_bezierPathPoints[0];
                 else
@@ -1469,11 +1469,11 @@ void CPathCont::setPosition(double p)
     if (_getPointOnBezierCurveAtVirtualDistance(l,ind,t))
         _startPosition=_getInterpolatedBezierCurvePoint(ind,t).X;
     // Following is not elegant at all. Change later! (maybe simply merge the CPathCont and CPath)
-    CPath* parentPathObject=NULL;
+    CPath* parentPathObject=nullptr;
     for (int i=0;i<int(App::ct->objCont->pathList.size());i++)
     {
         parentPathObject=App::ct->objCont->getPath(App::ct->objCont->pathList[i]);
-        if (parentPathObject!=NULL)
+        if (parentPathObject!=nullptr)
         { // Can happen during object destruction!
             if (parentPathObject->pathContainer==this)
                 break;
@@ -1597,24 +1597,24 @@ void CPathCont::_recomputeBezierPoints()
     // Here we have at least 3 points!
     for (int i=0;i<int(_simplePathPoints.size());i++)
     {
-        CSimplePathPoint* itb=NULL;
+        CSimplePathPoint* itb=nullptr;
         if (i!=0)
             itb=_simplePathPoints[i-1];
         CSimplePathPoint* itm=_simplePathPoints[i+0];
-        CSimplePathPoint* ita=NULL;
+        CSimplePathPoint* ita=nullptr;
         if (i!=int(_simplePathPoints.size())-1)
             ita=_simplePathPoints[i+1];
         if ((_attributes&sim_pathproperty_closed_path)!=0)
         { // We want a closed path!
-            if (itb==NULL)
+            if (itb==nullptr)
                 itb=_simplePathPoints[_simplePathPoints.size()-1];
-            if (ita==NULL)
+            if (ita==nullptr)
                 ita=_simplePathPoints[0];
         }
-        if ( (ita==NULL)||(itb==NULL) )
+        if ( (ita==nullptr)||(itb==nullptr) )
         {
             itm->getAuxChannels(auxChannels);
-            if (itb==NULL)
+            if (itb==nullptr)
                 _addBezierPathPoint(itm->getTransformation(),itm->getMaxRelAbsVelocity(),itm->getOnSpotDistance(),itm->getAuxFlags(),auxChannels); // first point, open path
             else
                 _addBezierPathPoint(itm->getTransformation(),itm->getMaxRelAbsVelocity(),itm->getOnSpotDistance(),itm->getAuxFlags(),auxChannels); // last point, open path
@@ -2124,7 +2124,7 @@ void CPathCont::_draw(std::vector<CPathPoint*>& ptCont,bool pathEditMode,bool is
                 if (i==0)
                     ogl::drawSphere(squareSize,6,4,false);
                 else
-                    ogl::drawBox(squareSize,squareSize,squareSize,true,NULL);
+                    ogl::drawBox(squareSize,squareSize,squareSize,true,nullptr);
                 glPopMatrix();
             }
 
@@ -2139,7 +2139,7 @@ void CPathCont::_draw(std::vector<CPathPoint*>& ptCont,bool pathEditMode,bool is
                     C4Vector axis=ptCont[i]->getTransformation().Q.getAngleAndAxis();
                     glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
                     glLoadName(i);
-                    ogl::drawReference(squareSize*2.0f,true,true,true,NULL);
+                    ogl::drawReference(squareSize*2.0f,true,true,true,nullptr);
                     glPopMatrix();
                 }
             }
@@ -2149,7 +2149,7 @@ void CPathCont::_draw(std::vector<CPathPoint*>& ptCont,bool pathEditMode,bool is
         {
             std::vector<bool> selS(ptCont.size(),false);
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=NULL)
+            if (App::mainWindow!=nullptr)
             {
                 std::vector<int>* selP=App::mainWindow->editModeContainer->pathPointManipulation->getPointerToSelectedPathPointIndices_nonEditMode();
                 for (int i=0;i<int(selP->size());i++)
@@ -2180,9 +2180,9 @@ void CPathCont::_draw(std::vector<CPathPoint*>& ptCont,bool pathEditMode,bool is
                 if (i==0)
                     ogl::drawSphere(squareSize,6,4,false);
                 else
-                    ogl::drawBox(squareSize,squareSize,squareSize,true,NULL);
+                    ogl::drawBox(squareSize,squareSize,squareSize,true,nullptr);
                 if (showOrientation)
-                    ogl::drawReference(squareSize*2.0f,true,true,true,NULL);
+                    ogl::drawReference(squareSize*2.0f,true,true,true,nullptr);
                 glPopMatrix();
             }
 
@@ -2199,7 +2199,7 @@ void CPathCont::_draw(std::vector<CPathPoint*>& ptCont,bool pathEditMode,bool is
                     glTranslatef(trx(0),trx(1),trx(2));
                     C4Vector axis=ptCont[i]->getTransformation().Q.getAngleAndAxis();
                     glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
-                    ogl::drawReference(squareSize*2.0f,true,true,true,NULL);
+                    ogl::drawReference(squareSize*2.0f,true,true,true,nullptr);
                     glPopMatrix();
                 }
             }
@@ -2218,7 +2218,7 @@ void CPathCont::_draw(std::vector<CPathPoint*>& ptCont,bool pathEditMode,bool is
             glTranslatef(trx(0),trx(1),trx(2));
             C4Vector axis=ptCont[i]->getTransformation().Q.getAngleAndAxis();
             glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
-            ogl::drawReference(squareSize*0.5f,true,true,false,NULL);
+            ogl::drawReference(squareSize*0.5f,true,true,false,nullptr);
             glPopMatrix();
         }
     }

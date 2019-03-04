@@ -131,7 +131,7 @@ char* CCommTubeContainer::readFromTube_bufferNotCopied(int tubeHandle,int& dataL
 {
     int index=_getTubeIndexForHandle(tubeHandle);
     if (index==-1)
-        return(NULL);
+        return(nullptr);
     char* retVal=_allTubes[index]->readData(tubeHandle,dataLength);
     return(retVal);
 }

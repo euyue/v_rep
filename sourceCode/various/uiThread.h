@@ -41,8 +41,6 @@ enum {  OPEN_OR_CLOSE_UITHREADCMD=0,
         CREATE_DEFAULT_MENU_BAR_UITHREADCMD,
         KEEP_THUMBNAIL_QUESTION_DLG_UITHREADCMD,
         SELECT_THUMBNAIL_DLG_UITHREADCMD,
-        TEXTURE_SCALING_OPTION_DLG_UITHREADCMD,
-        IMPORT_OPTION_DLG_UITHREADCMD,
         HEIGHTFIELD_DIMENSION_DLG_UITHREADCMD,
         OPEN_MODAL_USER_EDITOR_UITHREADCMD,
         OPEN_NONMODAL_USER_EDITOR_UITHREADCMD,
@@ -163,7 +161,7 @@ public:
     virtual ~CUiThread();
 
     bool executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut);
-    void showOrHideProgressBar(bool show,float pos=999.0f,const char* txt=NULL);
+    void showOrHideProgressBar(bool show,float pos=999.0f,const char* txt=nullptr);
     bool showOrHideEmergencyStop(bool show,const char* txt);
 
 #ifdef SIM_WITHOUT_QT_AT_ALL

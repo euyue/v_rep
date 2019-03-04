@@ -102,13 +102,13 @@ void CRegisteredCollisions::addObjectWithSuffixOffset(CRegCollision* newCollObj,
         oName=tt::generateNewName_dash(oName,suffixOffset);
     else
     {
-        while (getObject(oName)!=NULL)
+        while (getObject(oName)!=nullptr)
             oName=tt::generateNewName_noDash(oName);
     }
     newCollObj->setObjectName(oName);
     // We find a free ID:
     int id=SIM_IDSTART_COLLISION;
-    while (getObject(id)!=NULL)
+    while (getObject(id)!=nullptr)
         id++;
     newCollObj->setObjectID(id);
     collisionObjects.push_back(newCollObj);
@@ -120,22 +120,22 @@ int CRegisteredCollisions::addNewObject(int obj1ID,int obj2ID,std::string objNam
     // We check if the objects are valid:
     if (obj1ID<SIM_IDSTART_COLLECTION)
     {
-        if (App::ct->objCont->getObject(obj1ID)==NULL)
+        if (App::ct->objCont->getObjectFromHandle(obj1ID)==nullptr)
             return(-1);
     }
     else
     {
-        if (App::ct->collections->getCollection(obj1ID)==NULL)
+        if (App::ct->collections->getCollection(obj1ID)==nullptr)
             return(-1);
     }
     if (obj2ID>=SIM_IDSTART_COLLECTION)
     {
-        if (App::ct->collections->getCollection(obj2ID)==NULL)
+        if (App::ct->collections->getCollection(obj2ID)==nullptr)
             return(-1);
     }
     else
     {
-        if ( (App::ct->objCont->getObject(obj2ID)==NULL)&&(obj2ID!=-1) )
+        if ( (App::ct->objCont->getObjectFromHandle(obj2ID)==nullptr)&&(obj2ID!=-1) )
             return(-1);
     }
     // We check if we try to check an object against itself (forbidden, except for collections):
@@ -153,10 +153,10 @@ int CRegisteredCollisions::addNewObject(int obj1ID,int obj2ID,std::string objNam
     // Now check if the combination is valid:
     if ( (obj1ID<SIM_IDSTART_COLLECTION)&&(obj2ID<SIM_IDSTART_COLLECTION) )
     {
-        int t1=App::ct->objCont->getObject(obj1ID)->getObjectType();
+        int t1=App::ct->objCont->getObjectFromHandle(obj1ID)->getObjectType();
         int t2=sim_object_octree_type;
         if (obj2ID!=-1)
-            t2=App::ct->objCont->getObject(obj2ID)->getObjectType();
+            t2=App::ct->objCont->getObjectFromHandle(obj2ID)->getObjectType();
         if (t1==sim_object_shape_type)
         {
             if ( (t2!=sim_object_shape_type)&&(t2!=sim_object_octree_type) )
@@ -201,7 +201,7 @@ CRegCollision* CRegisteredCollisions::getObject(int objID)
         if (collisionObjects[i]->getObjectID()==objID)
             return(collisionObjects[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 CRegCollision* CRegisteredCollisions::getObject(std::string objName)
 {
@@ -210,7 +210,7 @@ CRegCollision* CRegisteredCollisions::getObject(std::string objName)
         if (collisionObjects[i]->getObjectName().compare(objName)==0)
             return(collisionObjects[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 void CRegisteredCollisions::removeAllCollisionObjects()
 {
@@ -257,10 +257,10 @@ void CRegisteredCollisions::setUpDefaultValues()
 bool CRegisteredCollisions::setObjectName(int objID,std::string newName)
 {
     CRegCollision* it=getObject(newName);
-    if (it==NULL)
+    if (it==nullptr)
     {
         it=getObject(objID);
-        if (it==NULL)
+        if (it==nullptr)
             return(false); // Failure
         it->setObjectName(newName);
         return(true); // Success

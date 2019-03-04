@@ -9,7 +9,7 @@ void displayView(CSView* view,C3DObject* it,int mainWindowXPos,bool clipWithMain
     int _viewSize[2];
     view->getViewPosition(_viewPosition);
     view->getViewSize(_viewSize);
-    if (it!=NULL)
+    if (it!=nullptr)
     {
         glEnable(GL_SCISSOR_TEST);
         glViewport(_viewPosition[0],_viewPosition[1],_viewSize[0],_viewSize[1]);
@@ -25,9 +25,9 @@ void displayView(CSView* view,C3DObject* it,int mainWindowXPos,bool clipWithMain
         {
 #ifdef SIM_WITH_GUI
             if (it->getObjectType()==sim_object_camera_type)
-                ((CCamera*)it)->lookIn(NULL,view,drawText,passiveSubView);
+                ((CCamera*)it)->lookIn(nullptr,view,drawText,passiveSubView);
             if (it->getObjectType()==sim_object_graph_type)
-                ((CGraph*)it)->lookAt(NULL,view,view->getTimeGraph(),drawText,passiveSubView,true);
+                ((CGraph*)it)->lookAt(nullptr,view,view->getTimeGraph(),drawText,passiveSubView,true);
 #endif
             if (it->getObjectType()==sim_object_visionsensor_type)
                 ((CVisionSensor*)it)->lookAt(view);

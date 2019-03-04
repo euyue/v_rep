@@ -19,12 +19,12 @@ CMotionPlanningTask::CMotionPlanningTask(const std::vector<int>& jointHandles)
     for (int i=0;i<int(jointHandles.size());i++)
     {
         jointH.push_back(jointHandles[i]);
-        C3DObject* obj=App::ct->objCont->getObject(jointHandles[i]);
+        C3DObject* obj=App::ct->objCont->getObjectFromHandle(jointHandles[i]);
         int cnt=-1;
-        while (obj!=NULL)
+        while (obj!=nullptr)
         {
             cnt++;
-            obj=obj->getParent();
+            obj=obj->getParentObject();
         }
         parentCnt.push_back(cnt);
     }
@@ -45,8 +45,8 @@ CMotionPlanningTask::CMotionPlanningTask(const std::vector<int>& jointHandles)
 
 CMotionPlanningTask::CMotionPlanningTask()
 { // serialization constructor
-    _data=NULL;
-    _nodesSerializationData=NULL;
+    _data=nullptr;
+    _nodesSerializationData=nullptr;
 }
 
 CMotionPlanningTask::~CMotionPlanningTask()
@@ -60,7 +60,7 @@ void CMotionPlanningTask::setDefaultValues()
     _objectName="MotionPlanningTask";
     _ikGroupId=-1;
     _showPhase1Nodes=false;
-    _data=NULL;
+    _data=nullptr;
     _robotEntity=-1;
     _obstacleEntity=-1;
     _robotSelfCollEntity1=-1;
@@ -69,7 +69,7 @@ void CMotionPlanningTask::setDefaultValues()
     _tipMetric[1]=1.0f;
     _tipMetric[2]=1.0f;
     _tipMetric[3]=90.0f*3.141592653589f/180.0f;
-    _nodesSerializationData=NULL;
+    _nodesSerializationData=nullptr;
     _nodesSerializationDataSize=0;
 
     _showPhase2FromStartConnections=false;
@@ -102,7 +102,7 @@ CMotionPlanningTask* CMotionPlanningTask::copyYourself()
         newTask->_robotMetric[i]=_robotMetric[i];
     }
 
-    if (_nodesSerializationData!=NULL)
+    if (_nodesSerializationData!=nullptr)
     {
         newTask->_nodesSerializationData=new char[_nodesSerializationDataSize];
         newTask->_nodesSerializationDataSize=_nodesSerializationDataSize;
@@ -111,13 +111,13 @@ CMotionPlanningTask* CMotionPlanningTask::copyYourself()
     }
     else
     { // we do not copy _data since that takes time and memory. We'll compute it on-the-fly when needed! But we copy the collision states (i.e. the robot self collision states)
-        //if (_data!=NULL)
+        //if (_data!=nullptr)
         //{
         //  newTask->_data=_data->copyYourself(int(_jointHandles.size()));
         //  newTask->_data->setTempData(_jointHandles,_jointStepCount,_ikGroupId,_baseFrameId,_tipFrameId,_robotEntity,_obstacleEntity,_distanceThreshold,_tipMetric,_robotMetric);
         //}
 
-        if (_data!=NULL)
+        if (_data!=nullptr)
         {
             int cnt;
 //          char* dat=_data->getSerializationData(&cnt);
@@ -207,7 +207,7 @@ void CMotionPlanningTask::serialize(CSer& ar)
         ar << dummy;
         ar.flush();
 
-        if (_data!=NULL)
+        if (_data!=nullptr)
         { // we just save the "colliding state" for each node. Saving all the node info would be way too much (we'll recompute that when needed, on-the-fly)
             ar.storeDataName("Dat");
             int cnt;
@@ -493,12 +493,12 @@ int CMotionPlanningTask::calculateResultingNodeCount()
 
 void CMotionPlanningTask::clearDataStructure()
 {
-    if (_data!=NULL)
+    if (_data!=nullptr)
         CPathPlanningInterface::destroyMpObject(_data);
 //  delete _data;
-    _data=NULL;
+    _data=nullptr;
     delete _nodesSerializationData;
-    _nodesSerializationData=NULL;
+    _nodesSerializationData=nullptr;
     _nodesSerializationDataSize=0;
 }
 
@@ -537,36 +537,36 @@ void CMotionPlanningTask::setTipMetric(int index,float w)
 C3DObject* CMotionPlanningTask::getBaseObject()
 {
     CikGroup* ik=getIkGroupObject();
-    if (ik==NULL)
-        return(NULL);
+    if (ik==nullptr)
+        return(nullptr);
     if (ik->ikElements.size()!=1)
-        return(NULL);
+        return(nullptr);
     int b=ik->ikElements[0]->getAlternativeBaseForConstraints();
     if (b==-1)
         b=ik->ikElements[0]->getBase();
-    C3DObject* retVal=App::ct->objCont->getObject(b);
+    C3DObject* retVal=App::ct->objCont->getObjectFromHandle(b);
     return(retVal);
 }
 
 C3DObject* CMotionPlanningTask::getTipObject()
 {
     CikGroup* ik=getIkGroupObject();
-    if (ik==NULL)
-        return(NULL);
+    if (ik==nullptr)
+        return(nullptr);
     if (ik->ikElements.size()!=1)
-        return(NULL);
-    C3DObject* retVal=App::ct->objCont->getObject(ik->ikElements[0]->getTooltip());
+        return(nullptr);
+    C3DObject* retVal=App::ct->objCont->getObjectFromHandle(ik->ikElements[0]->getTooltip());
     return(retVal);
 }
 
 C3DObject* CMotionPlanningTask::getTargetObject()
 {
     CikGroup* ik=getIkGroupObject();
-    if (ik==NULL)
-        return(NULL);
+    if (ik==nullptr)
+        return(nullptr);
     if (ik->ikElements.size()!=1)
-        return(NULL);
-    C3DObject* retVal=App::ct->objCont->getObject(ik->ikElements[0]->getTarget());
+        return(nullptr);
+    C3DObject* retVal=App::ct->objCont->getObjectFromHandle(ik->ikElements[0]->getTarget());
     return(retVal);
 }
 
@@ -585,17 +585,17 @@ void CMotionPlanningTask::clearPhase2NodeVisualizationAndPathVisualization()
 
 bool CMotionPlanningTask::getPhase1NodeAreReady()
 {
-    return(_data!=NULL);
+    return(_data!=nullptr);
 }
 
 bool CMotionPlanningTask::calculateDataStructureIfNeeded(int* collidingNodeCnt,int* totalNodeCnt,bool outputActivityToConsole)
 {
-    if (collidingNodeCnt!=NULL)
+    if (collidingNodeCnt!=nullptr)
         collidingNodeCnt[0]=0;
-    if (totalNodeCnt!=NULL)
+    if (totalNodeCnt!=nullptr)
         totalNodeCnt[0]=0;
     bool existing=false;
-    if (_data==NULL)
+    if (_data==nullptr)
         _data=CPathPlanningInterface::createMpObject();
     else
         existing=true;
@@ -603,10 +603,10 @@ bool CMotionPlanningTask::calculateDataStructureIfNeeded(int* collidingNodeCnt,i
     C3DObject* tipf=getTipObject();
     C3DObject* targetF=getTargetObject();
     CikGroup* ik=getIkGroupObject();
-    if ((ik==NULL)||(basef==NULL)||(tipf==NULL)||(targetF==NULL))
+    if ((ik==nullptr)||(basef==nullptr)||(tipf==nullptr)||(targetF==nullptr))
     {
         CPathPlanningInterface::destroyMpObject(_data);
-        _data=NULL;
+        _data=nullptr;
         if (outputActivityToConsole)
             printf("Ill-defined motion planning task!\n");
         return(false);
@@ -620,12 +620,12 @@ bool CMotionPlanningTask::calculateDataStructureIfNeeded(int* collidingNodeCnt,i
     tipMetricAndIkElConstraints[3]=_tipMetric[3];
     tipMetricAndIkElConstraints[4]=el->getConstraints();
 
-    CPathPlanningInterface::setMpObjectData(_data,(int)_jointHandles.size(),&_jointHandles[0],&_jointStepCount[0],_ikGroupId,basef->getID(),tipf->getID(),_robotSelfCollEntity1,_robotSelfCollEntity2,_robotEntity,_obstacleEntity,_distanceThreshold,tipMetricAndIkElConstraints,&_robotMetric[0]);
+    CPathPlanningInterface::setMpObjectData(_data,(int)_jointHandles.size(),&_jointHandles[0],&_jointStepCount[0],_ikGroupId,basef->getObjectHandle(),tipf->getObjectHandle(),_robotSelfCollEntity1,_robotSelfCollEntity2,_robotEntity,_obstacleEntity,_distanceThreshold,tipMetricAndIkElConstraints,&_robotMetric[0]);
     if (existing)
     {
-        if (collidingNodeCnt!=NULL)
+        if (collidingNodeCnt!=nullptr)
             collidingNodeCnt[0]=CPathPlanningInterface::getMpPhase1NodeCnt(_data,1);
-        if (totalNodeCnt!=NULL)
+        if (totalNodeCnt!=nullptr)
             totalNodeCnt[0]=CPathPlanningInterface::getMpPhase1NodeCnt(_data,0);
         if (outputActivityToConsole)
             printf("Using the already existing motion planning data structure.\n");
@@ -642,7 +642,7 @@ bool CMotionPlanningTask::calculateDataStructureIfNeeded(int* collidingNodeCnt,i
         printf("Preparing the motion planning data structure...\n");
     bool retVal=(CPathPlanningInterface::calculateMpNodesPhase1(_data,_nodesSerializationData,_nodesSerializationDataSize)!=0);
     delete[] _nodesSerializationData;
-    _nodesSerializationData=NULL;
+    _nodesSerializationData=nullptr;
     _nodesSerializationDataSize=0;
 
     // Restore joint positions/modes:
@@ -650,9 +650,9 @@ bool CMotionPlanningTask::calculateDataStructureIfNeeded(int* collidingNodeCnt,i
 
     if (retVal)
     {
-        if (collidingNodeCnt!=NULL)
+        if (collidingNodeCnt!=nullptr)
             collidingNodeCnt[0]=CPathPlanningInterface::getMpPhase1NodeCnt(_data,1);
-        if (totalNodeCnt!=NULL)
+        if (totalNodeCnt!=nullptr)
             totalNodeCnt[0]=CPathPlanningInterface::getMpPhase1NodeCnt(_data,0);
         if (outputActivityToConsole)
             printf("Finished preparing the motion planning data structure. Total nodes: %i\n",CPathPlanningInterface::getMpPhase1NodeCnt(_data,0));
@@ -751,7 +751,7 @@ void CMotionPlanningTask::getCurrentJointPositions(std::vector<float>& jointPosi
     for (int i=0;i<int(_jointHandles.size());i++)
     {
         CJoint* joint=App::ct->objCont->getJoint(_jointHandles[i]);
-        if (joint!=NULL)
+        if (joint!=nullptr)
             jointPositions.push_back(joint->getPosition());
         else
             jointPositions.push_back(0.0f);
@@ -765,12 +765,12 @@ int CMotionPlanningTask::getRobotConfigFromTipPose(const C7Vector& tipPose,int o
 
     bool activityToConsole=((options&8)!=0);
 
-    calculateDataStructureIfNeeded(NULL,NULL,activityToConsole);
-    if (_data!=NULL)
+    calculateDataStructureIfNeeded(nullptr,nullptr,activityToConsole);
+    if (_data!=nullptr)
     {
         float constraints[5]={0.0f,0.0f,0.0f,0.0f,0.0f};
         CikGroup* ikGroup=App::ct->ikGroups->getIkGroup(_ikGroupId);
-        if ((ikGroup!=NULL)&&ikGroup->ikElements.size()!=0)
+        if ((ikGroup!=nullptr)&&ikGroup->ikElements.size()!=0)
         {
             CikEl* el=ikGroup->ikElements[0]; // normally there should be exactly one ik element!
             int constr=el->getConstraints();
@@ -793,7 +793,7 @@ int CMotionPlanningTask::getRobotConfigFromTipPose(const C7Vector& tipPose,int o
             for (int i=0;i<int(_jointHandles.size());i++)
             {
                 CJoint* joint=App::ct->objCont->getJoint(_jointHandles[i]);
-                if (joint!=NULL)
+                if (joint!=nullptr)
                 {
                     if (joint->getJointMode()!=sim_jointmode_ik)
                         joint->setJointMode(sim_jointmode_ik,false);
@@ -802,7 +802,7 @@ int CMotionPlanningTask::getRobotConfigFromTipPose(const C7Vector& tipPose,int o
             // do the calculation:
             C7Vector tipPoseRelativeToBase=tipPose;
             C3DObject* base=getBaseObject();
-            if (base!=NULL)
+            if (base!=nullptr)
                 tipPoseRelativeToBase=base->getCumulativeTransformationPart1().getInverse()*tipPose;
 
 //          int retVal=_data->getRobotConfigFromTipPose(tipPoseRelativeToBase.X.data,tipPoseRelativeToBase.Q.data,options,robotJoints,constraints,configConstraints,trialCount,tipCloseDistance,referenceConfigs,refConfigCount,jointBehaviour,correctionPasses,maxTimeInMs);
@@ -821,7 +821,7 @@ int CMotionPlanningTask::getRobotConfigFromTipPose(const C7Vector& tipPose,int o
 }
 
 void CMotionPlanningTask::_saveAllSceneJointPositionsAndModes(std::vector<CJoint*>& joints,std::vector<float>& jointPositions,std::vector<int>& jointModes,std::vector<float>* jointIkResolutionWeights)
-{ // jointIkResolutionWeights is NULL by default
+{ // jointIkResolutionWeights is nullptr by default
     joints.clear();
     jointPositions.clear();
     jointModes.clear();
@@ -831,21 +831,21 @@ void CMotionPlanningTask::_saveAllSceneJointPositionsAndModes(std::vector<CJoint
         joints.push_back(aj);
         jointPositions.push_back(aj->getPosition());
         jointModes.push_back(aj->getJointMode());
-        if (jointIkResolutionWeights!=NULL)
+        if (jointIkResolutionWeights!=nullptr)
             jointIkResolutionWeights->push_back(aj->getIKWeight());
     }
 
 }
 
 void CMotionPlanningTask::_restoreAllSceneJointPositionsAndModes(const std::vector<CJoint*>& joints,const std::vector<float>& jointPositions,const std::vector<int>& jointModes,const std::vector<float>* jointIkResolutionWeights)
-{ // jointIkResolutionWeights is NULL by default
+{ // jointIkResolutionWeights is nullptr by default
     for (int i=0;i<int(joints.size());i++)
     {
         if (joints[i]->getPosition()!=jointPositions[i])
             joints[i]->setPosition(jointPositions[i]);
         if (joints[i]->getJointMode()!=jointModes[i])
             joints[i]->setJointMode(jointModes[i],false);
-        if (jointIkResolutionWeights!=NULL)
+        if (jointIkResolutionWeights!=nullptr)
             joints[i]->setIKWeight(jointIkResolutionWeights->at(i));
     }
 }
@@ -857,16 +857,16 @@ float* CMotionPlanningTask::getConfigTransition(const float* startConfig,const f
     _showPhase2Path=((options&4)!=0);
     bool activityToConsole=((options&8)!=0);
     outputConfigsCnt[0]=0;
-    calculateDataStructureIfNeeded(NULL,NULL,activityToConsole); // we need the data structure, not the node.... we calculate the node here anyway
+    calculateDataStructureIfNeeded(nullptr,nullptr,activityToConsole); // we need the data structure, not the node.... we calculate the node here anyway
 
-    float* retVal=NULL;
+    float* retVal=nullptr;
 
-    if (_data!=NULL)
+    if (_data!=nullptr)
     {
         // selection thing:
         std::vector<int> selectHandles;
         std::vector<int> selectModes;
-        if (select!=NULL)
+        if (select!=nullptr)
         {
             for (int i=0;i<select[0];i++)
             {
@@ -886,14 +886,14 @@ float* CMotionPlanningTask::getConfigTransition(const float* startConfig,const f
         for (int i=0;i<int(_jointHandles.size());i++)
         {
             CJoint* joint=App::ct->objCont->getJoint(_jointHandles[i]);
-            if (joint!=NULL)
+            if (joint!=nullptr)
             {
                 if (joint->getJointMode()!=sim_jointmode_ik)
                 {
                     bool doIt=true;
                     for (int j=0;j<int(selectHandles.size());j++)
                     {
-                        if (selectHandles[j]==joint->getID())
+                        if (selectHandles[j]==joint->getObjectHandle())
                         {
                             if (selectModes[j]==0)
                             {
@@ -925,7 +925,7 @@ float* CMotionPlanningTask::getConfigTransition(const float* startConfig,const f
         // do the calculation:
         float* pathData=CPathPlanningInterface::mpGetConfigTransition(_data,startConfig,goalConfig,options,select,calcStepSize,maxOutStepSize,wayPointCnt,wayPoints,outputConfigsCnt,auxIntParams,auxFloatParams);
 
-        if (pathData!=NULL)
+        if (pathData!=nullptr)
         {
             int cnt=outputConfigsCnt[0]*(int)_jointHandles.size()+outputConfigsCnt[0]+outputConfigsCnt[0]*3+outputConfigsCnt[0]*4+outputConfigsCnt[0];
             retVal=(float*)new char[cnt*4];
@@ -949,11 +949,11 @@ float* CMotionPlanningTask::findPath(const float* startConfig,const float* goalC
     _showPhase2Path=((options&4)!=0);
     bool activityToConsole=((options&8)!=0);
     outputConfigsCnt[0]=0;
-    calculateDataStructureIfNeeded(NULL,NULL,activityToConsole); // we need the data structure, not the node.... we calculate the node here anyway
+    calculateDataStructureIfNeeded(nullptr,nullptr,activityToConsole); // we need the data structure, not the node.... we calculate the node here anyway
 
-    float* retVal=NULL;
+    float* retVal=nullptr;
 
-    if (_data!=NULL)
+    if (_data!=nullptr)
     {
         // Save joint positions/modes (all of them, just in case)
         std::vector<CJoint*> sceneJoints;
@@ -965,7 +965,7 @@ float* CMotionPlanningTask::findPath(const float* startConfig,const float* goalC
         for (int i=0;i<int(_jointHandles.size());i++)
         {
             CJoint* joint=App::ct->objCont->getJoint(_jointHandles[i]);
-            if (joint!=NULL)
+            if (joint!=nullptr)
             {
                 if (joint->getJointMode()!=sim_jointmode_ik)
                     joint->setJointMode(sim_jointmode_ik);
@@ -976,7 +976,7 @@ float* CMotionPlanningTask::findPath(const float* startConfig,const float* goalC
 //      float* pathData=_data->findPath(startConfig,goalConfig,options,stepSize,outputConfigsCnt,maxTimeInMs,auxIntParams,auxFloatParams);
         float* pathData=CPathPlanningInterface::mpFindPath(_data,startConfig,goalConfig,options,stepSize,outputConfigsCnt,maxTimeInMs,auxIntParams,auxFloatParams,randomSeed);
         randomSeed=-1;
-        if (pathData!=NULL)
+        if (pathData!=nullptr)
         {
             int cnt=outputConfigsCnt[0]*(int)_jointHandles.size()+outputConfigsCnt[0]+outputConfigsCnt[0]*3+outputConfigsCnt[0]*4+outputConfigsCnt[0];
             retVal=(float*)new char[cnt*4];
@@ -999,11 +999,11 @@ float* CMotionPlanningTask::findIkPath(const float* startConfig,const C7Vector& 
     _showPhase2Path=((options&4)!=0);
     bool activityToConsole=((options&8)!=0);
     outputConfigsCnt[0]=0;
-    calculateDataStructureIfNeeded(NULL,NULL,activityToConsole); // we need the data structure, not the node.... we calculate the node here anyway
+    calculateDataStructureIfNeeded(nullptr,nullptr,activityToConsole); // we need the data structure, not the node.... we calculate the node here anyway
 
-    float* retVal=NULL;
+    float* retVal=nullptr;
 
-    if (_data!=NULL)
+    if (_data!=nullptr)
     {
         // Save joint positions/modes (all of them, just in case)
         std::vector<CJoint*> sceneJoints;
@@ -1015,7 +1015,7 @@ float* CMotionPlanningTask::findIkPath(const float* startConfig,const C7Vector& 
         for (int i=0;i<int(_jointHandles.size());i++)
         {
             CJoint* joint=App::ct->objCont->getJoint(_jointHandles[i]);
-            if (joint!=NULL)
+            if (joint!=nullptr)
             {
                 if (joint->getJointMode()!=sim_jointmode_ik)
                     joint->setJointMode(sim_jointmode_ik);
@@ -1025,7 +1025,7 @@ float* CMotionPlanningTask::findIkPath(const float* startConfig,const C7Vector& 
         // do the calculation:
         float* pathData=CPathPlanningInterface::mpFindIkPath(_data,startConfig,goalPose.X.data,goalPose.Q.data,options,stepSize,outputConfigsCnt,auxIntParams,auxFloatParams);
 
-        if (pathData!=NULL)
+        if (pathData!=nullptr)
         {
             int cnt=outputConfigsCnt[0]*(int)_jointHandles.size()+outputConfigsCnt[0]+outputConfigsCnt[0]*3+outputConfigsCnt[0]*4+outputConfigsCnt[0];
             retVal=(float*)new char[cnt*4];
@@ -1048,11 +1048,11 @@ float* CMotionPlanningTask::simplifyPath(const float* pathBuffer,int configCnt,i
     _showPhase2Path=((options&4)!=0);
     bool activityToConsole=((options&8)!=0);
     outputConfigsCnt[0]=0;
-    calculateDataStructureIfNeeded(NULL,NULL,activityToConsole); // we need the data structure, not the node.... we calculate the node here anyway
+    calculateDataStructureIfNeeded(nullptr,nullptr,activityToConsole); // we need the data structure, not the node.... we calculate the node here anyway
 
-    float* retVal=NULL;
+    float* retVal=nullptr;
 
-    if (_data!=NULL)
+    if (_data!=nullptr)
     {
         // Save joint positions/modes (all of them, just in case)
         std::vector<CJoint*> sceneJoints;
@@ -1064,7 +1064,7 @@ float* CMotionPlanningTask::simplifyPath(const float* pathBuffer,int configCnt,i
         for (int i=0;i<int(_jointHandles.size());i++)
         {
             CJoint* joint=App::ct->objCont->getJoint(_jointHandles[i]);
-            if (joint!=NULL)
+            if (joint!=nullptr)
             {
                 if (joint->getJointMode()!=sim_jointmode_ik)
                     joint->setJointMode(sim_jointmode_ik);
@@ -1074,7 +1074,7 @@ float* CMotionPlanningTask::simplifyPath(const float* pathBuffer,int configCnt,i
         // do the calculation:
         float* pathData=CPathPlanningInterface::mpSimplifyPath(_data,pathBuffer,configCnt,options,stepSize,increment,outputConfigsCnt,maxTimeInMs,auxIntParams,auxFloatParams);
 
-        if (pathData!=NULL)
+        if (pathData!=nullptr)
         {
             int cnt=outputConfigsCnt[0]*(int)_jointHandles.size()+outputConfigsCnt[0]+outputConfigsCnt[0]*3+outputConfigsCnt[0]*4+outputConfigsCnt[0];
             retVal=(float*)new char[cnt*4];

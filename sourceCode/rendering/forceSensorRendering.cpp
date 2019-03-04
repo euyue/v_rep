@@ -13,9 +13,9 @@ void displayForceSensor(CForceSensor* forceSensor,CViewableBase* renderingObject
         _displayBoundingBox(forceSensor,displayAttrib,true,forceSensor->getSize());
 
     // Object display:
-    if (forceSensor->getShouldObjectBeDisplayed(renderingObject->getID(),displayAttrib))
+    if (forceSensor->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
     {
-        _enableAuxClippingPlanes(forceSensor->getID());
+        _enableAuxClippingPlanes(forceSensor->getObjectHandle());
         if (displayAttrib&sim_displayattribute_dynamiccontentonly)
             ogl::setMaterialColor(0.0f,0.6f,0.0f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
         else
@@ -38,9 +38,9 @@ void _displayForceSensor(CForceSensor* forceSensor,int displayAttrib,bool partOn
     if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE)==0)
     {
         if (forceSensor->getLocalObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
-            glLoadName(forceSensor->getModelSelectionID());
+            glLoadName(forceSensor->getModelSelectionHandle());
         else
-            glLoadName(forceSensor->getID());
+            glLoadName(forceSensor->getObjectHandle());
     }
     else
         glLoadName(-1);

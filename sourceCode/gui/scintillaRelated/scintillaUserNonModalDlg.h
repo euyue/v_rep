@@ -20,7 +20,7 @@ class CScintillaUserNonModalDlg : public QDialog
     Q_OBJECT
 
 public:
-    CScintillaUserNonModalDlg(const std::string& xmlInfo,int scriptId,int sceneUniqueId,const char* callbackFunc,bool simScript,QWidget* pParent = NULL, Qt::WindowFlags f= 0);
+    CScintillaUserNonModalDlg(const std::string& xmlInfo,int scriptId,int sceneUniqueId,const char* callbackFunc,bool simScript,QWidget* pParent = nullptr, Qt::WindowFlags f= 0);
     virtual ~CScintillaUserNonModalDlg();
 
     void closeEvent(QCloseEvent *event);

@@ -11,38 +11,40 @@ CPlugin::CPlugin(const char* filename,const char* pluginName)
 {
     _filename=filename;
     name=pluginName;
-    instance=NULL;
-    v_repMesh_createCollisionInformationStructure=NULL;
-    _codeEditor_openModal=NULL;
-    _customUi_msgBox=NULL;
+    instance=nullptr;
+    v_repMesh_createCollisionInformationStructure=nullptr;
+    _codeEditor_openModal=nullptr;
+    _customUi_msgBox=nullptr;
     _loadCount=1;
     extendedVersionInt=-1;
 }
 
 CPlugin::~CPlugin()
 {
-    if (instance!=NULL)
+    if (instance!=nullptr)
         VVarious::closeLibrary(instance);
-    if (v_repMesh_createCollisionInformationStructure!=NULL)
-        CPluginContainer::currentMeshEngine=NULL;
-    if (_codeEditor_openModal!=NULL)
-        CPluginContainer::currentCodeEditor=NULL;
-    if (_customUi_msgBox!=NULL)
-        CPluginContainer::currentCustomUi=NULL;
+    if (v_repMesh_createCollisionInformationStructure!=nullptr)
+        CPluginContainer::currentMeshEngine=nullptr;
+    if (_codeEditor_openModal!=nullptr)
+        CPluginContainer::currentCodeEditor=nullptr;
+    if (_customUi_msgBox!=nullptr)
+        CPluginContainer::currentCustomUi=nullptr;
+    if (_assimp_importShapes!=nullptr)
+        CPluginContainer::currentAssimp=nullptr;
 }
 
 int CPlugin::load()
 {
     WLibrary lib=VVarious::openLibrary(_filename.c_str()); // here we have the extension in the filename (.dll, .so or .dylib)
-    if (lib!=NULL)
+    if (lib!=nullptr)
     {
         instance=lib;
         startAddress=(ptrStart)(VVarious::resolveLibraryFuncName(lib,"v_repStart"));
         endAddress=(ptrEnd)(VVarious::resolveLibraryFuncName(lib,"v_repEnd"));
         messageAddress=(ptrMessage)(VVarious::resolveLibraryFuncName(lib,"v_repMessage"));
-        if ( (startAddress!=NULL)&&(endAddress!=NULL)&&(messageAddress!=NULL) )
+        if ( (startAddress!=nullptr)&&(endAddress!=nullptr)&&(messageAddress!=nullptr) )
         {
-            pluginVersion=startAddress(NULL,0);
+            pluginVersion=startAddress(nullptr,0);
 
             ptrExtRenderer pov=(ptrExtRenderer)(VVarious::resolveLibraryFuncName(lib,"v_repPovRay"));
             ptrExtRenderer rayTracer2=(ptrExtRenderer)(VVarious::resolveLibraryFuncName(lib,"v_repRayTracer2"));
@@ -166,7 +168,7 @@ int CPlugin::load()
                 v_repMesh_getRayProxSensorOctreeDistanceIfSmaller=(ptrv_repMesh_getRayProxSensorOctreeDistanceIfSmaller)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getRayProxSensorOctreeDistanceIfSmaller"));
                 v_repMesh_getProxSensorOctreeDistanceIfSmaller=(ptrv_repMesh_getProxSensorOctreeDistanceIfSmaller)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_getProxSensorOctreeDistanceIfSmaller"));
                 v_repMesh_removePointCloudPointsFromOctree=(ptrv_repMesh_removePointCloudPointsFromOctree)(VVarious::resolveLibraryFuncName(lib,"v_repMesh_removePointCloudPointsFromOctree"));
-                if (v_repMesh_createCollisionInformationStructure!=NULL)
+                if (v_repMesh_createCollisionInformationStructure!=nullptr)
                     CPluginContainer::currentMeshEngine=this;
 
                 _codeEditor_openModal=(ptrCodeEditor_openModal)(VVarious::resolveLibraryFuncName(lib,"codeEditor_openModal"));
@@ -175,47 +177,56 @@ int CPlugin::load()
                 _codeEditor_getText=(ptrCodeEditor_getText)(VVarious::resolveLibraryFuncName(lib,"codeEditor_getText"));
                 _codeEditor_show=(ptrCodeEditor_show)(VVarious::resolveLibraryFuncName(lib,"codeEditor_show"));
                 _codeEditor_close=(ptrCodeEditor_close)(VVarious::resolveLibraryFuncName(lib,"codeEditor_close"));
-                if (_codeEditor_openModal!=NULL)
+                if (_codeEditor_openModal!=nullptr)
                     CPluginContainer::currentCodeEditor=this;
 
                 _customUi_msgBox=(ptrCustomUi_msgBox)(VVarious::resolveLibraryFuncName(lib,"customUi_msgBox"));
                 _customUi_fileDialog=(ptrCustomUi_fileDialog)(VVarious::resolveLibraryFuncName(lib,"customUi_fileDialog"));
-                if (_customUi_msgBox!=NULL)
+                if (_customUi_msgBox!=nullptr)
                     CPluginContainer::currentCustomUi=this;
 
+                _assimp_importShapes=(ptrassimp_importShapes)(VVarious::resolveLibraryFuncName(lib,"assimp_importShapes"));
+                _assimp_exportShapes=(ptrassimp_exportShapes)(VVarious::resolveLibraryFuncName(lib,"assimp_exportShapes"));
+                _assimp_importMeshes=(ptrassimp_importMeshes)(VVarious::resolveLibraryFuncName(lib,"assimp_importMeshes"));
+                _assimp_exportMeshes=(ptrassimp_exportMeshes)(VVarious::resolveLibraryFuncName(lib,"assimp_exportMeshes"));
+                if (_assimp_importShapes!=nullptr)
+                    CPluginContainer::currentAssimp=this;
+
+
+
                 // For other specific plugins:
-                if (pov!=NULL)
+                if (pov!=nullptr)
                     CPluginContainer::_povRayAddress=pov;
-                if (rayTracer2!=NULL)
+                if (rayTracer2!=nullptr)
                     CPluginContainer::_rayTracer2Address=rayTracer2;
-                if (extRenderer!=NULL)
+                if (extRenderer!=nullptr)
                     CPluginContainer::_extRendererAddress=extRenderer;
-                if (extRendererWindowed!=NULL)
+                if (extRendererWindowed!=nullptr)
                     CPluginContainer::_extRendererWindowedAddress=extRendererWindowed;
-                if (oculus!=NULL)
+                if (oculus!=nullptr)
                     CPluginContainer::_oculusAddress=oculus;
-                if (oculusWindowed!=NULL)
+                if (oculusWindowed!=nullptr)
                     CPluginContainer::_oculusWindowedAddress=oculusWindowed;
 
-                if (qhull!=NULL)
+                if (qhull!=nullptr)
                     CPluginContainer::_qhullAddress=qhull;
-                if (hacd!=NULL)
+                if (hacd!=nullptr)
                     CPluginContainer::_hacdAddress=hacd;
-                if (vhacd!=NULL)
+                if (vhacd!=nullptr)
                     CPluginContainer::_vhacdAddress=vhacd;
-                if (meshDecimator!=NULL)
+                if (meshDecimator!=nullptr)
                     CPluginContainer::_meshDecimatorAddress=meshDecimator;
 
                 return(int(pluginVersion)); // success!
             }
             VVarious::closeLibrary(instance);
-            instance=NULL;
+            instance=nullptr;
             return(0); // could not properly initialize
         }
         else
         {
             VVarious::closeLibrary(instance);
-            instance=NULL;
+            instance=nullptr;
             return(-1); // missing entry points
         }
     }
@@ -237,25 +248,26 @@ std::vector<std::string> CPluginContainer::_opengl_eventEnabledPluginNames;
 std::vector<std::string> CPluginContainer::_openglframe_eventEnabledPluginNames;
 std::vector<std::string> CPluginContainer::_openglcameraview_eventEnabledPluginNames;
 
-ptrExtRenderer CPluginContainer::_povRayAddress=NULL;
-ptrExtRenderer CPluginContainer::_rayTracer2Address=NULL;
-ptrExtRenderer CPluginContainer::_extRendererAddress=NULL;
-ptrExtRenderer CPluginContainer::_extRendererWindowedAddress=NULL;
-ptrExtRenderer CPluginContainer::_oculusAddress=NULL;
-ptrExtRenderer CPluginContainer::_oculusWindowedAddress=NULL;
-ptrExtRenderer CPluginContainer::_activeExtRendererAddress=NULL;
+ptrExtRenderer CPluginContainer::_povRayAddress=nullptr;
+ptrExtRenderer CPluginContainer::_rayTracer2Address=nullptr;
+ptrExtRenderer CPluginContainer::_extRendererAddress=nullptr;
+ptrExtRenderer CPluginContainer::_extRendererWindowedAddress=nullptr;
+ptrExtRenderer CPluginContainer::_oculusAddress=nullptr;
+ptrExtRenderer CPluginContainer::_oculusWindowedAddress=nullptr;
+ptrExtRenderer CPluginContainer::_activeExtRendererAddress=nullptr;
 //int CPluginContainer::_extRendererIndex=0;
 
 
-ptrQhull CPluginContainer::_qhullAddress=NULL;
-ptrHACD CPluginContainer::_hacdAddress=NULL;
-ptrVHACD CPluginContainer::_vhacdAddress=NULL;
-ptrMeshDecimator CPluginContainer::_meshDecimatorAddress=NULL;
+ptrQhull CPluginContainer::_qhullAddress=nullptr;
+ptrHACD CPluginContainer::_hacdAddress=nullptr;
+ptrVHACD CPluginContainer::_vhacdAddress=nullptr;
+ptrMeshDecimator CPluginContainer::_meshDecimatorAddress=nullptr;
 
-CPlugin* CPluginContainer::currentDynEngine=NULL;
-CPlugin* CPluginContainer::currentMeshEngine=NULL;
-CPlugin* CPluginContainer::currentCodeEditor=NULL;
-CPlugin* CPluginContainer::currentCustomUi=NULL;
+CPlugin* CPluginContainer::currentDynEngine=nullptr;
+CPlugin* CPluginContainer::currentMeshEngine=nullptr;
+CPlugin* CPluginContainer::currentCodeEditor=nullptr;
+CPlugin* CPluginContainer::currentCustomUi=nullptr;
+CPlugin* CPluginContainer::currentAssimp=nullptr;
 
 VMutex _meshMutex;
 
@@ -279,7 +291,7 @@ int CPluginContainer::addPlugin(const char* filename,const char* pluginName)
     FUNCTION_INSIDE_DEBUG(pluginName);
 
     CPlugin* plug=getPluginFromName(pluginName);
-    if (plug!=NULL)
+    if (plug!=nullptr)
     {
         plug->_loadCount++;
         return(plug->handle);
@@ -305,13 +317,13 @@ CPlugin* CPluginContainer::getPluginFromName(const char* pluginName)
         if (_allPlugins[i]->name==std::string(pluginName))
             return(_allPlugins[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 CPlugin* CPluginContainer::getPluginFromIndex(int index)
 {
     if ((index<0)||(index>=int(_allPlugins.size())))
-        return(NULL);
+        return(nullptr);
     return(_allPlugins[index]);
 }
 
@@ -360,9 +372,9 @@ int CPluginContainer::getPluginCount()
 void* CPluginContainer::sendEventCallbackMessageToOnePlugin(const char* pluginName,int msg,int* auxVals,void* data,int retVals[4])
 {
     CPlugin* plug=getPluginFromName(pluginName);
-    if (plug!=NULL)
+    if (plug!=nullptr)
     {
-        if (retVals!=NULL)
+        if (retVals!=nullptr)
         {
             retVals[0]=-1;
             retVals[1]=-1;
@@ -372,7 +384,7 @@ void* CPluginContainer::sendEventCallbackMessageToOnePlugin(const char* pluginNa
         void* returnData=plug->messageAddress(msg,auxVals,data,retVals);
         return(returnData);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 void* CPluginContainer::sendEventCallbackMessageToAllPlugins(int msg,int* auxVals,void* data,int retVals[4])
@@ -381,7 +393,7 @@ void* CPluginContainer::sendEventCallbackMessageToAllPlugins(int msg,int* auxVal
     int memorized[4]={0,0,0,0};
     for (size_t i=0;i<_allPlugins.size();i++)
     {
-        if (retVals!=NULL)
+        if (retVals!=nullptr)
         {
             retVals[0]=-1;
             retVals[1]=-1;
@@ -389,7 +401,7 @@ void* CPluginContainer::sendEventCallbackMessageToAllPlugins(int msg,int* auxVal
             retVals[3]=-1;
         }
         void* returnData=_allPlugins[i]->messageAddress(msg,auxVals,data,retVals);
-        if ( (returnData!=NULL)||((retVals!=NULL)&&((retVals[0]!=-1)||(retVals[1]!=-1)||(retVals[2]!=-1)||(retVals[3]!=-1))) )
+        if ( (returnData!=nullptr)||((retVals!=nullptr)&&((retVals[0]!=-1)||(retVals[1]!=-1)||(retVals[2]!=-1)||(retVals[3]!=-1))) )
         {
             if (msg!=sim_message_eventcallback_mainscriptabouttobecalled) // this message is handled in a special fashion, because the remoteApi and ROS might interfere otherwise!
                 return(returnData); // We interrupt the callback forwarding!
@@ -407,7 +419,7 @@ void* CPluginContainer::sendEventCallbackMessageToAllPlugins(int msg,int* auxVal
         retVals[2]=memorized[2];
         retVals[3]=memorized[3];
     }
-    return(NULL);
+    return(nullptr);
 }
 
 bool CPluginContainer::shouldSend_openglframe_msg()
@@ -422,7 +434,7 @@ bool CPluginContainer::shouldSend_openglcameraview_msg()
 
 bool CPluginContainer::enableOrDisableSpecificEventCallback(int eventCallbackType,const char* pluginName)
 { // resources should normally be locked at this stage
-    std::vector<std::string>* vect=NULL;
+    std::vector<std::string>* vect=nullptr;
     if (eventCallbackType==sim_message_eventcallback_renderingpass)
         vect=&_renderingpass_eventEnabledPluginNames;
     if (eventCallbackType==sim_message_eventcallback_opengl)
@@ -455,12 +467,12 @@ void CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(int msg,int 
     auxVals[1]=auxVal1;
     auxVals[2]=auxVal2;
     auxVals[3]=auxVal3;
-    sendSpecialEventCallbackMessageToSomePlugins(msg,auxVals,NULL,retVals);
+    sendSpecialEventCallbackMessageToSomePlugins(msg,auxVals,nullptr,retVals);
 }
 
 void CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(int msg,int* auxVals,void* data,int retVals[4])
 {
-    std::vector<std::string>* vect=NULL;
+    std::vector<std::string>* vect=nullptr;
     if (msg==sim_message_eventcallback_renderingpass)
         vect=&_renderingpass_eventEnabledPluginNames;
     if (msg==sim_message_eventcallback_opengl)
@@ -470,15 +482,15 @@ void CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(int msg,int*
     if (msg==sim_message_eventcallback_openglcameraview)
         vect=&_openglcameraview_eventEnabledPluginNames;
 
-    if (vect!=NULL)
+    if (vect!=nullptr)
     {
         for (int i=0;i<int(vect->size());i++)
         {
             CPlugin* plug=getPluginFromName(vect->at(i).c_str());
-            if (plug!=NULL)
+            if (plug!=nullptr)
             {
                 void* returnData=plug->messageAddress(msg,auxVals,data,retVals);
-                if (returnData!=NULL)
+                if (returnData!=nullptr)
                     delete[] (char*)returnData;
             }
         }
@@ -487,7 +499,7 @@ void CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(int msg,int*
 
 void CPluginContainer::selectExtRenderer(int index)
 {
-    _activeExtRendererAddress=NULL;
+    _activeExtRendererAddress=nullptr;
 //  _extRendererIndex=index;
     if (index==0)
         _activeExtRendererAddress=_povRayAddress;
@@ -505,7 +517,7 @@ void CPluginContainer::selectExtRenderer(int index)
 
 bool CPluginContainer::extRenderer(int msg,void* data)
 {
-    if (_activeExtRendererAddress!=NULL)
+    if (_activeExtRendererAddress!=nullptr)
     {
         _activeExtRendererAddress(msg,data);
         return(true);
@@ -530,7 +542,7 @@ bool CPluginContainer::extRenderer(int msg,void* data)
 
 bool CPluginContainer::qhull(void* data)
 {
-    if (_qhullAddress!=NULL)
+    if (_qhullAddress!=nullptr)
     {
         _qhullAddress(data);
         return(true);
@@ -540,7 +552,7 @@ bool CPluginContainer::qhull(void* data)
 
 bool CPluginContainer::hacd(void* data)
 {
-    if (_hacdAddress!=NULL)
+    if (_hacdAddress!=nullptr)
     {
         _hacdAddress(data);
         return(true);
@@ -550,7 +562,7 @@ bool CPluginContainer::hacd(void* data)
 
 bool CPluginContainer::vhacd(void* data)
 {
-    if (_vhacdAddress!=NULL)
+    if (_vhacdAddress!=nullptr)
     {
         _vhacdAddress(data);
         return(true);
@@ -560,7 +572,7 @@ bool CPluginContainer::vhacd(void* data)
 
 bool CPluginContainer::meshDecimator(void* data)
 {
-    if (_meshDecimatorAddress!=NULL)
+    if (_meshDecimatorAddress!=nullptr)
     {
         _meshDecimatorAddress(data);
         return(true);
@@ -573,7 +585,7 @@ bool CPluginContainer::dyn_startSimulation(int engine,int version,const float fl
     bool retVal=false;
     for (size_t i=0;i<_allPlugins.size();i++)
     {
-        if (_allPlugins[i]->v_repDyn_startSimulation!=NULL)
+        if (_allPlugins[i]->v_repDyn_startSimulation!=nullptr)
         {
             if (_allPlugins[i]->v_repDyn_startSimulation(engine,version,floatParams,intParams)!=0)
             { // success with this plugin!
@@ -588,125 +600,130 @@ bool CPluginContainer::dyn_startSimulation(int engine,int version,const float fl
 
 void CPluginContainer::dyn_endSimulation()
 {
-    if (currentDynEngine!=NULL)
+    if (currentDynEngine!=nullptr)
         currentDynEngine->v_repDyn_endSimulation();
-    currentDynEngine=NULL;
+    currentDynEngine=nullptr;
 }
 
 void CPluginContainer::dyn_step(float timeStep,float simulationTime)
 {
-    if (currentDynEngine!=NULL)
+    if (currentDynEngine!=nullptr)
         currentDynEngine->v_repDyn_step(timeStep,simulationTime);
 }
 
 bool CPluginContainer::dyn_isInitialized()
 {
-    return(currentDynEngine!=NULL);
+    return(currentDynEngine!=nullptr);
 }
 
 bool CPluginContainer::dyn_isDynamicContentAvailable()
 {
-    if (currentDynEngine!=NULL)
+    if (currentDynEngine!=nullptr)
         return(currentDynEngine->v_repDyn_isDynamicContentAvailable()!=0);
     return(false);
 }
 
 void CPluginContainer::dyn_serializeDynamicContent(const char* filenameAndPath,int bulletSerializationBuffer)
 {
-    if (currentDynEngine!=NULL)
+    if (currentDynEngine!=nullptr)
         currentDynEngine->v_repDyn_serializeDynamicContent(filenameAndPath,bulletSerializationBuffer);
 }
 
 int CPluginContainer::dyn_addParticleObject(int objectType,float size,float massOverVolume,const void* params,float lifeTime,int maxItemCount,const float* ambient,const float* diffuse,const float* specular,const float* emission)
 {
-    if (currentDynEngine!=NULL)
+    if (currentDynEngine!=nullptr)
         return(currentDynEngine->v_repDyn_addParticleObject(objectType,size,massOverVolume,params,lifeTime,maxItemCount,ambient,diffuse,specular,emission));
     return(-1);
 }
 
 bool CPluginContainer::dyn_removeParticleObject(int objectHandle)
 {
-    if (currentDynEngine!=NULL)
+    if (currentDynEngine!=nullptr)
         return(currentDynEngine->v_repDyn_removeParticleObject(objectHandle)!=0);
     return(false);
 }
 
 bool CPluginContainer::dyn_addParticleObjectItem(int objectHandle,const float* itemData,float simulationTime)
 {
-    if (currentDynEngine!=NULL)
+    if (currentDynEngine!=nullptr)
         return(currentDynEngine->v_repDyn_addParticleObjectItem(objectHandle,itemData,simulationTime)!=0);
     return(false);
 }
 
 int CPluginContainer::dyn_getParticleObjectOtherFloatsPerItem(int objectHandle)
 {
-    if (currentDynEngine!=NULL)
+    if (currentDynEngine!=nullptr)
         return(currentDynEngine->v_repDyn_getParticleObjectOtherFloatsPerItem(objectHandle));
     return(0);
 }
 
 float* CPluginContainer::dyn_getContactPoints(int* count)
 {
-    if (currentDynEngine!=NULL)
+    if (currentDynEngine!=nullptr)
         return(currentDynEngine->v_repDyn_getContactPoints(count));
     count[0]=0;
-    return(NULL);
+    return(nullptr);
 }
 
 void** CPluginContainer::dyn_getParticles(int index,int* particlesCount,int* objectType,float** cols)
 {
-    if (currentDynEngine!=NULL)
+    if (currentDynEngine!=nullptr)
         return(currentDynEngine->v_repDyn_getParticles(index,particlesCount,objectType,cols));
-    return(NULL);
+    return(nullptr);
 }
 
 bool CPluginContainer::dyn_getParticleData(const void* particle,float* pos,float* size,int* objectType,float** additionalColor)
 {
-    if (currentDynEngine!=NULL)
+    if (currentDynEngine!=nullptr)
         return(currentDynEngine->v_repDyn_getParticleData(particle,pos,size,objectType,additionalColor)!=0);
     return(false);
 }
 
 bool CPluginContainer::dyn_getContactForce(int dynamicPass,int objectHandle,int index,int objectHandles[2],float contactInfo[6])
 {
-    if (currentDynEngine!=NULL)
+    if (currentDynEngine!=nullptr)
         return(currentDynEngine->v_repDyn_getContactForce(dynamicPass,objectHandle,index,objectHandles,contactInfo)!=0);
     return(false);
 }
 
 void CPluginContainer::dyn_reportDynamicWorldConfiguration(int totalPassesCount,char doNotApplyJointIntrinsicPositions,float simulationTime)
 {
-    if (currentDynEngine!=NULL)
+    if (currentDynEngine!=nullptr)
         currentDynEngine->v_repDyn_reportDynamicWorldConfiguration(totalPassesCount,doNotApplyJointIntrinsicPositions,simulationTime);
 }
 
 int CPluginContainer::dyn_getDynamicStepDivider()
 {
-    if (currentDynEngine!=NULL)
+    if (currentDynEngine!=nullptr)
         return(currentDynEngine->v_repDyn_getDynamicStepDivider());
     return(0);
 }
 
 int CPluginContainer::dyn_getEngineInfo(int* engine,int* data1,char* data2,char* data3)
 {
-    if (currentDynEngine!=NULL)
+    if (currentDynEngine!=nullptr)
         return(currentDynEngine->v_repDyn_getEngineInfo(engine,data1,data2,data3));
     return(-1);
 }
 
 bool CPluginContainer::isMeshPluginAvailable()
 {
-    return(currentMeshEngine!=NULL);
+    return(currentMeshEngine!=nullptr);
 }
 
 bool CPluginContainer::isCodeEditorPluginAvailable()
 {
-    return(currentCodeEditor!=NULL);
+    return(currentCodeEditor!=nullptr);
 }
 
 bool CPluginContainer::isCustomUiPluginAvailable()
 {
-    return(currentCustomUi!=NULL);
+    return(currentCustomUi!=nullptr);
+}
+
+bool CPluginContainer::isAssimpPluginAvailable()
+{
+    return(currentAssimp!=nullptr);
 }
 
 void CPluginContainer::mesh_lockUnlock(bool lock)
@@ -719,53 +736,53 @@ void CPluginContainer::mesh_lockUnlock(bool lock)
 
 void* CPluginContainer::mesh_createCollisionInformationStructure(const float* cumulMeshVertices,int cumulMeshVerticesSize,const int* cumulMeshIndices,int cumulMeshIndicesSize,float maxTriSize,float edgeAngle,int maxTriCount)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_createCollisionInformationStructure(cumulMeshVertices,cumulMeshVerticesSize,cumulMeshIndices,cumulMeshIndicesSize,maxTriSize,edgeAngle,maxTriCount));
-    return(NULL);
+    return(nullptr);
 }
 
 void* CPluginContainer::mesh_copyCollisionInformationStructure(const void* collInfo)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_copyCollisionInformationStructure(collInfo));
-    return(NULL);
+    return(nullptr);
 }
 
 void CPluginContainer::mesh_destroyCollisionInformationStructure(void* collInfo)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         currentMeshEngine->v_repMesh_destroyCollisionInformationStructure(collInfo);
 }
 
 void CPluginContainer::mesh_scaleCollisionInformationStructure(void* collInfo,float scaleFactor)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         currentMeshEngine->v_repMesh_scaleCollisionInformationStructure(collInfo,scaleFactor);
 }
 
 unsigned char* CPluginContainer::mesh_getCollisionInformationStructureSerializationData(const void* collInfo,int& dataSize)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_getCollisionInformationStructureSerializationData(collInfo,&dataSize));
-    return(NULL);
+    return(nullptr);
 }
 
 void* CPluginContainer::mesh_getCollisionInformationStructureFromSerializationData(const unsigned char* data,const float* cumulMeshVertices,int cumulMeshVerticesSize,const int* cumulMeshIndices,int cumulMeshIndicesSize)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_getCollisionInformationStructureFromSerializationData(data,cumulMeshVertices,cumulMeshVerticesSize,cumulMeshIndices,cumulMeshIndicesSize));
-    return(NULL);
+    return(nullptr);
 }
 
 void CPluginContainer::mesh_releaseBuffer(void* buffer)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         currentMeshEngine->v_repMesh_releaseBuffer(buffer);
 }
 
 bool CPluginContainer::mesh_getCutMesh(const void* collInfo,const C7Vector* tr,float** vertices,int* verticesSize,int** indices,int* indicesSize,int options)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
     {
         float tr_[7];
         tr->getInternalData(tr_);
@@ -776,85 +793,85 @@ bool CPluginContainer::mesh_getCutMesh(const void* collInfo,const C7Vector* tr,f
 
 int CPluginContainer::mesh_getCalculatedTriangleCount(const void* collInfo)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_getCalculatedTriangleCount(collInfo));
     return(0);
 }
 
 int* CPluginContainer::mesh_getCalculatedTrianglesPointer(const void* collInfo)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_getCalculatedTrianglesPointer(collInfo));
-    return(NULL);
+    return(nullptr);
 }
 
 int CPluginContainer::mesh_getCalculatedVerticeCount(const void* collInfo)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_getCalculatedVerticeCount(collInfo));
     return(0);
 }
 
 float* CPluginContainer::mesh_getCalculatedVerticesPointer(const void* collInfo)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_getCalculatedVerticesPointer(collInfo));
-    return(NULL);
+    return(nullptr);
 }
 
 int CPluginContainer::mesh_getCalculatedSegmentCount(const void* collInfo)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_getCalculatedSegmentCount(collInfo));
     return(0);
 }
 
 int* CPluginContainer::mesh_getCalculatedSegmentsPointer(const void* collInfo)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_getCalculatedSegmentsPointer(collInfo));
-    return(NULL);
+    return(nullptr);
 }
 
 int CPluginContainer::mesh_getCalculatedPolygonCount(const void* collInfo)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_getCalculatedPolygonCount(collInfo));
     return(0);
 }
 
 int CPluginContainer::mesh_getCalculatedPolygonSize(const void* collInfo,int polygonIndex)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_getCalculatedPolygonSize(collInfo,polygonIndex));
     return(0);
 }
 
 int* CPluginContainer::mesh_getCalculatedPolygonArrayPointer(const void* collInfo,int polygonIndex)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_getCalculatedPolygonArrayPointer(collInfo,polygonIndex));
-    return(NULL);
+    return(nullptr);
 }
 
 bool CPluginContainer::mesh_getCalculatedTriangleAt(const void* collInfo,C3Vector& a0,C3Vector& a1,C3Vector& a2,int ind)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_getCalculatedTriangleAt(collInfo,a0.data,a1.data,a2.data,ind)!=0);
     return(false);
 }
 
 bool CPluginContainer::mesh_getMeshMeshCollision(const void* collInfo1,const void* collInfo2,const C4X4Matrix collObjMatr[2],const void* collInfos[2],bool inverseExploration,std::vector<float>* intersections,int caching[2])
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
     {
         float collObjMatr1[12];
         float collObjMatr2[12];
         collObjMatr[0].copyToInterface(collObjMatr1);
         collObjMatr[1].copyToInterface(collObjMatr2);
         bool retVal;
-        if (intersections==NULL)
-            retVal=currentMeshEngine->v_repMesh_getMeshMeshCollision(collInfo1,collInfo2,collObjMatr1,collObjMatr2,collInfos,inverseExploration,NULL,NULL,caching)!=0;
+        if (intersections==nullptr)
+            retVal=currentMeshEngine->v_repMesh_getMeshMeshCollision(collInfo1,collInfo2,collObjMatr1,collObjMatr2,collInfos,inverseExploration,nullptr,nullptr,caching)!=0;
         else
         {
             float* _intersections;
@@ -871,11 +888,11 @@ bool CPluginContainer::mesh_getMeshMeshCollision(const void* collInfo1,const voi
 
 int CPluginContainer::mesh_getTriangleTriangleCollision(const C3Vector& a0,const C3Vector& e0,const C3Vector& e1,const C3Vector& b0,const C3Vector& f0,const C3Vector& f1,C3Vector* intSegPart0,C3Vector* intSegPart1,bool getIntersection)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
     {
         int retVal;
-        if (intSegPart0==NULL)
-            retVal=currentMeshEngine->v_repMesh_getTriangleTriangleCollision(a0.data,e0.data,e1.data,b0.data,f0.data,f1.data,NULL,NULL,getIntersection);
+        if (intSegPart0==nullptr)
+            retVal=currentMeshEngine->v_repMesh_getTriangleTriangleCollision(a0.data,e0.data,e1.data,b0.data,f0.data,f1.data,nullptr,nullptr,getIntersection);
         else
         {
             float v0[3];
@@ -891,7 +908,7 @@ int CPluginContainer::mesh_getTriangleTriangleCollision(const C3Vector& a0,const
 
 bool CPluginContainer::mesh_getBoxBoxCollision(const C4X4Matrix& box1Tr,const C3Vector& box1Size,const C4X4Matrix& box2Tr,const C3Vector& box2Size)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
     {
         float _t1[12];
         box1Tr.copyToInterface(_t1);
@@ -904,7 +921,7 @@ bool CPluginContainer::mesh_getBoxBoxCollision(const C4X4Matrix& box1Tr,const C3
 
 bool CPluginContainer::mesh_getBoxPointCollision(const C4X4Matrix& boxTr,const C3Vector& boxSize,const C3Vector& point)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
     {
         float _t[12];
         boxTr.copyToInterface(_t);
@@ -915,7 +932,7 @@ bool CPluginContainer::mesh_getBoxPointCollision(const C4X4Matrix& boxTr,const C
 
 void CPluginContainer::mesh_getMeshMeshDistance(const void* collInfo1,const void* collInfo2,const C4X4Matrix distObjMatr[2],const void* collInfos[2],bool inverseExploration,float distances[7],int caching[2])
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
     {
         float distObjMatr1[12];
         float distObjMatr2[12];
@@ -927,7 +944,7 @@ void CPluginContainer::mesh_getMeshMeshDistance(const void* collInfo1,const void
 
 bool CPluginContainer::mesh_getDistanceAgainstDummy_ifSmaller(const void* collInfo,const C3Vector& dummyPos,const C4X4Matrix& itPCTM,float &dist,C3Vector& ray0,C3Vector& ray1,int& itBuff)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
     {
         float _itPCTM[12];
         itPCTM.copyToInterface(_itPCTM);
@@ -946,7 +963,7 @@ bool CPluginContainer::mesh_getDistanceAgainstDummy_ifSmaller(const void* collIn
 
 float CPluginContainer::mesh_getBoxPointDistance(const C4X4Matrix& t1,const C3Vector& s1,const C3Vector& dummyPos)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
     {
         float _t1[12];
         t1.copyToInterface(_t1);
@@ -957,7 +974,7 @@ float CPluginContainer::mesh_getBoxPointDistance(const C4X4Matrix& t1,const C3Ve
 
 float CPluginContainer::mesh_getApproximateBoxBoxDistance(const C4X4Matrix& t1,const C3Vector& s1,const C4X4Matrix& t2,const C3Vector& s2)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
     {
         float _t1[12];
         t1.copyToInterface(_t1);
@@ -970,7 +987,7 @@ float CPluginContainer::mesh_getApproximateBoxBoxDistance(const C4X4Matrix& t1,c
 
 bool CPluginContainer::mesh_getTriangleTriangleDistance_ifSmaller(const C3Vector& a0,const C3Vector& e0,const C3Vector& e1,const C3Vector& b0,const C3Vector& f0,const C3Vector& f1,float &dist,C3Vector& segA,C3Vector& segB)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
     {
         float _segA[3];
         float _segB[3];
@@ -987,7 +1004,7 @@ bool CPluginContainer::mesh_getTriangleTriangleDistance_ifSmaller(const C3Vector
 
 bool CPluginContainer::mesh_getTrianglePointDistance_ifSmaller(const C3Vector& a0,const C3Vector& e0,const C3Vector& e1,const C3Vector& dummyPos,float &dist,C3Vector& segA)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
     {
         float _segA[3];
         bool retVal=currentMeshEngine->v_repMesh_getTrianglePointDistance_ifSmaller(a0.data,e0.data,e1.data,dummyPos.data,&dist,_segA)!=0;
@@ -1000,7 +1017,7 @@ bool CPluginContainer::mesh_getTrianglePointDistance_ifSmaller(const C3Vector& a
 
 bool CPluginContainer::mesh_getRayProxSensorDistance_ifSmaller(const void* collInfo,const C4X4Matrix& selfPCTM,float &dist,const C3Vector& lp,float closeThreshold,const C3Vector& lvFar,float cosAngle,C3Vector& detectPoint,bool fast,bool frontFace,bool backFace,char* closeDetectionTriggered,C3Vector& triNormalNotNormalized,void* theOcclusionCheckCallback)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
     {
         float _selfPCTM[12];
         selfPCTM.copyToInterface(_selfPCTM);
@@ -1019,18 +1036,18 @@ bool CPluginContainer::mesh_getRayProxSensorDistance_ifSmaller(const void* collI
 
 bool CPluginContainer::mesh_isPointInsideVolume1AndOutsideVolume2(const C3Vector& p,const std::vector<float>* planes,const std::vector<float>* planesOutside)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
     {
-        const float* _planes=NULL;
+        const float* _planes=nullptr;
         int _planesSize=0;
-        if ((planes!=NULL)&&(planes->size()!=0))
+        if ((planes!=nullptr)&&(planes->size()!=0))
         {
             _planes=&(*planes)[0];
             _planesSize=(int)planes->size();
         }
-        const float* _planesOutside=NULL;
+        const float* _planesOutside=nullptr;
         int _planesOutsideSize=0;
-        if ((planesOutside!=NULL)&&(planesOutside->size()!=0))
+        if ((planesOutside!=nullptr)&&(planesOutside->size()!=0))
         {
             _planesOutside=&(*planesOutside)[0];
             _planesOutsideSize=(int)planesOutside->size();
@@ -1042,11 +1059,11 @@ bool CPluginContainer::mesh_isPointInsideVolume1AndOutsideVolume2(const C3Vector
 
 bool CPluginContainer::mesh_isPointTouchingVolume(const C3Vector& p,const std::vector<float>* planes)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
     {
-        const float* _planes=NULL;
+        const float* _planes=nullptr;
         int _planesSize=0;
-        if ((planes!=NULL)&&(planes->size()!=0))
+        if ((planes!=nullptr)&&(planes->size()!=0))
         {
             _planes=&(*planes)[0];
             _planesSize=(int)planes->size();
@@ -1058,18 +1075,18 @@ bool CPluginContainer::mesh_isPointTouchingVolume(const C3Vector& p,const std::v
 
 bool CPluginContainer::mesh_getProxSensorDistance_ifSmaller(const void* collInfo,const C4X4Matrix& itPCTM,float &dist,const std::vector<float>* planes,const std::vector<float>* planesOutside,float cosAngle,C3Vector& detectPoint,bool fast,bool frontFace,bool backFace,std::vector<float>* cutEdges,C3Vector& triNormalNotNormalized,void* theOcclusionCheckCallback)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
     {
-        const float* _planes=NULL;
+        const float* _planes=nullptr;
         int _planesSize=0;
-        if ((planes!=NULL)&&(planes->size()!=0))
+        if ((planes!=nullptr)&&(planes->size()!=0))
         {
             _planes=&(*planes)[0];
             _planesSize=(int)planes->size();
         }
-        const float* _planesOutside=NULL;
+        const float* _planesOutside=nullptr;
         int _planesOutsideSize=0;
-        if ((planesOutside!=NULL)&&(planesOutside->size()!=0))
+        if ((planesOutside!=nullptr)&&(planesOutside->size()!=0))
         {
             _planesOutside=&(*planesOutside)[0];
             _planesOutsideSize=(int)planesOutside->size();
@@ -1091,18 +1108,18 @@ bool CPluginContainer::mesh_getProxSensorDistance_ifSmaller(const void* collInfo
 
 bool CPluginContainer::mesh_getProxSensorDistanceToSegment_ifSmaller(const C3Vector& p0,const C3Vector& p1,float &dist,const std::vector<float>* planes,const std::vector<float>* planesOutside,float maxAngle,C3Vector& detectPoint)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
     {
-        const float* _planes=NULL;
+        const float* _planes=nullptr;
         int _planesSize=0;
-        if ((planes!=NULL)&&(planes->size()!=0))
+        if ((planes!=nullptr)&&(planes->size()!=0))
         {
             _planes=&(*planes)[0];
             _planesSize=(int)planes->size();
         }
-        const float* _planesOutside=NULL;
+        const float* _planesOutside=nullptr;
         int _planesOutsideSize=0;
-        if ((planesOutside!=NULL)&&(planesOutside->size()!=0))
+        if ((planesOutside!=nullptr)&&(planesOutside->size()!=0))
         {
             _planesOutside=&(*planesOutside)[0];
             _planesOutsideSize=(int)planesOutside->size();
@@ -1118,18 +1135,18 @@ bool CPluginContainer::mesh_getProxSensorDistanceToSegment_ifSmaller(const C3Vec
 
 bool CPluginContainer::mesh_getProxSensorDistanceToTriangle_ifSmaller(const C3Vector& a0,const C3Vector& e0,const C3Vector& e1,float &dist,const std::vector<float>* planes,const std::vector<float>* planesOutside,float cosAngle,C3Vector& detectPoint,bool frontFace,bool backFace,C3Vector& triNormalNotNormalized)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
     {
-        const float* _planes=NULL;
+        const float* _planes=nullptr;
         int _planesSize=0;
-        if ((planes!=NULL)&&(planes->size()!=0))
+        if ((planes!=nullptr)&&(planes->size()!=0))
         {
             _planes=&(*planes)[0];
             _planesSize=(int)planes->size();
         }
-        const float* _planesOutside=NULL;
+        const float* _planesOutside=nullptr;
         int _planesOutsideSize=0;
-        if ((planesOutside!=NULL)&&(planesOutside->size()!=0))
+        if ((planesOutside!=nullptr)&&(planesOutside->size()!=0))
         {
             _planesOutside=&(*planesOutside)[0];
             _planesOutsideSize=(int)planesOutside->size();
@@ -1149,12 +1166,12 @@ bool CPluginContainer::mesh_getProxSensorDistanceToTriangle_ifSmaller(const C3Ve
 
 float CPluginContainer::mesh_cutNodeWithVolume(void* collInfo,const C4X4Matrix& itPCTM,const std::vector<float>* planes)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
     {
         EASYLOCK(_meshMutex);
-        const float* _planes=NULL;
+        const float* _planes=nullptr;
         int _planesSize=0;
-        if ((planes!=NULL)&&(planes->size()!=0))
+        if ((planes!=nullptr)&&(planes->size()!=0))
         {
             _planes=&(*planes)[0];
             _planesSize=(int)planes->size();
@@ -1169,60 +1186,60 @@ float CPluginContainer::mesh_cutNodeWithVolume(void* collInfo,const C4X4Matrix& 
 void* CPluginContainer::mesh_createPointCloud(const float* relPoints,int ptCnt,float cellSize,int maxPointCountPerCell,const float theColor[3],float distTolerance)
 {
     unsigned char cols[3]={(unsigned char)(theColor[0]*255.0f),(unsigned char)(theColor[1]*255.0f),(unsigned char)(theColor[2]*255.0f)};
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_createPointCloud(relPoints,ptCnt,cellSize,maxPointCountPerCell,cols,distTolerance));
-    return(NULL);
+    return(nullptr);
 }
 
 void* CPluginContainer::mesh_createColorPointCloud(const float* relPoints,int ptCnt,float cellSize,int maxPointCountPerCell,const unsigned char* theColors,float distTolerance)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_createColorPointCloud(relPoints,ptCnt,cellSize,maxPointCountPerCell,theColors,distTolerance));
-    return(NULL);
+    return(nullptr);
 }
 
 void* CPluginContainer::mesh_copyPointCloud(const void* pointCloudInfo)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_copyPointCloud(pointCloudInfo));
-    return(NULL);
+    return(nullptr);
 }
 
 void CPluginContainer::mesh_destroyPointCloud(void* pointCloudInfo)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         currentMeshEngine->v_repMesh_destroyPointCloud(pointCloudInfo);
 }
 
 void CPluginContainer::mesh_scalePointCloud(void* pointCloudInfo,float scaleFactor)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         currentMeshEngine->v_repMesh_scalePointCloud(pointCloudInfo,scaleFactor);
 }
 
 void CPluginContainer::mesh_insertPointsIntoPointCloud(void* pointCloudInfo,const float* relPoints,int ptCnt,const float theColor[3],float distTolerance)
 {
     unsigned char cols[3]={(unsigned char)(theColor[0]*255.0f),(unsigned char)(theColor[1]*255.0f),(unsigned char)(theColor[2]*255.0f)};
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         currentMeshEngine->v_repMesh_insertPointsIntoPointCloud(pointCloudInfo,relPoints,ptCnt,cols,distTolerance);
 }
 
 void CPluginContainer::mesh_insertColorPointsIntoPointCloud(void* pointCloudInfo,const float* relPoints,int ptCnt,const unsigned char* theColors,float distTolerance)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         currentMeshEngine->v_repMesh_insertColorPointsIntoPointCloud(pointCloudInfo,relPoints,ptCnt,theColors,distTolerance);
 }
 
 bool CPluginContainer::mesh_removePointCloudPoints(void* pointCloudInfo,const float* relPoints,int ptCnt,float distTolerance,int& removedCnt)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_removePointCloudPoints(pointCloudInfo,relPoints,ptCnt,distTolerance,&removedCnt)!=0);
     return(false);
 }
 
 bool CPluginContainer::mesh_intersectPointCloudPoints(void* pointCloudInfo,const float* relPoints,int ptCnt,float distTolerance)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_intersectPointCloudPoints(pointCloudInfo,relPoints,ptCnt,distTolerance)!=0);
     return(false);
 }
@@ -1230,7 +1247,7 @@ bool CPluginContainer::mesh_intersectPointCloudPoints(void* pointCloudInfo,const
 void CPluginContainer::mesh_getPointCloudDebugCorners(const void* pointCloudInfo,std::vector<float>& cubeCorners)
 {
     cubeCorners.clear();
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
     {
         int cubeCnt;
         float* dat=currentMeshEngine->v_repMesh_getPointCloudDebugCorners(pointCloudInfo,&cubeCnt);
@@ -1242,7 +1259,7 @@ void CPluginContainer::mesh_getPointCloudDebugCorners(const void* pointCloudInfo
 void CPluginContainer::mesh_getPointCloudSerializationData(const void* pointCloudInfo,std::vector<unsigned char>& data)
 {
     data.clear();
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
     {
         int dataSize;
         unsigned char* d=currentMeshEngine->v_repMesh_getPointCloudSerializationData(pointCloudInfo,&dataSize);
@@ -1254,9 +1271,9 @@ void CPluginContainer::mesh_getPointCloudSerializationData(const void* pointClou
 
 void* CPluginContainer::mesh_getPointCloudFromSerializationData(const std::vector<unsigned char>& data)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_getPointCloudFromSerializationData(&data[0]));
-    return(NULL);
+    return(nullptr);
 }
 
 
@@ -1266,40 +1283,40 @@ void* CPluginContainer::mesh_getPointCloudFromSerializationData(const std::vecto
 void* CPluginContainer::mesh_createOctreeFromPoints(const float* relPoints,int ptCnt,float cellSize,const float theColor[3],unsigned int theTag)
 {
     unsigned char cols[3]={(unsigned char)(theColor[0]*255.0f),(unsigned char)(theColor[1]*255.0f),(unsigned char)(theColor[2]*255.0f)};
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_createOctreeFromPoints(relPoints,ptCnt,cellSize,cols,theTag));
-    return(NULL);
+    return(nullptr);
 }
 
 void* CPluginContainer::mesh_createOctreeFromColorPoints(const float* relPoints,int ptCnt,float cellSize,const unsigned char* theColors,const unsigned int* theTags)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_createOctreeFromColorPoints(relPoints,ptCnt,cellSize,theColors,theTags));
-    return(NULL);
+    return(nullptr);
 }
 
 void* CPluginContainer::mesh_copyOctree(const void* octreeInfo)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_copyOctree(octreeInfo));
-    return(NULL);
+    return(nullptr);
 }
 
 void CPluginContainer::mesh_destroyOctree(void* octreeInfo)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         currentMeshEngine->v_repMesh_destroyOctree(octreeInfo);
 }
 
 void CPluginContainer::mesh_scaleOctree(void* octreeInfo,float scaleFactor)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         currentMeshEngine->v_repMesh_scaleOctree(octreeInfo,scaleFactor);
 }
 
 bool CPluginContainer::mesh_removeOctreeVoxelsFromPoints(void* octreeInfo,const float* relPoints,int ptCnt)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_removeOctreeVoxelsFromPoints(octreeInfo,relPoints,ptCnt)!=0);
     return(false);
 }
@@ -1307,13 +1324,13 @@ bool CPluginContainer::mesh_removeOctreeVoxelsFromPoints(void* octreeInfo,const 
 void CPluginContainer::mesh_insertPointsIntoOctree(void* octreeInfo,const float* relPoints,int ptCnt,const float theColor[3],unsigned int theTag)
 {
     unsigned char cols[3]={(unsigned char)(theColor[0]*255.0f),(unsigned char)(theColor[1]*255.0f),(unsigned char)(theColor[2]*255.0f)};
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         currentMeshEngine->v_repMesh_insertPointsIntoOctree(octreeInfo,relPoints,ptCnt,cols,theTag);
 }
 
 void CPluginContainer::mesh_insertColorPointsIntoOctree(void* octreeInfo,const float* relPoints,int ptCnt,const unsigned char* theColors,const unsigned int* theTags)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         currentMeshEngine->v_repMesh_insertColorPointsIntoOctree(octreeInfo,relPoints,ptCnt,theColors,theTags);
 }
 
@@ -1321,7 +1338,7 @@ void CPluginContainer::mesh_getOctreeVoxels(const void* octreeInfo,std::vector<f
 {
     voxelPositions.clear();
     voxelColors.clear();
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
     {
         int voxelCnt;
         float* dat=currentMeshEngine->v_repMesh_getOctreeVoxels(octreeInfo,&voxelCnt);
@@ -1343,7 +1360,7 @@ void CPluginContainer::mesh_getPointCloudPointData(const void* pointCloudInfo,st
 {
     pointPositions.clear();
     pointColors.clear();
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
     {
         int pointCnt;
         float* dat=currentMeshEngine->v_repMesh_getPointCloudPointData(pointCloudInfo,&pointCnt);
@@ -1365,7 +1382,7 @@ void CPluginContainer::mesh_getPartialPointCloudPointData(const void* pointCloud
 {
     pointPositions.clear();
     pointColors.clear();
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
     {
         int pointCnt;
         float* dat=currentMeshEngine->v_repMesh_getPartialPointCloudPointData(pointCloudInfo,&pointCnt,ratio);
@@ -1386,7 +1403,7 @@ void CPluginContainer::mesh_getPartialPointCloudPointData(const void* pointCloud
 void CPluginContainer::mesh_getOctreeDebugCorners(const void* octreeInfo,std::vector<float>& cubeCorners)
 {
     cubeCorners.clear();
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
     {
         int cubeCnt;
         float* dat=currentMeshEngine->v_repMesh_getOctreeDebugCorners(octreeInfo,&cubeCnt);
@@ -1398,7 +1415,7 @@ void CPluginContainer::mesh_getOctreeDebugCorners(const void* octreeInfo,std::ve
 void CPluginContainer::mesh_getOctreeSerializationData(const void* octreeInfo,std::vector<unsigned char>& data)
 {
     data.clear();
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
     {
         int dataSize;
         unsigned char* d=currentMeshEngine->v_repMesh_getOctreeSerializationData(octreeInfo,&dataSize);
@@ -1410,9 +1427,9 @@ void CPluginContainer::mesh_getOctreeSerializationData(const void* octreeInfo,st
 
 void* CPluginContainer::mesh_getOctreeFromSerializationData(const std::vector<unsigned char>& data)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_getOctreeFromSerializationData(&data[0]));
-    return(NULL);
+    return(nullptr);
 }
 
 
@@ -1427,9 +1444,9 @@ void* CPluginContainer::mesh_createOctreeFromShape(const C4X4Matrix& octreePCTM,
 
     unsigned char cols[3]={(unsigned char)(theColor[0]*255.0f),(unsigned char)(theColor[1]*255.0f),(unsigned char)(theColor[2]*255.0f)};
 
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_createOctreeFromShape(_octreePCTM,collInfo,_collnodePCTM,cellSize,cols,theTag));
-    return(NULL);
+    return(nullptr);
 }
 
 bool CPluginContainer::mesh_removeOctreeVoxelsFromShape(void* octreeInfo,const C4X4Matrix& octreePCTM,const void* collInfo,const C4X4Matrix& collnodePCTM)
@@ -1440,7 +1457,7 @@ bool CPluginContainer::mesh_removeOctreeVoxelsFromShape(void* octreeInfo,const C
     float _collnodePCTM[12];
     collnodePCTM.copyToInterface(_collnodePCTM);
 
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_removeOctreeVoxelsFromShape(octreeInfo,_octreePCTM,collInfo,_collnodePCTM)!=0);
     return(false);
 }
@@ -1455,7 +1472,7 @@ void CPluginContainer::mesh_insertShapeIntoOctree(void* octreeInfo,const C4X4Mat
 
     unsigned char cols[3]={(unsigned char)(theColor[0]*255.0f),(unsigned char)(theColor[1]*255.0f),(unsigned char)(theColor[2]*255.0f)};
 
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         currentMeshEngine->v_repMesh_insertShapeIntoOctree(octreeInfo,_octreePCTM,collInfo,_collnodePCTM,cols,theTag);
 }
 
@@ -1469,9 +1486,9 @@ void* CPluginContainer::mesh_createOctreeFromOctree(const C4X4Matrix& octreePCTM
 
     unsigned char cols[3]={(unsigned char)(theColor[0]*255.0f),(unsigned char)(theColor[1]*255.0f),(unsigned char)(theColor[2]*255.0f)};
 
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_createOctreeFromOctree(_octreePCTM,octree2Info,_octree2PCTM,cellSize,cols,theTag));
-    return(NULL);
+    return(nullptr);
 }
 
 bool CPluginContainer::mesh_removeOctreeVoxelsFromOctree(void* octreeInfo,const C4X4Matrix& octreePCTM,const void* octree2Info,const C4X4Matrix& octree2PCTM)
@@ -1482,7 +1499,7 @@ bool CPluginContainer::mesh_removeOctreeVoxelsFromOctree(void* octreeInfo,const 
     float _octree2PCTM[12];
     octree2PCTM.copyToInterface(_octree2PCTM);
 
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_removeOctreeVoxelsFromOctree(octreeInfo,_octreePCTM,octree2Info,_octree2PCTM)!=0);
     return(false);
 }
@@ -1497,7 +1514,7 @@ void CPluginContainer::mesh_insertOctreeIntoOctree(void* octreeInfo,const C4X4Ma
 
     unsigned char cols[3]={(unsigned char)(theColor[0]*255.0f),(unsigned char)(theColor[1]*255.0f),(unsigned char)(theColor[2]*255.0f)};
 
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         currentMeshEngine->v_repMesh_insertOctreeIntoOctree(octreeInfo,_octreePCTM,octree2Info,_octree2PCTM,cols,theTag);
 }
 
@@ -1509,7 +1526,7 @@ bool CPluginContainer::mesh_checkOctreeCollisionWithShape(const void* octreeInfo
     float _collNodePCTM[12];
     collNodePCTM.copyToInterface(_collNodePCTM);
 
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_checkOctreeCollisionWithShape(octreeInfo,_octreePCTM,collInfo,_collNodePCTM)!=0);
     return(false);
 }
@@ -1522,7 +1539,7 @@ bool CPluginContainer::mesh_checkOctreeCollisionWithOctree(const void* octree1In
     float _octree2PCTM[12];
     octree2PCTM.copyToInterface(_octree2PCTM);
 
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_checkOctreeCollisionWithOctree(octree1Info,_octree1PCTM,octree2Info,_octree2PCTM)!=0);
     return(false);
 }
@@ -1532,7 +1549,7 @@ bool CPluginContainer::mesh_checkOctreeCollisionWithSeveralPoints(const void* oc
     float _octreePCTM[12];
     octreePCTM.copyToInterface(_octreePCTM);
 
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_checkOctreeCollisionWithSeveralPoints(octreeInfo,_octreePCTM,absPoints,ptCnt)!=0);
     return(false);
 }
@@ -1542,7 +1559,7 @@ bool CPluginContainer::mesh_checkOctreeCollisionWithSinglePoint(const void* octr
     float _octreePCTM[12];
     octreePCTM.copyToInterface(_octreePCTM);
 
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_checkOctreeCollisionWithSinglePoint(octreeInfo,_octreePCTM,absPoint.data,tag,location)!=0);
     return(false);
 }
@@ -1555,7 +1572,7 @@ bool CPluginContainer::mesh_checkOctreeCollisionWithPointCloud(const void* octre
     float _pointCloudPCTM[12];
     pointCloudPCTM.copyToInterface(_pointCloudPCTM);
 
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_checkOctreeCollisionWithPointCloud(octreeInfo,_octreePCTM,pointCloudInfo,_pointCloudPCTM)!=0);
     return(false);
 }
@@ -1565,7 +1582,7 @@ bool CPluginContainer::mesh_getPointCloudDistanceToPointIfSmaller(const void* po
     float _pointCloudPCTM[12];
     pointCloudPCTM.copyToInterface(_pointCloudPCTM);
 
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_getPointCloudDistanceToPointIfSmaller(pointCloudInfo,_pointCloudPCTM,absPoint.data,ray,&cacheValue)!=0);
     return(false);
 }
@@ -1578,7 +1595,7 @@ bool CPluginContainer::mesh_getPointCloudDistanceToPointCloudIfSmaller(const voi
     float _pointCloud2PCTM[12];
     otherPcPCTM.copyToInterface(_pointCloud2PCTM);
 
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_getPointCloudDistanceToPointCloudIfSmaller(pointCloudInfo1,pointCloudInfo2,_pointCloud1PCTM,_pointCloud2PCTM,ray,&thisCacheValue,&otherCacheValue)!=0);
     return(false);
 }
@@ -1590,19 +1607,19 @@ float* CPluginContainer::mesh_getPointCloudPointsFromCache(const void* pointClou
 
     float _retM[12];
 
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
     {
         float* retVal=currentMeshEngine->v_repMesh_getPointCloudPointsFromCache(pointCloudInfo,_pointCloudPCTM,cacheValue,&ptCnt,_retM);
-        if (retVal!=NULL)
+        if (retVal!=nullptr)
             ptsRetToThisM.copyFromInterface(_retM);
         return(retVal);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 int CPluginContainer::mesh_getPointCloudNonEmptyCellCount(const void* pointCloudInfo)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_getPointCloudNonEmptyCellCount(pointCloudInfo));
     return(0);
 }
@@ -1612,7 +1629,7 @@ bool CPluginContainer::mesh_getOctreeDistanceToPointIfSmaller(const void* octree
     float _octreePCTM[12];
     octreePCTM.copyToInterface(_octreePCTM);
 
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_getOctreeDistanceToPointIfSmaller(octreeInfo,_octreePCTM,absPoint.data,ray,&cacheValue)!=0);
     return(false);
 }
@@ -1624,7 +1641,7 @@ bool CPluginContainer::mesh_getOctreeCellFromCache(const void* octreeInfo,const 
 
     float _retM[12];
 
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
     {
         bool retVal=currentMeshEngine->v_repMesh_getOctreeCellFromCache(octreeInfo,_octreePCTM,cacheValue,&cellSize,_retM);
         if (retVal)
@@ -1642,7 +1659,7 @@ bool CPluginContainer::mesh_getOctreeDistanceToOctreeIfSmaller(const void* octre
     float _octree2PCTM[12];
     octree2PCTM.copyToInterface(_octree2PCTM);
 
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_getOctreeDistanceToOctreeIfSmaller(octreeInfo1,octreeInfo2,_octree1PCTM,_octree2PCTM,ray,&octree1CacheValue,&octree2CacheValue,weHaveSomeCoherency)!=0);
     return(false);
 }
@@ -1655,7 +1672,7 @@ bool CPluginContainer::mesh_getOctreeDistanceToPointCloudIfSmaller(const void* o
     float _pointCloudPCTM[12];
     pointCloudPCTM.copyToInterface(_pointCloudPCTM);
 
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_getOctreeDistanceToPointCloudIfSmaller(octreeInfo,pointCloudInfo,_octreePCTM,_pointCloudPCTM,ray,&octreeCacheValue,&pointCloudCacheValue)!=0);
     return(false);
 }
@@ -1668,14 +1685,14 @@ bool CPluginContainer::mesh_getOctreeDistanceToShapeIfSmaller(const void* octree
     float _collNodePCTM[12];
     collNodePCTM.copyToInterface(_collNodePCTM);
 
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_getOctreeDistanceToShapeIfSmaller(octreeInfo,collInfo,_octreePCTM,_collNodePCTM,ray,&octreeCacheValue,&collNodeCacheValue)!=0);
     return(false);
 }
 
 bool CPluginContainer::mesh_getMinDistBetweenCubeAndTriangleIfSmaller(float cubeSize,const C3Vector& b1,const C3Vector& b1e,const C3Vector& b1f,float& dist,C3Vector& distPt1,C3Vector& distPt2)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_getMinDistBetweenCubeAndTriangleIfSmaller(cubeSize,b1.data,b1e.data,b1f.data,&dist,distPt1.data,distPt2.data)!=0);
     return(false);
 }
@@ -1688,14 +1705,14 @@ bool CPluginContainer::mesh_getPointCloudDistanceToShapeIfSmaller(const void* po
     float _collNodePCTM[12];
     collNodePCTM.copyToInterface(_collNodePCTM);
 
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_getPointCloudDistanceToShapeIfSmaller(pointCloudInfo,collInfo,_pointCloudPCTM,_collNodePCTM,ray,&pointCloudCacheValue,&collNodeCacheValue)!=0);
     return(false);
 }
 
 bool CPluginContainer::mesh_getMinDistBetweenPointAndTriangleIfSmaller(const C3Vector& point,const C3Vector& b1,const C3Vector& b1e,const C3Vector& b1f,float& dist,C3Vector& distPt1)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_getMinDistBetweenPointAndTriangleIfSmaller(point.data,b1.data,b1e.data,b1f.data,&dist,distPt1.data)!=0);
     return(false);
 }
@@ -1706,25 +1723,25 @@ float CPluginContainer::mesh_getBoxBoxDistance(const C4X4Matrix& m1,const C3Vect
     m1.copyToInterface(_m1);
     float _m2[12];
     m2.copyToInterface(_m2);
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_getBoxBoxDistance(_m1,halfSize1.data,_m2,halfSize2.data));
     return(0.0);
 }
 
 bool CPluginContainer::mesh_getProxSensorPointCloudDistanceIfSmaller(const void* pointCloudInfo,const C4X4Matrix& pointCloudPCTM,float &dist,const std::vector<float>* planes,const std::vector<float>* planesOutside,C3Vector& detectPoint,bool fast,void* theOcclusionCheckCallback)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
     {
-        const float* _planes=NULL;
+        const float* _planes=nullptr;
         int _planesSize=0;
-        if ((planes!=NULL)&&(planes->size()!=0))
+        if ((planes!=nullptr)&&(planes->size()!=0))
         {
             _planes=&(*planes)[0];
             _planesSize=(int)planes->size();
         }
-        const float* _planesOutside=NULL;
+        const float* _planesOutside=nullptr;
         int _planesOutsideSize=0;
-        if ((planesOutside!=NULL)&&(planesOutside->size()!=0))
+        if ((planesOutside!=nullptr)&&(planesOutside->size()!=0))
         {
             _planesOutside=&(*planesOutside)[0];
             _planesOutsideSize=(int)planesOutside->size();
@@ -1738,7 +1755,7 @@ bool CPluginContainer::mesh_getProxSensorPointCloudDistanceIfSmaller(const void*
 
 bool CPluginContainer::mesh_getRayProxSensorOctreeDistanceIfSmaller(const void* octreeInfo,const C4X4Matrix& octreePCTM,float &dist,const C3Vector& lp,const C3Vector& lvFar,float cosAngle,C3Vector& detectPoint,bool fast,bool frontFace,bool backFace,C3Vector& triNormalNotNormalized,void* theOcclusionCheckCallback)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
     {
         float _octreePCTM[12];
         octreePCTM.copyToInterface(_octreePCTM);
@@ -1757,18 +1774,18 @@ bool CPluginContainer::mesh_getRayProxSensorOctreeDistanceIfSmaller(const void* 
 
 bool CPluginContainer::mesh_getProxSensorOctreeDistanceIfSmaller(const void* octreeInfo,const C4X4Matrix& octreeRTM,float& dist,const std::vector<float>* planes,const std::vector<float>* planesOutside,float cosAngle,C3Vector& detectPoint,bool fast,bool frontFace,bool backFace,C3Vector& triNormalNotNormalized,void* theOcclusionCheckCallback)
 {
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
     {
-        const float* _planes=NULL;
+        const float* _planes=nullptr;
         int _planesSize=0;
-        if ((planes!=NULL)&&(planes->size()!=0))
+        if ((planes!=nullptr)&&(planes->size()!=0))
         {
             _planes=&(*planes)[0];
             _planesSize=(int)planes->size();
         }
-        const float* _planesOutside=NULL;
+        const float* _planesOutside=nullptr;
         int _planesOutsideSize=0;
-        if ((planesOutside!=NULL)&&(planesOutside->size()!=0))
+        if ((planesOutside!=nullptr)&&(planesOutside->size()!=0))
         {
             _planesOutside=&(*planesOutside)[0];
             _planesOutsideSize=(int)planesOutside->size();
@@ -1788,7 +1805,7 @@ bool CPluginContainer::mesh_removePointCloudPointsFromOctree(void* pointCloudInf
     float _octreePCTM[12];
     octreePCTM.copyToInterface(_octreePCTM);
 
-    if (currentMeshEngine!=NULL)
+    if (currentMeshEngine!=nullptr)
         return(currentMeshEngine->v_repMesh_removePointCloudPointsFromOctree(pointCloudInfo,_pointCloudPCTM,octreeInfo,_octreePCTM,&removedCnt)!=0);
     return(false);
 }
@@ -1796,10 +1813,10 @@ bool CPluginContainer::mesh_removePointCloudPointsFromOctree(void* pointCloudInf
 bool CPluginContainer::codeEditor_openModal(const char* initText,const char* properties,std::string& modifiedText,int* positionAndSize)
 {
     bool retVal=false;
-    if (currentCodeEditor!=NULL)
+    if (currentCodeEditor!=nullptr)
     {
         char* buffer=currentCodeEditor->_codeEditor_openModal(initText,properties,positionAndSize);
-        if (buffer!=NULL)
+        if (buffer!=nullptr)
         {
             modifiedText=buffer;
             delete[] buffer;
@@ -1812,7 +1829,7 @@ bool CPluginContainer::codeEditor_openModal(const char* initText,const char* pro
 int CPluginContainer::codeEditor_open(const char* initText,const char* properties)
 {
     int retVal=-1;
-    if (currentCodeEditor!=NULL)
+    if (currentCodeEditor!=nullptr)
         retVal=currentCodeEditor->_codeEditor_open(initText,properties);
     return(retVal);
 }
@@ -1820,7 +1837,7 @@ int CPluginContainer::codeEditor_open(const char* initText,const char* propertie
 int CPluginContainer::codeEditor_setText(int handle,const char* text,int insertMode)
 {
     int retVal=-1;
-    if (currentCodeEditor!=NULL)
+    if (currentCodeEditor!=nullptr)
         retVal=currentCodeEditor->_codeEditor_setText(handle,text,insertMode);
     return(retVal);
 }
@@ -1828,10 +1845,10 @@ int CPluginContainer::codeEditor_setText(int handle,const char* text,int insertM
 bool CPluginContainer::codeEditor_getText(int handle,std::string& text,int* positionAndSize)
 {
     bool retVal=false;
-    if (currentCodeEditor!=NULL)
+    if (currentCodeEditor!=nullptr)
     {
         char* buffer=currentCodeEditor->_codeEditor_getText(handle,positionAndSize);
-        if (buffer!=NULL)
+        if (buffer!=nullptr)
         {
             text=buffer;
             delete[] buffer;
@@ -1844,7 +1861,7 @@ bool CPluginContainer::codeEditor_getText(int handle,std::string& text,int* posi
 int CPluginContainer::codeEditor_show(int handle,int showState)
 {
     int retVal=-1;
-    if (currentCodeEditor!=NULL)
+    if (currentCodeEditor!=nullptr)
         retVal=currentCodeEditor->_codeEditor_show(handle,showState);
     return(retVal);
 }
@@ -1852,7 +1869,7 @@ int CPluginContainer::codeEditor_show(int handle,int showState)
 int CPluginContainer::codeEditor_close(int handle,int* positionAndSize)
 {
     int retVal=-1;
-    if (currentCodeEditor!=NULL)
+    if (currentCodeEditor!=nullptr)
         retVal=currentCodeEditor->_codeEditor_close(handle,positionAndSize);
     return(retVal);
 }
@@ -1860,7 +1877,7 @@ int CPluginContainer::codeEditor_close(int handle,int* positionAndSize)
 int CPluginContainer::customUi_msgBox(int type, int buttons, const char *title, const char *message)
 {
     int retVal=-1;
-    if (currentCustomUi!=NULL)
+    if (currentCustomUi!=nullptr)
         retVal=currentCustomUi->_customUi_msgBox(type,buttons,title,message);
     return(retVal);
 }
@@ -1868,10 +1885,10 @@ int CPluginContainer::customUi_msgBox(int type, int buttons, const char *title, 
 bool CPluginContainer::customUi_fileDialog(int type, const char *title, const char *startPath, const char *initName, const char *extName, const char *ext, int native,std::string& files)
 {
     bool retVal=false;
-    if (currentCustomUi!=NULL)
+    if (currentCustomUi!=nullptr)
     {
         char* res=currentCustomUi->_customUi_fileDialog(type,title,startPath,initName,extName,ext,native);
-        if (res!=NULL)
+        if (res!=nullptr)
         {
             files.assign(res);
             retVal=true;
@@ -1879,4 +1896,32 @@ bool CPluginContainer::customUi_fileDialog(int type, const char *title, const ch
         }
     }
     return(retVal);
+}
+
+int* CPluginContainer::assimp_importShapes(const char* fileNames,int maxTextures,float scaling,int upVector,int options,int* shapeCount)
+{
+    int* retVal=nullptr;
+    if (currentAssimp!=nullptr)
+        retVal=currentAssimp->_assimp_importShapes(fileNames,maxTextures,scaling,upVector,options,shapeCount);
+    return(retVal);
+}
+
+void CPluginContainer::assimp_exportShapes(const int* shapeHandles,int shapeCount,const char* filename,const char* format,float scaling,int upVector,int options)
+{
+    if (currentAssimp!=nullptr)
+        currentAssimp->_assimp_exportShapes(shapeHandles,shapeCount,filename,format,scaling,upVector,options);
+}
+
+int CPluginContainer::assimp_importMeshes(const char* fileNames,float scaling,int upVector,int options,float*** allVertices,int** verticesSizes,int*** allIndices,int** indicesSizes)
+{
+    int retVal=0;
+    if (currentAssimp!=nullptr)
+        retVal=currentAssimp->_assimp_importMeshes(fileNames,scaling,upVector,options,allVertices,verticesSizes,allIndices,indicesSizes);
+    return(retVal);
+}
+
+void CPluginContainer::assimp_exportMeshes(int meshCnt,const float** allVertices,const int* verticesSizes,const int** allIndices,const int* indicesSizes,const char* filename,const char* format,float scaling,int upVector,int options)
+{
+    if (currentAssimp!=nullptr)
+        currentAssimp->_assimp_exportMeshes(meshCnt,allVertices,verticesSizes,allIndices,indicesSizes,filename,format,scaling,upVector,options);
 }

@@ -173,7 +173,7 @@ std::string CDynMaterialObject::getIndividualName()
 
 float CDynMaterialObject::getEngineFloatParam(int what,bool* ok)
 {
-    if (ok!=NULL)
+    if (ok!=nullptr)
         ok[0]=true;
     if ((what>sim_bullet_body_float_start)&&(what<sim_bullet_body_float_end))
     {
@@ -195,14 +195,14 @@ float CDynMaterialObject::getEngineFloatParam(int what,bool* ok)
         int w=what-sim_newton_body_staticfriction+simi_newton_body_staticfriction;
         return(_newtonFloatParams[w]);
     }
-    if (ok!=NULL)
+    if (ok!=nullptr)
         ok[0]=false;
     return(0.0);
 }
 
 int CDynMaterialObject::getEngineIntParam(int what,bool* ok)
 {
-    if (ok!=NULL)
+    if (ok!=nullptr)
         ok[0]=true;
     if ((what>sim_bullet_body_int_start)&&(what<sim_bullet_body_int_end))
     {
@@ -224,14 +224,14 @@ int CDynMaterialObject::getEngineIntParam(int what,bool* ok)
         int w=what-sim_newton_body_bitcoded+simi_newton_body_bitcoded;
         return(_newtonIntParams[w]);
     }
-    if (ok!=NULL)
+    if (ok!=nullptr)
         ok[0]=false;
     return(0);
 }
 
 bool CDynMaterialObject::getEngineBoolParam(int what,bool* ok)
 {
-    if (ok!=NULL)
+    if (ok!=nullptr)
         ok[0]=true;
     if ((what>sim_bullet_body_bool_start)&&(what<sim_bullet_body_bool_end))
     {
@@ -244,7 +244,7 @@ bool CDynMaterialObject::getEngineBoolParam(int what,bool* ok)
     {
         // no bool params for now
         // search for obb11032016
-        if (ok!=NULL)
+        if (ok!=nullptr)
             ok[0]=false;
         return(0);
     }
@@ -262,7 +262,7 @@ bool CDynMaterialObject::getEngineBoolParam(int what,bool* ok)
         while (w>0) {b*=2; w--;}
         return((_newtonIntParams[simi_newton_body_bitcoded]&b)!=0);
     }
-    if (ok!=NULL)
+    if (ok!=nullptr)
         ok[0]=false;
     return(0);
 }

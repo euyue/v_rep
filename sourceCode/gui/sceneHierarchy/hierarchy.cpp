@@ -164,7 +164,7 @@ void CHierarchy::looseFocus()
 
 void CHierarchy::keyPress(int key)
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
-    if (App::ct->objCont==NULL)
+    if (App::ct->objCont==nullptr)
         return;
     refreshViewFlag=App::userSettings->hierarchyRefreshCnt;
 
@@ -219,26 +219,26 @@ void CHierarchy::keyPress(int key)
         int em=App::getEditModeType();
         if ( (em==NO_EDIT_MODE)||(em==BUTTON_EDIT_MODE) )
         {
-            C3DObject* it=App::ct->objCont->getObject(labelEditObjectID);
+            C3DObject* it=App::ct->objCont->getObjectFromHandle(labelEditObjectID);
             CButtonBlock* blk=App::ct->buttonBlockContainer->getBlockWithID(labelEditObjectID);
             if ( (key==ENTER_KEY)||(key==TAB_KEY) )
             {
                 tt::removeIllegalCharacters(editionText,true);
                 if (editionText!="")
                 {
-                    if ( (em==NO_EDIT_MODE)&&(it!=NULL) )
+                    if ( (em==NO_EDIT_MODE)&&(it!=nullptr) )
                     {
-                        if (App::ct->objCont->getObject(editionText)==NULL)
+                        if (App::ct->objCont->getObjectFromName(editionText.c_str())==nullptr)
                         {
                             if ( (VREP_LOWCASE_STRING_COMPARE("world",editionText.c_str())!=0)&&(VREP_LOWCASE_STRING_COMPARE("none",editionText.c_str())!=0) )
                             {
-                                it->setName(editionText);
+                                App::ct->objCont->renameObject(it->getObjectHandle(),editionText.c_str());
                                 POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
                             }
                         }
                         App::setFullDialogRefreshFlag();
                     }
-                    if ( (em==BUTTON_EDIT_MODE)&&(blk!=NULL) )
+                    if ( (em==BUTTON_EDIT_MODE)&&(blk!=nullptr) )
                     {
                         App::appendSimulationThreadCommand(RENAME_UI_OPENGLUIBLOCKGUITRIGGEREDCMD,blk->getBlockID(),-1,0.0,0.0,editionText.c_str());
                         // App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -561,15 +561,15 @@ bool CHierarchy::render()
             textPos[0]=dx+_mouseDownDragOffset[0];
             textPos[1]=dy+_mouseDownDragOffset[1];
 
-            CHierarchyElement* it=NULL;
+            CHierarchyElement* it=nullptr;
             for (int i=0;i<int(el.size());i++)
             {
                 it=el[i]->getElementLinkedWithObject(_mouseDownDragObjectID);
-                if (it!=NULL)
+                if (it!=nullptr)
                     break;
             }
-            if (it!=NULL)
-            { // should normally never be NULL
+            if (it!=nullptr)
+            { // should normally never be nullptr
                 std::vector<int> vertLines;
                 int renderingSizeCopy[2]={renderingSize[0],renderingSize[1]};
                 int minRenderedPositionCopy[2]={minRenderedPosition[0],minRenderedPosition[1]};
@@ -648,7 +648,7 @@ bool CHierarchy::render()
     int vbr[2];
     int htl[2];
     int hbr[2];
-    int slidersEnable=getSliderPositions(vtl,vbr,htl,hbr,NULL);
+    int slidersEnable=getSliderPositions(vtl,vbr,htl,hbr,nullptr);
 //  float black[3]={0.0f,0.0f,0.0f};
 
     if (slidersEnable&1)
@@ -742,7 +742,7 @@ int CHierarchy::getSliderPositions(int vSliderTopLeft[2],int vSliderBottomRight[
         vSliderBottomRight[0]=renderingSize[0];
         vSliderTopLeft[1]=renderingSize[1]-sliderP;
         vSliderBottomRight[1]=vSliderTopLeft[1]-sliderS;
-        if (prop!=NULL)
+        if (prop!=nullptr)
             prop[0]=float(minMaxViewPosition[1])/float(effDr-sliderS);
     }
     if (horizontalScrollbarHeight>0)
@@ -757,7 +757,7 @@ int CHierarchy::getSliderPositions(int vSliderTopLeft[2],int vSliderBottomRight[
         hSliderBottomRight[1]=0;
         hSliderTopLeft[0]=effDr-sliderS-sliderP+SAFETY_BORDER_SIZE*App::sc;
         hSliderBottomRight[0]=hSliderTopLeft[0]+sliderS;
-        if (prop!=NULL)
+        if (prop!=nullptr)
             prop[1]=float(minMaxViewPosition[0])/float(effDr-sliderS);
     }
     return(retVal);
@@ -792,7 +792,7 @@ bool CHierarchy::leftMouseDown(int x,int y,int selectionStatus)
     int vbr[2];
     int htl[2];
     int hbr[2];
-    int slidersEnable=getSliderPositions(vtl,vbr,htl,hbr,NULL);
+    int slidersEnable=getSliderPositions(vtl,vbr,htl,hbr,nullptr);
     sliderMoveMode=0;
     if ( (slidersEnable&1)&&(mouseDownRelativePosition[0]>vtl[0])&&(mouseDownRelativePosition[0]<vbr[0]) )
     {
@@ -833,12 +833,12 @@ bool CHierarchy::leftMouseDown(int x,int y,int selectionStatus)
     bool canSelect=true;
     if ((objID>=0)&&(selectionStatus!=CTRLSELECTION)&&(selectionStatus!=SHIFTSELECTION))
     { // Expansion/collapse
-        C3DObject* it=App::ct->objCont->getObject(objID);
-        if (it!=NULL)
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(objID);
+        if (it!=nullptr)
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId=TOGGLE_EXPAND_COLLAPSE_HIERARCHY_OBJECT_CMD;
-            cmd.intParams.push_back(it->getID());
+            cmd.intParams.push_back(it->getObjectHandle());
             App::appendSimulationThreadCommand(cmd);
             shiftingAllowed=false;
             canSelect=false;
@@ -851,8 +851,8 @@ bool CHierarchy::leftMouseDown(int x,int y,int selectionStatus)
             int objID=getActionObjectID(mouseDownRelativePosition[1],HIERARCHY_HALF_INTER_LINE_SPACE*App::sc);
             if (objID>=0)
             {
-                C3DObject* obj=App::ct->objCont->getObject(objID);
-                if (obj!=NULL) // just in case
+                C3DObject* obj=App::ct->objCont->getObjectFromHandle(objID);
+                if (obj!=nullptr) // just in case
                 {
                     if (selectionStatus==CTRLSELECTION)
                     {
@@ -982,8 +982,8 @@ void CHierarchy::leftMouseUp(int x,int y)
         {
             for (int i=0;i<int(objToBeSelected.size());i++)
             {
-                C3DObject* obj=App::ct->objCont->getObject(objToBeSelected[i]);
-                if (obj!=NULL) // Just in case
+                C3DObject* obj=App::ct->objCont->getObjectFromHandle(objToBeSelected[i]);
+                if (obj!=nullptr) // Just in case
                 {
                     App::ct->objCont->addObjectToSelection(objToBeSelected[i]); // Normal selection
                 }
@@ -1054,7 +1054,7 @@ void CHierarchy::rightMouseUp(int x,int y,int absX,int absY,QWidget* mainWindow)
             mainMenu.appendMenuAndDetach(objectEditionMenu,true,IDS_EDIT_MENU_ITEM);
 
             VMenu* addMenu=new VMenu();
-            CAddOperations::addMenu(addMenu,NULL,false);
+            CAddOperations::addMenu(addMenu,nullptr,false);
             mainMenu.appendMenuAndDetach(addMenu,true,IDS_ADD_MENU_ITEM);
 
             int selSize=App::ct->objCont->getSelSize();
@@ -1064,7 +1064,7 @@ void CHierarchy::rightMouseUp(int x,int y,int absX,int absY,QWidget* mainWindow)
             {
                 for (int i=0;i<selSize;i++)
                 {
-                    C3DObject* anO=App::ct->objCont->getObject(App::ct->objCont->getSelID(i));
+                    C3DObject* anO=App::ct->objCont->getObjectFromHandle(App::ct->objCont->getSelID(i));
                     int colInd=anO->getHierarchyColorIndex();
                     if (colInd==-1)
                         cols[0]=true;
@@ -1090,27 +1090,27 @@ void CHierarchy::rightMouseUp(int x,int y,int absX,int absY,QWidget* mainWindow)
             if (!processed)
                 processed=CSceneObjectOperations::processCommand(command);
             if (!processed)
-                processed=CAddOperations::processCommand(command,NULL);
+                processed=CAddOperations::processCommand(command,nullptr);
         } 
         else
         {
             VMenu mainMenu=VMenu();
 
             if (App::getEditModeType()&SHAPE_EDIT_MODE)
-                App::mainWindow->editModeContainer->addMenu(&mainMenu,NULL);
+                App::mainWindow->editModeContainer->addMenu(&mainMenu,nullptr);
             if (App::getEditModeType()&PATH_EDIT_MODE)
-                App::mainWindow->editModeContainer->addMenu(&mainMenu,NULL);
+                App::mainWindow->editModeContainer->addMenu(&mainMenu,nullptr);
             if (App::getEditModeType()&BUTTON_EDIT_MODE)
-                App::mainWindow->editModeContainer->addMenu(&mainMenu,NULL);
+                App::mainWindow->editModeContainer->addMenu(&mainMenu,nullptr);
 
             int command=mainMenu.trackPopupMenu();
 
             if (App::getEditModeType()&SHAPE_EDIT_MODE)
-                App::mainWindow->editModeContainer->processCommand(command,NULL);
+                App::mainWindow->editModeContainer->processCommand(command,nullptr);
             if (App::getEditModeType()&PATH_EDIT_MODE)
-                App::mainWindow->editModeContainer->processCommand(command,NULL);
+                App::mainWindow->editModeContainer->processCommand(command,nullptr);
             if (App::getEditModeType()&BUTTON_EDIT_MODE)
-                App::mainWindow->editModeContainer->processCommand(command,NULL);
+                App::mainWindow->editModeContainer->processCommand(command,nullptr);
         }
     }
 }
@@ -1191,7 +1191,7 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
     if (scriptID!=-1)
     {
         CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(scriptID);
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             bool openScriptEditor=true;
             int auxData[4]={-1,-1,-1,-1};
@@ -1202,7 +1202,7 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
             if (it->getScriptType()==sim_scripttype_customizationscript)
                 auxData[0]=it->getObjectIDThatScriptIsAttachedTo_customization();
             int retVals[4]={-1,-1,-1,-1};
-            void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scripticondblclick,auxData,NULL,retVals);
+            void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scripticondblclick,auxData,nullptr,retVals);
             delete[] (char*)returnVal;
             openScriptEditor=(retVals[0]!=1);
             if (openScriptEditor)
@@ -1211,13 +1211,13 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
                 {
                     if (it->getScriptType()==sim_scripttype_customizationscript)
                     { // With customization scripts, we wanna open a modal dialog:
-                        C3DObject* theObj=App::ct->objCont->getObject(it->getObjectIDThatScriptIsAttachedTo_customization());
-                        if (theObj!=NULL)
+                        C3DObject* theObj=App::ct->objCont->getObjectFromHandle(it->getObjectIDThatScriptIsAttachedTo_customization());
+                        if (theObj!=nullptr)
                         {
                             // Process the command via the simulation thread (delayed):
                             SSimulationThreadCommand cmd;
                             cmd.cmdId=OPEN_MODAL_CUSTOMIZATION_SCRIPT_EDITOR_CMD;
-                            cmd.intParams.push_back(theObj->getID());
+                            cmd.intParams.push_back(theObj->getObjectHandle());
                             App::appendSimulationThreadCommand(cmd);
                         }
                     }
@@ -1240,7 +1240,7 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
     if (scriptID!=-1)
     {
         CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(scriptID);
-        if ( (it!=NULL)&&((App::operationalUIParts&sim_gui_scriptsimulationparameters)!=0) )
+        if ( (it!=nullptr)&&((App::operationalUIParts&sim_gui_scriptsimulationparameters)!=0) )
         {
             // Process the command via the simulation thread (delayed):
             SSimulationThreadCommand cmd;
@@ -1280,13 +1280,13 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
         objID=getActionModelID_icon(mouseDownRelativePosition[0],mouseDownRelativePosition[1]);
         if (objID>=0)
         { // yes!
-            C3DObject* it=App::ct->objCont->getObject(objID);
-            if (it!=NULL)
+            C3DObject* it=App::ct->objCont->getObjectFromHandle(objID);
+            if (it!=nullptr)
             {
                 // Process the command via the simulation thread (delayed):
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=OPEN_MODAL_MODEL_PROPERTIES_CMD;
-                cmd.intParams.push_back(it->getID());
+                cmd.intParams.push_back(it->getObjectHandle());
                 App::appendSimulationThreadCommand(cmd);
             }
             return(true);
@@ -1296,20 +1296,20 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
         objID=getSimulationActionObjectID(mouseDownRelativePosition[0],mouseDownRelativePosition[1]);
         if (objID!=-1)
         { // yes!
-            C3DObject* it=App::ct->objCont->getObject(objID);
-            if (it!=NULL)
+            C3DObject* it=App::ct->objCont->getObjectFromHandle(objID);
+            if (it!=nullptr)
             {
                 std::string txt;
                 if (it->getDynamicSimulationIconCode()==sim_dynamicsimicon_objectisnotdynamicallyenabled)
                 {
                     txt=IDS_OBJECT;
-                    txt+=" '"+it->getName()+"' ";
+                    txt+=" '"+it->getObjectName()+"' ";
                     txt+=IDS_IS_NOT_DYNAMICALLY_ENABLED_WARNING;
                 }
                 if (it->getDynamicSimulationIconCode()==sim_dynamicsimicon_objectisdynamicallysimulated)
                 {
                     txt=IDS_OBJECT;
-                    txt+=" '"+it->getName()+"' ";
+                    txt+=" '"+it->getObjectName()+"' ";
                     txt+=std::string(IDS_IS_DYNAMICALLY_SIMULATED)+"\n";
                     if (it->getObjectType()==sim_object_shape_type)
                     {
@@ -1367,10 +1367,10 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
         if (objID==-9999)
             objID=-1;
         labelEditObjectID=objID;
-        C3DObject* it=App::ct->objCont->getObject(objID);
-        if (it!=NULL)
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(objID);
+        if (it!=nullptr)
         {
-            editionText=it->getName();
+            editionText=it->getObjectName();
             editionTextEditPos=(int)editionText.length();
         }
         return(true);
@@ -1392,7 +1392,7 @@ bool CHierarchy::leftMouseDblClick(int x,int y,int selectionStatus)
             objID=-1;
         labelEditObjectID=objID;
         CButtonBlock* it=App::ct->buttonBlockContainer->getBlockWithID(objID);
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             editionText=it->getBlockName();
             editionTextEditPos=(int)editionText.length();
@@ -1501,7 +1501,7 @@ int CHierarchy::getLineObjectID(int mousePositionY,int textPosStart[2])
     {
         if ((mousePositionY>=textPosition[6*i+4]-HIERARCHY_HALF_INTER_LINE_SPACE*App::sc)&&(mousePositionY<=textPosition[6*i+4]+HIERARCHY_HALF_INTER_LINE_SPACE*App::sc) )
         {
-            if (textPosStart!=NULL)
+            if (textPosStart!=nullptr)
             {
                 textPosStart[0]=textPosition[6*i+0];
                 textPosStart[1]=textPosition[6*i+1];
@@ -1606,7 +1606,7 @@ void CHierarchy::drawEditionLabel(int textPosX,int textPosY)
     float txtCol[3]={0.0f,0.0f,0.0f};
     float backCol[3]={1.0f,1.0f,0.0f};
     int buttonAttrib=sim_buttonproperty_editbox|sim_buttonproperty_enabled|sim_buttonproperty_verticallycentered;
-    ogl::drawButton(p,s,txtCol,backCol,backCol,editionText,buttonAttrib,true,editionTextEditPos,0.0f,false,VDateTime::getTimeInMs(),NULL,NULL,NULL,NULL,NULL);
+    ogl::drawButton(p,s,txtCol,backCol,backCol,editionText,buttonAttrib,true,editionTextEditPos,0.0f,false,VDateTime::getTimeInMs(),nullptr,nullptr,nullptr,nullptr,nullptr);
     refreshViewFlag=App::userSettings->hierarchyRefreshCnt;
 }
 
@@ -1627,7 +1627,7 @@ bool CHierarchy::processCommand(int commandID)
         { // we are NOT in the UI thread. We execute the command now:
             for (int i=0;i<int(App::ct->objCont->objectList.size());i++)
             {
-                C3DObject* it=App::ct->objCont->getObject(App::ct->objCont->objectList[i]);
+                C3DObject* it=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
                 it->setLocalObjectProperty(it->getLocalObjectProperty()|sim_objectproperty_collapsed);
                 if (commandID==EXPAND_HIERARCHY_CMD)
                     it->setLocalObjectProperty(it->getLocalObjectProperty()-sim_objectproperty_collapsed);
@@ -1652,7 +1652,7 @@ bool CHierarchy::processCommand(int commandID)
         { // we are NOT in the UI thread. We execute the command now:
             for (int i=0;i<int(App::ct->objCont->getSelSize());i++)
             {
-                C3DObject* it=App::ct->objCont->getObject(App::ct->objCont->getSelID(i));
+                C3DObject* it=App::ct->objCont->getObjectFromHandle(App::ct->objCont->getSelID(i));
                 std::vector<C3DObject*> toExplore;
                 toExplore.push_back(it);
                 while (toExplore.size()!=0)
@@ -1686,7 +1686,7 @@ bool CHierarchy::processCommand(int commandID)
         { // we are NOT in the UI thread. We execute the command now:
             for (int i=0;i<int(App::ct->objCont->getSelSize());i++)
             {
-                C3DObject* it=App::ct->objCont->getObject(App::ct->objCont->getSelID(i));
+                C3DObject* it=App::ct->objCont->getObjectFromHandle(App::ct->objCont->getSelID(i));
                 it->setHierarchyColorIndex(commandID-HIERARCHY_COLORING_NONE_CMD-1);
             }
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
@@ -1711,13 +1711,13 @@ void CHierarchy::_drawLinesLinkingDummies(int maxRenderedPos[2])
         CDummy* dummy=App::ct->objCont->getDummy(App::ct->objCont->dummyList[i]);
         if (dummy->getLinkedDummyID()!=-1)
         {
-            int dummyID=dummy->getID();
+            int dummyID=dummy->getObjectHandle();
             int linkedDummyID=dummy->getLinkedDummyID();
             C3DObject* obj=dummy;
             bool found=false;
-            while ( (!found)&&(obj!=NULL) )
+            while ( (!found)&&(obj!=nullptr) )
             {
-                int idToSearch=obj->getID();
+                int idToSearch=obj->getObjectHandle();
                 for (int j=0;j<int(lineLastPosition.size()/3);j++)
                 {
                     if (idToSearch==lineLastPosition[3*j+2])
@@ -1739,7 +1739,7 @@ void CHierarchy::_drawLinesLinkingDummies(int maxRenderedPos[2])
                     }
                 }
                 if (!found)
-                    obj=obj->getParent();
+                    obj=obj->getParentObject();
             }
         }
     }

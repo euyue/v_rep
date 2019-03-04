@@ -103,13 +103,13 @@ void CRegisteredDistances::addObjectWithSuffixOffset(CRegDist* newDistObj,bool o
         oName=tt::generateNewName_dash(oName,suffixOffset);
     else
     {
-        while (getObject(oName)!=NULL)
+        while (getObject(oName)!=nullptr)
             oName=tt::generateNewName_noDash(oName);
     }
     newDistObj->setObjectName(oName);
     // We find a free ID:
     int id=SIM_IDSTART_DISTANCE;
-    while (getObject(id)!=NULL)
+    while (getObject(id)!=nullptr)
         id++;
     newDistObj->setObjectID(id);
     distanceObjects.push_back(newDistObj);
@@ -121,22 +121,22 @@ int CRegisteredDistances::addNewObject(int obj1ID,int obj2ID,
 {   // We check if the objects are valid:
     if (obj1ID<SIM_IDSTART_COLLECTION)
     {
-        if (App::ct->objCont->getObject(obj1ID)==NULL)
+        if (App::ct->objCont->getObjectFromHandle(obj1ID)==nullptr)
             return(-1);
     }
     else
     {
-        if (App::ct->collections->getCollection(obj1ID)==NULL)
+        if (App::ct->collections->getCollection(obj1ID)==nullptr)
             return(-1);
     }
     if (obj2ID>=SIM_IDSTART_COLLECTION)
     {
-        if (App::ct->collections->getCollection(obj2ID)==NULL)
+        if (App::ct->collections->getCollection(obj2ID)==nullptr)
             return(-1);
     }
     else
     {
-        if ( (App::ct->objCont->getObject(obj2ID)==NULL)&&(obj2ID!=-1) )
+        if ( (App::ct->objCont->getObjectFromHandle(obj2ID)==nullptr)&&(obj2ID!=-1) )
             return(-1);
     }
     // We check if we try to measure an object against itself (forbidden, except for collections):
@@ -157,10 +157,10 @@ int CRegisteredDistances::addNewObject(int obj1ID,int obj2ID,
     // Now check if the combination is valid:
     if ( (obj1ID<SIM_IDSTART_COLLECTION)&&(obj2ID<SIM_IDSTART_COLLECTION) )
     {
-        int t1=App::ct->objCont->getObject(obj1ID)->getObjectType();
+        int t1=App::ct->objCont->getObjectFromHandle(obj1ID)->getObjectType();
         int t2=sim_object_octree_type;
         if (obj2ID!=-1)
-            t2=App::ct->objCont->getObject(obj2ID)->getObjectType();
+            t2=App::ct->objCont->getObjectFromHandle(obj2ID)->getObjectType();
         if ( (t1==sim_object_shape_type)||(t1==sim_object_octree_type)||(t1==sim_object_pointcloud_type)||(t1==sim_object_dummy_type) )
         {
             if ( (t2!=sim_object_shape_type)&&(t2!=sim_object_octree_type)&&(t2!=sim_object_pointcloud_type)&&(t2!=sim_object_dummy_type) )
@@ -199,7 +199,7 @@ CRegDist* CRegisteredDistances::getObject(int objID)
         if (distanceObjects[i]->getObjectID()==objID)
             return(distanceObjects[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 CRegDist* CRegisteredDistances::getObject(std::string objName)
@@ -209,7 +209,7 @@ CRegDist* CRegisteredDistances::getObject(std::string objName)
         if (distanceObjects[i]->getObjectName().compare(objName)==0)
             return(distanceObjects[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 void CRegisteredDistances::removeAllDistanceObjects()
@@ -265,10 +265,10 @@ void CRegisteredDistances::setUpDefaultValues()
 bool CRegisteredDistances::setObjectName(int objID,std::string newName)
 {
     CRegDist* it=getObject(newName);
-    if (it==NULL)
+    if (it==nullptr)
     {
         it=getObject(objID);
-        if (it==NULL)
+        if (it==nullptr)
             return(false); // Failure
         it->setObjectName(newName);
         return(true); // Success

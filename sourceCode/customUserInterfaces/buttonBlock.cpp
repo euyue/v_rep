@@ -63,7 +63,7 @@ void CButtonBlock::commonInit()
     desiredBlockPosition.y=0;
     viewToAppearOn=-1;
     _copyPositionOffset=0;
-    _textureProperty=NULL;
+    _textureProperty=nullptr;
     blockName=IDSOGL_UI;
 }
 
@@ -183,7 +183,7 @@ CButtonBlock* CButtonBlock::copyYourself()
     getRollupMax(dummy);
     newBlock->setRollupMax(dummy);
     newBlock->setObjectIDAttachedTo(getObjectIDAttachedTo());
-    if (_textureProperty!=NULL)
+    if (_textureProperty!=nullptr)
         newBlock->_textureProperty=_textureProperty->copyYourself();
 
     return(newBlock);
@@ -197,7 +197,7 @@ void CButtonBlock::setAttributes(int attr)
     /*
     if (((previousAttrib&sim_ui_property_systemblock)==0)&&(_attributes&sim_ui_property_systemblock) )
     {
-        if (App::ct->buttonBlockContainer!=NULL)
+        if (App::ct->buttonBlockContainer!=nullptr)
         {
             // We cannot set the system block tag if the block was already added to the container! ...and why is that?!!!!
             bool present=false;
@@ -257,7 +257,7 @@ CSoftButton* CButtonBlock::getButtonWithID(int id)
         if (allButtons[i]->buttonID==id)
             return(allButtons[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 CSoftButton* CButtonBlock::getButtonWithUniqueID(int id)
@@ -267,16 +267,16 @@ CSoftButton* CButtonBlock::getButtonWithUniqueID(int id)
         if (allButtons[i]->getUniqueID()==id)
             return(allButtons[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 CSoftButton* CButtonBlock::getButtonAtPos(int x,int y)
 {
     if ( (x<0)||(y<0)||(x>=blockWidth)||(y>=blockHeight) )
-        return(NULL);
+        return(nullptr);
     int pos=positionFastIndex[x+y*blockWidth];
     if (pos==-1)
-        return(NULL);
+        return(nullptr);
     return(allButtons[pos]);
 }
 
@@ -290,7 +290,7 @@ CSoftButton* CButtonBlock::getButtonAtPosDontUseFastIndex(int x,int y)
                 return(allButtons[i]);
         }
     }
-    return(NULL);
+    return(nullptr);
 }
 bool CButtonBlock::removeButtonFromPos(int x,int y,bool updateFastIndex)
 {   // updateFastIndex is true by default.
@@ -322,7 +322,7 @@ bool CButtonBlock::insertButton(CSoftButton* theNewButton)
     {
         for (int j=0;j<theNewButton->getHeight();j++)
         {
-            if (getButtonAtPos(theNewButton->xPos+i,theNewButton->yPos+j)!=NULL)
+            if (getButtonAtPos(theNewButton->xPos+i,theNewButton->yPos+j)!=nullptr)
                 return(false);
         }
     }
@@ -403,7 +403,7 @@ void CButtonBlock::setBlockSize(VPoint size)
     blockWidth=size.x;
     blockHeight=size.y;
     // We empty the selection buffer:
-    if (App::ct->buttonBlockContainer!=NULL)
+    if (App::ct->buttonBlockContainer!=nullptr)
         App::ct->buttonBlockContainer->deselectButtons();
     // We recompute the fast index:
     recomputePositionFastIndex();
@@ -543,12 +543,12 @@ int CButtonBlock::getViewToAppearOn()
 
 void CButtonBlock::removeAllVisionSensorTextures()
 {
-    if (_textureProperty!=NULL)
+    if (_textureProperty!=nullptr)
     {
         if ((_textureProperty->getTextureObjectID()<SIM_IDSTART_TEXTURE)||(_textureProperty->getTextureObjectID()>SIM_IDEND_TEXTURE))
         {
             delete _textureProperty;
-            _textureProperty=NULL;
+            _textureProperty=nullptr;
         }
     }
     for (int i=0;i<int(allButtons.size());i++)
@@ -563,10 +563,10 @@ void CButtonBlock::removeAllObjectAttachements()
 
 void CButtonBlock::perform3DObjectLoadingMapping(std::vector<int>* map)
 {
-    if (App::ct->objCont!=NULL)
+    if (App::ct->objCont!=nullptr)
     {
         objectIDAttachedTo=App::ct->objCont->getLoadingMapping(map,objectIDAttachedTo);
-        if (_textureProperty!=NULL)
+        if (_textureProperty!=nullptr)
             _textureProperty->performObjectLoadingMapping(map);
     }
     for (int i=0;i<int(allButtons.size());i++)
@@ -575,9 +575,9 @@ void CButtonBlock::perform3DObjectLoadingMapping(std::vector<int>* map)
 
 void CButtonBlock::performTextureObjectLoadingMapping(std::vector<int>* map)
 {
-    if (App::ct->objCont!=NULL)
+    if (App::ct->objCont!=nullptr)
     {
-        if (_textureProperty!=NULL)
+        if (_textureProperty!=nullptr)
             _textureProperty->performTextureObjectLoadingMapping(map);
     }
     for (int i=0;i<int(allButtons.size());i++)
@@ -588,12 +588,12 @@ bool CButtonBlock::announce3DObjectWillBeErased(int objectID,bool copyBuffer)
 {
     if (objectIDAttachedTo==objectID)
         return(true);
-    if (_textureProperty!=NULL)
+    if (_textureProperty!=nullptr)
     {
         if (_textureProperty->announceObjectWillBeErased(objectID))
         {
             delete _textureProperty;
-            _textureProperty=NULL;
+            _textureProperty=nullptr;
         }
     }
     for (int i=0;i<int(allButtons.size());i++)
@@ -603,7 +603,7 @@ bool CButtonBlock::announce3DObjectWillBeErased(int objectID,bool copyBuffer)
 
 void CButtonBlock::setTextureDependencies()
 {
-    if (_textureProperty!=NULL)
+    if (_textureProperty!=nullptr)
         _textureProperty->addTextureDependencies(blockID,0);
     for (int i=0;i<int(allButtons.size());i++)
         allButtons[i]->setTextureDependencies(blockID);
@@ -638,12 +638,12 @@ VPoint CButtonBlock::_getBlockSizeAndOtherButtonSizeAndPos(VPoint& blockSize,VPo
 
 void CButtonBlock::getAllAttachedTextureProperties(std::vector<CTextureProperty*>& textPropVect)
 {
-    if (_textureProperty!=NULL)
+    if (_textureProperty!=nullptr)
         textPropVect.push_back(_textureProperty);   
     for (int i=0;i<int(allButtons.size());i++)
     {
         CTextureProperty* tp=allButtons[i]->getTextureProperty();
-        if (tp!=NULL)
+        if (tp!=nullptr)
             textPropVect.push_back(tp); 
     }
 }
@@ -697,7 +697,7 @@ void CButtonBlock::serialize(CSer &ar)
                 allButtons[i]->serialize(ar);
         }
 
-        if (_textureProperty!=NULL)
+        if (_textureProperty!=nullptr)
         {
             ar.storeDataName("Toj");
             ar.setCountingMode();
@@ -826,9 +826,9 @@ void CButtonBlock::setLastEventButtonID(int id,int auxVals[2])
 }
 
 int CButtonBlock::getLastEventButtonID(int auxVals[2])
-{ // auxVals can be NULL
+{ // auxVals can be nullptr
     int retVal=_lastEventButtonID;
-    if (auxVals!=NULL)
+    if (auxVals!=nullptr)
     {
         for (int i=0;i<2;i++)
             auxVals[i]=_lastEventButtonAuxVals[i];
@@ -1003,7 +1003,7 @@ void CButtonBlock::displayBlock(int winSize[2],bool justCameToFront)
                     if ( (buttonDown!=App::ct->buttonBlockContainer->caughtButtonDownForDownUpEvent)&&(!editing) )
                     { // We have to generate an up or down event
                         App::ct->buttonBlockContainer->caughtButtonDownForDownUpEvent=buttonDown;
-                        App::ct->outsideCommandQueue->addCommand(sim_message_ui_button_state_change,App::ct->buttonBlockContainer->caughtBlock,App::ct->buttonBlockContainer->caughtButton,it->getAttributes(),buttonDown,NULL,0);
+                        App::ct->outsideCommandQueue->addCommand(sim_message_ui_button_state_change,App::ct->buttonBlockContainer->caughtBlock,App::ct->buttonBlockContainer->caughtButton,it->getAttributes(),buttonDown,nullptr,0);
                         int auxVals[2]={it->getAttributes(),buttonDown};
                         setLastEventButtonID(App::ct->buttonBlockContainer->caughtButton,auxVals);
                     }
@@ -1013,14 +1013,14 @@ void CButtonBlock::displayBlock(int winSize[2],bool justCameToFront)
             int atr=it->getAttributes();
             if (buttonDown)
                 atr|=sim_buttonproperty_isdown;
-            float* secondTextColor=NULL; // For now (2009/07/24)
+            float* secondTextColor=nullptr; // For now (2009/07/24)
 
             if (App::ct->environment->get2DElementTexturesEnabled())
                 ogl::drawButton(pos,otherButtonSize,txtCol,it->backgroundColor,it->downBackgroundColor,txt,atr,
                     editing,App::ct->buttonBlockContainer->editBoxEditionPosition,sliderVal,it->getVertical(),VDateTime::getTimeInMs(),secondTextColor,_textureProperty,&blockPosAbs,&blockSize,it->getTextureProperty());
             else
                 ogl::drawButton(pos,otherButtonSize,txtCol,it->backgroundColor,it->downBackgroundColor,txt,atr,
-                    editing,App::ct->buttonBlockContainer->editBoxEditionPosition,sliderVal,it->getVertical(),VDateTime::getTimeInMs(),secondTextColor,NULL,&blockPosAbs,&blockSize,NULL);
+                    editing,App::ct->buttonBlockContainer->editBoxEditionPosition,sliderVal,it->getVertical(),VDateTime::getTimeInMs(),secondTextColor,nullptr,&blockPosAbs,&blockSize,nullptr);
 
         }
         if ( (App::ct->buttonBlockContainer->getBlockInEdition()==blockID)&&(App::ct->buttonBlockContainer->editMode) )

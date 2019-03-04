@@ -11,7 +11,7 @@ CPtCloud_old::CPtCloud_old(int pageMask,int layerMask,int objectHandle,int optio
     _options=options;
     _pointSize=pointSize;
     _vertices.assign(vertices,vertices+ptCnt*3);
-    if (defaultColors!=NULL)
+    if (defaultColors!=nullptr)
     {
         for (int i=0;i<4;i++)
         {
@@ -41,7 +41,7 @@ CPtCloud_old::CPtCloud_old(int pageMask,int layerMask,int objectHandle,int optio
         _defaultColors[15]=1.0f;
     }
 
-    if (colors!=NULL)
+    if (colors!=nullptr)
     {
         _colors.resize(ptCnt*4);
         for (int i=0;i<ptCnt;i++)
@@ -52,11 +52,11 @@ CPtCloud_old::CPtCloud_old(int pageMask,int layerMask,int objectHandle,int optio
             _colors[4*i+3]=1.0f;
         }
     }
-    if (normals!=NULL)
+    if (normals!=nullptr)
         _normals.assign(normals,normals+ptCnt*3);
 
-    C3DObject* it=App::ct->objCont->getObject(_objectHandle);
-    if (it!=NULL)
+    C3DObject* it=App::ct->objCont->getObjectFromHandle(_objectHandle);
+    if (it!=nullptr)
     {
         C7Vector tr(it->getCumulativeTransformationPart1_forDisplay(true));
         C7Vector trInv(tr.getInverse());
@@ -116,7 +116,7 @@ void CPtCloud_old::draw(int displayAttrib)
             int currentLayers=App::ct->mainSettings->getActiveLayers();
             if ( ((currentLayers&_layerMask)!=0)&&(_vertices.size()!=0) )
             {
-                C3DObject* it=App::ct->objCont->getObject(_objectHandle);
+                C3DObject* it=App::ct->objCont->getObjectFromHandle(_objectHandle);
                 displayPtCloud_old(this,it);
             }
         }

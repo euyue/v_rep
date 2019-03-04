@@ -178,15 +178,15 @@ void CConstraintSolverObject::selectAllObjectsInMechanism()
 {
     App::ct->objCont->deselectObjects();
     App::ct->objCont->actualizeMechanismIDs();
-    C3DObject* it=App::ct->objCont->getObject(_base3DObject);
-    if (it!=NULL)
+    C3DObject* it=App::ct->objCont->getObjectFromHandle(_base3DObject);
+    if (it!=nullptr)
     {
         int mechanismID=it->getMechanismID();
         for (int i=0;i<int(App::ct->objCont->objectList.size());i++)
         {
             int theID=App::ct->objCont->objectList[i];
-            C3DObject* it2=App::ct->objCont->getObject(theID);
-            if ( (theID!=_base3DObject)&&(it2!=NULL) )
+            C3DObject* it2=App::ct->objCont->getObjectFromHandle(theID);
+            if ( (theID!=_base3DObject)&&(it2!=nullptr) )
             {
                 if (it2->getMechanismID()==mechanismID)
                     App::ct->objCont->addObjectToSelection(theID);
@@ -229,8 +229,8 @@ CConstraintSolverObject* CConstraintSolverObject::copyYourself()
 
 bool CConstraintSolverObject::computeGcs()
 {
-    C3DObject* it=App::ct->objCont->getObject(_base3DObject);
-    if (it==NULL)
+    C3DObject* it=App::ct->objCont->getObjectFromHandle(_base3DObject);
+    if (it==nullptr)
         return(false);
     CGeometricConstraintSolverInt work(_base3DObject,_objectID);
     work.solve();

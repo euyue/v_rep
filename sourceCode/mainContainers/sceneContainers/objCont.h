@@ -42,18 +42,18 @@ public:
 
     C3DObject* getSelectedObject();
 
-    CMirror* getMirror(int identifier);
-    COctree* getOctree(int identifier);
-    CPointCloud* getPointCloud(int identifier);
-    CShape* getShape(int identifier);
-    CProxSensor* getProximitySensor(int identifier);
-    CVisionSensor* getVisionSensor(int identifier);
-    CCamera* getCamera(int identifier);
-    CLight* getLight(int identifier);
-    CGraph* getGraph(int identifier);
-    CPath* getPath(int identifier);
-    CMill* getMill(int identifier);
-    CForceSensor* getForceSensor(int identifier);
+    CMirror* getMirror(int objectHandle);
+    COctree* getOctree(int objectHandle);
+    CPointCloud* getPointCloud(int objectHandle);
+    CShape* getShape(int objectHandle);
+    CProxSensor* getProximitySensor(int objectHandle);
+    CVisionSensor* getVisionSensor(int objectHandle);
+    CCamera* getCamera(int objectHandle);
+    CLight* getLight(int objectHandle);
+    CGraph* getGraph(int objectHandle);
+    CPath* getPath(int objectHandle);
+    CMill* getMill(int objectHandle);
+    CForceSensor* getForceSensor(int objectHandle);
 
     C3DObject* getObjectWithUniqueID(int uniqueID);
 
@@ -98,12 +98,12 @@ public:
     void appendLoadOperationIssue(const char* text,int objectId);
 
     // Object selection routines:
-    bool selectObject(int objectIdentifier);
+    bool selectObject(int objectHandle);
     void deselectObjects();
-    void addObjectToSelection(int identifier);
-    void removeObjectFromSelection(int identifier);
-    void xorAddObjectToSelection(int identifier);
-    bool isObjectSelected(int identifier);
+    void addObjectToSelection(int objectHandle);
+    void removeObjectFromSelection(int objectHandle);
+    void xorAddObjectToSelection(int objectHandle);
+    bool isObjectSelected(int objectHandle);
     void selectAllObjects();
 
 
@@ -119,10 +119,10 @@ public:
     void exportIkContent(CExtIkSer& ar);
     bool loadModel(CSer& ar,bool justLoadThumbnail,bool forceModelAsCopy,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,float* optionalModelNonDefaultTranslationStepSize);
     bool loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool justLoadThumbnail,bool forceModelAsCopy,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,float* optionalModelNonDefaultTranslationStepSize);
-    void setAbsoluteAngle(int identifier,float angle,int index);
-    void setAbsolutePosition(int identifier,float pos,int index);
-    void setAbsoluteAngles(int identifier,const C3Vector& euler);
-    void setAbsolutePosition(int identifier,const C3Vector& p);
+    void setAbsoluteAngle(int objectHandle,float angle,int index);
+    void setAbsolutePosition(int objectHandle,float pos,int index);
+    void setAbsoluteAngles(int objectHandle,const C3Vector& euler);
+    void setAbsolutePosition(int objectHandle,const C3Vector& p);
 
     bool getAllShapesAndDummiesFromScene(std::vector<C3DObject*>& objects,int propMask);
     bool getAllShapesFromScene(std::vector<C3DObject*>& objects,int propMask);
@@ -241,44 +241,48 @@ public:
     bool isSelectionSame(std::vector<int>& sel,bool actualize);
 
     int getRenderingPosition(int objID);
-    void changePoseAndKeepRestInPlace(int identifier,C7Vector& m,bool changePositionX,bool changePositionY,bool changePositionZ,bool changeOrientation);
+    void changePoseAndKeepRestInPlace(int objectHandle,C7Vector& m,bool changePositionX,bool changePositionY,bool changePositionZ,bool changeOrientation);
 
     void removeAllObjects(bool generateBeforeAfterDeleteCallback);
     void actualizeObjectInformation();
 
     int getLoadingMapping(std::vector<int>* map,int oldVal);
 
-    int getObjectIdentifier(const std::string& objectName);
-    int getObjectIdentifierFromAltName(const std::string& objectAltName);
-    C3DObject* getObject(int identifier);
-    CDummy* getDummy(int identifier);
-    CJoint* getJoint(int identifier);
-    C3DObject* getObject(const std::string& name);
-    C3DObject* getObjectFromAltName(const std::string& altName);
+    int getObjectHandleFromName(const char* objectName) const;
+    int getObjectHandleFromAltName(const char* objectAltName) const;
+    C3DObject* getObjectFromHandle(int objectHandle) const;
+    CDummy* getDummy(int objectHandle) const;
+    CJoint* getJoint(int objectHandle) const;
+    C3DObject* getObjectFromName(const char* name) const;
+    C3DObject* getObjectFromAltName(const char* altName) const;
+    bool renameObject(int objectHandle,const char* newName);
+    bool altRenameObject(int objectHandle,const char* newName);
 
     bool makeObjectChildOf(C3DObject* childObject,C3DObject* parentObject);
-    void setAbsoluteConfiguration(int identifier,const C7Vector& v,bool keepChildrenInPlace);
+    void setAbsoluteConfiguration(int objectHandle,const C7Vector& v,bool keepChildrenInPlace);
 
     void removeSceneDependencies();
 
-    int getHighestObjectID();
+    int getHighestObjectHandle();
     bool eraseObject(C3DObject* it,bool generateBeforeAfterDeleteCallback);
     void eraseSeveralObjects(const std::vector<int>& objHandles,bool generateBeforeAfterDeleteCallback);
 
     void announceObjectWillBeErased(int objectID);
     void announceIkGroupWillBeErased(int ikGroupID);
 
-    std::vector<int> objectsWhichNeedToBeErased;
     void enableObjectActualization(bool e);
 
-    std::vector<C3DObject*> _objectIndex;
+    std::vector<C3DObject*> _objectHandleIndex;
+    std::map<std::string,int> _objectNameMap;
+    std::map<std::string,int> _objectAltNameMap;
 
     bool _objectActualizationEnabled;
 
     int _nextObjectHandle;
 
-    std::vector<int> orphanList;
     std::vector<int> objectList;
+    std::vector<int> orphanList;
+
     std::vector<int> jointList;
     std::vector<int> dummyList;
     std::vector<int> mirrorList;
@@ -301,7 +305,7 @@ public:
     C3Vector _ikManipulationCurrentPosAbs;
 
 private:
-    std::vector<int> _selectedObjectIDs;
+    std::vector<int> _selectedObjectHandles;
     std::vector<unsigned char> _selectedObjectsBool;
 
     std::string _loadOperationIssuesToBeDisplayed;
@@ -310,9 +314,9 @@ private:
     static float _defaultSceneID;
 };
 
-inline bool CObjCont::isObjectSelected(int identifier)
+inline bool CObjCont::isObjectSelected(int objectHandle)
 {
-    if (getObject(identifier)==NULL)
+    if (getObjectFromHandle(objectHandle)==nullptr)
         return(false);
-    return((_selectedObjectsBool[identifier>>3]&(1<<(identifier&7)))!=0);
+    return((_selectedObjectsBool[objectHandle>>3]&(1<<(objectHandle&7)))!=0);
 }

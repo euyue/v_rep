@@ -103,7 +103,7 @@ std::string CGraphingRoutines::getDataUnit(CGraphData* it)
         if (dType==GRAPH_3DOBJECT_JOINT_POSITION)
         {
             CJoint* act=App::ct->objCont->getJoint(it->getDataObjectID());
-            if (act!=NULL)
+            if (act!=nullptr)
             {
                 if (act->getJointType()==sim_joint_prismatic_subtype)
                 {
@@ -137,7 +137,7 @@ std::string CGraphingRoutines::getDataUnit(CGraphData* it)
         if (dType==GRAPH_3DOBJECT_JOINT_VELOCITY)
         {
             CJoint* act=App::ct->objCont->getJoint(it->getDataObjectID());
-            if (act!=NULL)
+            if (act!=nullptr)
             {
                 if (act->getJointType()==sim_joint_prismatic_subtype)
                 {
@@ -189,7 +189,7 @@ std::string CGraphingRoutines::getDataUnit(CGraphData* it)
         if (dType==GRAPH_3DOBJECT_JOINT_DYN_FORCE_OR_TORQUE)
         { // New since 1/6/2011:
             CJoint* act=App::ct->objCont->getJoint(it->getDataObjectID());
-            if (act!=NULL)
+            if (act!=nullptr)
             {
                 if (act->getJointType()==sim_joint_prismatic_subtype)
                 {
@@ -287,7 +287,7 @@ std::string CGraphingRoutines::getDataUnit(CGraphData* it)
     if ((dType==GRAPH_3DOBJECT_PATH_POSITION)||(dType==GRAPH_3DOBJECT_PATH_POSITION_LINEAR_COMPONENT))
     { // We have to check if this is a path:
         CPath* path=App::ct->objCont->getPath(it->getDataObjectID());
-        if (path!=NULL)
+        if (path!=nullptr)
         {
             if ((it->getDerivativeIntegralAndCumulative()==DATA_STREAM_ORIGINAL)||(it->getDerivativeIntegralAndCumulative()==DATA_STREAM_CUMULATIVE))
                 return(gv::getSizeUnitStr());
@@ -300,7 +300,7 @@ std::string CGraphingRoutines::getDataUnit(CGraphData* it)
     if (dType==GRAPH_3DOBJECT_PATH_POSITION_ANGULAR_COMPONENT)
     { // We have to check if this is a path:
         CPath* path=App::ct->objCont->getPath(it->getDataObjectID());
-        if (path!=NULL)
+        if (path!=nullptr)
         {
             if ((it->getDerivativeIntegralAndCumulative()==DATA_STREAM_ORIGINAL)||(it->getDerivativeIntegralAndCumulative()==DATA_STREAM_CUMULATIVE))
                 return(gv::getAngleUnitStr());
@@ -440,7 +440,7 @@ void CGraphingRoutines::adjustDataToUserMetric(const CGraphData* it,float& v,int
         CJoint* act=App::ct->objCont->getJoint(it->getDataObjectID());
         if (dType==GRAPH_3DOBJECT_JOINT_POSITION)
         {   // We have to check if this is a joint and what type:
-            if (act!=NULL)
+            if (act!=nullptr)
             {
                 if (act->getJointType()==sim_joint_revolute_subtype)
                     v*=gv::radToUser;
@@ -448,7 +448,7 @@ void CGraphingRoutines::adjustDataToUserMetric(const CGraphData* it,float& v,int
         }
         if (dType==GRAPH_3DOBJECT_JOINT_VELOCITY)
         {   // We have to check if this is a joint and what type:
-            if (act!=NULL)
+            if (act!=nullptr)
             {
                 if (act->getJointType()==sim_joint_revolute_subtype)
                     v*=gv::radToUser;
@@ -465,7 +465,7 @@ void CGraphingRoutines::adjustDataToUserMetric(const CGraphData* it,float& v,int
     if (dType==GRAPH_3DOBJECT_PATH_POSITION_ANGULAR_COMPONENT)
     { // We have to check if this is a path:
         CPath* path=App::ct->objCont->getPath(it->getDataObjectID());
-        if (path!=NULL)
+        if (path!=nullptr)
         {
                 v*=gv::radToUser;
         }
@@ -490,7 +490,7 @@ void CGraphingRoutines::getCyclicAndRangeValues(const CGraphData* it,bool& cycli
     if (dType==GRAPH_3DOBJECT_JOINT_POSITION)
     { // We have to check if this is a joint and is cyclic:
         CJoint* act=App::ct->objCont->getJoint(it->getDataObjectID());
-        if (act!=NULL)
+        if (act!=nullptr)
         {
             if (act->getPositionIsCyclic())
             {
@@ -503,7 +503,7 @@ void CGraphingRoutines::getCyclicAndRangeValues(const CGraphData* it,bool& cycli
     if (dType==GRAPH_3DOBJECT_PATH_POSITION)
     { // We have to check if this is a path and is cyclic:
         CPath* path=App::ct->objCont->getPath(it->getDataObjectID());
-        if (path!=NULL)
+        if (path!=nullptr)
         {
             if ((path->pathContainer->getAttributes()&sim_pathproperty_closed_path)!=0)
             {
@@ -516,7 +516,7 @@ void CGraphingRoutines::getCyclicAndRangeValues(const CGraphData* it,bool& cycli
     if (dType==GRAPH_3DOBJECT_PATH_POSITION_LINEAR_COMPONENT)
     { // We have to check if this is a path and is cyclic:
         CPath* path=App::ct->objCont->getPath(it->getDataObjectID());
-        if (path!=NULL)
+        if (path!=nullptr)
         {
             if ((path->pathContainer->getAttributes()&sim_pathproperty_closed_path)!=0)
             {
@@ -529,7 +529,7 @@ void CGraphingRoutines::getCyclicAndRangeValues(const CGraphData* it,bool& cycli
     if (dType==GRAPH_3DOBJECT_PATH_POSITION_ANGULAR_COMPONENT)
     { // We have to check if this is a path and is cyclic:
         CPath* path=App::ct->objCont->getPath(it->getDataObjectID());
-        if (path!=NULL)
+        if (path!=nullptr)
         {
             if ((path->pathContainer->getAttributes()&sim_pathproperty_closed_path)!=0)
             {
@@ -779,7 +779,7 @@ bool CGraphingRoutines::getDataValue(int dataIndex,int objectID,float& value,con
 {   // If return value is true, value contains the asked value (used by graphs)
     // If return value is false, the value can't be found here. If it can't be
     // found anywhere, use the default value!
-    // graphCTM is NULL by default
+    // graphCTM is nullptr by default
 
     if ( (dataIndex>GRAPH_NOOBJECT_START)&&(dataIndex<GRAPH_NOOBJECT_END) )
     {
@@ -824,7 +824,7 @@ bool CGraphingRoutines::getDataValue(int dataIndex,int objectID,float& value,con
             for (int i=0;i<int(App::ct->collisions->collisionObjects.size());i++)
             {
                 CRegCollision* aColl=App::ct->collisions->collisionObjects[i];
-                if (aColl!=NULL)
+                if (aColl!=nullptr)
                     if (aColl->getCollisionResult())
                         q++;
             }
@@ -864,7 +864,7 @@ bool CGraphingRoutines::getDataValue(int dataIndex,int objectID,float& value,con
             for (int i=0;i<int(App::ct->objCont->millList.size());i++)
             {
                 float v;
-                CMill* it=(CMill*)App::ct->objCont->getObject(App::ct->objCont->millList[i]);
+                CMill* it=(CMill*)App::ct->objCont->getObjectFromHandle(App::ct->objCont->millList[i]);
                 if (dataIndex==GRAPH_NOOBJECT_MILL_OVERALL_CUT_VOLUME)
                 {
                     if (it->getMilledVolume(v))
@@ -900,7 +900,7 @@ bool CGraphingRoutines::getDataValue(int dataIndex,int objectID,float& value,con
     if ( (dataIndex>GRAPH_IK_START)&&(dataIndex<GRAPH_IK_END) )
     {
         CikGroup* it=App::ct->ikGroups->getIkGroup(objectID);
-        if (it==NULL)
+        if (it==nullptr)
             return(false);
         if (dataIndex==GRAPH_IK_CALCULATION_TIME)
         {
@@ -913,7 +913,7 @@ bool CGraphingRoutines::getDataValue(int dataIndex,int objectID,float& value,con
     if ( (dataIndex>GRAPH_GCS_START)&&(dataIndex<GRAPH_GCS_END) )
     {
         CConstraintSolverObject* it=App::ct->constraintSolver->getObject(objectID);
-        if (it==NULL)
+        if (it==nullptr)
             return(false);
         if (dataIndex==GRAPH_GCS_CALCULATION_TIME)
         {
@@ -926,7 +926,7 @@ bool CGraphingRoutines::getDataValue(int dataIndex,int objectID,float& value,con
     if ( (dataIndex>GRAPH_COLLISION_START)&&(dataIndex<GRAPH_COLLISION_END) )
     {
         CRegCollision* it=App::ct->collisions->getObject(objectID);
-        if (it==NULL)
+        if (it==nullptr)
             return(false);
         if (dataIndex==GRAPH_COLLISION_BOOLEAN)
         {
@@ -950,7 +950,7 @@ bool CGraphingRoutines::getDataValue(int dataIndex,int objectID,float& value,con
     if ( (dataIndex>GRAPH_DISTANCE_START)&&(dataIndex<GRAPH_DISTANCE_END) )
     {
         CRegDist* it=App::ct->distances->getObject(objectID);
-        if (it==NULL)
+        if (it==nullptr)
             return(false);
         float dist[7];
         bool validResult=it->getDistanceResult(dist);
@@ -1003,7 +1003,7 @@ bool CGraphingRoutines::getDataValue(int dataIndex,int objectID,float& value,con
         {
             if (!validResult)
                 return(validResult);
-            if (graphCTM==NULL)
+            if (graphCTM==nullptr)
                 return(false);
             C7Vector graphInv(graphCTM->getInverse());
             C3Vector d0(dist);
@@ -1034,7 +1034,7 @@ bool CGraphingRoutines::getDataValue(int dataIndex,int objectID,float& value,con
     if ( (dataIndex>GRAPH_3DOBJECT_JOINT_SUBSTART)&&(dataIndex<GRAPH_3DOBJECT_JOINT_SUBEND) )
     {
         CJoint* it=App::ct->objCont->getJoint(objectID);
-        if (it==NULL)
+        if (it==nullptr)
             return(false);
         if (dataIndex==GRAPH_3DOBJECT_JOINT_POSITION)
         {
@@ -1073,7 +1073,7 @@ bool CGraphingRoutines::getDataValue(int dataIndex,int objectID,float& value,con
     if ( (dataIndex>GRAPH_3DOBJECT_FORCESENSOR_SUBSTART)&&(dataIndex<GRAPH_3DOBJECT_FORCESENSOR_SUBEND) )
     {
         CForceSensor* it=App::ct->objCont->getForceSensor(objectID);
-        if (it==NULL)
+        if (it==nullptr)
             return(false);
         C3Vector forces;
         C3Vector torques;
@@ -1146,7 +1146,7 @@ bool CGraphingRoutines::getDataValue(int dataIndex,int objectID,float& value,con
     if ( (dataIndex>GRAPH_3DOBJECT_PATH_SUBSTART)&&(dataIndex<GRAPH_3DOBJECT_PATH_SUBEND) )
     {
         CPath* it=App::ct->objCont->getPath(objectID);
-        if (it==NULL)
+        if (it==nullptr)
             return(false);
         if (dataIndex==GRAPH_3DOBJECT_PATH_POSITION)
         {
@@ -1168,8 +1168,8 @@ bool CGraphingRoutines::getDataValue(int dataIndex,int objectID,float& value,con
 
     if ( (dataIndex>GRAPH_3DOBJECT_PROXSENSOR_SUBSTART)&&(dataIndex<GRAPH_3DOBJECT_PROXSENSOR_SUBEND) )
     {
-        C3DObject* it=App::ct->objCont->getObject(objectID);
-        if (it==NULL)
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(objectID);
+        if (it==nullptr)
             return(false);
         if (it->getObjectType()!=sim_object_proximitysensor_type)
             return(false);
@@ -1196,7 +1196,7 @@ bool CGraphingRoutines::getDataValue(int dataIndex,int objectID,float& value,con
             (dataIndex==GRAPH_3DOBJECT_PROXSENSOR_Y_REL)||
             (dataIndex==GRAPH_3DOBJECT_PROXSENSOR_Z_REL) )
         {
-            if (graphCTM==NULL)
+            if (graphCTM==nullptr)
                 return(false);
             C3Vector pt;
             if (sens->getSensedData(pt))
@@ -1297,8 +1297,8 @@ bool CGraphingRoutines::getDataValue(int dataIndex,int objectID,float& value,con
     }
     if ( (dataIndex>GRAPH_3DOBJECT_MILL_SUBSTART)&&(dataIndex<GRAPH_3DOBJECT_MILL_SUBEND) )
     {
-        C3DObject* it=App::ct->objCont->getObject(objectID);
-        if (it==NULL)
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(objectID);
+        if (it==nullptr)
             return(false);
         if (it->getObjectType()!=sim_object_mill_type)
             return(false);
@@ -1333,7 +1333,7 @@ bool CGraphingRoutines::getDataValue(int dataIndex,int objectID,float& value,con
     if ( (dataIndex>GRAPH_3DOBJECT_VISIONSENSOR_SUBSTART)&&(dataIndex<GRAPH_3DOBJECT_VISIONSENSOR_SUBEND) )
     {
         CVisionSensor* it=App::ct->objCont->getVisionSensor(objectID);
-        if (it==NULL)
+        if (it==nullptr)
             return(false);
         SHandlingResult* r=&it->sensorResult;
         if (dataIndex==GRAPH_3DOBJECT_VISIONSENSOR_MIN_RED)
@@ -1465,8 +1465,8 @@ bool CGraphingRoutines::getDataValue(int dataIndex,int objectID,float& value,con
     // DO FOLLOWING ONLY AFTER HAVING HANDLED ALL 3DOBJECT SUB_CATEGORIES (e.g. Joints, paths, sensors, etc.)
     if ( (dataIndex>GRAPH_3DOBJECT_START)&&(dataIndex<GRAPH_3DOBJECT_END) )
     {
-        C3DObject* it=App::ct->objCont->getObject(objectID);
-        if (it==NULL)
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(objectID);
+        if (it==nullptr)
             return(false);
         if ( (dataIndex==GRAPH_3DOBJECT_ALL_X_ABS)||
             (dataIndex==GRAPH_3DOBJECT_ALL_Y_ABS)||
@@ -1499,7 +1499,7 @@ bool CGraphingRoutines::getDataValue(int dataIndex,int objectID,float& value,con
             (dataIndex==GRAPH_3DOBJECT_ALL_GAMMA_REL) )
         {
             C7Vector itCTM(it->getCumulativeTransformationPart1());
-            if (graphCTM==NULL)
+            if (graphCTM==nullptr)
                 return(false);
             C7Vector graphInv(graphCTM->getInverse());
             itCTM=graphInv*itCTM;
@@ -1550,7 +1550,7 @@ bool CGraphingRoutines::getGraphObjectName(int dataIndex,int objectID,std::strin
     if ( (dataIndex>GRAPH_IK_START)&&(dataIndex<GRAPH_IK_END) )
     {
         CikGroup* it=App::ct->ikGroups->getIkGroup(objectID);
-        if (it==NULL)
+        if (it==nullptr)
             return(false);
         objName=it->getObjectName();
         return(true);
@@ -1558,7 +1558,7 @@ bool CGraphingRoutines::getGraphObjectName(int dataIndex,int objectID,std::strin
     if ( (dataIndex>GRAPH_GCS_START)&&(dataIndex<GRAPH_GCS_END) )
     {
         CConstraintSolverObject* it=App::ct->constraintSolver->getObject(objectID);
-        if (it==NULL)
+        if (it==nullptr)
             return(false);
         objName=it->getObjectName();
         return(true);
@@ -1566,7 +1566,7 @@ bool CGraphingRoutines::getGraphObjectName(int dataIndex,int objectID,std::strin
     if ( (dataIndex>GRAPH_COLLISION_START)&&(dataIndex<GRAPH_COLLISION_END) )
     {
         CRegCollision* it=App::ct->collisions->getObject(objectID);
-        if (it==NULL)
+        if (it==nullptr)
             return(false);
         objName=it->getObjectName();
         return(true);
@@ -1574,17 +1574,17 @@ bool CGraphingRoutines::getGraphObjectName(int dataIndex,int objectID,std::strin
     if ( (dataIndex>GRAPH_DISTANCE_START)&&(dataIndex<GRAPH_DISTANCE_END) )
     {
         CRegDist* it=App::ct->distances->getObject(objectID);
-        if (it==NULL)
+        if (it==nullptr)
             return(false);
         objName=it->getObjectName();
         return(true);
     }
     if ( (dataIndex>GRAPH_3DOBJECT_START)&&(dataIndex<GRAPH_3DOBJECT_END) )
     {
-        C3DObject* it=App::ct->objCont->getObject(objectID);
-        if (it==NULL)
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(objectID);
+        if (it==nullptr)
             return(false);
-        objName=it->getName();
+        objName=it->getObjectName();
         return(true);
     }
     if ((dataIndex==GRAPH_NOOBJECT_IK_OVERALL_CALCULATION_TIME)||
@@ -1667,7 +1667,7 @@ bool CGraphingRoutines::getObjectsFromGraphCategory(int index,int dataIndex,int&
         if (index>=int(App::ct->ikGroups->ikGroups.size()))
             return(false);
         CikGroup* it=App::ct->ikGroups->ikGroups[index];
-        if (it==NULL)
+        if (it==nullptr)
             return(false);
         objectID=it->getObjectID();
         return(true);
@@ -1677,7 +1677,7 @@ bool CGraphingRoutines::getObjectsFromGraphCategory(int index,int dataIndex,int&
         if (index>=int(App::ct->constraintSolver->allGcsObjects.size()))
             return(false);
         CConstraintSolverObject* it=App::ct->constraintSolver->allGcsObjects[index];
-        if (it==NULL)
+        if (it==nullptr)
             return(false);
         objectID=it->getObjectID();
         return(true);
@@ -1687,7 +1687,7 @@ bool CGraphingRoutines::getObjectsFromGraphCategory(int index,int dataIndex,int&
         if (index>=int(App::ct->collisions->collisionObjects.size()))
             return(false);
         CRegCollision* it=App::ct->collisions->collisionObjects[index];
-        if (it==NULL)
+        if (it==nullptr)
             return(false);
         objectID=it->getObjectID();
         return(true);
@@ -1697,7 +1697,7 @@ bool CGraphingRoutines::getObjectsFromGraphCategory(int index,int dataIndex,int&
         if (index>=int(App::ct->distances->distanceObjects.size()))
             return(false);
         CRegDist* it=App::ct->distances->distanceObjects[index];
-        if (it==NULL)
+        if (it==nullptr)
             return(false);
         objectID=it->getObjectID();
         return(true);
@@ -1770,7 +1770,7 @@ bool CGraphingRoutines::loopThroughAllAndGetDataValue(int dataIndex,int objectID
 {   // If return value is true, value contains the asked value (used by graphs)
     // If return value is false, the value couldn't be found and you have to use
     // the default value!
-    // graphCTM is NULL by default
+    // graphCTM is nullptr by default
     if (CGraphingRoutines::getDataValue(dataIndex,objectID,value,graphCTM))
         return(true);
     return(false);
@@ -1797,7 +1797,7 @@ void CGraphingRoutines::resetAllGraphs(bool exceptExplicitHandling)
     for (int i=0;i<int(App::ct->objCont->graphList.size());i++)
     {
         CGraph* it=App::ct->objCont->getGraph(App::ct->objCont->graphList[i]);
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             if ( (!it->getExplicitHandling())||(!exceptExplicitHandling) )
                 it->resetGraph();
@@ -1810,7 +1810,7 @@ void CGraphingRoutines::handleAllGraphs(bool exceptExplicitHandling,float time)
     for (int i=0;i<int(App::ct->objCont->graphList.size());i++)
     {
         CGraph* it=App::ct->objCont->getGraph(App::ct->objCont->graphList[i]);
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             if ( (!it->getExplicitHandling())||(!exceptExplicitHandling) )
                 it->addNextPoint(time);

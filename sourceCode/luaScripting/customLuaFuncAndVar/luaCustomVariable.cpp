@@ -10,7 +10,7 @@ CLuaCustomVariable::CLuaCustomVariable(const char* theFullVariableName,const cha
     _hasAutocompletion=true;
     _isDeprecated=(theVariableStackValue==-1);
 
-    if (theVariableValue!=NULL)
+    if (theVariableValue!=nullptr)
     { // we register a simple variable
         _variableValue=theVariableValue;
         _variableStackValue=0; // i.e. not using the stack

@@ -26,8 +26,8 @@ CSimRecorder::CSimRecorder(const char* initialPath)
     _simulationFrameCount=0;
     _recordEveryXRenderedFrame=1;
     _aviGenInitialized=false;
-    _buffer=NULL;
-    _tempBuffer=NULL;
+    _buffer=nullptr;
+    _tempBuffer=nullptr;
     _resolution[0]=640;
     _resolution[1]=480;
     _position[0]=0;
@@ -339,7 +339,7 @@ void CSimRecorder::stopRecording(bool manualStop)
             _aviGenInitialized=false;
             delete[] _tempBuffer;
             delete[] _buffer;
-            _buffer=NULL;
+            _buffer=nullptr;
             std::string tmp(IDS_AVI_FILE_WAS_SAVED);
             tmp+=_filenameAndPathAndExtension+")";
 
@@ -416,11 +416,11 @@ std::string CSimRecorder::getPath(char* userSet)
 {
     if (_pathAndFilename.length()>0)
     {
-        if (userSet!=NULL)
+        if (userSet!=nullptr)
             userSet[0]=1;
         return(_pathAndFilename);
     }
-    if (userSet!=NULL)
+    if (userSet!=nullptr)
         userSet[0]=0;
     return(_path);
 }

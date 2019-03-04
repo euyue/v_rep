@@ -91,7 +91,7 @@ void CDynamicsContainer::simulationAboutToStart()
     // Following is just in case:
     for (int i=0;i<int(App::ct->objCont->objectList.size());i++)
     {
-        C3DObject* it=App::ct->objCont->getObject(App::ct->objCont->objectList[i]);
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
         it->disableDynamicTreeForManipulation(false);
     }
 
@@ -107,7 +107,7 @@ void CDynamicsContainer::simulationEnded()
     // Following is because some shapes might have been disabled because below z=-1000 meters:
     for (int i=0;i<int(App::ct->objCont->objectList.size());i++)
     {
-        C3DObject* it=App::ct->objCont->getObject(App::ct->objCont->objectList[i]);
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
         it->disableDynamicTreeForManipulation(false);
     }
     
@@ -149,8 +149,8 @@ void CDynamicsContainer::handleDynamics(float dt)
 
     for (size_t i=0;i<App::ct->objCont->objectList.size();i++)
     {
-        C3DObject* it=App::ct->objCont->getObject(App::ct->objCont->objectList[i]);
-        if (it!=NULL)
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
+        if (it!=nullptr)
             it->setDynamicObjectFlag_forVisualization(0);
     }
     addWorldIfNotThere();
@@ -393,7 +393,7 @@ void CDynamicsContainer::setDynamicEngineType(int t,int version)
 
 int CDynamicsContainer::getDynamicEngineType(int* version)
 {
-    if (version!=NULL)
+    if (version!=nullptr)
         version[0]=_dynamicEngineVersionToUse;
     return(_dynamicEngineToUse);
 }
@@ -440,13 +440,13 @@ bool CDynamicsContainer::setCurrentDynamicStepSize(float s)
 float CDynamicsContainer::getCurrentDynamicStepSize()
 {
     if (_dynamicEngineToUse==sim_physics_bullet)
-        return(getEngineFloatParam(sim_bullet_global_stepsize,NULL));
+        return(getEngineFloatParam(sim_bullet_global_stepsize,nullptr));
     if (_dynamicEngineToUse==sim_physics_ode)
-        return(getEngineFloatParam(sim_ode_global_stepsize,NULL));
+        return(getEngineFloatParam(sim_ode_global_stepsize,nullptr));
     if (_dynamicEngineToUse==sim_physics_vortex)
-        return(getEngineFloatParam(sim_vortex_global_stepsize,NULL));
+        return(getEngineFloatParam(sim_vortex_global_stepsize,nullptr));
     if (_dynamicEngineToUse==sim_physics_newton)
-        return(getEngineFloatParam(sim_newton_global_stepsize,NULL));
+        return(getEngineFloatParam(sim_newton_global_stepsize,nullptr));
     return(0.0f);
 }
 
@@ -470,19 +470,19 @@ bool CDynamicsContainer::setCurrentIterationCount(int c)
 int CDynamicsContainer::getCurrentIterationCount()
 {
     if (_dynamicEngineToUse==sim_physics_bullet)
-        return(getEngineIntParam(sim_bullet_global_constraintsolvingiterations,NULL));
+        return(getEngineIntParam(sim_bullet_global_constraintsolvingiterations,nullptr));
     if (_dynamicEngineToUse==sim_physics_ode)
-        return(getEngineIntParam(sim_ode_global_constraintsolvingiterations,NULL));
+        return(getEngineIntParam(sim_ode_global_constraintsolvingiterations,nullptr));
     if (_dynamicEngineToUse==sim_physics_vortex)
         return(0); // not available
     if (_dynamicEngineToUse==sim_physics_newton)
-        return(getEngineIntParam(sim_newton_global_constraintsolvingiterations,NULL));
+        return(getEngineIntParam(sim_newton_global_constraintsolvingiterations,nullptr));
     return(0.0f);
 }
 
 float CDynamicsContainer::getEngineFloatParam(int what,bool* ok)
 {
-    if (ok!=NULL)
+    if (ok!=nullptr)
         ok[0]=true;
     if ((what>sim_bullet_global_float_start)&&(what<sim_bullet_global_float_end))
     {
@@ -512,14 +512,14 @@ float CDynamicsContainer::getEngineFloatParam(int what,bool* ok)
         int w=what-sim_newton_global_stepsize+simi_newton_global_stepsize;
         return(fp[w]);
     }
-    if (ok!=NULL)
+    if (ok!=nullptr)
         ok[0]=false;
     return(0.0);
 }
 
 int CDynamicsContainer::getEngineIntParam(int what,bool* ok)
 {
-    if (ok!=NULL)
+    if (ok!=nullptr)
         ok[0]=true;
     if ((what>sim_bullet_global_int_start)&&(what<sim_bullet_global_int_end))
     {
@@ -549,14 +549,14 @@ int CDynamicsContainer::getEngineIntParam(int what,bool* ok)
         int w=what-sim_newton_global_constraintsolvingiterations+simi_newton_global_constraintsolvingiterations;
         return(ip[w]);
     }
-    if (ok!=NULL)
+    if (ok!=nullptr)
         ok[0]=false;
     return(0);
 }
 
 bool CDynamicsContainer::getEngineBoolParam(int what,bool* ok)
 {
-    if (ok!=NULL)
+    if (ok!=nullptr)
         ok[0]=true;
     if ((what>sim_bullet_global_bool_start)&&(what<sim_bullet_global_bool_end))
     {
@@ -594,7 +594,7 @@ bool CDynamicsContainer::getEngineBoolParam(int what,bool* ok)
         getNewtonIntParams(ip); // use this routine, since default params are not in _xxxIntParams
         return((ip[simi_newton_global_bitcoded]&b)!=0);
     }
-    if (ok!=NULL)
+    if (ok!=nullptr)
         ok[0]=false;
     return(0);
 }
@@ -1471,7 +1471,7 @@ void CDynamicsContainer::renderYour3DStuff(CViewableBase* renderingObject,int di
             void** particlesPointer=CPluginContainer::dyn_getParticles(index++,&particlesCount,&objectType,&cols);
             while (particlesCount!=-1)
             {
-                if ((particlesPointer!=NULL)&&(particlesCount>0)&&((objectType&sim_particle_invisible)==0))
+                if ((particlesPointer!=nullptr)&&(particlesCount>0)&&((objectType&sim_particle_invisible)==0))
                 {
                     if ( ((displayAttrib&sim_displayattribute_forvisionsensor)==0)||(objectType&sim_particle_painttag) )
                         displayParticles(particlesPointer,particlesCount,displayAttrib,m,cols,objectType);

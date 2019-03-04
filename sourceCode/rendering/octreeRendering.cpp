@@ -67,14 +67,14 @@ void displayOctree(COctree* octree,CViewableBase* renderingObject,int displayAtt
     C3Vector normalVectorForLinesAndPoints(octree->getCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
 
     // Object display:
-    if (octree->getShouldObjectBeDisplayed(renderingObject->getID(),displayAttrib))
+    if (octree->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
     {
         if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE)==0)
         {
             if (octree->getLocalObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
-                glLoadName(octree->getModelSelectionID());
+                glLoadName(octree->getModelSelectionHandle());
             else
-                glLoadName(octree->getID());
+                glLoadName(octree->getObjectHandle());
         }
         else
             glLoadName(-1);
@@ -84,16 +84,16 @@ void displayOctree(COctree* octree,CViewableBase* renderingObject,int displayAtt
         if ( (displayAttrib&sim_displayattribute_forcewireframe)==0)
             glEnable(GL_CULL_FACE);
 
-        _enableAuxClippingPlanes(octree->getID());
+        _enableAuxClippingPlanes(octree->getObjectHandle());
 
-        if (octree->getOctreeInfo()!=NULL)
+        if (octree->getOctreeInfo()!=nullptr)
         {
             std::vector<float>& _voxelPositions=octree->getCubePositions()[0];
             float* _cubeVertices=octree->getCubeVertices();
-            bool setOtherColor=(App::ct->collisions->getCollisionColor(octree->getID())!=0);
+            bool setOtherColor=(App::ct->collisions->getCollisionColor(octree->getObjectHandle())!=0);
             for (size_t i=0;i<App::ct->collections->allCollections.size();i++)
             {
-                if (App::ct->collections->allCollections[i]->isObjectInCollection(octree->getID()))
+                if (App::ct->collections->allCollections[i]->isObjectInCollection(octree->getObjectHandle()))
                     setOtherColor|=(App::ct->collisions->getCollisionColor(App::ct->collections->allCollections[i]->getCollectionID())!=0);
             }
             if (displayAttrib&sim_displayattribute_forvisionsensor)
@@ -202,7 +202,7 @@ void displayOctree(COctree* octree,CViewableBase* renderingObject,int displayAtt
                         glTranslatef(_voxelPositions[3*i+0],_voxelPositions[3*i+1],_voxelPositions[3*i+2]);
                         int _vertexBufferId=octree->getVertexBufferId();
                         int _normalBufferId=octree->getNormalBufferId();
-                        _drawTriangles(_cubeVertices,24,_cubeIndices,36,_cubeNormals,NULL,&_vertexBufferId,&_normalBufferId,NULL);
+                        _drawTriangles(_cubeVertices,24,_cubeIndices,36,_cubeNormals,nullptr,&_vertexBufferId,&_normalBufferId,nullptr);
                         octree->setVertexBufferId(_vertexBufferId);
                         octree->setNormalBufferId(_normalBufferId);
                         glPopMatrix();
@@ -216,7 +216,7 @@ void displayOctree(COctree* octree,CViewableBase* renderingObject,int displayAtt
                 if (octree->getUsePointsInsteadOfCubes())
                 {
                     glPointSize(float(octree->getPointSize()));
-                    ogl::drawRandom3dPointsEx(&_voxelPositions[0],(int)_voxelPositions.size()/3,NULL,octree->getColors(),NULL,octree->getColorIsEmissive(),normalVectorForLinesAndPoints.data);
+                    ogl::drawRandom3dPointsEx(&_voxelPositions[0],(int)_voxelPositions.size()/3,nullptr,octree->getColors(),nullptr,octree->getColorIsEmissive(),normalVectorForLinesAndPoints.data);
                     glPointSize(1.0);
                 }
                 else
@@ -230,7 +230,7 @@ void displayOctree(COctree* octree,CViewableBase* renderingObject,int displayAtt
                             glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,octree->getColors()+4*i);
                             int _vertexBufferId=octree->getVertexBufferId();
                             int _normalBufferId=octree->getNormalBufferId();
-                            _drawTriangles(_cubeVertices,24,_cubeIndices,36,_cubeNormals,NULL,&_vertexBufferId,&_normalBufferId,NULL);
+                            _drawTriangles(_cubeVertices,24,_cubeIndices,36,_cubeNormals,nullptr,&_vertexBufferId,&_normalBufferId,nullptr);
                             octree->setVertexBufferId(_vertexBufferId);
                             octree->setNormalBufferId(_normalBufferId);
                             glEnd();
@@ -246,7 +246,7 @@ void displayOctree(COctree* octree,CViewableBase* renderingObject,int displayAtt
                             glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,octree->getColors()+4*i);
                             int _vertexBufferId=octree->getVertexBufferId();
                             int _normalBufferId=octree->getNormalBufferId();
-                            _drawTriangles(_cubeVertices,24,_cubeIndices,36,_cubeNormals,NULL,&_vertexBufferId,&_normalBufferId,NULL);
+                            _drawTriangles(_cubeVertices,24,_cubeIndices,36,_cubeNormals,nullptr,&_vertexBufferId,&_normalBufferId,nullptr);
                             octree->setVertexBufferId(_vertexBufferId);
                             octree->setNormalBufferId(_normalBufferId);
                             glEnd();

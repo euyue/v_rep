@@ -2,16 +2,16 @@
 #include "oglExt.h"
 
 #ifndef MAC_VREP
-PFNGLGENFRAMEBUFFERSEXTPROC oglExt::_glGenFramebuffers=NULL;
-PFNGLDELETEFRAMEBUFFERSEXTPROC oglExt::_glDeleteFramebuffers=NULL;
-PFNGLBINDFRAMEBUFFEREXTPROC oglExt::_glBindFramebuffer=NULL;
-PFNGLGENRENDERBUFFERSEXTPROC oglExt::_glGenRenderbuffers=NULL;
-PFNGLDELETERENDERBUFFERSEXTPROC oglExt::_glDeleteRenderbuffers=NULL;
-PFNGLBINDRENDERBUFFEREXTPROC oglExt::_glBindRenderbuffer=NULL;
-PFNGLRENDERBUFFERSTORAGEEXTPROC oglExt::_glRenderbufferStorage=NULL;
-PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC oglExt::_glFramebufferRenderbuffer=NULL;
-PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC oglExt::_glCheckFramebufferStatus=NULL;
-PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC oglExt::_glGetRenderbufferParameteriv=NULL;
+PFNGLGENFRAMEBUFFERSEXTPROC oglExt::_glGenFramebuffers=nullptr;
+PFNGLDELETEFRAMEBUFFERSEXTPROC oglExt::_glDeleteFramebuffers=nullptr;
+PFNGLBINDFRAMEBUFFEREXTPROC oglExt::_glBindFramebuffer=nullptr;
+PFNGLGENRENDERBUFFERSEXTPROC oglExt::_glGenRenderbuffers=nullptr;
+PFNGLDELETERENDERBUFFERSEXTPROC oglExt::_glDeleteRenderbuffers=nullptr;
+PFNGLBINDRENDERBUFFEREXTPROC oglExt::_glBindRenderbuffer=nullptr;
+PFNGLRENDERBUFFERSTORAGEEXTPROC oglExt::_glRenderbufferStorage=nullptr;
+PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC oglExt::_glFramebufferRenderbuffer=nullptr;
+PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC oglExt::_glCheckFramebufferStatus=nullptr;
+PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC oglExt::_glGetRenderbufferParameteriv=nullptr;
 #endif
 
 GLenum oglExt::DEPTH24_STENCIL8=GL_DEPTH24_STENCIL8_EXT;

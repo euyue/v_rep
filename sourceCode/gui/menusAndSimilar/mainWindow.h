@@ -52,7 +52,7 @@ public:
     bool event(QEvent* event);
     void dragEnterEvent(QDragEnterEvent* dEvent);
     void dropEvent(QDropEvent* dEvent);
-    QMenu* createPopupMenu() { return NULL; } // required to avoid having a popup when over the toolbar (and other situations). 4/12/2011
+    QMenu* createPopupMenu() { return nullptr; } // required to avoid having a popup when over the toolbar (and other situations). 4/12/2011
 
     void refreshDimensions();
     void setWindowDimensions(int x,int y,bool clientSurface,bool maximized);

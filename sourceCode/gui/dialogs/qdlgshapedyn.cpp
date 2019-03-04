@@ -45,7 +45,7 @@ void CQDlgShapeDyn::refresh()
     bool lastSelIsNotStatic=false;
     bool lastSelIsConvex=false;
     CShape* it=App::ct->objCont->getLastSelection_shape();
-    CGeomProxy* geom=NULL;
+    CGeomProxy* geom=nullptr;
     if (sel)
     {
         geom=it->geomData;
@@ -176,7 +176,7 @@ void CQDlgShapeDyn::on_qqAdjustEngineProperties_clicked()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         CShape* it=App::ct->objCont->getLastSelection_shape();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             CPropBrowserEngineMaterial dlg(this);//App::mainWindow);
             dlg.setModal(true);
@@ -224,7 +224,7 @@ void CQDlgShapeDyn::on_qqRespondable_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CShape* it=App::ct->objCont->getLastSelection_shape();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             if ((!it->getRespondable())&&(!it->geomData->geomInfo->isPure())&&(!it->geomData->geomInfo->isConvex()))
                 App::uiThread->messageBox_warning(App::mainWindow,strTranslate("Shape"),strTranslate(IDS_MAKING_NON_PURE_CONCAVE_SHAPE_RESPONDABLE_WARNING),VMESSAGEBOX_OKELI);
@@ -240,9 +240,9 @@ void CQDlgShapeDyn::_toggleRespondableBits(int bits)
     IF_UI_EVENT_CAN_READ_DATA
     {
         CShape* it=App::ct->objCont->getLastSelection_shape();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
-            App::appendSimulationThreadCommand(SET_RESPONDABLEMASK_SHAPEDYNGUITRIGGEREDCMD,it->getID(),it->getDynamicCollisionMask()^bits);
+            App::appendSimulationThreadCommand(SET_RESPONDABLEMASK_SHAPEDYNGUITRIGGEREDCMD,it->getObjectHandle(),it->getDynamicCollisionMask()^bits);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -339,9 +339,9 @@ void CQDlgShapeDyn::on_qqMass_editingFinished()
         bool ok;
         float newVal=ui->qqMass->text().toFloat(&ok);
         CShape* shape=App::ct->objCont->getLastSelection_shape();
-        if (ok&&(shape!=NULL))
+        if (ok&&(shape!=nullptr))
         {
-            App::appendSimulationThreadCommand(SET_MASS_SHAPEDYNGUITRIGGEREDCMD,shape->getID(),-1,newVal);
+            App::appendSimulationThreadCommand(SET_MASS_SHAPEDYNGUITRIGGEREDCMD,shape->getObjectHandle(),-1,newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -387,13 +387,13 @@ void CQDlgShapeDyn::on_qqIX_editingFinished()
         CShape* shape=App::ct->objCont->getLastSelection_shape();
         bool ok;
         float newVal=ui->qqIX->text().toFloat(&ok);
-        if (ok&&(shape!=NULL))
+        if (ok&&(shape!=nullptr))
         {
             C3Vector v(shape->geomData->geomInfo->getPrincipalMomentsOfInertia());
             v(0)=newVal;
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_PRINCIPALMOMENTOFINTERIA_SHAPEDYNGUITRIGGEREDCMD;
-            cmd.intParams.push_back(shape->getID());
+            cmd.intParams.push_back(shape->getObjectHandle());
             cmd.floatParams.push_back(v(0));
             cmd.floatParams.push_back(v(1));
             cmd.floatParams.push_back(v(2));
@@ -413,13 +413,13 @@ void CQDlgShapeDyn::on_qqIY_editingFinished()
         CShape* shape=App::ct->objCont->getLastSelection_shape();
         bool ok;
         float newVal=ui->qqIY->text().toFloat(&ok);
-        if (ok&&(shape!=NULL))
+        if (ok&&(shape!=nullptr))
         {
             C3Vector v(shape->geomData->geomInfo->getPrincipalMomentsOfInertia());
             v(1)=newVal;
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_PRINCIPALMOMENTOFINTERIA_SHAPEDYNGUITRIGGEREDCMD;
-            cmd.intParams.push_back(shape->getID());
+            cmd.intParams.push_back(shape->getObjectHandle());
             cmd.floatParams.push_back(v(0));
             cmd.floatParams.push_back(v(1));
             cmd.floatParams.push_back(v(2));
@@ -439,13 +439,13 @@ void CQDlgShapeDyn::on_qqIZ_editingFinished()
         CShape* shape=App::ct->objCont->getLastSelection_shape();
         bool ok;
         float newVal=ui->qqIZ->text().toFloat(&ok);
-        if (ok&&(shape!=NULL))
+        if (ok&&(shape!=nullptr))
         {
             C3Vector v(shape->geomData->geomInfo->getPrincipalMomentsOfInertia());
             v(2)=newVal;
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_PRINCIPALMOMENTOFINTERIA_SHAPEDYNGUITRIGGEREDCMD;
-            cmd.intParams.push_back(shape->getID());
+            cmd.intParams.push_back(shape->getObjectHandle());
             cmd.floatParams.push_back(v(0));
             cmd.floatParams.push_back(v(1));
             cmd.floatParams.push_back(v(2));
@@ -496,13 +496,13 @@ void CQDlgShapeDyn::on_qqPX_editingFinished()
         CShape* shape=App::ct->objCont->getLastSelection_shape();
         bool ok;
         float newVal=ui->qqPX->text().toFloat(&ok);
-        if (ok&&(shape!=NULL))
+        if (ok&&(shape!=nullptr))
         {
             C7Vector tr(shape->geomData->geomInfo->getLocalInertiaFrame());
             tr.X(0)=newVal;
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_COMMATRIX_SHAPEDYNGUITRIGGEREDCMD;
-            cmd.intParams.push_back(shape->getID());
+            cmd.intParams.push_back(shape->getObjectHandle());
             cmd.transfParams.push_back(tr);
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -520,13 +520,13 @@ void CQDlgShapeDyn::on_qqPY_editingFinished()
         CShape* shape=App::ct->objCont->getLastSelection_shape();
         bool ok;
         float newVal=ui->qqPY->text().toFloat(&ok);
-        if (ok&&(shape!=NULL))
+        if (ok&&(shape!=nullptr))
         {
             C7Vector tr(shape->geomData->geomInfo->getLocalInertiaFrame());
             tr.X(1)=newVal;
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_COMMATRIX_SHAPEDYNGUITRIGGEREDCMD;
-            cmd.intParams.push_back(shape->getID());
+            cmd.intParams.push_back(shape->getObjectHandle());
             cmd.transfParams.push_back(tr);
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -544,13 +544,13 @@ void CQDlgShapeDyn::on_qqPZ_editingFinished()
         CShape* shape=App::ct->objCont->getLastSelection_shape();
         bool ok;
         float newVal=ui->qqPZ->text().toFloat(&ok);
-        if (ok&&(shape!=NULL))
+        if (ok&&(shape!=nullptr))
         {
             C7Vector tr(shape->geomData->geomInfo->getLocalInertiaFrame());
             tr.X(2)=newVal;
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_COMMATRIX_SHAPEDYNGUITRIGGEREDCMD;
-            cmd.intParams.push_back(shape->getID());
+            cmd.intParams.push_back(shape->getObjectHandle());
             cmd.transfParams.push_back(tr);
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -568,7 +568,7 @@ void CQDlgShapeDyn::on_qqAlpha_editingFinished()
         CShape* shape=App::ct->objCont->getLastSelection_shape();
         bool ok;
         float newVal=ui->qqAlpha->text().toFloat(&ok);
-        if (ok&&(shape!=NULL))
+        if (ok&&(shape!=nullptr))
         {
             C4X4Matrix m(shape->geomData->geomInfo->getLocalInertiaFrame().getMatrix());
             C3Vector e(m.M.getEulerAngles());
@@ -576,7 +576,7 @@ void CQDlgShapeDyn::on_qqAlpha_editingFinished()
             m.M.setEulerAngles(e);
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_COMMATRIX_SHAPEDYNGUITRIGGEREDCMD;
-            cmd.intParams.push_back(shape->getID());
+            cmd.intParams.push_back(shape->getObjectHandle());
             cmd.transfParams.push_back(m.getTransformation());
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -594,7 +594,7 @@ void CQDlgShapeDyn::on_qqBeta_editingFinished()
         CShape* shape=App::ct->objCont->getLastSelection_shape();
         bool ok;
         float newVal=ui->qqBeta->text().toFloat(&ok);
-        if (ok&&(shape!=NULL))
+        if (ok&&(shape!=nullptr))
         {
             C4X4Matrix m(shape->geomData->geomInfo->getLocalInertiaFrame().getMatrix());
             C3Vector e(m.M.getEulerAngles());
@@ -602,7 +602,7 @@ void CQDlgShapeDyn::on_qqBeta_editingFinished()
             m.M.setEulerAngles(e);
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_COMMATRIX_SHAPEDYNGUITRIGGEREDCMD;
-            cmd.intParams.push_back(shape->getID());
+            cmd.intParams.push_back(shape->getObjectHandle());
             cmd.transfParams.push_back(m.getTransformation());
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -620,7 +620,7 @@ void CQDlgShapeDyn::on_qqGamma_editingFinished()
         CShape* shape=App::ct->objCont->getLastSelection_shape();
         bool ok;
         float newVal=ui->qqGamma->text().toFloat(&ok);
-        if (ok&&(shape!=NULL))
+        if (ok&&(shape!=nullptr))
         {
             C4X4Matrix m(shape->geomData->geomInfo->getLocalInertiaFrame().getMatrix());
             C3Vector e(m.M.getEulerAngles());
@@ -628,7 +628,7 @@ void CQDlgShapeDyn::on_qqGamma_editingFinished()
             m.M.setEulerAngles(e);
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_COMMATRIX_SHAPEDYNGUITRIGGEREDCMD;
-            cmd.intParams.push_back(shape->getID());
+            cmd.intParams.push_back(shape->getObjectHandle());
             cmd.transfParams.push_back(m.getTransformation());
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -681,7 +681,7 @@ void CQDlgShapeDyn::on_qqTensorMatrix_clicked()
             for (int i=0;i<App::ct->objCont->getSelSize();i++)
             {
                 CShape* a=App::ct->objCont->getShape(App::ct->objCont->getSelID(i));
-                if (a!=NULL)
+                if (a!=nullptr)
                 {
                     if ((a==shape)||theDialog.applyToSelection)
                     {

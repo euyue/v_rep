@@ -42,7 +42,7 @@ CIKObject* CIKObjCont::getObjectWithID(int theID)
         if (allObjects[i]->identifier==theID)
             return(allObjects[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 CIKJoint* CIKObjCont::getJointWithData(int theData)
@@ -55,5 +55,5 @@ CIKJoint* CIKObjCont::getJointWithData(int theData)
                 return((CIKJoint*)allObjects[i]);
         }
     }
-    return(NULL);
+    return(nullptr);
 }

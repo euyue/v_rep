@@ -1,7 +1,7 @@
 
 #include "wThread.h"
 
-unsigned int(*Thread::startAddress)(void*)=NULL;
+unsigned int(*Thread::startAddress)(void*)=nullptr;
 volatile bool Thread::startAddressIsFree=false;
 
 Thread::Thread()
@@ -18,7 +18,7 @@ void Thread::run()
     unsigned int(*startAddressAux)(void*);
     startAddressAux=startAddress;
     startAddressIsFree=true;
-    startAddressAux(NULL);
+    startAddressAux(nullptr);
 }
 
 void Thread::threadFinished()

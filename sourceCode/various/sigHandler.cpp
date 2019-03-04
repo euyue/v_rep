@@ -12,7 +12,7 @@
 #endif //!_WIN32
 
 // There can be only ONE SignalHandler per process
-//SignalHandler* g_handler(NULL);
+//SignalHandler* g_handler(nullptr);
 #ifdef _WIN32
     BOOL WINAPI WIN32_handleFunc(DWORD);
     int WIN32_physicalToLogical(DWORD);

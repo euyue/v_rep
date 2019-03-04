@@ -12,48 +12,48 @@
 CMainContainer::CMainContainer()
 {
     FUNCTION_DEBUG;
-    copyBuffer=NULL;
-    sandboxScript=NULL;
-    addOnScriptContainer=NULL;
-    persistentDataContainer=NULL;
-    interfaceStackContainer=NULL;
-    luaCustomFuncAndVarContainer=NULL;
-    customAppData=NULL;
-    simulatorMessageQueue=NULL;
-    commTubeContainer=NULL;
-    signalContainer=NULL;
-    dynamicsContainer=NULL;
-    undoBufferContainer=NULL;
+    copyBuffer=nullptr;
+    sandboxScript=nullptr;
+    addOnScriptContainer=nullptr;
+    persistentDataContainer=nullptr;
+    interfaceStackContainer=nullptr;
+    luaCustomFuncAndVarContainer=nullptr;
+    customAppData=nullptr;
+    simulatorMessageQueue=nullptr;
+    commTubeContainer=nullptr;
+    signalContainer=nullptr;
+    dynamicsContainer=nullptr;
+    undoBufferContainer=nullptr;
 #ifdef SIM_WITH_GUI
-    globalGuiTextureCont=NULL;
+    globalGuiTextureCont=nullptr;
 #endif
 #ifdef SIM_WITH_SERIAL
-    serialPortContainer=NULL;
+    serialPortContainer=nullptr;
 #endif
-    outsideCommandQueue=NULL;
-    buttonBlockContainer=NULL;
-    collections=NULL;
-    distances=NULL;
-    collisions=NULL;
-    environment=NULL;
-    pageContainer=NULL;
-    mainSettings=NULL;
-    pathPlanning=NULL;
-    motionPlanning=NULL;
-    luaScriptContainer=NULL;
-    textureCont=NULL;
-    confContainer=NULL;
-    simulation=NULL;
-    customSceneData=NULL;
-    customSceneData_tempData=NULL;
-    cacheData=NULL;
-    constraintSolver=NULL;
-    drawingCont=NULL;
-    pointCloudCont=NULL;
-    ghostObjectCont=NULL;
-    bannerCont=NULL;
-    ikGroups=NULL;
-    objCont=NULL;
+    outsideCommandQueue=nullptr;
+    buttonBlockContainer=nullptr;
+    collections=nullptr;
+    distances=nullptr;
+    collisions=nullptr;
+    environment=nullptr;
+    pageContainer=nullptr;
+    mainSettings=nullptr;
+    pathPlanning=nullptr;
+    motionPlanning=nullptr;
+    luaScriptContainer=nullptr;
+    textureCont=nullptr;
+    confContainer=nullptr;
+    simulation=nullptr;
+    customSceneData=nullptr;
+    customSceneData_tempData=nullptr;
+    cacheData=nullptr;
+    constraintSolver=nullptr;
+    drawingCont=nullptr;
+    pointCloudCont=nullptr;
+    ghostObjectCont=nullptr;
+    bannerCont=nullptr;
+    ikGroups=nullptr;
+    objCont=nullptr;
 
     currentInstanceIndex=-1;
 }
@@ -83,13 +83,13 @@ void CMainContainer::simulationAboutToStart()
     App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 #endif
 
-    luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforesimulation,NULL,NULL,NULL);
-    addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_beforesimulation,NULL,NULL);
+    luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforesimulation,nullptr,nullptr,nullptr);
+    addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_beforesimulation,nullptr,nullptr);
 
     _initialObjectUniqueIdentifiersForRemovingNewObjects.clear();
     for (int i=0;i<int(objCont->objectList.size());i++)
     {
-        C3DObject* it=objCont->getObject(objCont->objectList[i]);
+        C3DObject* it=objCont->getObjectFromHandle(objCont->objectList[i]);
         _initialObjectUniqueIdentifiersForRemovingNewObjects.push_back(it->getUniqueID());
     }
     POST_SCENE_CHANGED_ANNOUNCEMENT("");
@@ -106,7 +106,7 @@ void CMainContainer::simulationAboutToStart()
     }
 #endif
 
-    if (App::ct->dynamicsContainer->getDynamicEngineType(NULL)==sim_physics_newton)
+    if (App::ct->dynamicsContainer->getDynamicEngineType(nullptr)==sim_physics_newton)
     {
         App::addStatusbarMessage("Warning: the Newton Dynamics plugin is still in a BETA stage, and you might experience strange/inaccurate behaviour, and crashes!");
         printf("Warning: the Newton Dynamics plugin is still in a BETA stage, and you might experience strange/inaccurate behaviour, and crashes!\n");
@@ -116,7 +116,7 @@ void CMainContainer::simulationAboutToStart()
     if (!CPluginContainer::isMeshPluginAvailable())
     {
 #ifdef SIM_WITH_GUI
-        simDisplayDialog_internal("ERROR","The 'MeshCalc' plugin could not be initialized. Collision detection, distance calculation,\nproximity sensor simulation and cutting simulation will not work.",sim_dlgstyle_ok,"",NULL,NULL,NULL);
+        simDisplayDialog_internal("ERROR","The 'MeshCalc' plugin could not be initialized. Collision detection, distance calculation,\nproximity sensor simulation and cutting simulation will not work.",sim_dlgstyle_ok,"",nullptr,nullptr,nullptr);
 #endif
         printf("ERROR: The 'MeshCalc' plugin could not be initialized. Collision detection,\n       distance calculation, proximity sensor simulation and cutting\n       simulation will not work.\n");
     }
@@ -149,7 +149,7 @@ void CMainContainer::simulationAboutToStart()
     undoBufferContainer->simulationAboutToStart();
     commTubeContainer->simulationAboutToStart();
 
-    void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationabouttostart,NULL,NULL,NULL);
+    void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationabouttostart,nullptr,nullptr,nullptr);
     delete[] (char*)retVal;
 
     setModificationFlag(2048); // simulation started
@@ -165,7 +165,7 @@ void CMainContainer::simulationAboutToStart()
         App::addStatusbarMessage("Warning: 'print()' now prints to the status bar, instead of the console (use 'print=printToConsole' to revert).");
 
 #ifdef SIM_WITH_GUI
-    if (App::mainWindow!=NULL)
+    if (App::mainWindow!=nullptr)
         App::mainWindow->simulationRecorder->startRecording(false);
 #endif
 }
@@ -173,8 +173,8 @@ void CMainContainer::simulationAboutToStart()
 void CMainContainer::simulationPaused()
 {
     CLuaScriptObject* mainScript=luaScriptContainer->getMainScript();
-    if (mainScript!=NULL)
-        mainScript->runMainScript(sim_syscb_suspend,NULL,NULL);
+    if (mainScript!=nullptr)
+        mainScript->runMainScript(sim_syscb_suspend,nullptr,nullptr);
     App::setToolbarRefreshFlag();
     App::setFullDialogRefreshFlag();
     App::addStatusbarMessage(IDSNS_SIMULATION_PAUSED);
@@ -183,8 +183,8 @@ void CMainContainer::simulationPaused()
 void CMainContainer::simulationAboutToResume()
 {
     CLuaScriptObject* mainScript=luaScriptContainer->getMainScript();
-    if (mainScript!=NULL)
-        mainScript->runMainScript(sim_syscb_resume,NULL,NULL);
+    if (mainScript!=nullptr)
+        mainScript->runMainScript(sim_syscb_resume,nullptr,nullptr);
     App::setToolbarRefreshFlag();
     App::setFullDialogRefreshFlag();
     App::addStatusbarMessage(IDSNS_SIMULATION_RESUMED);
@@ -201,7 +201,7 @@ void CMainContainer::simulationAboutToEnd()
 {
     FUNCTION_DEBUG;
 
-    void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationabouttoend,NULL,NULL,NULL);
+    void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationabouttoend,nullptr,nullptr,nullptr);
     delete[] (char*)retVal;
 
     luaScriptContainer->simulationAboutToEnd(); // will call a last time the main and all non-threaded child scripts, then reset them
@@ -218,7 +218,7 @@ void CMainContainer::simulationEnded(bool removeNewObjects)
     POST_SCENE_CHANGED_ANNOUNCEMENT(""); // keeps this (this has the objects in their last position, including additional objects)
     simResetMilling_internal(sim_handle_all); // important to reset all shapes and volumes!!! (the instruction in the main script might have been removed!)
 
-    void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationended,NULL,NULL,NULL);
+    void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_simulationended,nullptr,nullptr,nullptr);
     delete[] (char*)retVal;
 
     setModificationFlag(4096); // simulation ended
@@ -273,7 +273,7 @@ void CMainContainer::simulationEnded(bool removeNewObjects)
         std::vector<int> toRemove;
         for (size_t i=0;i<objCont->objectList.size();i++)
         {
-            C3DObject* it=objCont->getObject(objCont->objectList[i]);
+            C3DObject* it=objCont->getObjectFromHandle(objCont->objectList[i]);
             bool found=false;
             for (size_t j=0;j<_initialObjectUniqueIdentifiersForRemovingNewObjects.size();j++)
             {
@@ -284,7 +284,7 @@ void CMainContainer::simulationEnded(bool removeNewObjects)
                 }
             }
             if (!found)
-                toRemove.push_back(it->getID());
+                toRemove.push_back(it->getObjectHandle());
         }
         objCont->eraseSeveralObjects(toRemove,true);
         for (size_t i=0;i<savedSelection.size();i++)
@@ -292,8 +292,8 @@ void CMainContainer::simulationEnded(bool removeNewObjects)
     }
     _initialObjectUniqueIdentifiersForRemovingNewObjects.clear();
     POST_SCENE_CHANGED_ANNOUNCEMENT(""); // keeps this (additional objects were removed, and object positions were reset)
-    luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_aftersimulation,NULL,NULL,NULL);
-    addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_aftersimulation,NULL,NULL);
+    luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_aftersimulation,nullptr,nullptr,nullptr);
+    addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_aftersimulation,nullptr,nullptr);
 }
 
 void CMainContainer::setModificationFlag(int bitMask)
@@ -308,8 +308,8 @@ int CMainContainer::getModificationFlags(bool clearTheFlagsAfter)
     std::vector<int> currentUniqueIdsOfSel;
     for (int i=0;i<int(objCont->getSelSize());i++)
     {
-        C3DObject* it=objCont->getObject(objCont->getSelID(i));
-        if (it!=NULL)
+        C3DObject* it=objCont->getObjectFromHandle(objCont->getSelID(i));
+        if (it!=nullptr)
             currentUniqueIdsOfSel.push_back(it->getUniqueID());
     }
     if (currentUniqueIdsOfSel.size()==_uniqueIdsOfSelectionSinceLastTimeGetAndClearModificationFlagsWasCalled.size())
@@ -337,18 +337,18 @@ int CMainContainer::createNewInstance()
 {
     FUNCTION_DEBUG;
 
-    if (luaScriptContainer!=NULL)
-        luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforeinstanceswitch,NULL,NULL,NULL);
-    addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_beforeinstanceswitch,NULL,NULL);
-    if (sandboxScript!=NULL)
+    if (luaScriptContainer!=nullptr)
+        luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforeinstanceswitch,nullptr,nullptr,nullptr);
+    addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
+    if (sandboxScript!=nullptr)
         sandboxScript->runSandboxScript(sim_syscb_beforeinstanceswitch);
 
-    if (simulation!=NULL)
+    if (simulation!=nullptr)
         simulation->setOnlineMode(false); // disable online mode before switching
 
     // Added following 3 on 25/5/2017:
     int pluginData[4]={currentInstanceIndex,CEnvironment::getNextSceneUniqueId(),0,0};
-    void* pluginReturnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceabouttoswitch,pluginData,NULL,NULL);
+    void* pluginReturnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceabouttoswitch,pluginData,nullptr,nullptr);
     delete[] (char*)pluginReturnVal;
 //    printf("Instance about to switch: next scene unique ID: %i\n",pluginData[1]);
 
@@ -359,65 +359,65 @@ int CMainContainer::createNewInstance()
     App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 #endif
 
-    _undoBufferContainerList.push_back(NULL);
-    _outsideCommandQueueList.push_back(NULL);
-    _simulationList.push_back(NULL);
-    _confContainerList.push_back(NULL);
-    _textureContList.push_back(NULL);
-    _buttonBlockContainerList.push_back(NULL);
-    _collectionList.push_back(NULL);
-    _luaScriptContainerList.push_back(NULL);
-    _distanceList.push_back(NULL);
-    _collisionList.push_back(NULL);
-    _environmentList.push_back(NULL);
-    _pageContainerList.push_back(NULL);
-    _mainSettingsList.push_back(NULL);
-    _pathPlanningList.push_back(NULL);
-    _motionPlanningList.push_back(NULL);
-    _customSceneDataList.push_back(NULL);
-    _customSceneData_tempDataList.push_back(NULL);
-    _cacheDataList.push_back(NULL);
-    _constraintSolverList.push_back(NULL);
-    _drawingContainerList.push_back(NULL);
-    _pointCloudContainerList.push_back(NULL);
-    _ghostObjectContainerList.push_back(NULL);
-    _bannerContainerList.push_back(NULL);
-    _dynamicsContainerList.push_back(NULL);
-    _signalContainerList.push_back(NULL);
-    _commTubeContainerList.push_back(NULL);
-    _ikGroupList.push_back(NULL);
-    _objContList.push_back(NULL);
+    _undoBufferContainerList.push_back(nullptr);
+    _outsideCommandQueueList.push_back(nullptr);
+    _simulationList.push_back(nullptr);
+    _confContainerList.push_back(nullptr);
+    _textureContList.push_back(nullptr);
+    _buttonBlockContainerList.push_back(nullptr);
+    _collectionList.push_back(nullptr);
+    _luaScriptContainerList.push_back(nullptr);
+    _distanceList.push_back(nullptr);
+    _collisionList.push_back(nullptr);
+    _environmentList.push_back(nullptr);
+    _pageContainerList.push_back(nullptr);
+    _mainSettingsList.push_back(nullptr);
+    _pathPlanningList.push_back(nullptr);
+    _motionPlanningList.push_back(nullptr);
+    _customSceneDataList.push_back(nullptr);
+    _customSceneData_tempDataList.push_back(nullptr);
+    _cacheDataList.push_back(nullptr);
+    _constraintSolverList.push_back(nullptr);
+    _drawingContainerList.push_back(nullptr);
+    _pointCloudContainerList.push_back(nullptr);
+    _ghostObjectContainerList.push_back(nullptr);
+    _bannerContainerList.push_back(nullptr);
+    _dynamicsContainerList.push_back(nullptr);
+    _signalContainerList.push_back(nullptr);
+    _commTubeContainerList.push_back(nullptr);
+    _ikGroupList.push_back(nullptr);
+    _objContList.push_back(nullptr);
 
     currentInstanceIndex=int(_objContList.size())-1;
 
-    undoBufferContainer=NULL;
-    outsideCommandQueue=NULL;
-    buttonBlockContainer=NULL;
-    simulation=NULL;
-    confContainer=NULL;
-    textureCont=NULL;
-    luaScriptContainer=NULL;
-    collections=NULL;
-    distances=NULL;
-    collisions=NULL;
-    pathPlanning=NULL;
-    motionPlanning=NULL;
-    environment=NULL;
-    pageContainer=NULL;
-    mainSettings=NULL;
-    customSceneData=NULL;
-    customSceneData_tempData=NULL;
-    cacheData=NULL;
-    constraintSolver=NULL;
-    drawingCont=NULL;
-    pointCloudCont=NULL;
-    ghostObjectCont=NULL;
-    bannerCont=NULL;
-    dynamicsContainer=NULL;
-    signalContainer=NULL;
-    commTubeContainer=NULL;
-    ikGroups=NULL;
-    objCont=NULL;
+    undoBufferContainer=nullptr;
+    outsideCommandQueue=nullptr;
+    buttonBlockContainer=nullptr;
+    simulation=nullptr;
+    confContainer=nullptr;
+    textureCont=nullptr;
+    luaScriptContainer=nullptr;
+    collections=nullptr;
+    distances=nullptr;
+    collisions=nullptr;
+    pathPlanning=nullptr;
+    motionPlanning=nullptr;
+    environment=nullptr;
+    pageContainer=nullptr;
+    mainSettings=nullptr;
+    customSceneData=nullptr;
+    customSceneData_tempData=nullptr;
+    cacheData=nullptr;
+    constraintSolver=nullptr;
+    drawingCont=nullptr;
+    pointCloudCont=nullptr;
+    ghostObjectCont=nullptr;
+    bannerCont=nullptr;
+    dynamicsContainer=nullptr;
+    signalContainer=nullptr;
+    commTubeContainer=nullptr;
+    ikGroups=nullptr;
+    objCont=nullptr;
 
     undoBufferContainer=new CUndoBufferCont();
     outsideCommandQueue=new COutsideCommandQueue();
@@ -477,12 +477,12 @@ int CMainContainer::createNewInstance()
     _ikGroupList[currentInstanceIndex]=ikGroups;
     _objContList[currentInstanceIndex]=objCont;
 
-    addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_afterinstanceswitch,NULL,NULL);
-    if (sandboxScript!=NULL)
+    addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_afterinstanceswitch,nullptr,nullptr);
+    if (sandboxScript!=nullptr)
         sandboxScript->runSandboxScript(sim_syscb_afterinstanceswitch);
 
     int data[4]={getCurrentInstanceIndex(),_environmentList[currentInstanceIndex]->getSceneUniqueID(),0,0};
-    void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceswitch,data,NULL,NULL);
+    void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceswitch,data,nullptr,nullptr);
     delete[] (char*)returnVal;
     setModificationFlag(64); // instance switched
 //    printf("Instance SWITCHED to scene unique ID: %i\n",data[1]);
@@ -509,11 +509,11 @@ int CMainContainer::destroyCurrentInstance()
 
     if (_objContList.size()>1)
     { // only send the switch instance message if there is another instance to switch to:
-        addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_beforeinstanceswitch,NULL,NULL);
-        if (sandboxScript!=NULL)
+        addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
+        if (sandboxScript!=nullptr)
             sandboxScript->runSandboxScript(sim_syscb_beforeinstanceswitch);
         int pluginData[4]={-1,_environmentList[int(_objContList.size())-2]->getSceneUniqueID(),0,0};
-        void* pluginReturnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceabouttoswitch,pluginData,NULL,NULL);
+        void* pluginReturnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceabouttoswitch,pluginData,nullptr,nullptr);
         delete[] (char*)pluginReturnVal;
     }
 
@@ -545,65 +545,65 @@ int CMainContainer::destroyCurrentInstance()
     simulation->setUpDefaultValues();
     pageContainer->emptySceneProcedure();
 
-    if (buttonBlockContainer!=NULL)
+    if (buttonBlockContainer!=nullptr)
         buttonBlockContainer->removeAllBlocks(true);
 
     delete undoBufferContainer;
-    undoBufferContainer=NULL;
+    undoBufferContainer=nullptr;
     delete confContainer;
-    confContainer=NULL;
+    confContainer=nullptr;
     delete luaScriptContainer;
-    luaScriptContainer=NULL;
+    luaScriptContainer=nullptr;
     delete dynamicsContainer;
-    dynamicsContainer=NULL;
+    dynamicsContainer=nullptr;
     delete mainSettings;
-    mainSettings=NULL;
+    mainSettings=nullptr;
     delete objCont;
-    objCont=NULL;
+    objCont=nullptr;
     delete pageContainer;
-    pageContainer=NULL;
+    pageContainer=nullptr;
     delete environment;
-    environment=NULL;
+    environment=nullptr;
     delete pathPlanning;
-    pathPlanning=NULL;
+    pathPlanning=nullptr;
     delete motionPlanning;
-    motionPlanning=NULL;
+    motionPlanning=nullptr;
     delete collisions;
-    collisions=NULL;
+    collisions=nullptr;
     delete distances;
-    distances=NULL;
+    distances=nullptr;
     delete ikGroups;
-    ikGroups=NULL;
+    ikGroups=nullptr;
     delete collections;
-    collections=NULL;
+    collections=nullptr;
     delete textureCont;
-    textureCont=NULL;
+    textureCont=nullptr;
     delete simulation;
-    simulation=NULL;
+    simulation=nullptr;
     delete buttonBlockContainer;
-    buttonBlockContainer=NULL;
+    buttonBlockContainer=nullptr;
     delete outsideCommandQueue;
-    outsideCommandQueue=NULL;
+    outsideCommandQueue=nullptr;
     delete customSceneData;
-    customSceneData=NULL;
+    customSceneData=nullptr;
     delete customSceneData_tempData;
-    customSceneData_tempData=NULL;
+    customSceneData_tempData=nullptr;
     delete cacheData;
-    cacheData=NULL;
+    cacheData=nullptr;
     delete constraintSolver;
-    constraintSolver=NULL;
+    constraintSolver=nullptr;
     delete drawingCont;
-    drawingCont=NULL;
+    drawingCont=nullptr;
     delete pointCloudCont;
-    pointCloudCont=NULL;
+    pointCloudCont=nullptr;
     delete ghostObjectCont;
-    ghostObjectCont=NULL;
+    ghostObjectCont=nullptr;
     delete bannerCont;
-    bannerCont=NULL;
+    bannerCont=nullptr;
     delete signalContainer;
-    signalContainer=NULL;
+    signalContainer=nullptr;
     delete commTubeContainer;
-    commTubeContainer=NULL;
+    commTubeContainer=nullptr;
 
     _undoBufferContainerList.erase(_undoBufferContainerList.begin()+currentInstanceIndex);
     _confContainerList.erase(_confContainerList.begin()+currentInstanceIndex);
@@ -725,7 +725,7 @@ void CMainContainer::emptyScene(bool notCalledFromUndoFunction)
     luaScriptContainer->removeAllScripts(); // Important to have this in first position (e.g. clean-up procedure of scripts might erase objects, etc.)
 
     simulation->setUpDefaultValues();
-    if (buttonBlockContainer!=NULL)
+    if (buttonBlockContainer!=nullptr)
         buttonBlockContainer->emptySceneProcedure(true);
     collections->setUpDefaultValues();
     ikGroups->removeAllIkGroups();
@@ -764,17 +764,17 @@ bool CMainContainer::makeInstanceCurrentFromIndex(int instanceIndex,bool previou
     if (isInstanceSwitchingLocked())
         return(false);
 
-    if (simulation!=NULL)
+    if (simulation!=nullptr)
         simulation->setOnlineMode(false); // disable online mode before switching
 
     if (!previousInstanceWasDestroyed)
     {
-        luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforeinstanceswitch,NULL,NULL,NULL);
-        addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_beforeinstanceswitch,NULL,NULL);
-        if (sandboxScript!=NULL)
+        luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforeinstanceswitch,nullptr,nullptr,nullptr);
+        addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
+        if (sandboxScript!=nullptr)
             sandboxScript->runSandboxScript(sim_syscb_beforeinstanceswitch);
         int pluginData[4]={currentInstanceIndex,_environmentList[instanceIndex]->getSceneUniqueID(),0,0};
-        void* pluginReturnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceabouttoswitch,pluginData,NULL,NULL);
+        void* pluginReturnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceabouttoswitch,pluginData,nullptr,nullptr);
         delete[] (char*)pluginReturnVal;
     }
 
@@ -788,7 +788,7 @@ bool CMainContainer::makeInstanceCurrentFromIndex(int instanceIndex,bool previou
     cmdIn.intParams.push_back(instanceIndex);
     App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
 
-    if (pageContainer!=NULL)
+    if (pageContainer!=nullptr)
         pageContainer->clearAllLastMouseDownViewIndex();
 #endif
 
@@ -823,20 +823,20 @@ bool CMainContainer::makeInstanceCurrentFromIndex(int instanceIndex,bool previou
     ikGroups=_ikGroupList[currentInstanceIndex];
     objCont=_objContList[currentInstanceIndex];
 
-    if (luaScriptContainer!=NULL)
-        luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,NULL,NULL,NULL);
-    addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_afterinstanceswitch,NULL,NULL);
-    if (sandboxScript!=NULL)
+    if (luaScriptContainer!=nullptr)
+        luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
+    addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_afterinstanceswitch,nullptr,nullptr);
+    if (sandboxScript!=nullptr)
         sandboxScript->runSandboxScript(sim_syscb_afterinstanceswitch);
 
     int pluginData[4]={currentInstanceIndex,environment->getSceneUniqueID(),0,0};
-    void* pluginReturnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceswitch,pluginData,NULL,NULL);
+    void* pluginReturnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceswitch,pluginData,nullptr,nullptr);
     delete[] (char*)pluginReturnVal;
     setModificationFlag(64); // instance switched
 //    printf("Instance SWITCHED to scene unique ID: %i\n",pluginData[1]);
 
 #ifdef SIM_WITH_GUI
-    if (App::mainWindow!=NULL)
+    if (App::mainWindow!=nullptr)
     {
         App::mainWindow->editModeContainer->announceSceneInstanceChanged();
         if (VThread::isCurrentThreadTheUiThread())
@@ -865,14 +865,14 @@ bool CMainContainer::makeInstanceCurrentFromIndex(int instanceIndex,bool previou
 
 bool CMainContainer::isInstanceSwitchingLocked()
 {
-    if (simulation==NULL)
+    if (simulation==nullptr)
         return(false);
     if (!simulation->isSimulationStopped())
         return(true);
     if (App::getEditModeType()!=NO_EDIT_MODE)
         return(true);
 #ifdef SIM_WITH_GUI
-    if (App::mainWindow!=NULL)
+    if (App::mainWindow!=nullptr)
     {
         if (App::mainWindow->oglSurface->isViewSelectionActive()||App::mainWindow->oglSurface->isPageSelectionActive())
             return(true);
@@ -955,7 +955,7 @@ void CMainContainer::addMenu(VMenu* menu)
 void CMainContainer::keyPress(int key)
 {
     FUNCTION_DEBUG;
-    if ( (App::mainWindow!=NULL)&&(key==CTRL_E_KEY) )
+    if ( (App::mainWindow!=nullptr)&&(key==CTRL_E_KEY) )
     {
         if ((App::getMouseMode()&0x00ff)==sim_navigation_camerashift)
             App::setMouseMode((App::getMouseMode()&0xff00)|sim_navigation_objectshift);
@@ -985,7 +985,7 @@ int CMainContainer::getInstanceIndexOfASceneNotYetSaved(bool doNotIncludeCurrent
 void CMainContainer::setInstanceIndexWithThumbnails(int index)
 { // GUI THREAD only
     FUNCTION_DEBUG;
-    if ( (App::mainWindow!=NULL)&&(!App::userSettings->doNotShowSceneSelectionThumbnails) )
+    if ( (App::mainWindow!=nullptr)&&(!App::userSettings->doNotShowSceneSelectionThumbnails) )
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId=SWITCH_TOINSTANCEINDEX_GUITRIGGEREDCMD;

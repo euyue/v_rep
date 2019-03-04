@@ -38,7 +38,7 @@ CGeometric::CGeometric()
     _heightfieldYCount=0;
 
     _verticeLocalFrame.setIdentity();
-    _textureProperty=NULL;
+    _textureProperty=nullptr;
 
     _vertexBufferId=-1;
     _normalBufferId=-1;
@@ -91,10 +91,10 @@ void CGeometric::display_extRenderer(CGeomProxy* geomData,int displayAttrib,cons
         if (_extRendererTextureId==0)
         { // first time we render this item
             _extRendererTexture_lastTextureId=(unsigned int)-1;
-            if (_textureProperty!=NULL)
+            if (_textureProperty!=nullptr)
             {
                 CTextureObject* to=_textureProperty->getTextureObject();
-                if (to!=NULL)
+                if (to!=nullptr)
                     _extRendererTexture_lastTextureId=to->getCurrentTextureContentUniqueId();
             }
             _extRendererTextureId=_extRendererUniqueTextureID++;
@@ -102,10 +102,10 @@ void CGeometric::display_extRenderer(CGeomProxy* geomData,int displayAttrib,cons
         else
         { // we already rendered this item. Did it change?
             unsigned int tex=(unsigned int)-1;
-            if (_textureProperty!=NULL)
+            if (_textureProperty!=nullptr)
             {
                 CTextureObject* to=_textureProperty->getTextureObject();
-                if (to!=NULL)
+                if (to!=nullptr)
                     tex=to->getCurrentTextureContentUniqueId();
             }
             if (tex!=_extRendererTexture_lastTextureId)
@@ -178,22 +178,22 @@ void CGeometric::display_extRenderer(CGeomProxy* geomData,int displayAttrib,cons
 
         CTextureProperty* tp=_textureProperty;
         if ((!App::ct->environment->getShapeTexturesEnabled())||CEnvironment::getShapeTexturesTemporarilyDisabled())
-            tp=NULL;
+            tp=nullptr;
         bool textured=false;
-        std::vector<float>* textureCoords=NULL;
-        if (tp!=NULL)
+        std::vector<float>* textureCoords=nullptr;
+        if (tp!=nullptr)
         {
             textured=true;
             textureCoords=tp->getTextureCoordinates(geomData->getGeomDataModificationCounter(),_verticeLocalFrame,_vertices,_indices);
-            if (textureCoords==NULL)
+            if (textureCoords==nullptr)
                 return; // Should normally never happen
             data[9]=&(textureCoords[0])[0];
             int texCoordSize=(int)textureCoords->size()/2;
             data[10]=&texCoordSize;
             CTextureObject* to=tp->getTextureObject();
-            if (to==NULL)
+            if (to==nullptr)
                 return; // should normally never happen
-            data[11]=to->getTextureBufferPointer();
+            data[11]=(unsigned char*)to->getTextureBufferPointer();
             int sx,sy;
             to->getTextureSize(sx,sy);
             data[12]=&sx;
@@ -220,44 +220,44 @@ void CGeometric::display_extRenderer(CGeomProxy* geomData,int displayAttrib,cons
 
 void CGeometric::perform3DObjectLoadingMapping(std::vector<int>* map)
 { // function has virtual/non-virtual counterpart!
-    if (_textureProperty!=NULL)
+    if (_textureProperty!=nullptr)
         _textureProperty->performObjectLoadingMapping(map);
 }
 
 void CGeometric::performTextureObjectLoadingMapping(std::vector<int>* map)
 { // function has virtual/non-virtual counterpart!
-    if (_textureProperty!=NULL)
+    if (_textureProperty!=nullptr)
         _textureProperty->performTextureObjectLoadingMapping(map);
 }
 
 void CGeometric::announce3DObjectWillBeErased(int objectID)
 { // function has virtual/non-virtual counterpart!
-    if (_textureProperty!=NULL)
+    if (_textureProperty!=nullptr)
     {
         if (_textureProperty->announceObjectWillBeErased(objectID))
         {
             delete _textureProperty;
-            _textureProperty=NULL;
+            _textureProperty=nullptr;
         }
     }
 }
 
 void CGeometric::setTextureDependencies(int shapeID)
 { // function has virtual/non-virtual counterpart!
-    if (_textureProperty!=NULL)
+    if (_textureProperty!=nullptr)
         _textureProperty->addTextureDependencies(shapeID,_uniqueID);
 }
 
 int CGeometric::getTextureCount()
 { // function has virtual/non-virtual counterpart!
-    if (_textureProperty!=NULL)
+    if (_textureProperty!=nullptr)
         return(1);
     return(0);
 }
 
 bool CGeometric::hasTextureThatUsesFixedTextureCoordinates()
 { // function has virtual/non-virtual counterpart!
-    if (_textureProperty!=NULL)
+    if (_textureProperty!=nullptr)
         return(_textureProperty->getFixedCoordinates());
     return(false);
 }
@@ -310,7 +310,7 @@ CGeometric* CGeometric::copyYourself()
     increaseNormalBufferRefCnt(_normalBufferId);
     increaseEdgeBufferRefCnt(_edgeBufferId);
 
-    if (_textureProperty!=NULL)
+    if (_textureProperty!=nullptr)
         newIt->_textureProperty=_textureProperty->copyYourself();
 
     return(newIt);
@@ -360,7 +360,7 @@ void CGeometric::scale(float xVal,float yVal,float zVal)
             _heightfieldHeights[i]*=zVal;
     }
 
-    if ((_textureProperty!=NULL)&&(fabs(xVal-yVal)<fabs(xVal*0.01f))&&(fabs(xVal-zVal)<fabs(xVal*0.01f))) // we only scale texture prop if scaling is isometric, otherwise difficult to adjust geom size for texture!
+    if ((_textureProperty!=nullptr)&&(fabs(xVal-yVal)<fabs(xVal*0.01f))&&(fabs(xVal-zVal)<fabs(xVal*0.01f))) // we only scale texture prop if scaling is isometric, otherwise difficult to adjust geom size for texture!
         _textureProperty->scaleObject(xVal);
 
     if ((xVal!=yVal)||(xVal!=zVal))
@@ -398,7 +398,7 @@ void CGeometric::setMesh(const std::vector<float>& vertices,const std::vector<in
 {
     _vertices.assign(vertices.begin(),vertices.end());
     _indices.assign(indices.begin(),indices.end());
-    if (normals==NULL)
+    if (normals==nullptr)
     {
         CMeshManip::getNormals(&_vertices,&_indices,&_normals);
         _recomputeNormals();
@@ -495,12 +495,12 @@ void CGeometric::getCumulativeMeshes(std::vector<float>& vertices,std::vector<in
         vertices.push_back(v(1));
         vertices.push_back(v(2));
     }
-    if (indices!=NULL)
+    if (indices!=nullptr)
     {
         for (int i=0;i<int(_indices.size());i++)
             indices->push_back(_indices[i]+offset);
     }
-    if (normals!=NULL)
+    if (normals!=nullptr)
     {
         C4Vector rot(_verticeLocalFrame.Q);
         for (int i=0;i<int(_normals.size())/3;i++)
@@ -516,7 +516,7 @@ void CGeometric::getCumulativeMeshes(std::vector<float>& vertices,std::vector<in
 
 void CGeometric::setColor(const char* colorName,int colorComponent,const float* rgbData)
 { // function has virtual/non-virtual counterpart!
-    if ( (colorName==NULL)||(color.colorName.compare(colorName)==0) )
+    if ( (colorName==nullptr)||(color.colorName.compare(colorName)==0) )
     {
         if (colorComponent<4)
         { // regular components
@@ -534,7 +534,7 @@ void CGeometric::setColor(const char* colorName,int colorComponent,const float* 
                 color.colors[12+i]=rgbData[i];
         }
     }
-    if ((colorName!=NULL)&&(insideColor_DEPRECATED.colorName.compare(colorName)==0))
+    if ((colorName!=nullptr)&&(insideColor_DEPRECATED.colorName.compare(colorName)==0))
     {
         if (colorComponent<4)
         { // regular components
@@ -552,7 +552,7 @@ void CGeometric::setColor(const char* colorName,int colorComponent,const float* 
                 insideColor_DEPRECATED.colors[12+i]=rgbData[i];
         }
     }
-    if ((colorName!=NULL)&&(edgeColor_DEPRECATED.colorName.compare(colorName)==0))
+    if ((colorName!=nullptr)&&(edgeColor_DEPRECATED.colorName.compare(colorName)==0))
     {
         if (colorComponent<4)
         { // regular components
@@ -567,7 +567,7 @@ void CGeometric::setColor(const char* colorName,int colorComponent,const float* 
     }
 
 
-    if ( (colorName!=NULL)&&(strlen(colorName)==2)&&(colorName[0]=='@') )
+    if ( (colorName!=nullptr)&&(strlen(colorName)==2)&&(colorName[0]=='@') )
     { // operations in the HSL space
         if (colorName[1]=='0')
         { // outside color
@@ -646,7 +646,7 @@ void CGeometric::setColor(const char* colorName,int colorComponent,const float* 
 
 bool CGeometric::getColor(const char* colorName,int colorComponent,float* rgbData)
 { // function has virtual/non-virtual counterpart!
-    if ( (colorName==NULL)||(color.colorName.compare(colorName)==0) )
+    if ( (colorName==nullptr)||(color.colorName.compare(colorName)==0) )
     {
         if (colorComponent<4)
         { // regular components
@@ -667,7 +667,7 @@ bool CGeometric::getColor(const char* colorName,int colorComponent,float* rgbDat
         }
         return(false);
     }
-    if ((colorName!=NULL)&&(insideColor_DEPRECATED.colorName.compare(colorName)==0))
+    if ((colorName!=nullptr)&&(insideColor_DEPRECATED.colorName.compare(colorName)==0))
     {
         if (colorComponent<4)
         { // regular components
@@ -688,7 +688,7 @@ bool CGeometric::getColor(const char* colorName,int colorComponent,float* rgbDat
         }
         return(false);
     }
-    if ((colorName!=NULL)&&(edgeColor_DEPRECATED.colorName.compare(colorName)==0))
+    if ((colorName!=nullptr)&&(edgeColor_DEPRECATED.colorName.compare(colorName)==0))
     {
         if (colorComponent<4)
         { // regular components
@@ -714,11 +714,11 @@ void CGeometric::getAllShapeComponentsCumulative(std::vector<CGeometric*>& shape
 CGeometric* CGeometric::getShapeComponentAtIndex(int& index)
 { // function has virtual/non-virtual counterpart!
     if (index<0)
-        return(NULL);
+        return(nullptr);
     if (index==0)
         return(this);
     index--;
-    return(NULL);
+    return(nullptr);
 }
 
 int CGeometric::getUniqueID()
@@ -736,16 +736,16 @@ void CGeometric::setHeightfieldData(const std::vector<float>& heights,int xCount
 
 float* CGeometric::getHeightfieldData(int& xCount,int& yCount,float& minHeight,float& maxHeight)
 {
-    if (App::ct->dynamicsContainer->getDynamicEngineType(NULL)==sim_physics_bullet)
+    if (App::ct->dynamicsContainer->getDynamicEngineType(nullptr)==sim_physics_bullet)
         setHeightfieldDiamonds(0);
-    if (App::ct->dynamicsContainer->getDynamicEngineType(NULL)==sim_physics_ode)
+    if (App::ct->dynamicsContainer->getDynamicEngineType(nullptr)==sim_physics_ode)
         setHeightfieldDiamonds(1);
-    if (App::ct->dynamicsContainer->getDynamicEngineType(NULL)==sim_physics_vortex)
+    if (App::ct->dynamicsContainer->getDynamicEngineType(nullptr)==sim_physics_vortex)
         setHeightfieldDiamonds(0);
-    if (App::ct->dynamicsContainer->getDynamicEngineType(NULL)==sim_physics_newton)
+    if (App::ct->dynamicsContainer->getDynamicEngineType(nullptr)==sim_physics_newton)
         setHeightfieldDiamonds(0);
     if ( (_purePrimitive!=sim_pure_primitive_heightfield)||(_heightfieldHeights.size()==0) )
-        return(NULL);
+        return(nullptr);
     xCount=_heightfieldXCount;
     yCount=_heightfieldYCount;
     minHeight=+99999999.0f;
@@ -994,14 +994,14 @@ void CGeometric::preMultiplyAllVerticeLocalFrames(const C7Vector& preTr)
 
     _verticeLocalFrame=preTr*_verticeLocalFrame;
 
-    if (_textureProperty!=NULL)
+    if (_textureProperty!=nullptr)
         _textureProperty->adjustForFrameChange(preTr);
 }
 
 void CGeometric::removeAllTextures()
 { // function has virtual/non-virtual counterpart!
     delete _textureProperty;
-    _textureProperty=NULL;
+    _textureProperty=nullptr;
 }
 
 void CGeometric::getColorStrings(std::string& colorStrings)
@@ -1153,7 +1153,7 @@ void CGeometric::_computeVisibleEdges()
     float softAngle=_edgeThresholdAngle;
     _edges.clear();
     std::vector<int> eIDs;
-    CMeshRoutines::getEdgeFeatures(&_vertices[0],(int)_vertices.size(),&_indices[0],(int)_indices.size(),NULL,&eIDs,NULL,softAngle,true,_hideEdgeBorders);
+    CMeshRoutines::getEdgeFeatures(&_vertices[0],(int)_vertices.size(),&_indices[0],(int)_indices.size(),nullptr,&eIDs,nullptr,softAngle,true,_hideEdgeBorders);
     _edges.assign((_indices.size()/8)+1,0);
     std::vector<bool> usedEdges(_indices.size(),false);
     for (int i=0;i<int(eIDs.size());i++)
@@ -1693,7 +1693,7 @@ void CGeometric::serialize(CSer& ar)
         ar << nothing;
         ar.flush();
 
-        if (_textureProperty!=NULL)
+        if (_textureProperty!=nullptr)
         {
             ar.storeDataName("Toj");
             ar.setCountingMode();
@@ -1986,12 +1986,12 @@ void CGeometric::displayGhost(CGeomProxy* geomData,int displayAttrib,bool origin
 #ifdef SIM_WITH_GUI
 bool CGeometric::getNonCalculatedTextureCoordinates(std::vector<float>& texCoords)
 {
-    if (_textureProperty==NULL)
+    if (_textureProperty==nullptr)
         return(false);
     C7Vector dummyTr;
     dummyTr.setIdentity();
     std::vector<float>* tc=_textureProperty->getTextureCoordinates(-1,dummyTr,_vertices,_indices);
-    if (tc==NULL)
+    if (tc==nullptr)
         return(false);
     if (!_textureProperty->getFixedCoordinates())
         return(false);

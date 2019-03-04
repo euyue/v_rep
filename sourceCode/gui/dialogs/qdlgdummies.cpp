@@ -62,8 +62,8 @@ void CQDlgDummies::refresh()
             CDummy* it2=App::ct->objCont->getDummy(App::ct->objCont->dummyList[i]);
             if (it2!=it)
             {
-                names.push_back(it2->getName());
-                ids.push_back(it2->getID());
+                names.push_back(it2->getObjectName());
+                ids.push_back(it2->getObjectHandle());
             }
         }
         tt::orderStrings(names,ids);
@@ -164,7 +164,7 @@ void CQDlgDummies::on_qqApplyMainProperties_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CDummy* it=App::ct->objCont->getLastSelection_dummy();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId=APPLY_VISUALPROP_DUMMYGUITRIGGEREDCMD;

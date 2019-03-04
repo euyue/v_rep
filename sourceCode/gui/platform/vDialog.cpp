@@ -81,14 +81,14 @@ void VDialog::bringDialogToTop()
 }
 
 void VDialog::getDialogPositionAndSize(int post[2],int sizet[2])
-{ // pos and size can be NULL
+{ // pos and size can be nullptr
     QRect geom(geometry());
-    if (sizet!=NULL)
+    if (sizet!=nullptr)
     {
         sizet[0]=geom.width();
         sizet[1]=geom.height();
     }
-    if (post!=NULL)
+    if (post!=nullptr)
     {
         post[0]=geom.x();
         post[1]=geom.y();
@@ -96,18 +96,18 @@ void VDialog::getDialogPositionAndSize(int post[2],int sizet[2])
 }
 
 void VDialog::setDialogPositionAndSize(int post[2],int sizet[2])
-{ // pos and size can be NULL
+{ // pos and size can be nullptr
     QRect geom(geometry());
-    if (post!=NULL)
+    if (post!=nullptr)
     {
-        if (sizet==NULL)
+        if (sizet==nullptr)
             setGeometry(post[0],post[1],geom.width(),geom.height());
         else
             setGeometry(post[0],post[1],sizet[0],sizet[1]);
     }
     else
     {
-        if (sizet!=NULL)
+        if (sizet!=nullptr)
             setGeometry(geom.x(),geom.y(),sizet[0],sizet[1]);
     }
 }

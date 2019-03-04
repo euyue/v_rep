@@ -47,7 +47,7 @@ void CViewableBase::setDisabledColorComponents(int c)
 
 C3DObject* CViewableBase::copyYourself() 
 {
-    return(NULL);
+    return(nullptr);
 }
 void CViewableBase::display(CViewableBase* renderingObject,int displayAttrib)
 {

@@ -27,7 +27,7 @@ void CTextureProperty::setTextureMapMode(int mode)
 {
     if ((_textureCoordinateMode!=mode)||getFixedCoordinates())
     {
-        setFixedCoordinates(NULL);
+        setFixedCoordinates(nullptr);
         _calculatedTextureCoordinates.clear();
         _textureCoordinateMode=mode;
         if (mode==sim_texturemap_cylinder)
@@ -54,7 +54,7 @@ int CTextureProperty::getTextureMapMode()
 
 void CTextureProperty::_commonInit()
 {
-    _startedTexture=NULL;
+    _startedTexture=nullptr;
     _interpolateColor=false;
     _applyMode=0; // modulate
     _repeatU=false;
@@ -95,7 +95,7 @@ bool CTextureProperty::getRepeatV()
 void CTextureProperty::addTextureDependencies(int objID,int objSubID)
 {
     CTextureObject* it=App::ct->textureCont->getObject(_textureOrVisionSensorObjectID);
-    if (it!=NULL)
+    if (it!=nullptr)
         it->addDependentObject(objID,objSubID);
 }
 
@@ -142,16 +142,16 @@ std::vector<float>* CTextureProperty::getFixedTextureCoordinates()
 {
     if (_fixedTextureCoordinates.size()!=0)
         return(&_fixedTextureCoordinates);
-    return(NULL);
+    return(nullptr);
 }
 
 std::vector<float>* CTextureProperty::getTextureCoordinates(int objectStateId,const C7Vector& transf,const std::vector<float>& vertices,const std::vector<int>& triangles)
-{ // can return NULL if texture needs to be destroyed!
+{ // can return nullptr if texture needs to be destroyed!
     if (_fixedTextureCoordinates.size()!=0)
     { // We have fixed coordinates!
         if ( (triangles.size()==_fixedTextureCoordinates.size()/2) )
             return(&_fixedTextureCoordinates);
-        return(NULL); // texture needs to be destroyed
+        return(nullptr); // texture needs to be destroyed
     }
 
     if ( (objectStateId==_objectStateId)&&(triangles.size()==_calculatedTextureCoordinates.size()/2) )
@@ -170,20 +170,20 @@ std::vector<float>* CTextureProperty::getTextureCoordinates(int objectStateId,co
 
     _calculatedTextureCoordinates.clear();
     C7Vector tr(_textureRelativeConfig.getInverse()*transf);
-    CTextureObject* it=NULL;
+    CTextureObject* it=nullptr;
     if ( (_textureOrVisionSensorObjectID>=SIM_IDSTART_TEXTURE)&&(_textureOrVisionSensorObjectID<=SIM_IDEND_TEXTURE) )
         it=App::ct->textureCont->getObject(_textureOrVisionSensorObjectID);
     else
     {
 #ifdef SIM_WITH_OPENGL
         CVisionSensor* rend=App::ct->objCont->getVisionSensor(_textureOrVisionSensorObjectID);
-        if (rend!=NULL)
+        if (rend!=nullptr)
             it=rend->getTextureObject();
 #endif
     }
     float xs=1.0f;
     float ys=1.0f;
-    if (it!=NULL)
+    if (it!=nullptr)
     {
         _objectStateId=objectStateId;
         int sizeX,sizeY;
@@ -437,11 +437,11 @@ CTextureObject* CTextureProperty::getTextureObject()
     if ((_textureOrVisionSensorObjectID>=SIM_IDSTART_3DOBJECT)&&(_textureOrVisionSensorObjectID<=SIM_IDEND_3DOBJECT))
     {
         CVisionSensor* rs=App::ct->objCont->getVisionSensor(_textureOrVisionSensorObjectID);
-        if (rs!=NULL)
+        if (rs!=nullptr)
             return(rs->getTextureObject());
     }
 #endif
-    return(NULL);
+    return(nullptr);
 }
 
 bool CTextureProperty::announceObjectWillBeErased(int objID)
@@ -477,9 +477,9 @@ void CTextureProperty::setTextureRelativeConfig(const C7Vector& c)
 }
 
 void CTextureProperty::setFixedCoordinates(std::vector<float>* coords)
-{ // NULL to remove them and have calculated coords
+{ // nullptr to remove them and have calculated coords
     _fixedTextureCoordinates.clear();
-    if ( (coords!=NULL)&&(coords->size()!=0) )
+    if ( (coords!=nullptr)&&(coords->size()!=0) )
     {
         _fixedTextureCoordinates.assign(coords->begin(),coords->end());
         _repeatU=true;

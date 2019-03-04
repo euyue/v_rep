@@ -142,10 +142,10 @@ void CApiErrors::setApiCallErrorMessage(const char* functionName,const char* err
                 std::cout << tmp.c_str() << std::endl;
             }
         }
-        else if ((App::ct!=NULL)&&(App::ct->luaScriptContainer!=NULL))
+        else if ((App::ct!=nullptr)&&(App::ct->luaScriptContainer!=nullptr))
         { // Lua API (or C API called-back from Lua, which calls 'simSetLastError' (typically a plugin that was called-back via a custom Lua function, and that needs to output an error to the GUI console))
             CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(loc);
-            if (it!=NULL)
+            if (it!=nullptr)
                 _cSideGeneratedLuaError=errMsg;
         }
     }
@@ -189,10 +189,10 @@ void CApiErrors::setLuaCallErrorMessage(const char* functionName,const char* err
     int loc=_getCurrentLocation(true);
     if (loc>1)
     {
-        if ((App::ct!=NULL)&&(App::ct->luaScriptContainer!=NULL))
+        if ((App::ct!=nullptr)&&(App::ct->luaScriptContainer!=nullptr))
         { // Lua API (or C API called-back from Lua, which calls 'simSetLastError' (typically a plugin that was called-back via a custom Lua function, and that needs to output an error to the GUI console))
             CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(loc);
-            if (it!=NULL)
+            if (it!=nullptr)
             {
                 // Here we can react to errors:
                 App::ct->simulation->pauseOnErrorRequested();
@@ -225,10 +225,10 @@ void CApiErrors::setLuaCallWarningMessage(const char* functionName,const char* w
     int loc=_getCurrentLocation(true);
     if (loc>1)
     {
-        if ((App::ct!=NULL)&&(App::ct->luaScriptContainer!=NULL))
+        if ((App::ct!=nullptr)&&(App::ct->luaScriptContainer!=nullptr))
         { // Lua API (or C API called-back from Lua, which calls 'simSetLastError' (typically a plugin that was called-back via a custom Lua function, and that needs to output an error to the GUI console))
             CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(loc);
-            if (it!=NULL)
+            if (it!=nullptr)
             {
                 msg=getLocationString()+msg;
                 if ((it->getErrorReportMode()&sim_api_error_output)!=0)
@@ -281,10 +281,10 @@ void CApiErrors::setLuaCallErrorMessage_fromPlugin(const char* functionName,cons
         cmdIn.cmdId=FLASH_STATUSBAR_UITHREADCMD;
         App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
     }
-    else if ((App::ct!=NULL)&&(App::ct->luaScriptContainer!=NULL))
+    else if ((App::ct!=nullptr)&&(App::ct->luaScriptContainer!=nullptr))
     { // Lua API (or C API called-back from Lua, which calls 'simSetLastError' (typically a plugin that was called-back via a custom Lua function, and that needs to output an error to the GUI console))
         CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(loc);
-        if (it!=NULL)
+        if (it!=nullptr)
             _cSideGeneratedLuaError=errMsg;
     }
 }
@@ -325,10 +325,10 @@ void CApiErrors::setLuaCallWarningMessage_fromPlugin(const char* functionName,co
         std::string tmp="Warning: "+msg;
         App::addStatusbarMessage(tmp.c_str());
     }
-    else if ((App::ct!=NULL)&&(App::ct->luaScriptContainer!=NULL))
+    else if ((App::ct!=nullptr)&&(App::ct->luaScriptContainer!=nullptr))
     { // Lua API (or C API called-back from Lua, which calls 'simSetLastError' (typically a plugin that was called-back via a custom Lua function, and that needs to output an error to the GUI console))
         CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(loc);
-        if (it!=NULL)
+        if (it!=nullptr)
             _cSideGeneratedLuaWarnings.push_back(warnMsg);
     }
 }
@@ -340,10 +340,10 @@ void CApiErrors::clearApiCallErrorMessage()
         _c_gui_lastError=SIM_API_CALL_NO_ERROR;
     else if (loc==1)
         _c_nonGui_lastError=SIM_API_CALL_NO_ERROR;
-    else if ((App::ct!=NULL)&&(App::ct->luaScriptContainer!=NULL))
+    else if ((App::ct!=nullptr)&&(App::ct->luaScriptContainer!=nullptr))
     {
         CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(loc);
-        if (it!=NULL)
+        if (it!=nullptr)
             it->setLastErrorString(SIM_API_CALL_NO_ERROR);
     }
 }
@@ -355,10 +355,10 @@ std::string CApiErrors::getApiCallErrorMessage()
         return(_c_gui_lastError);
     if (loc==1)
         return(_c_nonGui_lastError);
-    if ((App::ct!=NULL)&&(App::ct->luaScriptContainer!=NULL))
+    if ((App::ct!=nullptr)&&(App::ct->luaScriptContainer!=nullptr))
     {
         CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(loc);
-        if (it!=NULL)
+        if (it!=nullptr)
             return(it->getLastErrorString());
     }
     return(SIM_API_CALL_NO_ERROR);
@@ -371,10 +371,10 @@ void CApiErrors::setApiCallErrorReportMode(int mode)
         _c_gui_errorReportMode=mode;
     else if (loc==1)
         _c_nonGui_errorReportMode=mode;
-    else if ((App::ct!=NULL)&&(App::ct->luaScriptContainer!=NULL))
+    else if ((App::ct!=nullptr)&&(App::ct->luaScriptContainer!=nullptr))
     {
         CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(loc);
-        if (it!=NULL)
+        if (it!=nullptr)
             it->setErrorReportMode(mode);
     }
 }
@@ -386,10 +386,10 @@ int CApiErrors::getApiCallErrorReportMode()
         return(_c_gui_errorReportMode);
     if (loc==1)
         return(_c_nonGui_errorReportMode);
-    if ((App::ct!=NULL)&&(App::ct->luaScriptContainer!=NULL))
+    if ((App::ct!=nullptr)&&(App::ct->luaScriptContainer!=nullptr))
     {
         CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(loc);
-        if (it!=NULL)
+        if (it!=nullptr)
             return(it->getErrorReportMode());
     }
     return(0);
@@ -428,10 +428,10 @@ void CApiErrors::setApiCallWarningMessage(const char* functionName,const char* w
 //          std::cout << tmp.c_str() << std::endl;
         }
     }
-    else if ((App::ct!=NULL)&&(App::ct->luaScriptContainer!=NULL))
+    else if ((App::ct!=nullptr)&&(App::ct->luaScriptContainer!=nullptr))
     {
         CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(loc);
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             if ((it->getErrorReportMode()&sim_api_warning_output)!=0)
             {

@@ -45,10 +45,10 @@ int VFileFinder::_searchFilesOrFolders(const std::string& pathWithoutTerminalSla
     _searchResult.clear();
     DIR* dir;
     struct dirent* ent;
-    if ((dir=opendir(pathWithoutTerminalSlash.c_str()))!=NULL)
+    if ((dir=opendir(pathWithoutTerminalSlash.c_str()))!=nullptr)
     {
         std::transform(extension.begin(),extension.end(),extension.begin(),::tolower);
-        while ((ent=readdir(dir))!=NULL)
+        while ((ent=readdir(dir))!=nullptr)
         {
             SFileOrFolder f;
             if ( ((ent->d_type==DT_DIR)&&(mode>0))||((ent->d_type==DT_REG)&&(mode!=1)) )
@@ -129,7 +129,7 @@ int VFileFinder::_searchFilesOrFolders(const std::string& pathWithoutTerminalSla
 SFileOrFolder* VFileFinder::getFoundItem(int index)
 {
     if ( (index<0)||(index>=int(_searchResult.size())) )
-        return(NULL);
+        return(nullptr);
     return(&_searchResult[index]);
 }
 

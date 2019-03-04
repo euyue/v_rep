@@ -23,7 +23,7 @@ CQDlgPathEdit::~CQDlgPathEdit()
 
 void CQDlgPathEdit::cancelEvent()
 {
-    App::mainWindow->editModeContainer->processCommand(ANY_EDIT_MODE_FINISH_WITH_QUESTION_DLG_EMCMD,NULL);
+    App::mainWindow->editModeContainer->processCommand(ANY_EDIT_MODE_FINISH_WITH_QUESTION_DLG_EMCMD,nullptr);
 //  defaultModalDialogEndRoutine(false);
 }
 
@@ -104,7 +104,7 @@ void CQDlgPathEdit::on_qqClosed_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CPathCont* pathCont=getPathCont();
-        if (pathCont!=NULL)
+        if (pathCont!=nullptr)
             pathCont->setAttributes(pathCont->getAttributes()^sim_pathproperty_closed_path);
         refresh();
     }
@@ -115,7 +115,7 @@ void CQDlgPathEdit::on_qqFlat_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CPathCont* pathCont=getPathCont();
-        if (pathCont!=NULL)
+        if (pathCont!=nullptr)
             pathCont->setAttributes(pathCont->getAttributes()^sim_pathproperty_flat_path);
         refresh();
     }
@@ -126,7 +126,7 @@ void CQDlgPathEdit::on_qqAutomaticOrientation_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CPathCont* pathCont=getPathCont();
-        if (pathCont!=NULL)
+        if (pathCont!=nullptr)
             pathCont->setAttributes(pathCont->getAttributes()^sim_pathproperty_automatic_orientation);
         refresh();
     }
@@ -137,7 +137,7 @@ void CQDlgPathEdit::on_qqKeepXup_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CPathCont* pathCont=getPathCont();
-        if (pathCont!=NULL)
+        if (pathCont!=nullptr)
             pathCont->setAttributes(pathCont->getAttributes()^sim_pathproperty_keep_x_up);
         refresh();
     }

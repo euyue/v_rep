@@ -117,7 +117,7 @@ void displayParticles(void** particlesPointer,int particlesCount,int displayAttr
     float* additionalColor;
     for (int i=0;i<particlesCount;i++)
     {
-        if (particlesPointer[i]!=NULL)
+        if (particlesPointer[i]!=nullptr)
         {
             if (CPluginContainer::dyn_getParticleData(particlesPointer[i],pos.data,&size,&particleType,&additionalColor))
             {
@@ -160,7 +160,7 @@ void displayContactPoints(int displayAttrib,const CVisualParam& contactPointColo
     for (int i=0;i<cnt;i++)
         ogl::addBuffer3DPoints(pts+3*i); // Contact points come in pairs!
     if (cnt!=0)
-        ogl::drawRandom3dPoints(&ogl::buffer[0],cnt,NULL);
+        ogl::drawRandom3dPoints(&ogl::buffer[0],cnt,nullptr);
     ogl::buffer.clear();
 
     glLineWidth(1.0f);
@@ -187,7 +187,7 @@ void _drawPoints(int displayAttrib,const C4X4Matrix& cameraRTM,const C3Vector& _
         rgbaAmb[1]=_additionalColor[1];
         rgbaAmb[2]=_additionalColor[2];
     }
-    ogl::drawRandom3dPointsEx(_currentPosition.data,1,NULL,rgbaAmb,NULL,(_objectType&sim_particle_emissioncolor)!=0,n.data);
+    ogl::drawRandom3dPointsEx(_currentPosition.data,1,nullptr,rgbaAmb,nullptr,(_objectType&sim_particle_emissioncolor)!=0,n.data);
     glPointSize(1.0f);
 }
 

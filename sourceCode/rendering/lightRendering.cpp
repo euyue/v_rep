@@ -13,14 +13,14 @@ void displayLight(CLight* light,CViewableBase* renderingObject,int displayAttrib
         _displayBoundingBox(light,displayAttrib,true,0.0);
 
     // Object display:
-    if (light->getShouldObjectBeDisplayed(renderingObject->getID(),displayAttrib))
+    if (light->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
     {
         if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE)==0)
         {
             if (light->getLocalObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
-                glLoadName(light->getModelSelectionID());
+                glLoadName(light->getModelSelectionHandle());
             else
-                glLoadName(light->getID());
+                glLoadName(light->getObjectHandle());
         }
         else
             glLoadName(-1);
@@ -28,7 +28,7 @@ void displayLight(CLight* light,CViewableBase* renderingObject,int displayAttrib
         if ( (displayAttrib&sim_displayattribute_forcewireframe)&&(displayAttrib&sim_displayattribute_renderpass) )
             glPolygonMode (GL_FRONT_AND_BACK,GL_LINE);
 
-        _enableAuxClippingPlanes(light->getID());
+        _enableAuxClippingPlanes(light->getObjectHandle());
         C3Vector normalizedAmbientColor(light->getColor(true)->colors);
         float m=SIM_MAX(SIM_MAX(normalizedAmbientColor(0),normalizedAmbientColor(1)),normalizedAmbientColor(2));
         if (m>0.00001f)

@@ -15,19 +15,19 @@ void displayMill(CMill* mill,CViewableBase* renderingObject,int displayAttrib)
     C3Vector normalVectorForLinesAndPoints(mill->getCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
 
     // Display the object:
-    if (mill->getShouldObjectBeDisplayed(renderingObject->getID(),displayAttrib))
+    if (mill->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
     {
         if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE)==0)
         {
             if (mill->getLocalObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
-                glLoadName(mill->getModelSelectionID());
+                glLoadName(mill->getModelSelectionHandle());
             else
-                glLoadName(mill->getID());
+                glLoadName(mill->getObjectHandle());
         }
         else
             glLoadName(-1);
 
-        _enableAuxClippingPlanes(mill->getID());
+        _enableAuxClippingPlanes(mill->getObjectHandle());
         bool wire=false;
         if ( (displayAttrib&sim_displayattribute_forcewireframe)&&(displayAttrib&sim_displayattribute_renderpass) )
         {

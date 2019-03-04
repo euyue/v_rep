@@ -60,7 +60,7 @@ bool COutsideCommandQueueForScript::addCommand(int commandID,int auxVal1,int aux
         auxValues.push_back(auxVal3);
         auxValues.push_back(auxVal4);
         int tot=0;
-        if ((aux2Vals!=NULL)&&(aux2Count>0))
+        if ((aux2Vals!=nullptr)&&(aux2Count>0))
         {
             if (aux2Count>8)
                 aux2Count=8;
@@ -107,10 +107,10 @@ void COutsideCommandQueueForScript::_checkSelections()
         {
             l=previousObjectSelection[previousObjectSelection.size()-1];
             C3DObject* it=App::ct->objCont->getLastSelection_object();
-            if (it!=NULL)
+            if (it!=nullptr)
                 t=it->getObjectType();
         }
-        addCommand(sim_message_object_selection_changed,(int)previousObjectSelection.size(),l,t,0,NULL,0);
+        addCommand(sim_message_object_selection_changed,(int)previousObjectSelection.size(),l,t,0,nullptr,0);
     }
     flagToCompareSelections=false;
 }

@@ -12,7 +12,7 @@
 void CMeshRoutines::getEdgeFeatures(float* vertices,int verticesLength,int* indices,int indicesLength,
             std::vector<int>* theVertexIDs,std::vector<int>* theEdgeIDs,std::vector<int>* theFaceIDs,
             float angleTolerance,bool forDisplay,bool hideEdgeBorders)
-{ // theVertexIDs, theEdgeIDs or theFaceIDs can be NULL
+{ // theVertexIDs, theEdgeIDs or theFaceIDs can be nullptr
     // For each vertex, edge and face, an identifier will be associated:
     // Same triangle ID --> triangles belong to the same face (with given tolerance between normals)
     // Same edge ID --> edges belong to the same edge (with given tolerance). -1 --> edge is embedded in a face 
@@ -58,7 +58,7 @@ void CMeshRoutines::getEdgeFeatures(float* vertices,int verticesLength,int* indi
                     CEdgeElement* edgeIt=mesh.edges[ind[0]];
                     int neighbourCount=0;
                     int neighbourWithNoEdgeShowCount=0;
-                    while (edgeIt!=NULL)
+                    while (edgeIt!=nullptr)
                     { // We have to check all triangles with same edges:
                         if (edgeIt->vertex1==ind[1])
                         { // Same edge. We check if already processed:
@@ -101,7 +101,7 @@ void CMeshRoutines::getEdgeFeatures(float* vertices,int verticesLength,int* indi
     for (int i=0;i<int(mesh.edges.size());i++) // In fact we could go to the half only!
     {
         CEdgeElement* edgeIt=mesh.edges[i];
-        while (edgeIt!=NULL)
+        while (edgeIt!=nullptr)
         {
             if (edgeIDs[3*edgeIt->triangle+edgeIt->pos]==-2)
             { // This edge exists and wasn't yet processed:
@@ -127,7 +127,7 @@ void CMeshRoutines::getEdgeFeatures(float* vertices,int verticesLength,int* indi
                     {
                         int vertexID=pointIDs[side];
                         CEdgeElement* edgeIt2=mesh.edges[vertexID];
-                        while (edgeIt2!=NULL)
+                        while (edgeIt2!=nullptr)
                         {
                             if (edgeIDs[3*edgeIt2->triangle+edgeIt2->pos]==-2)
                             { // Wasn't processed yet
@@ -160,7 +160,7 @@ void CMeshRoutines::getEdgeFeatures(float* vertices,int verticesLength,int* indi
     {
         CEdgeElement* edgeIt=mesh.edges[i];
         bool hasActiveEdge=false;
-        while (edgeIt!=NULL)
+        while (edgeIt!=nullptr)
         {
             if (edgeIDs[3*edgeIt->triangle+edgeIt->pos]!=-1)
                 hasActiveEdge=true;
@@ -170,17 +170,17 @@ void CMeshRoutines::getEdgeFeatures(float* vertices,int verticesLength,int* indi
             vertexIDs[i]=-1; // We disable this point
     }
 
-    if (theVertexIDs!=NULL)
+    if (theVertexIDs!=nullptr)
     {
         theVertexIDs->clear();
         theVertexIDs->assign(vertexIDs.begin(),vertexIDs.end());
     }
-    if (theEdgeIDs!=NULL)
+    if (theEdgeIDs!=nullptr)
     {
         theEdgeIDs->clear();
         theEdgeIDs->assign(edgeIDs.begin(),edgeIDs.end());
     }
-    if (theFaceIDs!=NULL)
+    if (theFaceIDs!=nullptr)
     {
         theFaceIDs->clear();
         theFaceIDs->assign(faceIDs.begin(),faceIDs.end());
@@ -192,13 +192,13 @@ bool CMeshRoutines::getConvexHull(std::vector<float>* verticesInOut,std::vector<
     std::vector<float> outV;
     std::vector<int> outI;
     bool result;
-    if (indicesInOut!=NULL)
+    if (indicesInOut!=nullptr)
         result=getConvexHull(verticesInOut,&outV,&outI);
     else
-        result=getConvexHull(verticesInOut,&outV,NULL);
+        result=getConvexHull(verticesInOut,&outV,nullptr);
     verticesInOut->clear();
     verticesInOut->assign(outV.begin(),outV.end());
-    if (indicesInOut!=NULL)
+    if (indicesInOut!=nullptr)
     {
         indicesInOut->clear();
         indicesInOut->assign(outI.begin(),outI.end());
@@ -222,21 +222,21 @@ bool CMeshRoutines::getConvexHull(const float* verticesIn,int verticesInLength,s
         data[0]=(float*)verticesIn;
         data[1]=&verticesInLength;
         bool generateIndices=true;
-        if (indicesOut==NULL)
+        if (indicesOut==nullptr)
             generateIndices=false;
         data[2]=&generateIndices;
         bool success=false;
         data[3]=&success;
-        float* outVert=NULL;
+        float* outVert=nullptr;
         data[4]=&outVert;
         int outVertLength;
         data[5]=&outVertLength;
-        int* outInd=NULL;
+        int* outInd=nullptr;
         data[6]=&outInd;
         int outIndLength;
         data[7]=&outIndLength;
         verticesOut->clear();
-        if (indicesOut!=NULL)
+        if (indicesOut!=nullptr)
             indicesOut->clear();
         if (CPluginContainer::qhull(data))
         {
@@ -245,7 +245,7 @@ bool CMeshRoutines::getConvexHull(const float* verticesIn,int verticesInLength,s
                 for (int i=0;i<outVertLength;i++)
                     verticesOut->push_back(outVert[i]);
                 delete[] outVert;
-                if (indicesOut!=NULL)
+                if (indicesOut!=nullptr)
                 {
                     for (int i=0;i<outIndLength;i++)
                         indicesOut->push_back(outInd[i]);
@@ -255,7 +255,7 @@ bool CMeshRoutines::getConvexHull(const float* verticesIn,int verticesInLength,s
         }
         else
             printf("Qhull failed. Is the Qhull plugin loaded?\n");
-        if (indicesOut==NULL)
+        if (indicesOut==nullptr)
             break;
         if (verticesOut->size()<9)
             break; // error
@@ -283,7 +283,7 @@ bool CMeshRoutines::getConvexHull(const float* verticesIn,int verticesInLength,s
             // are removed and a new QHull calculation takes place
 
             // We merge close vertices, in order to have less problems with tolerances (1% of the dimension of the hull):
-            CMeshManip::checkVerticesIndicesNormalsTexCoords(*verticesOut,*indicesOut,NULL,NULL,true,(dim(0)+dim(1)+dim(2))*0.001f/3.0f,false);
+            CMeshManip::checkVerticesIndicesNormalsTexCoords(*verticesOut,*indicesOut,nullptr,nullptr,true,(dim(0)+dim(1)+dim(2))*0.001f/3.0f,false);
 
             if (checkIfConvex(*verticesOut,*indicesOut,0.001f)) // 0.1%
                 break; // ok, the hull is watertight and "very" convex
@@ -344,11 +344,11 @@ bool CMeshRoutines::getDecimatedMesh(const std::vector<float>& verticesIn,const 
         data[5]=&version;
         bool success=false;
         data[6]=&success;
-        float* outVert=NULL;
+        float* outVert=nullptr;
         data[7]=&outVert;
         int outVertLength;
         data[8]=&outVertLength;
-        int* outInd=NULL;
+        int* outInd=nullptr;
         data[9]=&outInd;
         int outIndLength;
         data[10]=&outIndLength;
@@ -387,10 +387,10 @@ int CMeshRoutines::convexDecompose(const float* vertices,int verticesLength,cons
     FUNCTION_DEBUG;
     void* data[30];
     int el=0;
-    float** vertList=NULL;
-    int** indList=NULL;
-    int* vertCountList=NULL;
-    int* indCountList=NULL;
+    float** vertList=nullptr;
+    int** indList=nullptr;
+    int* vertCountList=nullptr;
+    int* indCountList=nullptr;
 
     data[0]=(float*)vertices;
     data[1]=&verticesLength;
@@ -490,7 +490,7 @@ void CMeshRoutines::_insertEdge(std::vector<std::vector<int>* >& allEdges,int ve
 {
     int minI=SIM_MIN(vertexIndex1,vertexIndex2);    
     int maxI=SIM_MAX(vertexIndex1,vertexIndex2);
-    if (allEdges[minI]==NULL)
+    if (allEdges[minI]==nullptr)
         allEdges[minI]=new std::vector<int>;
     allEdges[minI]->push_back(maxI);
     allEdges[minI]->push_back(triangleIndex);
@@ -500,7 +500,7 @@ int CMeshRoutines::_getTriangleIndexFromEdge(std::vector<std::vector<int>* >& al
 { // returns -1 if there is no such triangle, or more than 1
     int minI=SIM_MIN(vertexIndex1,vertexIndex2);    
     int maxI=SIM_MAX(vertexIndex1,vertexIndex2);
-    if (allEdges[minI]==NULL)
+    if (allEdges[minI]==nullptr)
         return(-1);
     int cnt=0;
     int retVal=-1;
@@ -523,7 +523,7 @@ bool CMeshRoutines::checkIfConvex(const std::vector<float>& vertices,const std::
     // Finally, we also need to check if the shape is in fact two (or more) convex shapes (i.e. 2 merged convex shapes) (only for test a) )
     bool convex=true;
     // 1. build a fast index:
-    std::vector<std::vector<int>* > allEdges(vertices.size()/3,NULL);
+    std::vector<std::vector<int>* > allEdges(vertices.size()/3,nullptr);
     for (int tri=0;tri<int(indices.size()/3);tri++)
     {
         int ind[3]={indices[3*tri+0],indices[3*tri+1],indices[3*tri+2]};
@@ -646,7 +646,7 @@ bool CMeshRoutines::checkIfConvex(const std::vector<float>& vertices,const std::
     // 4. Clean-up!
     for (int i=0;i<int(allEdges.size());i++)
     {
-        if (allEdges[i]!=NULL)
+        if (allEdges[i]!=nullptr)
             delete allEdges[i];
     }
     return(convex);
@@ -1144,7 +1144,7 @@ void CMeshRoutines::createCylinder(std::vector<float>& vertices,std::vector<int>
 
     if (cone)
     { // We have a degenerate cylinder, we need to remove degenerate triangles and double vertices:
-        CMeshManip::checkVerticesIndicesNormalsTexCoords(vertices,indices,NULL,NULL,true,0.0000001f,false);
+        CMeshManip::checkVerticesIndicesNormalsTexCoords(vertices,indices,nullptr,nullptr,true,0.0000001f,false);
     }
 
     // Now we scale the cylinder:

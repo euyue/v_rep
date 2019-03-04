@@ -47,7 +47,7 @@ COpenglWidget::COpenglWidget(QWidget *parent) : QGLWidget(QGLFormat((App::userSe
     QTimer* timer_100ms=new QTimer(this);
     connect(timer_100ms, SIGNAL(timeout()), this, SLOT(_timer100ms_fire()));
     timer_100ms->start(100);
-    _modelDragAndDropInfo=NULL;
+    _modelDragAndDropInfo=nullptr;
     setAcceptDrops(true);
 }
 
@@ -385,13 +385,13 @@ void COpenglWidget::_timer100ms_fire()
 {
     FUNCTION_DEBUG;
     if (!CSimAndUiThreadSync::hasUiLockedResourcesForReadOrWrite())
-        _handleMouseAndKeyboardAndResizeEvents(NULL,8);
+        _handleMouseAndKeyboardAndResizeEvents(nullptr,8);
 }
 
 void COpenglWidget::_handleMouseAndKeyboardAndResizeEvents(void* event,int t)
 {
     FUNCTION_DEBUG;
-    if (event!=NULL)
+    if (event!=nullptr)
     {
         SMouseOrKeyboardOrResizeEvent e;
         e.eventType=t;
@@ -573,15 +573,15 @@ void COpenglWidget::dragEnterEvent(QDragEnterEvent* dEvent)
 {
     if (dEvent->mimeData()->hasText())
     {
-        const SModelThumbnailInfo* thumbnail=App::mainWindow->modelListWidget->getThumbnailInfoFromModelName(dEvent->mimeData()->text().toStdString().c_str(),NULL);
-        if (thumbnail!=NULL)
+        const SModelThumbnailInfo* thumbnail=App::mainWindow->modelListWidget->getThumbnailInfoFromModelName(dEvent->mimeData()->text().toStdString().c_str(),nullptr);
+        if (thumbnail!=nullptr)
             dEvent->accept();
     }
 }
 
 void COpenglWidget::dragLeaveEvent(QDragLeaveEvent* dEvent)
 {
-    _modelDragAndDropInfo=NULL;
+    _modelDragAndDropInfo=nullptr;
 }
 
 void COpenglWidget::dropEvent(QDropEvent* dEvent)
@@ -590,8 +590,8 @@ void COpenglWidget::dropEvent(QDropEvent* dEvent)
     {
         int x,y;
         _computeMousePos(dEvent->pos().x(),dEvent->pos().y(),x,y);
-        _modelDragAndDropInfo=App::mainWindow->modelListWidget->getThumbnailInfoFromModelName(dEvent->mimeData()->text().toStdString().c_str(),NULL);
-        if (_modelDragAndDropInfo!=NULL)
+        _modelDragAndDropInfo=App::mainWindow->modelListWidget->getThumbnailInfoFromModelName(dEvent->mimeData()->text().toStdString().c_str(),nullptr);
+        if (_modelDragAndDropInfo!=nullptr)
         {
             C3Vector desiredModelPosition;
             int okToDrop=App::mainWindow->modelDragMoveEvent(x,y,&desiredModelPosition);
@@ -609,16 +609,16 @@ void COpenglWidget::dropEvent(QDropEvent* dEvent)
                     App::appendSimulationThreadCommand(cmd); // that command will clear _modelDragAndDropInfo once the model was loaded
                 }
                 else
-                    _modelDragAndDropInfo=NULL;
+                    _modelDragAndDropInfo=nullptr;
             }
             else
-                _modelDragAndDropInfo=NULL;
+                _modelDragAndDropInfo=nullptr;
         }
         else
-            _modelDragAndDropInfo=NULL;
+            _modelDragAndDropInfo=nullptr;
     }
     else
-        _modelDragAndDropInfo=NULL;
+        _modelDragAndDropInfo=nullptr;
 }
 
 void COpenglWidget::dragMoveEvent(QDragMoveEvent* dEvent)
@@ -627,8 +627,8 @@ void COpenglWidget::dragMoveEvent(QDragMoveEvent* dEvent)
     {
         int x,y;
         _computeMousePos(dEvent->pos().x(),dEvent->pos().y(),x,y);
-        SModelThumbnailInfo* info=App::mainWindow->modelListWidget->getThumbnailInfoFromModelName(dEvent->mimeData()->text().toStdString().c_str(),NULL);
-        if (info!=NULL)
+        SModelThumbnailInfo* info=App::mainWindow->modelListWidget->getThumbnailInfoFromModelName(dEvent->mimeData()->text().toStdString().c_str(),nullptr);
+        if (info!=nullptr)
         {
             C3Vector desiredModelPosition;
             int okToDrop=App::mainWindow->modelDragMoveEvent(x,y,&desiredModelPosition);
@@ -641,17 +641,17 @@ void COpenglWidget::dragMoveEvent(QDragMoveEvent* dEvent)
             else
             {
                 dEvent->ignore();
-                _modelDragAndDropInfo=NULL;
+                _modelDragAndDropInfo=nullptr;
             }
         }
         else
         {
             dEvent->ignore();
-            _modelDragAndDropInfo=NULL;
+            _modelDragAndDropInfo=nullptr;
         }
     }
     else
-        _modelDragAndDropInfo=NULL;
+        _modelDragAndDropInfo=nullptr;
 }
 
 SModelThumbnailInfo* COpenglWidget::getModelDragAndDropInfo()
@@ -661,5 +661,5 @@ SModelThumbnailInfo* COpenglWidget::getModelDragAndDropInfo()
 
 void COpenglWidget::clearModelDragAndDropInfo()
 {
-    _modelDragAndDropInfo=NULL;
+    _modelDragAndDropInfo=nullptr;
 }

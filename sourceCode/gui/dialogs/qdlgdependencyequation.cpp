@@ -35,7 +35,7 @@ void CQDlgDependencyEquation::refresh()
     inMainRefreshRoutine=true;
     bool dependencyPartActive=false;
     CJoint* it=App::ct->objCont->getLastSelection_joint();
-    if (it!=NULL)
+    if (it!=nullptr)
         dependencyPartActive=((it->getJointMode()==sim_jointmode_dependent)||(it->getJointMode()==sim_jointmode_reserved_previously_ikdependent));
 
     ui->qqOffset->setEnabled(dependencyPartActive&&(it->getDependencyJointID()!=-1));
@@ -43,7 +43,7 @@ void CQDlgDependencyEquation::refresh()
     ui->qqCombo->setEnabled(dependencyPartActive);
     ui->qqCombo->clear();
 
-    if (it!=NULL)
+    if (it!=nullptr)
     {
         ui->qqOffset->setText(tt::getEString(true,it->getDependencyJointFact(),3).c_str());
         ui->qqCoeff->setText(tt::getEString(true,it->getDependencyJointCoeff(),3).c_str());
@@ -60,9 +60,9 @@ void CQDlgDependencyEquation::refresh()
             if ((it2!=it)&&(it2->getJointType()!=sim_joint_spherical_subtype))
             {
                 std::string name(tt::decorateString("[",strTranslate(IDSN_JOINT),"] "));
-                name+=it2->getName();
+                name+=it2->getObjectName();
                 names.push_back(name);
-                ids.push_back(it2->getID());
+                ids.push_back(it2->getObjectHandle());
             }
         }
         tt::orderStrings(names,ids);
@@ -104,10 +104,10 @@ void CQDlgDependencyEquation::on_qqOffset_editingFinished()
         CJoint* it=App::ct->objCont->getLastSelection_joint();
         bool ok;
         float newVal=ui->qqOffset->text().toFloat(&ok);
-        if (ok&&(it!=NULL))
+        if (ok&&(it!=nullptr))
         {
             it->setDependencyJointFact(newVal); // we also modify the ui resources (dlg is modal)
-            App::appendSimulationThreadCommand(SET_OFFFSET_JOINTDEPENDENCYGUITRIGGEREDCMD,it->getID(),-1,newVal);
+            App::appendSimulationThreadCommand(SET_OFFFSET_JOINTDEPENDENCYGUITRIGGEREDCMD,it->getObjectHandle(),-1,newVal);
             // scene change announcement at the end of this modal dlg
         }
         refresh();
@@ -123,10 +123,10 @@ void CQDlgDependencyEquation::on_qqCoeff_editingFinished()
         CJoint* it=App::ct->objCont->getLastSelection_joint();
         bool ok;
         float newVal=ui->qqCoeff->text().toFloat(&ok);
-        if (ok&&(it!=NULL))
+        if (ok&&(it!=nullptr))
         {
             it->setDependencyJointCoeff(newVal); // we also modify the ui resources (dlg is modal)
-            App::appendSimulationThreadCommand(SET_MULTFACT_JOINTDEPENDENCYGUITRIGGEREDCMD,it->getID(),-1,newVal);
+            App::appendSimulationThreadCommand(SET_MULTFACT_JOINTDEPENDENCYGUITRIGGEREDCMD,it->getObjectHandle(),-1,newVal);
             // scene change announcement at the end of this modal dlg
         }
         refresh();
@@ -141,10 +141,10 @@ void CQDlgDependencyEquation::on_qqCombo_currentIndexChanged(int index)
         {
             CJoint* it=App::ct->objCont->getLastSelection_joint();
             int objID=ui->qqCombo->itemData(ui->qqCombo->currentIndex()).toInt();
-            if (it!=NULL)
+            if (it!=nullptr)
             {
                 it->setDependencyJointID(objID); // we also modify the ui resources (dlg is modal)
-                App::appendSimulationThreadCommand(SET_OTHERJOINT_JOINTDEPENDENCYGUITRIGGEREDCMD,it->getID(),objID);
+                App::appendSimulationThreadCommand(SET_OTHERJOINT_JOINTDEPENDENCYGUITRIGGEREDCMD,it->getObjectHandle(),objID);
                 // scene change announcement at the end of this modal dlg
             }
             refresh();

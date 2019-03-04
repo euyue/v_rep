@@ -8,7 +8,7 @@ CmpPhase2Node::CmpPhase2Node(int jointCount,const float* _jointPositions,const C
     tipTransf=_tipTransf;
     for (int i=0;i<jointCount;i++)
         jointPositions[i]=_jointPositions[i];
-    parentNode=NULL;
+    parentNode=nullptr;
 }
 
 CmpPhase2Node::~CmpPhase2Node()

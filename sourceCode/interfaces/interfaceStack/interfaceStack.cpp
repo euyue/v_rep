@@ -244,7 +244,7 @@ CInterfaceStackObject* CInterfaceStack::_generateObjectFromLuaStack(luaWrap_lua_
         // Following to avoid getting trapped in circular references:
         void* p=(void*)luaWrap_lua_topointer(L,index);
         std::map<void*,bool>::iterator it=visitedTables.find(p);
-        CInterfaceStackTable* table=NULL;
+        CInterfaceStackTable* table=nullptr;
         if (it!=visitedTables.end())
         { // we have a circular reference!
             table=new CInterfaceStackTable();
@@ -437,7 +437,7 @@ bool CInterfaceStack::getStackDoubleArray(double* array,int count) const
 bool CInterfaceStack::getStackMapFloatArray(const std::string& fieldName,float* array,int count) const
 {
     const CInterfaceStackObject* obj=getStackMapObject(fieldName);
-    if (obj!=NULL)
+    if (obj!=nullptr)
     {
         if (obj->getObjectType()==STACK_OBJECT_TABLE)
         {
@@ -452,20 +452,20 @@ bool CInterfaceStack::getStackMapFloatArray(const std::string& fieldName,float* 
 CInterfaceStackObject* CInterfaceStack::getStackMapObject(const std::string& fieldName) const
 {
     if (_stackObjects.size()==0)
-        return(NULL);
+        return(nullptr);
     CInterfaceStackObject* obj=_stackObjects[_stackObjects.size()-1];
     if (obj->getObjectType()!=STACK_OBJECT_TABLE)
-        return(NULL);
+        return(nullptr);
     CInterfaceStackTable* table=(CInterfaceStackTable*)obj;
     if (table->isTableArray())
-        return(NULL);
+        return(nullptr);
     return(table->getMapObject(fieldName));
 }
 
 bool CInterfaceStack::getStackMapBoolValue(const std::string& fieldName,bool& val) const
 {
     const CInterfaceStackObject* obj=getStackMapObject(fieldName);
-    if (obj!=NULL)
+    if (obj!=nullptr)
     {
         if (obj->getObjectType()==STACK_OBJECT_BOOL)
         {
@@ -479,7 +479,7 @@ bool CInterfaceStack::getStackMapBoolValue(const std::string& fieldName,bool& va
 bool CInterfaceStack::replaceStackMapBoolValue(const std::string& fieldName,bool val)
 {
     CInterfaceStackObject* obj=getStackMapObject(fieldName);
-    if (obj!=NULL)
+    if (obj!=nullptr)
     {
         if (obj->getObjectType()==STACK_OBJECT_BOOL)
         {
@@ -526,7 +526,7 @@ bool CInterfaceStack::replaceStackMapIntValue(const std::string& fieldName,int v
 bool CInterfaceStack::getStackMapDoubleValue(const std::string& fieldName,double& val) const
 {
     const CInterfaceStackObject* obj=getStackMapObject(fieldName);
-    if (obj!=NULL)
+    if (obj!=nullptr)
     {
         if (obj->getObjectType()==STACK_OBJECT_NUMBER)
         {
@@ -540,7 +540,7 @@ bool CInterfaceStack::getStackMapDoubleValue(const std::string& fieldName,double
 bool CInterfaceStack::replaceStackMapDoubleValue(const std::string& fieldName,double val)
 {
     CInterfaceStackObject* obj=getStackMapObject(fieldName);
-    if (obj!=NULL)
+    if (obj!=nullptr)
     {
         if (obj->getObjectType()==STACK_OBJECT_NUMBER)
         {
@@ -554,7 +554,7 @@ bool CInterfaceStack::replaceStackMapDoubleValue(const std::string& fieldName,do
 bool CInterfaceStack::getStackMapStringValue(const std::string& fieldName,std::string& val) const
 {
     const CInterfaceStackObject* obj=getStackMapObject(fieldName);
-    if (obj!=NULL)
+    if (obj!=nullptr)
     {
         if (obj->getObjectType()==STACK_OBJECT_STRING)
         {
@@ -570,7 +570,7 @@ bool CInterfaceStack::getStackMapStringValue(const std::string& fieldName,std::s
 bool CInterfaceStack::replaceStackMapStringValue(const std::string& fieldName,std::string val)
 {
     CInterfaceStackObject* obj=getStackMapObject(fieldName);
-    if (obj!=NULL)
+    if (obj!=nullptr)
     {
         if (obj->getObjectType()==STACK_OBJECT_STRING)
         {
@@ -680,7 +680,7 @@ bool CInterfaceStack::insertDataIntoStackTable()
 
 bool CInterfaceStack::pushTableFromBuffer(const char* data,unsigned int l)
 {
-    if ( (data!=NULL)&&(l>0) )
+    if ( (data!=nullptr)&&(l>0) )
     {
         //unsigned char version=data[0]; // the version of the pack format
         unsigned int w=0;

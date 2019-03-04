@@ -39,7 +39,7 @@ void CQDlgConstraintSolver::cancelEvent()
 
 void CQDlgConstraintSolver::dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut)
 {
-    if ( (cmdIn!=NULL)&&(cmdIn->intParams[0]==_dlgType) )
+    if ( (cmdIn!=nullptr)&&(cmdIn->intParams[0]==_dlgType) )
     {
         if (cmdIn->intParams[1]==0)
             selectObjectInList(cmdIn->intParams[2]);
@@ -65,15 +65,15 @@ void CQDlgConstraintSolver::refresh()
     CConstraintSolverObject* it=App::ct->constraintSolver->getObject(getSelectedObjectID());
 
     ui->qqObjectList->setEnabled(noEditModeAndNoSim);
-    ui->qqIterations->setEnabled((it!=NULL)&&noEditModeAndNoSim);
-    ui->qqInterpolation->setEnabled((it!=NULL)&&noEditModeAndNoSim);
-    ui->qqDamping->setEnabled((it!=NULL)&&noEditModeAndNoSim);
-    ui->qqAngularVariation->setEnabled((it!=NULL)&&noEditModeAndNoSim);
-    ui->qqLinearVariation->setEnabled((it!=NULL)&&noEditModeAndNoSim);
-    ui->qqLoopClosurePosTol->setEnabled((it!=NULL)&&noEditModeAndNoSim);
-    ui->qqLoopClosureAngTol->setEnabled((it!=NULL)&&noEditModeAndNoSim);
-    ui->qqExplicitHandling->setEnabled((it!=NULL)&&noEditModeAndNoSim);
-    if (it!=NULL)
+    ui->qqIterations->setEnabled((it!=nullptr)&&noEditModeAndNoSim);
+    ui->qqInterpolation->setEnabled((it!=nullptr)&&noEditModeAndNoSim);
+    ui->qqDamping->setEnabled((it!=nullptr)&&noEditModeAndNoSim);
+    ui->qqAngularVariation->setEnabled((it!=nullptr)&&noEditModeAndNoSim);
+    ui->qqLinearVariation->setEnabled((it!=nullptr)&&noEditModeAndNoSim);
+    ui->qqLoopClosurePosTol->setEnabled((it!=nullptr)&&noEditModeAndNoSim);
+    ui->qqLoopClosureAngTol->setEnabled((it!=nullptr)&&noEditModeAndNoSim);
+    ui->qqExplicitHandling->setEnabled((it!=nullptr)&&noEditModeAndNoSim);
+    if (it!=nullptr)
     {
         ui->qqIterations->setText(tt::getIString(false,it->getMaximumIterations()).c_str());
         ui->qqInterpolation->setText(tt::getFString(false,it->getInterpolation(),3).c_str());
@@ -106,11 +106,11 @@ void CQDlgConstraintSolver::updateObjectsInList()
         CConstraintSolverObject* it=App::ct->constraintSolver->allGcsObjects[i];
         std::string tmp=it->getObjectName();
         int id=it->getObjectID();
-        C3DObject* it2=App::ct->objCont->getObject(it->getBase3DObject());
-        if (it2!=NULL)
+        C3DObject* it2=App::ct->objCont->getObjectFromHandle(it->getBase3DObject());
+        if (it2!=nullptr)
         {
             tmp+=" (base: ";
-            tmp+=it2->getName();
+            tmp+=it2->getObjectName();
             tmp+=")";
         }
         QListWidgetItem* itm=new QListWidgetItem(tmp.c_str());
@@ -133,7 +133,7 @@ void CQDlgConstraintSolver::selectObjectInList(int objectID)
     for (int i=0;i<ui->qqObjectList->count();i++)
     {
         QListWidgetItem* it=ui->qqObjectList->item(i);
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             if (it->data(Qt::UserRole).toInt()==objectID)
             {
@@ -170,7 +170,7 @@ void CQDlgConstraintSolver::on_qqObjectList_itemSelectionChanged()
     {
         int objID=getSelectedObjectID();
         CConstraintSolverObject* it=App::ct->constraintSolver->getObject(objID);
-        if (it!=NULL)
+        if (it!=nullptr)
             ((CEditBoxDelegate*)ui->qqObjectList->itemDelegate())->initialText=it->getObjectName();
         else
             ((CEditBoxDelegate*)ui->qqObjectList->itemDelegate())->initialText="";
@@ -184,11 +184,11 @@ void CQDlgConstraintSolver::on_qqObjectList_itemChanged(QListWidgetItem *item)
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (item!=NULL)
+        if (item!=nullptr)
         {
             std::string newName(item->text().toStdString());
             CConstraintSolverObject* it=App::ct->constraintSolver->getObject(item->data(Qt::UserRole).toInt());
-            if ( (it!=NULL)&&(newName!="") )
+            if ( (it!=nullptr)&&(newName!="") )
             {
                 App::appendSimulationThreadCommand(RENAME_GEOMCONSTRSOLVERGUITRIGGEREDCMD,it->getObjectID(),-1,0.0,0.0,newName.c_str());
                 App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);

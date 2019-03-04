@@ -13,7 +13,7 @@ CQDlgAssembly::CQDlgAssembly(QWidget *parent) :
     VDialog(parent,QT_MODAL_DLG_STYLE),
     ui(new Ui::CQDlgAssembly)
 {
-    obj=NULL;
+    obj=nullptr;
     ui->setupUi(this);
 }
 

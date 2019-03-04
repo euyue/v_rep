@@ -6,8 +6,8 @@
 
 bool CDebugLogFile::_debugToFile=false;
 bool CDebugLogFile::_addTime=true;
-VFile* CDebugLogFile::_file=NULL;
-VArchive* CDebugLogFile::_archive=NULL;
+VFile* CDebugLogFile::_file=nullptr;
+VArchive* CDebugLogFile::_archive=nullptr;
 
 CDebugLogFile::CDebugLogFile()
 {
@@ -99,7 +99,7 @@ void CDebugLogFile::addDebugText(bool forceAlsoToConsole,const char* txt)
         printf("%s",theTxt.c_str());
     else
     {
-        if (_file==NULL)
+        if (_file==nullptr)
         {
             _file=new VFile("debugLog.txt",VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE);
             _archive=new VArchive(_file,VArchive::STORE);

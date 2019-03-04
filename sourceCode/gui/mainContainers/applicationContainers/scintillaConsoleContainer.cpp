@@ -75,7 +75,7 @@ CConsoleInitInfo* CScintillaConsoleContainer::getConsoleInfoFromHandle(int handl
         if (_allUninitializedConsoles[i]->getHandle()==handle)
             return(_allUninitializedConsoles[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 CScintillaConsoleDlg* CScintillaConsoleContainer::getConsoleFromHandle(int handle)
@@ -85,7 +85,7 @@ CScintillaConsoleDlg* CScintillaConsoleContainer::getConsoleFromHandle(int handl
         if (_allConsoles[i]->info->getHandle()==handle)
             return(_allConsoles[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 bool CScintillaConsoleContainer::isConsoleHandleValid(int handle)

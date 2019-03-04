@@ -29,7 +29,7 @@ CNonHolonomicPathPlanning::CNonHolonomicPathPlanning(int theStartDummyID,int the
     _startDummyID=theStartDummyID;
     CDummyDummy* startDummy=(CDummyDummy*)_simGetObject_internal(_startDummyID);
     CDummyDummy* goalDummy=(CDummyDummy*)_simGetObject_internal(theGoalDummyID);
-    if ( (startDummy==NULL)||(goalDummy==NULL) )
+    if ( (startDummy==nullptr)||(goalDummy==nullptr) )
         return;
     _simGetObjectCumulativeTransformation_internal(startDummy,_startDummyCTM.X.data,_startDummyCTM.Q.data,false);
     _simGetObjectLocalTransformation_internal(startDummy,_startDummyLTM.X.data,_startDummyLTM.Q.data,false);
@@ -111,24 +111,24 @@ int CNonHolonomicPathPlanning::searchPath(int maxTimePerPass)
 
     // Following since 2010/08/19 so that we can move the "robot" while we search:
     CDummyDummy* startDummy=(CDummyDummy*)_simGetObject_internal(_startDummyID);
-    if (startDummy==NULL)
+    if (startDummy==nullptr)
         return(0);
     C7Vector dumSavedConf;
     _simGetObjectLocalTransformation_internal(startDummy,dumSavedConf.X.data,dumSavedConf.Q.data,false);
 
     std::vector<CNonHolonomicPathNode*>* current=&fromStart;
     std::vector<CNonHolonomicPathNode*>* nextCurrent=&fromGoal;
-    std::vector<CNonHolonomicPathNode*>* tmpCurrent=NULL;
+    std::vector<CNonHolonomicPathNode*>* tmpCurrent=nullptr;
     int initTime=simGetSystemTimeInMs_internal(-1);
     int pathWasFound=0;
     int dirConstraintsSave[2]={directionConstraints[0],directionConstraints[1]};
     while (_simGetTimeDiffInMs_internal(initTime)<maxTimePerPass)
     {
-        CNonHolonomicPathNode* savedRandNode=NULL;
+        CNonHolonomicPathNode* savedRandNode=nullptr;
         for (int i=0;i<2;i++)
         {
             CNonHolonomicPathNode* randNode;
-            if (savedRandNode!=NULL)
+            if (savedRandNode!=nullptr)
                 randNode=savedRandNode;
             else
             {
@@ -137,21 +137,21 @@ int CNonHolonomicPathPlanning::searchPath(int maxTimePerPass)
                                                 -piValue_f+piValTimes2_f*SIM_RAND_FLOAT);
                 savedRandNode=randNode;
             }
-            CNonHolonomicPathNode* closest=NULL;
+            CNonHolonomicPathNode* closest=nullptr;
             if (!firstPass)
                 closest=getClosestNode(*current,randNode,i==0,false);
-            if ( (closest!=NULL)||firstPass )
+            if ( (closest!=nullptr)||firstPass )
             {
                 if (!firstPass)
                     closest=extend(current,closest,randNode,i==0,startDummy);
-                if ( (closest!=NULL)||firstPass )
+                if ( (closest!=nullptr)||firstPass )
                 {
                     for (int constr=0;constr<2;constr++) // We have to inverse the constraints!!
                         directionConstraints[constr]*=-1;
-                    CNonHolonomicPathNode* closestConnect=NULL;
+                    CNonHolonomicPathNode* closestConnect=nullptr;
                     if (!firstPass)
                         closestConnect=getClosestNode(*nextCurrent,closest,i==1,true);
-                    if ( (closestConnect!=NULL)||firstPass )
+                    if ( (closestConnect!=nullptr)||firstPass )
                     {
                         if (firstPass)
                         {
@@ -160,18 +160,18 @@ int CNonHolonomicPathPlanning::searchPath(int maxTimePerPass)
                             firstPass=false;
                         }
                         closestConnect=connect(nextCurrent,current,closestConnect,closest,i==1,true,false,startDummy);
-                        if (closestConnect!=NULL)
+                        if (closestConnect!=nullptr)
                         {
                             if (current==&fromStart)
                             {
                                 CNonHolonomicPathNode* iterat=closest;
-                                while (iterat!=NULL)
+                                while (iterat!=nullptr)
                                 {
                                     foundPath.insert(foundPath.begin(),new CNonHolonomicPathNode(iterat));
                                     iterat=iterat->parent;
                                 }
                                 iterat=closestConnect;
-                                while (iterat!=NULL)
+                                while (iterat!=nullptr)
                                 {
                                     foundPath.push_back(new CNonHolonomicPathNode(iterat));
                                     iterat=iterat->parent;  
@@ -180,13 +180,13 @@ int CNonHolonomicPathPlanning::searchPath(int maxTimePerPass)
                             else
                             {
                                 CNonHolonomicPathNode* iterat=closest;
-                                while (iterat!=NULL)
+                                while (iterat!=nullptr)
                                 {
                                     foundPath.push_back(new CNonHolonomicPathNode(iterat));
                                     iterat=iterat->parent;
                                 }
                                 iterat=closestConnect;
-                                while (iterat!=NULL)
+                                while (iterat!=nullptr)
                                 {
                                     foundPath.insert(foundPath.begin(),new CNonHolonomicPathNode(iterat));
                                     iterat=iterat->parent;
@@ -224,7 +224,7 @@ int CNonHolonomicPathPlanning::searchPath(int maxTimePerPass)
 bool CNonHolonomicPathPlanning::setPartialPath()
 {
     CNonHolonomicPathNode* it=getClosestNode(fromStart,fromGoal[0],true,false);
-    while (it!=NULL)
+    while (it!=nullptr)
     {
         foundPath.insert(foundPath.begin(),new CNonHolonomicPathNode(it));
         it=it->parent;
@@ -268,11 +268,11 @@ CNonHolonomicPathNode* CNonHolonomicPathPlanning::getClosestNode(std::vector<CNo
     }
     if (index!=-1)
         return(nodes[index]);
-    return(NULL);
+    return(nullptr);
 }
 
 CNonHolonomicPathNode* CNonHolonomicPathPlanning::extend(std::vector<CNonHolonomicPathNode*>* currentList,CNonHolonomicPathNode* toBeExtended,CNonHolonomicPathNode* extention,bool forward,CDummyDummy* startDummy)
-{   // Return value is !=NULL if extention was performed to some extent
+{   // Return value is !=nullptr if extention was performed to some extent
     bool specialCase=( (fromStart==currentList[0])&&(toBeExtended==fromStart[0])&&(_startConfInterferenceState!=SIM_MAX_FLOAT) );
     float lastClosest_specialCase=_startConfInterferenceState;
 
@@ -319,7 +319,7 @@ CNonHolonomicPathNode* CNonHolonomicPathPlanning::extend(std::vector<CNonHolonom
             _simSetObjectLocalTransformation_internal(startDummy,tmpTr.X.data,tmpTr.Q.data);
             if (!specialCase)
             {
-                if (!doCollide(NULL))
+                if (!doCollide(nullptr))
                 {
                     CNonHolonomicPathNode* newNode=new CNonHolonomicPathNode(x,y,t);
                     newNode->parent=toBeExtended;
@@ -383,7 +383,7 @@ CNonHolonomicPathNode* CNonHolonomicPathPlanning::extend(std::vector<CNonHolonom
             break;
     }
     if (i<=1)
-        return(NULL);
+        return(nullptr);
     return(toBeExtended);
 }
 
@@ -397,11 +397,11 @@ CNonHolonomicPathNode* CNonHolonomicPathPlanning::connect(std::vector<CNonHolono
     CNonHolonomicPathNode* fromGoalHandle=extention;
     std::vector<CNonHolonomicPathNode*>* currentL=&fromStartP;
     std::vector<CNonHolonomicPathNode*>* nextL=&fromGoalP;
-    std::vector<CNonHolonomicPathNode*>* tmpL=NULL;
+    std::vector<CNonHolonomicPathNode*>* tmpL=nullptr;
     CNonHolonomicPathNode* currentHandle=fromStartHandle;
     CNonHolonomicPathNode* nextHandle=fromGoalHandle;
-    CNonHolonomicPathNode* tmpHandle=NULL;
-    CNonHolonomicPathNode* lastHandleFromStart=NULL;
+    CNonHolonomicPathNode* tmpHandle=nullptr;
+    CNonHolonomicPathNode* lastHandleFromStart=nullptr;
     
     CNonHolonomicPathNode st(toBeExtended); // Needed when test is true
     CNonHolonomicPathNode gl(extention);
@@ -458,7 +458,7 @@ CNonHolonomicPathNode* CNonHolonomicPathPlanning::connect(std::vector<CNonHolono
             tr.X(1)=y;
             C7Vector tmpTr(_startDummyLTM*tr);
             _simSetObjectLocalTransformation_internal(startDummy,tmpTr.X.data,tmpTr.Q.data);
-            if (!doCollide(NULL))
+            if (!doCollide(nullptr))
             {
                 if (test)
                 {
@@ -520,9 +520,9 @@ CNonHolonomicPathNode* CNonHolonomicPathPlanning::connect(std::vector<CNonHolono
     if (test)
     {
         if (couldReach)
-            return((CNonHolonomicPathNode*)1); // Just anything different from NULL!!
+            return((CNonHolonomicPathNode*)1); // Just anything different from nullptr!!
         else
-            return(NULL);
+            return(nullptr);
     }
     for (int i=0;i<int(fromStartP.size());i++)
         currentList->push_back(fromStartP[i]);
@@ -543,7 +543,7 @@ CNonHolonomicPathNode* CNonHolonomicPathPlanning::connect(std::vector<CNonHolono
         {
             for (int i=0;i<int(fromGoalP.size());i++)
                 nextList->push_back(fromGoalP[i]);
-            return(NULL);
+            return(nullptr);
         }
     }
     else
@@ -577,7 +577,7 @@ int CNonHolonomicPathPlanning::smoothFoundPath(int steps,int maxTimePerPass)
     if (invalidData)
         return(0);
     CDummyDummy* startDummy=(CDummyDummy*)_simGetObject_internal(_startDummyID);
-    if (startDummy==NULL)
+    if (startDummy==nullptr)
         return(0);
 
     if (foundPath.size()<3)
@@ -606,7 +606,7 @@ int CNonHolonomicPathPlanning::smoothFoundPath(int steps,int maxTimePerPass)
         CNonHolonomicPathNode* endP;
         for (int randomPass=0;randomPass<5;randomPass++)
         { // If randomPass==0, the pass is not random, i.e. the low and high indices are calculated
-            startP=NULL; // since 2010/09/09
+            startP=nullptr; // since 2010/09/09
             if (randomPass==0)
             { // We calculate lowIndex and highIndex!
                 float span=float(foundPath.size())/float(numberOfRandomConnectionTries_forSteppedSmoothing);
@@ -645,15 +645,15 @@ int CNonHolonomicPathPlanning::smoothFoundPath(int steps,int maxTimePerPass)
                     }
                 }
             }
-            if (startP!=NULL)
+            if (startP!=nullptr)
             { // Now let's try to link highIndex from lowIndex with a "straight" line:
                 std::vector<CNonHolonomicPathNode*> newPathElementsBetweenAndIncludingLowAndHigh;
                 newPathElementsBetweenAndIncludingLowAndHigh.push_back(new CNonHolonomicPathNode(startP));
                 C7Vector startDummyOriginalLocalTr;
                 _simGetObjectLocalTransformation_internal(startDummy,startDummyOriginalLocalTr.X.data,startDummyOriginalLocalTr.Q.data,true); // save the local transformation ("connect" modifies it)
-                if (connect(&newPathElementsBetweenAndIncludingLowAndHigh,NULL,startP,endP,true,true,true,startDummy)!=NULL)
+                if (connect(&newPathElementsBetweenAndIncludingLowAndHigh,nullptr,startP,endP,true,true,true,startDummy)!=nullptr)
                 { // The path can be performed!
-                    connect(&newPathElementsBetweenAndIncludingLowAndHigh,NULL,startP,endP,true,true,false,startDummy);
+                    connect(&newPathElementsBetweenAndIncludingLowAndHigh,nullptr,startP,endP,true,true,false,startDummy);
                     int elementsBefore=highIndex-lowIndex+1;
                     int elementsAfter=(int)newPathElementsBetweenAndIncludingLowAndHigh.size();
                     if (elementsAfter<elementsBefore)
@@ -710,8 +710,8 @@ void CNonHolonomicPathPlanning::getPathData(std::vector<float>& data)
 }
 
 bool CNonHolonomicPathPlanning::doCollide(float* dist)
-{// dist can be NULL. Dist returns the actual distance only when return value is true!! otherwise it is SIM_MAX_FLOAT!!
-    if (dist!=NULL)
+{// dist can be nullptr. Dist returns the actual distance only when return value is true!! otherwise it is SIM_MAX_FLOAT!!
+    if (dist!=nullptr)
         dist[0]=SIM_MAX_FLOAT;
     if (obstacleClearanceAndMaxDistance[0]<=0.0f)
     {
@@ -719,7 +719,7 @@ bool CNonHolonomicPathPlanning::doCollide(float* dist)
             return(false);
         if (_simDoEntitiesCollide_internal(robotCollectionID,obstacleCollectionID,buffer,false,false,true)!=0)
         {
-            if (dist!=NULL)
+            if (dist!=nullptr)
                 dist[0]=0.0f;
             return(true);
         }
@@ -735,7 +735,7 @@ bool CNonHolonomicPathPlanning::doCollide(float* dist)
             float theDist=obstacleClearanceAndMaxDistance[0];
             if (_simGetDistanceBetweenEntitiesIfSmaller_internal(robotCollectionID,obstacleCollectionID,&theDist,ray,buffer,false,false,true)!=0)
             {
-                if (dist!=NULL)
+                if (dist!=nullptr)
                     dist[0]=theDist;
                 return(true);
             }
@@ -749,11 +749,11 @@ bool CNonHolonomicPathPlanning::doCollide(float* dist)
             {
                 if (theDist>=obstacleClearanceAndMaxDistance[0])
                     return(false);
-                if (dist!=NULL)
+                if (dist!=nullptr)
                     dist[0]=theDist;
                 return(true);
             }
-            if (dist!=NULL)
+            if (dist!=nullptr)
                 dist[0]=theDist;
             return(true);
         }

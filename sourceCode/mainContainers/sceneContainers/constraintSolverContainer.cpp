@@ -61,8 +61,8 @@ void CConstraintSolverContainer::removeMultipleDefinedObjects()
     std::vector<int> markedMechanismIDs;
     for (int i=0;i<int(allGcsObjects.size());i++)
     {
-        C3DObject* it=App::ct->objCont->getObject(allGcsObjects[i]->getBase3DObject());
-        if (it==NULL)
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(allGcsObjects[i]->getBase3DObject());
+        if (it==nullptr)
         {
             delete allGcsObjects[i];
             allGcsObjects.erase(allGcsObjects.begin()+i);
@@ -99,7 +99,7 @@ CConstraintSolverObject* CConstraintSolverContainer::getObject(int objectID)
         if (allGcsObjects[i]->getObjectID()==objectID)
             return(allGcsObjects[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 CConstraintSolverObject* CConstraintSolverContainer::getObject(const char* objectName)
@@ -109,7 +109,7 @@ CConstraintSolverObject* CConstraintSolverContainer::getObject(const char* objec
         if (allGcsObjects[i]->getObjectName()==objectName)
             return(allGcsObjects[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 CConstraintSolverObject* CConstraintSolverContainer::getObjectFromMechanismID(int mechanismID)
@@ -121,7 +121,7 @@ CConstraintSolverObject* CConstraintSolverContainer::getObjectFromMechanismID(in
         if (work.getMechanismID()==mechanismID)
             return(allGcsObjects[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 void CConstraintSolverContainer::getMinAndMaxNameSuffixes(int& minSuffix,int& maxSuffix)
@@ -190,7 +190,7 @@ void CConstraintSolverContainer::addObject(CConstraintSolverObject* anObject,boo
 void CConstraintSolverContainer::addObjectWithSuffixOffset(CConstraintSolverObject* anObject,bool objectIsACopy,int suffixOffset)
 {
     int newID=SIM_IDSTART_GCSOBJECT;
-    while (getObject(newID)!=NULL)
+    while (getObject(newID)!=nullptr)
         newID++;
     anObject->setObjectID(newID);
     std::string newName(anObject->getObjectName());
@@ -198,7 +198,7 @@ void CConstraintSolverContainer::addObjectWithSuffixOffset(CConstraintSolverObje
         newName=tt::generateNewName_dash(newName,suffixOffset);
     else
     {
-        while (getObject(newName.c_str())!=NULL)
+        while (getObject(newName.c_str())!=nullptr)
             newName=tt::generateNewName_noDash(newName);
     }
     anObject->setObjectName(newName.c_str());

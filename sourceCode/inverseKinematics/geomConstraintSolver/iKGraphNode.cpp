@@ -16,12 +16,12 @@ CIKGraphNode::~CIKGraphNode()
 
 CIKGraphNode* CIKGraphNode::getUnexplored(int pos)
 {
-    return(NULL);
+    return(nullptr);
 }
 
 CIKGraphNode* CIKGraphNode::getNeighbour(int pos,bool noLinkNeighbour)
 {
-    return(NULL);
+    return(nullptr);
 }
 
 int CIKGraphNode::getNumberOfUnexplored()
@@ -31,13 +31,13 @@ int CIKGraphNode::getNumberOfUnexplored()
 
 CIKGraphNode* CIKGraphNode::getNeighbourWithExplorationID(int theID)
 {
-    return(NULL);
+    return(nullptr);
 }
 
 
 CIKGraphNode* CIKGraphNode::getExploredWithSmallestExplorationID()
 {
-    return(NULL);
+    return(nullptr);
 }
 
 int CIKGraphNode::getConnectionNumber()

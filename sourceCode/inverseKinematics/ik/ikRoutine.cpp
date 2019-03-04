@@ -47,25 +47,25 @@ void CIkRoutine::buildDeltaZTranslation(C4X4FullMatrix& d0,C4X4FullMatrix& dp)
 }
 
 CMatrix* CIkRoutine::getJacobian(CikEl* ikElement,C4X4Matrix& tooltipTransf,std::vector<int>* rowJointIDs,std::vector<int>* rowJointStages)
-{   // rowJointIDs is NULL by default. If not null, it will contain the ids of the joints
+{   // rowJointIDs is nullptr by default. If not null, it will contain the ids of the joints
     // corresponding to the rows of the jacobian.
-    // Return value NULL means that is ikElement is either inactive, either invalid
+    // Return value nullptr means that is ikElement is either inactive, either invalid
     // tooltipTransf is the cumulative transformation matrix of the tooltip,
     // computed relative to the base!
     // The temporary joint parameters need to be initialized before calling this function!
     // We check if the ikElement's base is in the chain and that tooltip is valid!
     CDummy* tooltip=App::ct->objCont->getDummy(ikElement->getTooltip());
-    if (tooltip==NULL)
+    if (tooltip==nullptr)
     { // Should normally never happen!
         // 28/4/2016 ikElement->setActive(false);
-        return(NULL);
+        return(nullptr);
     }
-    C3DObject* base=App::ct->objCont->getObject(ikElement->getBase());
-    if ( (base!=NULL)&&(!tooltip->isObjectParentedWith(base)) )
+    C3DObject* base=App::ct->objCont->getObjectFromHandle(ikElement->getBase());
+    if ( (base!=nullptr)&&(!tooltip->isObjectParentedWith(base)) )
     { // This case can happen (when the base's parenting was changed for instance)
         ikElement->setBase(-1);
         // 28/4/2016 ikElement->setActive(false);
-        return(NULL);
+        return(nullptr);
     }
 
     // We check the number of degrees of freedom and prepare the rowJointIDs vector:
@@ -73,8 +73,8 @@ CMatrix* CIkRoutine::getJacobian(CikEl* ikElement,C4X4Matrix& tooltipTransf,std:
     int doF=0;
     while (iterat!=base)
     {
-        iterat=iterat->getParent();
-        if ( (iterat!=NULL)&&(iterat!=base) )
+        iterat=iterat->getParentObject();
+        if ( (iterat!=nullptr)&&(iterat!=base) )
         {
             if (iterat->getObjectType()==sim_object_joint_type)
             {
@@ -83,9 +83,9 @@ CMatrix* CIkRoutine::getJacobian(CikEl* ikElement,C4X4Matrix& tooltipTransf,std:
                     int d=((CJoint*)iterat)->getDoFs();
                     for (int i=d-1;i>=0;i--)
                     {
-                        if (rowJointIDs!=NULL)
+                        if (rowJointIDs!=nullptr)
                         {
-                            rowJointIDs->push_back(iterat->getID());
+                            rowJointIDs->push_back(iterat->getObjectHandle());
                             rowJointStages->push_back(i);
                         }
                     }
@@ -114,12 +114,12 @@ CMatrix* CIkRoutine::getJacobian(CikEl* ikElement,C4X4Matrix& tooltipTransf,std:
     C4X4FullMatrix d0;
     C4X4FullMatrix dp;
     C4X4FullMatrix paramPart;
-    CJoint* lastJoint=NULL;
+    CJoint* lastJoint=nullptr;
     int indexCnt=-1;
     int indexCntLast=-1;
     while (iterat!=base)
     {
-        C3DObject* nextIterat=iterat->getParent();
+        C3DObject* nextIterat=iterat->getParentObject();
         C7Vector local;
         if (iterat->getObjectType()==sim_object_joint_type)
         {
@@ -146,13 +146,13 @@ CMatrix* CIkRoutine::getJacobian(CikEl* ikElement,C4X4Matrix& tooltipTransf,std:
         buff=C4X4FullMatrix(local.getMatrix())*buff;
         iterat=nextIterat;
         bool activeJoint=false;
-        if (iterat!=NULL) // Following lines recently changed!
+        if (iterat!=nullptr) // Following lines recently changed!
         {
             if (iterat->getObjectType()==sim_object_joint_type) 
                 activeJoint=( (((CJoint*)iterat)->getJointMode()==sim_jointmode_ik)||(((CJoint*)iterat)->getJointMode()==sim_jointmode_reserved_previously_ikdependent)||(((CJoint*)iterat)->getJointMode()==sim_jointmode_dependent) );
         }
         if ( (iterat==base)||activeJoint )
-        {   // If base is NULL then the second part is not evaluated (iterat->getObjectType())
+        {   // If base is nullptr then the second part is not evaluated (iterat->getObjectType())
             if (positionCounter==0)
             {   // Here we have the first part (from tooltip to first joint)
                 d0=buff;
@@ -195,12 +195,12 @@ CMatrix* CIkRoutine::getJacobian(CikEl* ikElement,C4X4Matrix& tooltipTransf,std:
     if (alternativeBaseForConstraints!=-1)
     {
         CDummy* alb=App::ct->objCont->getDummy(alternativeBaseForConstraints);
-        if (alb!=NULL)
+        if (alb!=nullptr)
         { // We want everything relative to the alternativeBaseForConstraints dummy orientation!
             C7Vector alternativeBase(alb->getCumulativeTransformationPart1(true));
             C7Vector currentBase;
             currentBase.setIdentity();
-            if (base!=NULL)
+            if (base!=nullptr)
                 currentBase=base->getCumulativeTransformation(true); // could be a joint, we want also the joint intrinsic transformation part!
             C4X4FullMatrix correction((alternativeBase.getInverse()*currentBase).getMatrix());
             dp.clear();
@@ -264,7 +264,7 @@ CMatrix* CIkRoutine::getJacobian(CikEl* ikElement,C4X4Matrix& tooltipTransf,std:
 }
 
 CMatrix* CIkRoutine::getAvoidanceJacobian(C3DObject* base,C3DObject* avoidingObject,const C4X4Matrix& relPos,std::vector<int>* rowJointIDs,std::vector<int>* rowJointStages)
-{   // rowJointIDs is NULL by default. If not null, it will contain the ids of the joints
+{   // rowJointIDs is nullptr by default. If not null, it will contain the ids of the joints
     // corresponding to the rows of the jacobian.
     // This function computes the jacobian (position part only) of an avoidance object
     // The temporary joint parameters need to be initialized before calling this function!
@@ -274,8 +274,8 @@ CMatrix* CIkRoutine::getAvoidanceJacobian(C3DObject* base,C3DObject* avoidingObj
     int doF=0;
     while (iterat!=base)
     {
-        iterat=iterat->getParent();
-        if ( (iterat!=NULL)&&(iterat!=base) )
+        iterat=iterat->getParentObject();
+        if ( (iterat!=nullptr)&&(iterat!=base) )
         {
             if (iterat->getObjectType()==sim_object_joint_type)
             {
@@ -284,9 +284,9 @@ CMatrix* CIkRoutine::getAvoidanceJacobian(C3DObject* base,C3DObject* avoidingObj
                     int d=((CJoint*)iterat)->getDoFs();
                     for (int i=d-1;i>=0;i--)
                     {
-                        if (rowJointIDs!=NULL)
+                        if (rowJointIDs!=nullptr)
                         {
-                            rowJointIDs->push_back(iterat->getID());
+                            rowJointIDs->push_back(iterat->getObjectHandle());
                         }
                     }
                     doF+=d;
@@ -314,12 +314,12 @@ CMatrix* CIkRoutine::getAvoidanceJacobian(C3DObject* base,C3DObject* avoidingObj
     C4X4FullMatrix d0;
     C4X4FullMatrix dp;
     C4X4FullMatrix paramPart;
-    CJoint* lastJoint=NULL;
+    CJoint* lastJoint=nullptr;
     int indexCnt=-1;
     int indexCntLast=-1;
     while (iterat!=base)
     {
-        C3DObject* nextIterat=iterat->getParent();
+        C3DObject* nextIterat=iterat->getParentObject();
         C7Vector local;
         if (iterat->getObjectType()==sim_object_joint_type)
         {
@@ -345,13 +345,13 @@ CMatrix* CIkRoutine::getAvoidanceJacobian(C3DObject* base,C3DObject* avoidingObj
         buff=C4X4FullMatrix(local.getMatrix())*buff;
         iterat=nextIterat;
         bool activeJoint=false;
-        if (iterat!=NULL)
+        if (iterat!=nullptr)
         {
             if (iterat->getObjectType()==sim_object_joint_type) 
                 activeJoint=( (((CJoint*)iterat)->getJointMode()==sim_jointmode_ik)||(((CJoint*)iterat)->getJointMode()==sim_jointmode_reserved_previously_ikdependent)||(((CJoint*)iterat)->getJointMode()==sim_jointmode_dependent) );
         }
         if ( (iterat==base)||activeJoint )
-        {   // If base is NULL then the second part is not evaluated (iterat->getObjectType())
+        {   // If base is nullptr then the second part is not evaluated (iterat->getObjectType())
             if (positionCounter==0)
             {   // Here we have the first part (from tooltip to first joint)
                 d0=buff;

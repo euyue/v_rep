@@ -296,15 +296,15 @@ C3DObject* CProxSensor::copyYourself()
     return(newSensor);
 }
 
-bool CProxSensor::announceObjectWillBeErased(int objID,bool copyBuffer)
+bool CProxSensor::announceObjectWillBeErased(int objectHandle,bool copyBuffer)
 {   // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     // This routine can be called for objCont-objects, but also for objects
     // in the copy-buffer!! So never make use of any 
-    // 'ct::objCont->getObject(id)'-call or similar
+    // 'ct::objCont->getObject(objectHandle)'-call or similar
     // Return value true means 'this' has to be erased too!
-    bool retVal=announceObjectWillBeErasedMain(objID,copyBuffer);
-    if (_sensableObject==objID)
+    bool retVal=announceObjectWillBeErasedMain(objectHandle,copyBuffer);
+    if (_sensableObject==objectHandle)
         _sensableObject=-1;
     return(retVal);
 }
@@ -512,7 +512,7 @@ void CProxSensor::serialize(CSer& ar)
                 {
                     noHit=false;
                     ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    if (convexVolume!=NULL)
+                    if (convexVolume!=nullptr)
                         delete convexVolume;
                     convexVolume=new CConvexVolume();
                     convexVolume->serialize(ar);
@@ -724,7 +724,7 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling,int& detectedObjectHa
 
     _randomizedVectors.clear();
     _randomizedVectorDetectionStates.clear();
-    _detectedPointValid=CProxSensorRoutine::detectEntity(_objectID,_sensableObject,closestObjectMode,normalCheck,allowedNormal,_detectedPoint,treshhold,frontFaceDetection,backFaceDetection,detectedObjectHandle,minThreshold,detectedNormalVector,false,_checkOcclusions&&normalCheck);
+    _detectedPointValid=CProxSensorRoutine::detectEntity(_objectHandle,_sensableObject,closestObjectMode,normalCheck,allowedNormal,_detectedPoint,treshhold,frontFaceDetection,backFaceDetection,detectedObjectHandle,minThreshold,detectedNormalVector,false,_checkOcclusions&&normalCheck);
     _detectedObjectHandle=detectedObjectHandle;
     _detectedNormalVector=detectedNormalVector;
     _calcTimeInMs=VDateTime::getTimeDiffInMs(stTime);
@@ -854,7 +854,7 @@ CVisualParam* CProxSensor::getColor(int index)
         return(&detectionRayColor);
     if (index==3)
         return(&closestDistanceVolumeColor);
-    return(NULL);
+    return(nullptr);
 }
 
 void CProxSensor::setSensorType(int theType)

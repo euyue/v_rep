@@ -25,7 +25,7 @@ CGhostObject::CGhostObject(int theGroupId,int theObjectHandle,C7Vector theTr,int
     endTime=theEndTime;
     tr=theTr;
     transparencyFactor=0;
-    if (theColor!=NULL)
+    if (theColor!=nullptr)
     {
         for (int i=0;i<12;i++)
             color[i]=theColor[i];
@@ -79,7 +79,7 @@ void CGhostObject::render(int displayAttributes,float simulationTime,float realT
     if (doIt)
     {
         CShape* shape=App::ct->objCont->getShape(objectHandle);
-        if (shape!=NULL)
+        if (shape!=nullptr)
             displayGhost(shape,tr,displayAttributes,options,float(transparencyFactor)/255.0f,color);
     }
 }

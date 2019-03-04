@@ -288,7 +288,7 @@ int CCopyBuffer::pasteBuffer(bool intoLockedScene)
     // We first remove all parents for 3DObjects (the parenting info is stored
     // in _parentID)
     for (size_t i=0;i<objectCopy.size();i++)
-        objectCopy[i]->setParent(NULL,false);
+        objectCopy[i]->setParentObject(nullptr,false);
 
     // Following for backward compatibility (leave empty):
     std::vector<CDynMaterialObject*> dynMaterialObjectCopy;
@@ -315,7 +315,7 @@ int CCopyBuffer::pasteBuffer(bool intoLockedScene)
     for (size_t i=0;i<objectCopy.size();i++)
     {
         stack.pushNumberOntoStack(double(i+1)); // key or index
-        stack.pushNumberOntoStack(objectCopy[i]->getID());
+        stack.pushNumberOntoStack(objectCopy[i]->getObjectHandle());
         stack.insertDataIntoStackTable();
     }
     stack.insertDataIntoStackTable();
@@ -350,7 +350,7 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
     selObj.reserve(sel->size());
     selObj.clear();
     for (size_t i=0;i<sel->size();i++)
-        selObj.push_back(App::ct->objCont->getObject(sel->at(i)));
+        selObj.push_back(App::ct->objCont->getObjectFromHandle(sel->at(i)));
     objectBuffer.reserve(selObj.size());
     objectBuffer.clear();
 
@@ -372,7 +372,7 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
     {
         C3DObject* original=selObj[i];
         C3DObject* it=original->copyYourself();
-        it->setParent(NULL,false); // Parenting is handled elsewhere
+        it->setParentObject(nullptr,false); // Parenting is handled elsewhere
         objectBuffer.push_back(it);
     }
 
@@ -382,29 +382,29 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
     for (size_t i=0;i<selObj.size();i++)
     {
         C3DObject* original=selObj[i];
-        C3DObject* originalParent=original->getParent();
+        C3DObject* originalParent=original->getParentObject();
         C3DObject* newParent=original->getFirstParentInSelection(&selObj);
         if (originalParent!=newParent)
         { // We have to change position/orientation
             C7Vector cumul(original->getCumulativeTransformationPart1());
             C7Vector nParentInv;
-            if (newParent==NULL)
+            if (newParent==nullptr)
                 nParentInv.setIdentity();
             else
                 nParentInv=newParent->getCumulativeTransformation().getInverse();
             objectBuffer[i]->setLocalTransformation(nParentInv*cumul);
         }
         // Now we prepare the index of the new parent (used later)
-        if (newParent!=NULL)
+        if (newParent!=nullptr)
         {
             bool found=false;
             for (size_t j=0;j<selObj.size();j++)
             {
-                if (selObj[j]->getID()==newParent->getID())
+                if (selObj[j]->getObjectHandle()==newParent->getObjectHandle())
                 {
-                    objectBuffer[i]->setParentIdentifierLoading(objectBuffer[j]->getID());
+                    objectBuffer[i]->setParentHandleLoading(objectBuffer[j]->getObjectHandle());
                     // The following is important for model-serialization!!!
-                    objectBuffer[i]->setParent(objectBuffer[j],false);
+                    objectBuffer[i]->setParentObject(objectBuffer[j],false);
                     found=true;
                     break;
                 }
@@ -412,8 +412,8 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
         }
         else
         {
-            objectBuffer[i]->setParentIdentifierLoading(-1);
-            objectBuffer[i]->setParent(NULL,false); // Important for model-serialization!!
+            objectBuffer[i]->setParentHandleLoading(-1);
+            objectBuffer[i]->setParentObject(nullptr,false); // Important for model-serialization!!
         }
     }
 
@@ -712,7 +712,7 @@ void CCopyBuffer::_eraseObjectInBuffer(int objectID)
     _announceObjectWillBeErased(objectID);
     for (size_t i=0;i<objectBuffer.size();i++)
     {
-        if (objectBuffer[i]->getID()==objectID)
+        if (objectBuffer[i]->getObjectHandle()==objectID)
         {
             delete objectBuffer[i];
             objectBuffer.erase(objectBuffer.begin()+i);
@@ -872,7 +872,7 @@ void CCopyBuffer::_announceObjectWillBeErased(int objectID)
 #else
             printf("%s\n",IDSNOTR_STRANGE_ERROR7);
 #endif
-            _eraseObjectInBuffer(it->getID()); 
+            _eraseObjectInBuffer(it->getObjectHandle()); 
             i=0; // ordering may have changed!
         }
         else

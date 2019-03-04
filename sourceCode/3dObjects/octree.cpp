@@ -25,7 +25,7 @@ COctree::COctree()
     _localObjectSpecialProperty=sim_objectspecialproperty_collidable|sim_objectspecialproperty_measurable|sim_objectspecialproperty_detectable_all|sim_objectspecialproperty_renderable;
     _objectName=IDSOGL_OCTREE;
     _objectAltName=tt::getObjectAltNameFromObjectName(_objectName);
-    _octreeInfo=NULL;
+    _octreeInfo=nullptr;
     _showOctreeStructure=false;
     _useRandomColors=false;
     _colorIsEmissive=false;
@@ -99,7 +99,7 @@ void COctree::_readPositionsAndColorsAndSetDimensions()
 {
     _voxelPositions.clear();
     _colors.clear();
-    if (_octreeInfo!=NULL)
+    if (_octreeInfo!=nullptr)
     {
         CPluginContainer::mesh_getOctreeVoxels(_octreeInfo,_voxelPositions,_colors);
         if (_useRandomColors)
@@ -157,9 +157,9 @@ void COctree::insertPoints(const float* pts,int ptsCnt,bool ptsAreRelativeToOctr
         }
         _pts=&__pts[0];
     }
-    if (_octreeInfo==NULL)
+    if (_octreeInfo==nullptr)
     {
-        if (optionalColors3==NULL)
+        if (optionalColors3==nullptr)
             _octreeInfo=CPluginContainer::mesh_createOctreeFromPoints(_pts,ptsCnt,_cellSize,color.colors,theTagWhenOptionalTagsIsNull);
         else
         {
@@ -174,7 +174,7 @@ void COctree::insertPoints(const float* pts,int ptsCnt,bool ptsAreRelativeToOctr
     }
     else
     {
-        if (optionalColors3==NULL)
+        if (optionalColors3==nullptr)
             CPluginContainer::mesh_insertPointsIntoOctree(_octreeInfo,_pts,ptsCnt,color.colors,theTagWhenOptionalTagsIsNull);
         else
         {
@@ -197,7 +197,7 @@ void COctree::insertShape(const CShape* shape,unsigned int theTag)
 
     C4X4Matrix octreeM(getCumulativeTransformation().getMatrix());
     C4X4Matrix shapeM(((CShape*)shape)->getCumulativeTransformation().getMatrix());
-    if (_octreeInfo==NULL)
+    if (_octreeInfo==nullptr)
         _octreeInfo=CPluginContainer::mesh_createOctreeFromShape(octreeM,shape->geomData->collInfo,shapeM,_cellSize,color.colors,theTag);
     else
         CPluginContainer::mesh_insertShapeIntoOctree(_octreeInfo,octreeM,shape->geomData->collInfo,shapeM,color.colors,theTag);
@@ -207,20 +207,20 @@ void COctree::insertShape(const CShape* shape,unsigned int theTag)
 void COctree::insertOctree(const COctree* octree,unsigned int theTag)
 {
     FUNCTION_DEBUG;
-    if (octree->_octreeInfo!=NULL)
+    if (octree->_octreeInfo!=nullptr)
         insertOctree(octree->_octreeInfo,((COctree*)octree)->getCumulativeTransformation().getMatrix(),theTag);
 }
 
 void COctree::insertDummy(const CDummy* dummy,unsigned int theTag)
 {
     FUNCTION_DEBUG;
-    insertPoints(dummy->getCumulativeTransformation().X.data,1,false,NULL,false,NULL,theTag);
+    insertPoints(dummy->getCumulativeTransformation().X.data,1,false,nullptr,false,nullptr,theTag);
 }
 
 void COctree::insertPointCloud(const CPointCloud* pointCloud,unsigned int theTag)
 {
     FUNCTION_DEBUG;
-    if (pointCloud->getPointCloudInfo()!=NULL)
+    if (pointCloud->getPointCloudInfo()!=nullptr)
     {
         const std::vector<float>* _pts=pointCloud->getPoints();
         C7Vector tr(pointCloud->getCumulativeTransformation());
@@ -233,7 +233,7 @@ void COctree::insertPointCloud(const CPointCloud* pointCloud,unsigned int theTag
             pts.push_back(v(1));
             pts.push_back(v(2));
         }
-        insertPoints(&pts[0],(int)pts.size()/3,false,NULL,false,NULL,theTag);
+        insertPoints(&pts[0],(int)pts.size()/3,false,nullptr,false,nullptr,theTag);
     }
 }
 
@@ -243,7 +243,7 @@ void COctree::insertOctree(const void* octree2Info,const C4X4Matrix& octree2CTM,
     FUNCTION_DEBUG;
 
     C4X4Matrix octreeM(getCumulativeTransformation().getMatrix());
-    if (_octreeInfo==NULL)
+    if (_octreeInfo==nullptr)
         _octreeInfo=CPluginContainer::mesh_createOctreeFromOctree(octreeM,octree2Info,octree2CTM,_cellSize,color.colors,theTag);
     else
         CPluginContainer::mesh_insertOctreeIntoOctree(_octreeInfo,octreeM,octree2Info,octree2CTM,color.colors,theTag);
@@ -254,8 +254,8 @@ void COctree::insertObjects(const std::vector<int>& sel)
 {
     for (size_t i=0;i<sel.size();i++)
     {
-        C3DObject* it=App::ct->objCont->getObject(sel[i]);
-        if ((it!=NULL)&&(it!=this))
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(sel[i]);
+        if ((it!=nullptr)&&(it!=this))
             insertObject(it,0);
     }
 }
@@ -290,12 +290,12 @@ void COctree::subtractPoints(const float* pts,int ptsCnt,bool ptsAreRelativeToOc
         }
         _pts=&__pts[0];
     }
-    if (_octreeInfo!=NULL)
+    if (_octreeInfo!=nullptr)
     {
         if (CPluginContainer::mesh_removeOctreeVoxelsFromPoints(_octreeInfo,_pts,ptsCnt))
         {
             CPluginContainer::mesh_destroyOctree(_octreeInfo);
-            _octreeInfo=NULL;
+            _octreeInfo=nullptr;
         }
     }
     _readPositionsAndColorsAndSetDimensions();
@@ -304,7 +304,7 @@ void COctree::subtractPoints(const float* pts,int ptsCnt,bool ptsAreRelativeToOc
 void COctree::subtractShape(const CShape* shape)
 {
     FUNCTION_DEBUG;
-    if (_octreeInfo!=NULL)
+    if (_octreeInfo!=nullptr)
     {
         shape->geomData->initializeCalculationStructureIfNeeded();
 
@@ -313,7 +313,7 @@ void COctree::subtractShape(const CShape* shape)
         if (CPluginContainer::mesh_removeOctreeVoxelsFromShape(_octreeInfo,octreeM,shape->geomData->collInfo,shapeM))
         {
             CPluginContainer::mesh_destroyOctree(_octreeInfo);
-            _octreeInfo=NULL;
+            _octreeInfo=nullptr;
         }
         _readPositionsAndColorsAndSetDimensions();
     }
@@ -322,7 +322,7 @@ void COctree::subtractShape(const CShape* shape)
 void COctree::subtractOctree(const COctree* octree)
 {
     FUNCTION_DEBUG;
-    if (octree->_octreeInfo!=NULL)
+    if (octree->_octreeInfo!=nullptr)
         subtractOctree(octree->_octreeInfo,((COctree*)octree)->getCumulativeTransformation().getMatrix());
 }
 
@@ -335,7 +335,7 @@ void COctree::subtractDummy(const CDummy* dummy)
 void COctree::subtractPointCloud(const CPointCloud* pointCloud)
 {
     FUNCTION_DEBUG;
-    if (pointCloud->getPointCloudInfo()!=NULL)
+    if (pointCloud->getPointCloudInfo()!=nullptr)
     {
         const std::vector<float>* _pts=pointCloud->getPoints();
         C7Vector tr(pointCloud->getCumulativeTransformation());
@@ -356,13 +356,13 @@ void COctree::subtractPointCloud(const CPointCloud* pointCloud)
 void COctree::subtractOctree(const void* octree2Info,const C4X4Matrix& octree2CTM)
 {
     FUNCTION_DEBUG;
-    if (_octreeInfo!=NULL)
+    if (_octreeInfo!=nullptr)
     {
         C4X4Matrix octreeM(getCumulativeTransformation().getMatrix());
         if (CPluginContainer::mesh_removeOctreeVoxelsFromOctree(_octreeInfo,octreeM,octree2Info,octree2CTM))
         {
             CPluginContainer::mesh_destroyOctree(_octreeInfo);
-            _octreeInfo=NULL;
+            _octreeInfo=nullptr;
         }
         _readPositionsAndColorsAndSetDimensions();
     }
@@ -372,8 +372,8 @@ void COctree::subtractObjects(const std::vector<int>& sel)
 {
     for (size_t i=0;i<sel.size();i++)
     {
-        C3DObject* it=App::ct->objCont->getObject(sel[i]);
-        if ((it!=NULL)&&(it!=this))
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(sel[i]);
+        if ((it!=nullptr)&&(it!=this))
             subtractObject(it);
     }
 }
@@ -393,10 +393,10 @@ void COctree::subtractObject(const C3DObject* obj)
 void COctree::clear()
 {
     FUNCTION_DEBUG;
-    if (_octreeInfo!=NULL)
+    if (_octreeInfo!=nullptr)
     {
         CPluginContainer::mesh_destroyOctree(_octreeInfo);
-        _octreeInfo=NULL;
+        _octreeInfo=nullptr;
     }
     _voxelPositions.clear();
     _colors.clear();
@@ -547,7 +547,7 @@ void COctree::scaleObject(float scalingFactor)
     _maxDim*=scalingFactor;
     for (size_t i=0;i<_voxelPositions.size();i++)
         _voxelPositions[i]*=scalingFactor;
-    if (_octreeInfo!=NULL)
+    if (_octreeInfo!=nullptr)
         CPluginContainer::mesh_scaleOctree(_octreeInfo,scalingFactor);
 }
 
@@ -569,7 +569,7 @@ C3DObject* COctree::copyYourself()
     newOctree->_cellSize=_cellSize;
     color.copyYourselfInto(&newOctree->color);
 
-    if (_octreeInfo!=NULL)
+    if (_octreeInfo!=nullptr)
         newOctree->_octreeInfo=CPluginContainer::mesh_copyOctree(_octreeInfo);
     newOctree->_voxelPositions.assign(_voxelPositions.begin(),_voxelPositions.end());
     newOctree->_colors.assign(_colors.begin(),_colors.end());
@@ -586,17 +586,17 @@ C3DObject* COctree::copyYourself()
 
 void COctree::setCellSize(float theNewSize)
 {
-    if (_octreeInfo!=NULL)
+    if (_octreeInfo!=nullptr)
         theNewSize=tt::getLimitedFloat(_cellSize,1.0,theNewSize); // we can't reduce the cell size for an existing octree, because it doesn't make sense!
     else
         theNewSize=tt::getLimitedFloat(0.001f,1.0,theNewSize);
     if (theNewSize!=_cellSize)
     {
         _cellSize=theNewSize;
-        if (_octreeInfo!=NULL)
+        if (_octreeInfo!=nullptr)
         { // we reconstruct the octree from this octree:
             void* octree2Info=_octreeInfo;
-            _octreeInfo=NULL;
+            _octreeInfo=nullptr;
             clear();
             insertOctree(octree2Info,getCumulativeTransformation().getMatrix(),0);
             CPluginContainer::mesh_destroyOctree(octree2Info);
@@ -746,7 +746,7 @@ void COctree::serialize(CSer& ar)
             color.serialize(ar,0);
 
         // Keep this at the end
-        if (_octreeInfo!=NULL)
+        if (_octreeInfo!=nullptr)
         {
             if (!_saveCalculationStructure)
             {
@@ -889,14 +889,14 @@ void COctree::performObjectLoadingMapping(std::vector<int>* map,bool loadingAmod
     performObjectLoadingMappingMain(map,loadingAmodel);
 }
 
-bool COctree::announceObjectWillBeErased(int objID,bool copyBuffer)
+bool COctree::announceObjectWillBeErased(int objectHandle,bool copyBuffer)
 {   // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     // This routine can be called for objCont-objects, but also for objects
     // in the copy-buffer!! So never make use of any
-    // 'ct::objCont->getObject(id)'-call or similar
+    // 'ct::objCont->getObject(objectHandle)'-call or similar
     // Return value true means 'this' has to be erased too!
-    bool retVal=announceObjectWillBeErasedMain(objID,copyBuffer);
+    bool retVal=announceObjectWillBeErasedMain(objectHandle,copyBuffer);
     return(retVal);
 }
 

@@ -132,6 +132,13 @@ typedef int (__cdecl *ptrCodeEditor_close)(int handle,int* positionAndSize);
 typedef int (__cdecl *ptrCustomUi_msgBox)(int type, int buttons, const char *title, const char *message);
 typedef char* (__cdecl *ptrCustomUi_fileDialog)(int type, const char *title, const char *startPath, const char *initName, const char *extName, const char *ext, int native);
 
+typedef int* (__cdecl *ptrassimp_importShapes)(const char* fileNames,int maxTextures,float scaling,int upVector,int options,int* shapeCount);
+typedef void (__cdecl *ptrassimp_exportShapes)(const int* shapeHandles,int shapeCount,const char* filename,const char* format,float scaling,int upVector,int options);
+typedef int (__cdecl *ptrassimp_importMeshes)(const char* fileNames,float scaling,int upVector,int options,float*** allVertices,int** verticesSizes,int*** allIndices,int** indicesSizes);
+typedef void (__cdecl *ptrassimp_exportMeshes)(int meshCnt,const float** allVertices,const int* verticesSizes,const int** allIndices,const int* indicesSizes,const char* filename,const char* format,float scaling,int upVector,int options);
+
+
+
 class CPlugin
 {
 public:
@@ -260,6 +267,11 @@ public:
 
     ptrCustomUi_msgBox _customUi_msgBox;
     ptrCustomUi_fileDialog _customUi_fileDialog;
+
+    ptrassimp_importShapes _assimp_importShapes;
+    ptrassimp_exportShapes _assimp_exportShapes;
+    ptrassimp_importMeshes _assimp_importMeshes;
+    ptrassimp_exportMeshes _assimp_exportMeshes;
 
     std::string name;
     std::string _filename;
@@ -426,6 +438,14 @@ public:
     static bool isCustomUiPluginAvailable();
     static int customUi_msgBox(int type, int buttons, const char *title, const char *message);
     static bool customUi_fileDialog(int type, const char *title, const char *startPath, const char *initName, const char *extName, const char *ext, int native,std::string& files);
+
+    // Assimp plugin:
+    static CPlugin* currentAssimp;
+    static bool isAssimpPluginAvailable();
+    static int* assimp_importShapes(const char* fileNames,int maxTextures,float scaling,int upVector,int options,int* shapeCount);
+    static void assimp_exportShapes(const int* shapeHandles,int shapeCount,const char* filename,const char* format,float scaling,int upVector,int options);
+    static int assimp_importMeshes(const char* fileNames,float scaling,int upVector,int options,float*** allVertices,int** verticesSizes,int*** allIndices,int** indicesSizes);
+    static void assimp_exportMeshes(int meshCnt,const float** allVertices,const int* verticesSizes,const int** allIndices,const int* indicesSizes,const char* filename,const char* format,float scaling,int upVector,int options);
 
 
     static bool enableOrDisableSpecificEventCallback(int eventCallbackType,const char* pluginName);

@@ -14,11 +14,11 @@
 #include <algorithm>
 
 CGeometricConstraintSolverInt::CGeometricConstraintSolverInt(int threeDObjID,int constraintSolverObjectID)
-{ // constraintSolverObjectID can be NULL (but then 'solve' can't be called!)
+{ // constraintSolverObjectID can be nullptr (but then 'solve' can't be called!)
     _constraintSolverObjectID=constraintSolverObjectID;
-    C3DObject* theObject=App::ct->objCont->getObject(threeDObjID);
-    if (theObject==NULL)
-        graphContainer=NULL;
+    C3DObject* theObject=App::ct->objCont->getObjectFromHandle(threeDObjID);
+    if (theObject==nullptr)
+        graphContainer=nullptr;
     else
     {
         graphContainer=new CIKGraphObjCont();
@@ -36,7 +36,7 @@ int CGeometricConstraintSolverInt::getMechanismID()
 
 CGeometricConstraintSolverInt::~CGeometricConstraintSolverInt()
 {
-    if (graphContainer!=NULL)
+    if (graphContainer!=nullptr)
         delete graphContainer;
 }
 
@@ -44,7 +44,7 @@ bool CGeometricConstraintSolverInt::solve()
 {
     bool retVal=false;
     CConstraintSolverObject* gcsObj=App::ct->constraintSolver->getObject(_constraintSolverObjectID);
-    if (gcsObj!=NULL)
+    if (gcsObj!=nullptr)
     {
         // 1. We solve the graph:
         SGeomConstrSolverParam p;
@@ -62,7 +62,7 @@ bool CGeometricConstraintSolverInt::solve()
             for (int i=0;i<int(treeBases.size());i++)
             {
                 CIKGraphNode* baseTree=treeBases[i];
-                C3DObject* it=App::ct->objCont->getObject(baseTree->userData1);
+                C3DObject* it=App::ct->objCont->getObjectFromHandle(baseTree->userData1);
                 C7Vector newABS;
                 if (baseTree->type==IK_GRAPH_JOINT_TYPE)
                     newABS=((CIKGraphJoint*)baseTree)->downObject->cumulativeTransformation;
@@ -70,8 +70,8 @@ bool CGeometricConstraintSolverInt::solve()
                     newABS=((CIKGraphObject*)baseTree)->cumulativeTransformation;
                 C7Vector oldABS(it->getCumulativeTransformationPart1());
                 C7Vector diff(newABS*oldABS.getInverse());
-                while (it->getParent()!=NULL)
-                    it=it->getParent();
+                while (it->getParentObject()!=nullptr)
+                    it=it->getParentObject();
                 it->setLocalTransformation(diff*it->getLocalTransformationPart1());
             }
             // 3. We set the correct joint values:
@@ -148,7 +148,7 @@ int CGeometricConstraintSolverInt::createGraph(CIKGraphObjCont& graphContainer,C
             CJoint* theAct=App::ct->objCont->getJoint(aJoint->userData1);
             int dep=theAct->getDependencyJointID();
             CJoint* theDepAct=App::ct->objCont->getJoint(dep);
-            if ( ((theAct->getJointMode()==sim_jointmode_dependent)||(theAct->getJointMode()==sim_jointmode_reserved_previously_ikdependent))&&(theDepAct!=NULL)&&(theAct->getJointType()!=sim_joint_spherical_subtype)&&(theDepAct->getJointType()!=sim_joint_spherical_subtype) )
+            if ( ((theAct->getJointMode()==sim_jointmode_dependent)||(theAct->getJointMode()==sim_jointmode_reserved_previously_ikdependent))&&(theDepAct!=nullptr)&&(theAct->getJointType()!=sim_joint_spherical_subtype)&&(theDepAct->getJointType()!=sim_joint_spherical_subtype) )
             { // theAct is linearly dependent of the DepAct. We check if theDepAct is
                 // represented in the graph:
                 bool foundIt=false;
@@ -188,14 +188,14 @@ int CGeometricConstraintSolverInt::createGraph(CIKGraphObjCont& graphContainer,C
 CIKGraphNode* CGeometricConstraintSolverInt::createTree(CIKGraphObjCont& graphContainer,C3DObject* objectOnTree,std::vector<C3DObject*>& exploredObjs,std::vector<C3DObject*>& links,bool keepShapes,int& baseObjectID)
 {  // Creates a tree of linked objects (linked dummies are not followed!)
     // Return value is the base IKGraphObject of that tree
-    CIKGraphNode* toBeReturned=NULL;
-    while (objectOnTree->getParent()!=NULL)
-        objectOnTree=objectOnTree->getParent();
-    baseObjectID=objectOnTree->getID();
+    CIKGraphNode* toBeReturned=nullptr;
+    while (objectOnTree->getParentObject()!=nullptr)
+        objectOnTree=objectOnTree->getParentObject();
+    baseObjectID=objectOnTree->getObjectHandle();
     std::vector<C3DObject*> objectsToExplore;
     std::vector<CIKGraphObject*> lastAdded;
     objectsToExplore.push_back(objectOnTree);
-    lastAdded.push_back(NULL);
+    lastAdded.push_back(nullptr);
     std::vector<CIKGraphObject*> noParent;
     while (objectsToExplore.size()!=0)
     {
@@ -205,8 +205,8 @@ CIKGraphNode* CGeometricConstraintSolverInt::createTree(CIKGraphObjCont& graphCo
         lastAdded.pop_back();
         // 1. We have to insert this object (maybe)
         int insert=-1;
-        CJoint* act=NULL;
-        CDummy* dum=NULL;
+        CJoint* act=nullptr;
+        CDummy* dum=nullptr;
         if ( (object->getObjectType()==sim_object_shape_type) )
             insert=3;
         if (object->getObjectType()==sim_object_joint_type)
@@ -229,8 +229,8 @@ CIKGraphNode* CGeometricConstraintSolverInt::createTree(CIKGraphObjCont& graphCo
         }
         if (insert!=-1)
         {
-            CIKGraphObject* justInsertedObject=NULL;
-            CIKGraphJoint* justInsertedJoint=NULL;
+            CIKGraphObject* justInsertedObject=nullptr;
+            CIKGraphJoint* justInsertedJoint=nullptr;
             C7Vector transf(object->getCumulativeTransformationPart1());
             if (insert==0)
             {
@@ -243,7 +243,7 @@ CIKGraphNode* CGeometricConstraintSolverInt::createTree(CIKGraphObjCont& graphCo
             }
             else if (insert==1)
             { // if we enter in this section, it is sure the dummies are linked and the link type is GCS_LOOP_CLOSURE
-                int data=dum->getID();
+                int data=dum->getObjectHandle();
                 if (data>dum->getLinkedDummyID())
                     data=dum->getLinkedDummyID();
                 justInsertedObject=graphContainer.insertPassiveObjectNode(transf);  
@@ -261,8 +261,8 @@ CIKGraphNode* CGeometricConstraintSolverInt::createTree(CIKGraphObjCont& graphCo
             }
             if (insert!=0)
             {
-                justInsertedObject->userData1=object->getID();
-                if (lastAddedNode!=NULL)
+                justInsertedObject->userData1=object->getObjectHandle();
+                if (lastAddedNode!=nullptr)
                 {
                     lastAddedNode->linkWithObject(justInsertedObject);
                     lastAddedNode=justInsertedObject;
@@ -270,15 +270,15 @@ CIKGraphNode* CGeometricConstraintSolverInt::createTree(CIKGraphObjCont& graphCo
                 else
                 {
                     lastAddedNode=justInsertedObject;
-                    if (toBeReturned==NULL)
+                    if (toBeReturned==nullptr)
                         toBeReturned=justInsertedObject;
                     noParent.push_back(justInsertedObject);
                 }
             }
             else
             {
-                justInsertedJoint->userData1=object->getID();
-                if (lastAddedNode!=NULL)
+                justInsertedJoint->userData1=object->getObjectHandle();
+                if (lastAddedNode!=nullptr)
                 {
                     lastAddedNode->linkWithObject(justInsertedJoint->getDownIKGraphObject());
                     lastAddedNode=justInsertedJoint->getTopIKGraphObject();
@@ -286,7 +286,7 @@ CIKGraphNode* CGeometricConstraintSolverInt::createTree(CIKGraphObjCont& graphCo
                 else
                 {
                     lastAddedNode=justInsertedJoint->getTopIKGraphObject();
-                    if (toBeReturned==NULL)
+                    if (toBeReturned==nullptr)
                         toBeReturned=justInsertedJoint;
                     noParent.push_back(justInsertedJoint->getDownIKGraphObject());
                 }

@@ -110,7 +110,7 @@ void ogl::setTextColor(float rgb[3])
 void ogl::setMaterialColor(const float ambientCol[3],const float specularCol[3],const float emissiveCol[3])
 {
     float buff[4]={0.0f,0.0f,0.0f,1.0f};
-    if (ambientCol!=NULL)
+    if (ambientCol!=nullptr)
     {
         _lastAmbientDiffuseAlpha[0]=ambientCol[0];
         _lastAmbientDiffuseAlpha[1]=ambientCol[1];
@@ -123,7 +123,7 @@ void ogl::setMaterialColor(const float ambientCol[3],const float specularCol[3],
             glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE,_lastAmbientDiffuseAlpha);
         }
     }
-    if (specularCol!=NULL)
+    if (specularCol!=nullptr)
     {
         buff[0]=specularCol[0];
         buff[1]=specularCol[1];
@@ -136,7 +136,7 @@ void ogl::setMaterialColor(const float ambientCol[3],const float specularCol[3],
             glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,buff);
         }
     }
-    if (emissiveCol!=NULL)
+    if (emissiveCol!=nullptr)
     {
         buff[0]=emissiveCol[0];
         buff[1]=emissiveCol[1];
@@ -161,11 +161,11 @@ void ogl::setMaterialColor(float amb_r,float amb_g,float amb_b,float spec_r,floa
 void ogl::setMaterialColor(int colorMode,const float col[3])
 {
     if (colorMode==sim_colorcomponent_ambient_diffuse)
-        setMaterialColor(col,NULL,NULL);
+        setMaterialColor(col,nullptr,nullptr);
     if (colorMode==sim_colorcomponent_specular)
-        setMaterialColor(NULL,col,NULL);
+        setMaterialColor(nullptr,col,nullptr);
     if (colorMode==sim_colorcomponent_emission)
-        setMaterialColor(NULL,NULL,col);
+        setMaterialColor(nullptr,nullptr,col);
 }
 
 void ogl::setMaterialColor(int colorMode,float r,float g,float b)
@@ -259,7 +259,7 @@ void ogl::drawRandom3dLines(const float* pts,int ptsCnt,bool connected,const flo
         glBegin(GL_LINE_STRIP);
     else
         glBegin(GL_LINES);
-    if (normalVectorForDiffuseComp!=NULL)
+    if (normalVectorForDiffuseComp!=nullptr)
         glNormal3fv(normalVectorForDiffuseComp);
     else
         glNormal3f(0.0f,0.0f,1.0f);
@@ -270,19 +270,19 @@ void ogl::drawRandom3dLines(const float* pts,int ptsCnt,bool connected,const flo
 
 void ogl::drawRandom3dPoints(const float* pts,int ptsCnt,const float normalVectorForDiffuseComp[3])
 {
-    drawRandom3dPointsEx(pts,ptsCnt,NULL,NULL,NULL,false,normalVectorForDiffuseComp);
+    drawRandom3dPointsEx(pts,ptsCnt,nullptr,nullptr,nullptr,false,normalVectorForDiffuseComp);
 }
 
 void ogl::drawRandom3dPointsEx(const float* pts,int ptsCnt,const float* normals,const float* cols,const float* sizes,bool colsAreEmission,const float normalVectorForDiffuseComp[3])
 {
-    if (normals==NULL)
+    if (normals==nullptr)
     {
-        if (cols==NULL)
+        if (cols==nullptr)
         {
-            if (sizes==NULL)
+            if (sizes==nullptr)
             {
                 glBegin(GL_POINTS);
-                if (normalVectorForDiffuseComp!=NULL)
+                if (normalVectorForDiffuseComp!=nullptr)
                     glNormal3fv(normalVectorForDiffuseComp);
                 else
                     glNormal3f(0.0f,0.0f,1.0f);
@@ -292,7 +292,7 @@ void ogl::drawRandom3dPointsEx(const float* pts,int ptsCnt,const float* normals,
             }
             else
             {
-                if (normalVectorForDiffuseComp!=NULL)
+                if (normalVectorForDiffuseComp!=nullptr)
                     glNormal3fv(normalVectorForDiffuseComp);
                 else
                     glNormal3f(0.0f,0.0f,1.0f);
@@ -307,10 +307,10 @@ void ogl::drawRandom3dPointsEx(const float* pts,int ptsCnt,const float* normals,
         }
         else
         {
-            if (sizes==NULL)
+            if (sizes==nullptr)
             {
                 glBegin(GL_POINTS);
-                if (normalVectorForDiffuseComp!=NULL)
+                if (normalVectorForDiffuseComp!=nullptr)
                     glNormal3fv(normalVectorForDiffuseComp);
                 else
                     glNormal3f(0.0f,0.0f,1.0f);
@@ -326,7 +326,7 @@ void ogl::drawRandom3dPointsEx(const float* pts,int ptsCnt,const float* normals,
             }
             else
             {
-                if (normalVectorForDiffuseComp!=NULL)
+                if (normalVectorForDiffuseComp!=nullptr)
                     glNormal3fv(normalVectorForDiffuseComp);
                 else
                     glNormal3f(0.0f,0.0f,1.0f);
@@ -346,9 +346,9 @@ void ogl::drawRandom3dPointsEx(const float* pts,int ptsCnt,const float* normals,
     }
     else
     {
-        if (cols==NULL)
+        if (cols==nullptr)
         {
-            if (sizes==NULL)
+            if (sizes==nullptr)
             {
                 glBegin(GL_POINTS);
                 for (int i=0;i<ptsCnt;i++)
@@ -372,7 +372,7 @@ void ogl::drawRandom3dPointsEx(const float* pts,int ptsCnt,const float* normals,
         }
         else
         {
-            if (sizes==NULL)
+            if (sizes==nullptr)
             {
                 glBegin(GL_POINTS);
                 GLenum comp=GL_AMBIENT_AND_DIFFUSE;
@@ -446,7 +446,7 @@ void ogl::drawBitmapTextTo3dPosition(float x,float y,float z,const std::string& 
         return;
     if (txt.length()==0)
         return;
-    if (normalVectorForDiffuseComp!=NULL)
+    if (normalVectorForDiffuseComp!=nullptr)
         glNormal3fv(normalVectorForDiffuseComp);
     else
         glNormal3f(0.0f,0.0f,1.0f);
@@ -525,7 +525,7 @@ void ogl::drawBox(float x,float y,float z,bool solid,const float normalVectorFor
     }
     else
     {
-        if (normalVectorForDiffuseComp!=NULL)
+        if (normalVectorForDiffuseComp!=nullptr)
             glNormal3f(normalVectorForDiffuseComp[0],normalVectorForDiffuseComp[1],normalVectorForDiffuseComp[2]);
         else
             glNormal3f(0.0f,0.0f,1.0f);
@@ -755,7 +755,7 @@ void ogl::drawReference(float size,bool line,bool setColors,bool emissiveColor,c
 
     if (line)
     {
-        if (normalVectorForDiffuseComp!=NULL)
+        if (normalVectorForDiffuseComp!=nullptr)
             glNormal3fv(normalVectorForDiffuseComp);
         else
             glNormal3f(0.0f,0.0f,1.0f);
@@ -1233,9 +1233,9 @@ void ogl::freeOutlineFont()
     glDeleteLists(outlineFontBase+32,96);
 }
 
-void ogl::drawOutlineText(const char* txt,const C7Vector& trOrig,float textHeight,const C4X4Matrix* cameraAbsConfig,bool overlay,bool left,bool right,bool culling,const float* textColor,const float* backColor/*=NULL*/,bool sizeInPixels/*=false*/,int windowHeight/*=0*/,float verticalViewSizeOrAngle/*=0.0f*/,bool perspective/*=true*/,bool fullyFacingCamera/*=true*/)
-{ // cameraAbsConfig can be NULL. If not, the text is always facing the camera
-    // If backColor is NULL, there is no background
+void ogl::drawOutlineText(const char* txt,const C7Vector& trOrig,float textHeight,const C4X4Matrix* cameraAbsConfig,bool overlay,bool left,bool right,bool culling,const float* textColor,const float* backColor/*=nullptr*/,bool sizeInPixels/*=false*/,int windowHeight/*=0*/,float verticalViewSizeOrAngle/*=0.0f*/,bool perspective/*=true*/,bool fullyFacingCamera/*=true*/)
+{ // cameraAbsConfig can be nullptr. If not, the text is always facing the camera
+    // If backColor is nullptr, there is no background
     float length=0; 
 
     const char* text=txt;
@@ -1250,7 +1250,7 @@ void ogl::drawOutlineText(const char* txt,const C7Vector& trOrig,float textHeigh
     }
 
     C7Vector tr(trOrig);
-    if (cameraAbsConfig!=NULL)
+    if (cameraAbsConfig!=nullptr)
     { // the banner has always to face the camera
         C3X3Matrix m;
         if (fullyFacingCamera)
@@ -1320,11 +1320,11 @@ void ogl::drawOutlineText(const char* txt,const C7Vector& trOrig,float textHeigh
         }
         else
         {
-            if (backColor!=NULL)
+            if (backColor!=nullptr)
                 glDepthMask(GL_FALSE);
         }
 
-        if (backColor!=NULL)
+        if (backColor!=nullptr)
         {
             glPushMatrix();
             glTranslatef(tr.X(0),tr.X(1),tr.X(2));
@@ -1367,7 +1367,7 @@ void ogl::drawOutlineText(const char* txt,const C7Vector& trOrig,float textHeigh
 
         glDepthMask(GL_TRUE);
 
-        if (backColor!=NULL)
+        if (backColor!=nullptr)
         {
             glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
             glPushMatrix();
@@ -1388,7 +1388,7 @@ void ogl::drawOutlineText(const char* txt,const C7Vector& trOrig,float textHeigh
         if (overlay)
             glEnable(GL_DEPTH_TEST);
 
-        if ( (cameraAbsConfig!=NULL)||culling )
+        if ( (cameraAbsConfig!=nullptr)||culling )
             break; // we don't have to render twice here!
     }
     glDepthRange(0.0f,1.0f);
@@ -1639,7 +1639,7 @@ void ogl::drawRichTextIcon(int centerPosX,int centerPosY,int size,int icon)
 }
 
 void ogl::drawRichText(int posX,int posY,int size,std::string& text,std::vector<int>& iconsAndPos,int alignement,float backgroundColor[3],float secondTextColor[3])
-{   // secondTextColor can be NULL in which case the text is not displayed double!
+{   // secondTextColor can be nullptr in which case the text is not displayed double!
     if (oglFonts[fontIndex].fontBase==0)
         return;
     int width=0;
@@ -1688,7 +1688,7 @@ void ogl::drawRichText(int posX,int posY,int size,std::string& text,std::vector<
                 // We have to draw the buffered text:
                 if (bufferedText.length()!=0)
                 {
-                    if (secondTextColor!=NULL)
+                    if (secondTextColor!=nullptr)
                     { // We have to draw the text twice!
                         float tc[3];
                         getRichTextColor(tc);
@@ -1725,7 +1725,7 @@ void ogl::drawRichText(int posX,int posY,int size,std::string& text,std::vector<
                 }
                 else
                 { // this is a real icon
-                    if (secondTextColor!=NULL)
+                    if (secondTextColor!=nullptr)
                     { // We have to draw the icon twice!
                         float tc[3];
                         getRichTextColor(tc);
@@ -1767,7 +1767,7 @@ void ogl::drawRichText(int posX,int posY,int size,std::string& text,std::vector<
         text.clear();
     if (bufferedText.length()!=0)
     {   // We have to draw the buffered text:
-        if (secondTextColor!=NULL)
+        if (secondTextColor!=nullptr)
         { // We have to draw the text twice!
             float tc[3];
             getRichTextColor(tc);
@@ -1991,11 +1991,11 @@ int ogl::getMultilineTextInfo(const std::string& text,std::vector<std::string>& 
         maxLineWidth=tWidth;
     lines.push_back(lineTxt);
 
-    if (textMaxWidth!=NULL)
+    if (textMaxWidth!=nullptr)
         (*textMaxWidth)=maxLineWidth;
-    if (textHeight!=NULL)
+    if (textHeight!=nullptr)
         (*textHeight)=fontHeight*(int)lines.size();
-    if (charHeight!=NULL)
+    if (charHeight!=nullptr)
         (*charHeight)=fontHeight;
     return((int)lines.size());
 }
@@ -2009,13 +2009,13 @@ void ogl::drawButton(VPoint p,VPoint s,float txtColor[3],float _bckgrndColor1[3]
     // Before calling this function, make sure that viewSize==viewportSize!!
     // Make sure also that viewportPos is set correctly!!!
     // We work in screen pixel coordinates!
-    // secondTextColor can be NULL in wich case the text is only displayed once (no double)
+    // secondTextColor can be nullptr in wich case the text is only displayed once (no double)
 //  float zeroCol[3]={0.0f,0.0f,0.0f};
 //  ogl::setColor(zeroCol,zeroCol,zeroCol,zeroCol,12,0.5f);
     ogl::setAlpha(0.5f);
     float bckgrndColor1[3]={_bckgrndColor1[0],_bckgrndColor1[1],_bckgrndColor1[2]};
     float bckgrndColor2[3]={_bckgrndColor2[0],_bckgrndColor2[1],_bckgrndColor2[2]};
-    if ( (buttonTypeAndAttributes&sim_buttonproperty_transparent)&&(backgroundTexture==NULL)&&(foregroundTexture==NULL) )
+    if ( (buttonTypeAndAttributes&sim_buttonproperty_transparent)&&(backgroundTexture==nullptr)&&(foregroundTexture==nullptr) )
         ogl::setBlending(true,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
     glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
@@ -2061,8 +2061,8 @@ void ogl::drawButton(VPoint p,VPoint s,float txtColor[3],float _bckgrndColor1[3]
         int b=pos[0]+size[0]/2;
         int c=pos[1]-size[1]/2;
         int d=pos[1]+size[1]/2;
-        if ( ((backgroundTexture==NULL)||((buttonTypeAndAttributes&sim_buttonproperty_transparent)==0))&&
-            (foregroundTexture==NULL) )
+        if ( ((backgroundTexture==nullptr)||((buttonTypeAndAttributes&sim_buttonproperty_transparent)==0))&&
+            (foregroundTexture==nullptr) )
         {
             glBegin(GL_QUADS);
             glVertex3i(a,c,0);
@@ -2071,7 +2071,7 @@ void ogl::drawButton(VPoint p,VPoint s,float txtColor[3],float _bckgrndColor1[3]
             glVertex3i(a,d,0);
             glEnd();
         }
-        if ((backgroundTexture!=NULL)&&(buttonTypeAndAttributes&sim_buttonproperty_transparent))
+        if ((backgroundTexture!=nullptr)&&(buttonTypeAndAttributes&sim_buttonproperty_transparent))
         { // we have to display the background texture first
             float aq=float(a-backgroundPos->x)/float(backgroundSize->x);
             float bq=float(b-backgroundPos->x)/float(backgroundSize->x);
@@ -2090,7 +2090,7 @@ void ogl::drawButton(VPoint p,VPoint s,float txtColor[3],float _bckgrndColor1[3]
             glEnd();
             _end2DTextureDisplay(backgroundTexture);
         }
-        if (foregroundTexture!=NULL)
+        if (foregroundTexture!=nullptr)
         { // we have to display the foreground texture
 
             int off=0;
@@ -2136,7 +2136,7 @@ void ogl::drawButton(VPoint p,VPoint s,float txtColor[3],float _bckgrndColor1[3]
     }
     if ( ((buttonTypeAndAttributes&0x0007)==sim_buttonproperty_button)||((buttonTypeAndAttributes&0x0007)==sim_buttonproperty_label) )
     {
-        float* secondTextCol=NULL;
+        float* secondTextCol=nullptr;
         float secondTextColRef[3]={0.0f,0.0f,0.0f};
         if (secondTextColor)
         {

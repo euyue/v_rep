@@ -17,14 +17,14 @@ void displayGraph(CGraph* graph,CViewableBase* renderingObject,int displayAttrib
     C3Vector normalVectorForLinesAndPoints(graph->getCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
 
     // Object display:
-    if (graph->getShouldObjectBeDisplayed(renderingObject->getID(),displayAttrib))
+    if (graph->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
     {
         if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE)==0)
         {
             if (graph->getLocalObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
-                glLoadName(graph->getModelSelectionID());
+                glLoadName(graph->getModelSelectionHandle());
             else
-                glLoadName(graph->getID());
+                glLoadName(graph->getObjectHandle());
         }
         else
             glLoadName(-1);
@@ -32,7 +32,7 @@ void displayGraph(CGraph* graph,CViewableBase* renderingObject,int displayAttrib
         if ( (displayAttrib&sim_displayattribute_forcewireframe)&&(displayAttrib&sim_displayattribute_renderpass) )
             glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
 
-        _enableAuxClippingPlanes(graph->getID());
+        _enableAuxClippingPlanes(graph->getObjectHandle());
         graph->getColor()->makeCurrentColor((displayAttrib&sim_displayattribute_useauxcomponent)!=0);
         if (graph->xYZPlanesDisplay&&(!graph->getJustDrawCurves())&&((displayAttrib&sim_displayattribute_forvisionsensor)==0))
         {
@@ -92,32 +92,32 @@ void displayGraph(CGraph* graph,CViewableBase* renderingObject,int displayAttrib
                     }
                     bool cyclic0,cyclic1,cyclic2;
                     float range0,range1,range2;
-                    if (part0!=NULL)
+                    if (part0!=nullptr)
                         CGraphingRoutines::getCyclicAndRangeValues(part0,cyclic0,range0);
-                    if (part1!=NULL)
+                    if (part1!=nullptr)
                         CGraphingRoutines::getCyclicAndRangeValues(part1,cyclic1,range1);
-                    if (part2!=NULL)
+                    if (part2!=nullptr)
                         CGraphingRoutines::getCyclicAndRangeValues(part2,cyclic2,range2);
 
                     ogl::buffer.clear();
                     while (graph->getAbsIndexOfPosition(pos++,absIndex))
                     {
                         bool dataIsValid=true;
-                        if (part0!=NULL)
+                        if (part0!=nullptr)
                         {
                             if(!graph->getData(part0,absIndex,point[0],cyclic0,range0,false))
                                 dataIsValid=false;
                         }
                         else
                             dataIsValid=false;
-                        if (part1!=NULL)
+                        if (part1!=nullptr)
                         {
                             if(!graph->getData(part1,absIndex,point[1],cyclic1,range1,false))
                                 dataIsValid=false;
                         }
                         else
                             dataIsValid=false;
-                        if (part2!=NULL)
+                        if (part2!=nullptr)
                         {
                             if(!graph->getData(part2,absIndex,point[2],cyclic2,range2,false))
                                 dataIsValid=false;

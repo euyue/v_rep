@@ -44,7 +44,7 @@ void CQDlgIk::cancelEvent()
 
 void CQDlgIk::dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut)
 {
-    if ( (cmdIn!=NULL)&&(cmdIn->intParams[0]==_dlgType) )
+    if ( (cmdIn!=nullptr)&&(cmdIn->intParams[0]==_dlgType) )
     {
         if (cmdIn->intParams[1]==0)
             selectObjectInList(cmdIn->intParams[2]);
@@ -71,34 +71,34 @@ void CQDlgIk::refresh()
 
     ui->qqAddNewGroup->setEnabled(noEditModeNoSim);
     ui->qqList->setEnabled(noEditModeNoSim);
-    ui->qqUp->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqDown->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqGroupIsActive->setEnabled((it!=NULL)&&noEditModeNoSim);
+    ui->qqUp->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqDown->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqGroupIsActive->setEnabled((it!=nullptr)&&noEditModeNoSim);
 
-    ui->qqExplicitHandling->setEnabled((it!=NULL)&&noEditModeNoSim&&it->getActive());
-    ui->qqRedundant->setEnabled((it!=NULL)&&noEditModeNoSim&&it->getActive());
-    ui->qqIgnoreMaxStepSizes->setEnabled((it!=NULL)&&noEditModeNoSim&&it->getActive());
-    ui->qqCalcMethodCombo->setEnabled((it!=NULL)&&noEditModeNoSim&&it->getActive());
-    ui->qqDamping->setEnabled(((it!=NULL)&&noEditModeNoSim)&&(it->getCalculationMethod()==sim_ik_damped_least_squares_method)&&it->getActive());
-    ui->qqMaxIterations->setEnabled((it!=NULL)&&noEditModeNoSim&&it->getActive());
-    ui->qqWeightJointLimits->setEnabled((it!=NULL)&&noEditModeNoSim&&it->getActive());
-    ui->qqWeightObstacleAvoidance->setEnabled((it!=NULL)&&noEditModeNoSim&&it->getActive());
-    ui->qqThresholdLinear->setEnabled((it!=NULL)&&noEditModeNoSim&&it->getActive());
-    ui->qqThresholdAngular->setEnabled((it!=NULL)&&noEditModeNoSim&&it->getActive());
-    ui->qqEditConditional->setEnabled((it!=NULL)&&noEditModeNoSim&&it->getActive());
-    ui->qqEditObstacleAvoidance->setEnabled((it!=NULL)&&noEditModeNoSim&&it->getActive());
-    ui->qqEditIkElements->setEnabled((it!=NULL)&&noEditModeNoSim);
+    ui->qqExplicitHandling->setEnabled((it!=nullptr)&&noEditModeNoSim&&it->getActive());
+    ui->qqRedundant->setEnabled((it!=nullptr)&&noEditModeNoSim&&it->getActive());
+    ui->qqIgnoreMaxStepSizes->setEnabled((it!=nullptr)&&noEditModeNoSim&&it->getActive());
+    ui->qqCalcMethodCombo->setEnabled((it!=nullptr)&&noEditModeNoSim&&it->getActive());
+    ui->qqDamping->setEnabled(((it!=nullptr)&&noEditModeNoSim)&&(it->getCalculationMethod()==sim_ik_damped_least_squares_method)&&it->getActive());
+    ui->qqMaxIterations->setEnabled((it!=nullptr)&&noEditModeNoSim&&it->getActive());
+    ui->qqWeightJointLimits->setEnabled((it!=nullptr)&&noEditModeNoSim&&it->getActive());
+    ui->qqWeightObstacleAvoidance->setEnabled((it!=nullptr)&&noEditModeNoSim&&it->getActive());
+    ui->qqThresholdLinear->setEnabled((it!=nullptr)&&noEditModeNoSim&&it->getActive());
+    ui->qqThresholdAngular->setEnabled((it!=nullptr)&&noEditModeNoSim&&it->getActive());
+    ui->qqEditConditional->setEnabled((it!=nullptr)&&noEditModeNoSim&&it->getActive());
+    ui->qqEditObstacleAvoidance->setEnabled((it!=nullptr)&&noEditModeNoSim&&it->getActive());
+    ui->qqEditIkElements->setEnabled((it!=nullptr)&&noEditModeNoSim);
 
     ui->qqIkEnabled->setChecked(App::ct->mainSettings->ikCalculationEnabled);
 
-    ui->qqExplicitHandling->setChecked((it!=NULL)&&it->getExplicitHandling());
-    ui->qqGroupIsActive->setChecked((it!=NULL)&&it->getActive());
-    ui->qqRedundant->setChecked((it!=NULL)&&it->getCorrectJointLimits());
-    ui->qqIgnoreMaxStepSizes->setChecked((it!=NULL)&&it->getIgnoreMaxStepSizes());
+    ui->qqExplicitHandling->setChecked((it!=nullptr)&&it->getExplicitHandling());
+    ui->qqGroupIsActive->setChecked((it!=nullptr)&&it->getActive());
+    ui->qqRedundant->setChecked((it!=nullptr)&&it->getCorrectJointLimits());
+    ui->qqIgnoreMaxStepSizes->setChecked((it!=nullptr)&&it->getIgnoreMaxStepSizes());
 
     ui->qqCalcMethodCombo->clear();
 
-    if (it!=NULL)
+    if (it!=nullptr)
     {
         ui->qqCalcMethodCombo->addItem(strTranslate(IDS_PSEUDO_INVERSE),QVariant(sim_ik_pseudo_inverse_method));
         ui->qqCalcMethodCombo->addItem(strTranslate(IDS_DLS),QVariant(sim_ik_damped_least_squares_method));
@@ -167,7 +167,7 @@ void CQDlgIk::selectObjectInList(int objectID)
     for (int i=0;i<ui->qqList->count();i++)
     {
         QListWidgetItem* it=ui->qqList->item(i);
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             if (it->data(Qt::UserRole).toInt()==objectID)
             {
@@ -218,7 +218,7 @@ void CQDlgIk::on_qqAddNewGroup_clicked()
 
 void CQDlgIk::on_qqList_itemChanged(QListWidgetItem *item)
 {
-    if (item!=NULL)
+    if (item!=nullptr)
     {
         IF_UI_EVENT_CAN_WRITE_DATA
         {
@@ -241,7 +241,7 @@ void CQDlgIk::on_qqList_itemSelectionChanged()
             App::mainWindow->dlgCont->close(IKELEMENT_DLG);
             int objID=getSelectedObjectID();
             CikGroup* it=App::ct->ikGroups->getIkGroup(objID);
-            if (it!=NULL)
+            if (it!=nullptr)
                 ((CEditBoxDelegate*)ui->qqList->itemDelegate())->initialText=it->getObjectName();
             else
                 ((CEditBoxDelegate*)ui->qqList->itemDelegate())->initialText="";
@@ -432,7 +432,7 @@ void CQDlgIk::on_qqEditConditional_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CikGroup* it=App::ct->ikGroups->getIkGroup(getSelectedObjectID());
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             CQDlgIkConditional theDialog(this);
             theDialog.ikGroup=it;
@@ -461,7 +461,7 @@ void CQDlgIk::on_qqEditObstacleAvoidance_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CikGroup* it=App::ct->ikGroups->getIkGroup(getSelectedObjectID());
-        if (it==NULL)
+        if (it==nullptr)
             return;
         CQDlgIkAvoidance theDialog(this);
         theDialog.ikGroup=it;
@@ -489,7 +489,7 @@ void CQDlgIk::on_qqEditIkElements_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CikGroup* it=App::ct->ikGroups->getIkGroup(getSelectedObjectID());
-        if (it!=NULL)
+        if (it!=nullptr)
             CQDlgIkElements::display(it->getObjectID(),App::mainWindow);
     }
 }

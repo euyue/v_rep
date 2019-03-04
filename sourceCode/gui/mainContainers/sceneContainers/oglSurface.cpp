@@ -329,7 +329,7 @@ int COglSurface::modelDragMoveEvent(int xPos,int yPos,C3Vector* desiredModelPosi
         offx+=_hierarchyWidth;
         if (xPos-offx<=0)
         {
-            if (desiredModelPosition!=NULL)
+            if (desiredModelPosition!=nullptr)
                 desiredModelPosition->clear();
             return(1);
         }
@@ -524,7 +524,7 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
 {
     FUNCTION_DEBUG;
     if (!_readyToRender)
-        return(NULL);
+        return(nullptr);
 
     if (pageSelectionActive)
         pageSelector->render();
@@ -557,8 +557,8 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
             {
                 std::string objName("ERROR");
                 CShape* theShape=App::mainWindow->editModeContainer->getEditModeShape();
-                if (theShape!=NULL)
-                    objName=theShape->getName();
+                if (theShape!=nullptr)
+                    objName=theShape->getObjectName();
                 if (t&VERTEX_EDIT_MODE)
                     hierarchyTitle="  Vertices (";
                 if (t&TRIANGLE_EDIT_MODE)
@@ -571,8 +571,8 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
             {
                 std::string objName("  ERROR");
                 CPath* thePath=App::mainWindow->editModeContainer->getEditModePath();
-                if (thePath!=NULL)
-                    objName=thePath->getName();
+                if (thePath!=nullptr)
+                    objName=thePath->getObjectName();
                 hierarchyTitle="  Control points (";
                 hierarchyTitle+=objName+")";
             }
@@ -584,14 +584,14 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
             VPoint size(_hierarchyWidth-BROWSER_HIERARCHY_MAIN_RENDERING_WINDOW_SEPARATION_WIDTH,BROWSER_HIERARCHY_TITLE_BAR_HEIGHT*App::sc);
             VPoint pos(b+size.x/2,surfaceSize[1]-size.y/2);
             int buttonAttrib=sim_buttonproperty_label|sim_buttonproperty_enabled|sim_buttonproperty_verticallycentered;
-            ogl::drawButton(pos,size,txtCol,bkgrndCol,bkgrndCol,hierarchyTitle,buttonAttrib,false,0,0.0f,false,0,NULL,NULL,NULL,NULL,NULL);
+            ogl::drawButton(pos,size,txtCol,bkgrndCol,bkgrndCol,hierarchyTitle,buttonAttrib,false,0,0.0f,false,0,nullptr,nullptr,nullptr,nullptr,nullptr);
             pos.x=b+_hierarchyWidth+(-BROWSER_HIERARCHY_TITLE_BAR_CLOSING_BUTTON_WIDTH/2)*App::sc-BROWSER_HIERARCHY_MAIN_RENDERING_WINDOW_SEPARATION_WIDTH;
             size.x=BROWSER_HIERARCHY_TITLE_BAR_CLOSING_BUTTON_WIDTH*App::sc;
             float* bkgrndCol2=ogl::TITLE_BAR_BUTTON_COLOR;
             buttonAttrib=sim_buttonproperty_button|sim_buttonproperty_enabled|sim_buttonproperty_horizontallycentered|sim_buttonproperty_verticallycentered;
             if (_hierarchyClosingButtonDown)
                 buttonAttrib|=sim_buttonproperty_isdown;
-            ogl::drawButton(pos,size,txtCol,bkgrndCol2,bkgrndCol2,"&&Check",buttonAttrib,false,0,0.0f,false,0,NULL,NULL,NULL,NULL,NULL);
+            ogl::drawButton(pos,size,txtCol,bkgrndCol2,bkgrndCol2,"&&Check",buttonAttrib,false,0,0.0f,false,0,nullptr,nullptr,nullptr,nullptr,nullptr);
 
             ogl::setMaterialColor(sim_colorcomponent_emission,ogl::SEPARATION_LINE_COLOR);
             glLineWidth(1.0f);
@@ -600,7 +600,7 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
 
             glEnable(GL_DEPTH_TEST);
         }
-        App::ct->pageContainer->renderCurrentPage(frameResol!=NULL);
+        App::ct->pageContainer->renderCurrentPage(frameResol!=nullptr);
         // We now have to draw separations between the different parts:
         if (_hierarchyEnabled)
         {
@@ -619,7 +619,7 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
         }
     }
 
-    if ((App::mainWindow!=NULL)&&App::mainWindow->simulationRecorder->getIsRecording()&&App::mainWindow->simulationRecorder->getShowCursor())
+    if ((App::mainWindow!=nullptr)&&App::mainWindow->simulationRecorder->getIsRecording()&&App::mainWindow->simulationRecorder->getShowCursor())
     { // OpenGL cursor:
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
@@ -672,7 +672,7 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
         glEnd();
         App::ct->globalGuiTextureCont->endTextureDisplay();
 
-        if ((App::mainWindow!=NULL)&&App::mainWindow->simulationRecorder->getShowButtonStates())
+        if ((App::mainWindow!=nullptr)&&App::mainWindow->simulationRecorder->getShowButtonStates())
         {       
             if (mouseButtonState&0x0f)
             {
@@ -711,7 +711,7 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
                 glEnd();
                 App::ct->globalGuiTextureCont->endTextureDisplay();
 
-                if ((App::mainWindow!=NULL)&&(App::mainWindow->getKeyDownState()&2))
+                if ((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&2))
                 {
                     App::ct->globalGuiTextureCont->startTextureDisplay(CURSOR_SHIFT_BUTTON);
 
@@ -732,7 +732,7 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
                     glEnd();
                     App::ct->globalGuiTextureCont->endTextureDisplay();
                 }
-                if ((App::mainWindow!=NULL)&&(App::mainWindow->getKeyDownState()&1))
+                if ((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&1))
                 {
                     App::ct->globalGuiTextureCont->startTextureDisplay(CURSOR_CTRL_BUTTON);
 
@@ -770,7 +770,7 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
 //*************************************************
     static int prevResX=-1;
     static int prevResY=-1;
-    static char* buff=NULL;
+    static char* buff=nullptr;
     if (CPluginContainer::shouldSend_openglframe_msg())
     {
         if ((prevResX!=surfaceSize[0])||(prevResY!=surfaceSize[1]))
@@ -834,12 +834,12 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
     else
     {
         delete[] buff;
-        buff=NULL;
+        buff=nullptr;
         prevResX=-1;
     }
 //*************************************************
 
-    if (frameResol!=NULL)
+    if (frameResol!=nullptr)
     {
         frameResol[0]=surfaceSize[0];
         frameResol[1]=surfaceSize[1];
@@ -849,7 +849,7 @@ unsigned char* COglSurface::render(int currentCursor,int mouseButtonState,int mo
         glPixelStorei(GL_PACK_ALIGNMENT,4); // important to restore! Really?
         return(img);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 void COglSurface::setUpDefaultValues()

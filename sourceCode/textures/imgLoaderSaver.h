@@ -8,7 +8,7 @@ class CImageLoaderSaver
 {
 public:
     static unsigned char* load(const char* filename,int* resX,int* resY,int* colorComponents,int desiredColorComponents,int scaleTo=0);
-    static unsigned char* loadQTgaImageData(const char* fileAndPath,int& resX,int& resY,bool& rgba,unsigned char invisibleColor[3]=NULL,int bitsPerPixel[1]=NULL);
+    static unsigned char* loadQTgaImageData(const char* fileAndPath,int& resX,int& resY,bool& rgba,unsigned char invisibleColor[3]=nullptr,int bitsPerPixel[1]=nullptr);
     static unsigned char* getScaledImage(const unsigned char* originalImg,int colorComponents,int originalX,int originalY,int newX,int newY);
     static unsigned char* getScaledImage(const unsigned char* originalImg,const int resolIn[2],int resolOut[2],int options);
     static bool transformImage(unsigned char* img,const int resol[2],int options);

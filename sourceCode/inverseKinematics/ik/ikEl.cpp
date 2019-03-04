@@ -233,21 +233,21 @@ void CikEl::commonInit()
     constraints=(sim_ik_x_constraint|sim_ik_y_constraint|sim_ik_z_constraint);
     positionWeight=1.0f;
     orientationWeight=1.0f;
-    matrix=NULL;
-    matrix_correctJacobian=NULL; // same as matrix, but the orientation parts are multiplied by IK_DIVISION_FACTOR
-    errorVector=NULL;
-    rowJointIDs=NULL;
-    rowJointStages=NULL;
+    matrix=nullptr;
+    matrix_correctJacobian=nullptr; // same as matrix, but the orientation parts are multiplied by IK_DIVISION_FACTOR
+    errorVector=nullptr;
+    rowJointIDs=nullptr;
+    rowJointStages=nullptr;
 }
 
 void CikEl::setAllInvolvedJointsToPassiveMode()
 {
     C3DObject* iterat=App::ct->objCont->getDummy(tooltip);
-    C3DObject* baseObj=App::ct->objCont->getObject(base);
-    while ((iterat!=baseObj)&&(iterat!=NULL))
+    C3DObject* baseObj=App::ct->objCont->getObjectFromHandle(base);
+    while ((iterat!=baseObj)&&(iterat!=nullptr))
     {
-        iterat=iterat->getParent();
-        if ( (iterat!=NULL)&&(iterat!=baseObj) )
+        iterat=iterat->getParentObject();
+        if ( (iterat!=nullptr)&&(iterat!=baseObj) )
         {
             if (iterat->getObjectType()==sim_object_joint_type)
                 ((CJoint*)iterat)->setJointMode(sim_jointmode_passive,false);
@@ -309,7 +309,7 @@ int CikEl::getAlternativeBaseForConstraints()
 int CikEl::getTarget()
 { 
     CDummy* tip=App::ct->objCont->getDummy(tooltip);
-    if (tip==NULL)
+    if (tip==nullptr)
         return(-1);
     int linkedDummyID=tip->getLinkedDummyID();
     if (linkedDummyID==-1)
@@ -365,7 +365,7 @@ void CikEl::checkIfWithinTolerance(bool& position,bool& orientation,bool useTemp
     position=true;
     orientation=true;
     CDummy* targetObj=App::ct->objCont->getDummy(getTarget());
-    if (targetObj==NULL)
+    if (targetObj==nullptr)
         return; // The tooltip is not constrained!
     CDummy* tooltipObj=App::ct->objCont->getDummy(tooltip);
     C7Vector targetM(targetObj->getCumulativeTransformationPart1(useTempValues));
@@ -375,11 +375,11 @@ void CikEl::checkIfWithinTolerance(bool& position,bool& orientation,bool useTemp
     C7Vector baseM;
     baseM.setIdentity();
     CDummy* baseObj=App::ct->objCont->getDummy(base);
-    if (baseObj!=NULL)
+    if (baseObj!=nullptr)
         baseM=baseObj->getCumulativeTransformationPart1(useTempValues).getInverse();
 
     baseObj=App::ct->objCont->getDummy(alternativeBaseForConstraints);
-    if (baseObj!=NULL)
+    if (baseObj!=nullptr)
         baseM=baseObj->getCumulativeTransformationPart1(useTempValues).getInverse();
 
     targetM=baseM*targetM;
@@ -412,10 +412,10 @@ void CikEl::prepareIkEquations(float interpolFact)
     // Case 1. Target is the free sliding dummy:
     CDummy* dummyObj=App::ct->objCont->getDummy(getTarget());
     CDummy* tipObj=App::ct->objCont->getDummy(tooltip);
-    if ( (dummyObj!=NULL)&&dummyObj->getAssignedToParentPath()&&dummyObj->getFreeOnPathTrajectory()&&(tipObj!=NULL) )
+    if ( (dummyObj!=nullptr)&&dummyObj->getAssignedToParentPath()&&dummyObj->getFreeOnPathTrajectory()&&(tipObj!=nullptr) )
     {
-        C3DObject* parent=dummyObj->getParent();
-        if ( (parent!=NULL)&&(parent->getObjectType()==sim_object_path_type) )
+        C3DObject* parent=dummyObj->getParentObject();
+        if ( (parent!=nullptr)&&(parent->getObjectType()==sim_object_path_type) )
         { // We bring the target as close as possible onto the tip:
             CPathCont* pc=((CPath*)parent)->pathContainer;
             C7Vector pathCTMI(parent->getCumulativeTransformationPart1(true).getInverse());
@@ -426,10 +426,10 @@ void CikEl::prepareIkEquations(float interpolFact)
         }
     }
     // Case 2. Tip is the free sliding dummy:
-    if ( (tipObj!=NULL)&&tipObj->getAssignedToParentPath()&&tipObj->getFreeOnPathTrajectory()&&(dummyObj!=NULL) )
+    if ( (tipObj!=nullptr)&&tipObj->getAssignedToParentPath()&&tipObj->getFreeOnPathTrajectory()&&(dummyObj!=nullptr) )
     {
-        C3DObject* parent=tipObj->getParent();
-        if ( (parent!=NULL)&&(parent->getObjectType()==sim_object_path_type) )
+        C3DObject* parent=tipObj->getParentObject();
+        if ( (parent!=nullptr)&&(parent->getObjectType()==sim_object_path_type) )
         { // We bring the tip as close as possible onto the target:
             CPathCont* pc=((CPath*)parent)->pathContainer;
             C7Vector pathCTMI(parent->getCumulativeTransformationPart1(true).getInverse());
@@ -453,16 +453,16 @@ void CikEl::prepareIkEquations(float interpolFact)
 
     C4X4Matrix dummyCumul;
     C4X4Matrix m;
-    if (dummyObj!=NULL)
+    if (dummyObj!=nullptr)
     {
-        C3DObject* baseObj=App::ct->objCont->getObject(base);
+        C3DObject* baseObj=App::ct->objCont->getObjectFromHandle(base);
         C4X4Matrix baseCumul;
         baseCumul.setIdentity();
-        if (baseObj!=NULL)
+        if (baseObj!=nullptr)
             baseCumul=baseObj->getCumulativeTransformation(true).getMatrix();
 
-        baseObj=App::ct->objCont->getObject(alternativeBaseForConstraints);
-        if (baseObj!=NULL)
+        baseObj=App::ct->objCont->getObjectFromHandle(alternativeBaseForConstraints);
+        if (baseObj!=nullptr)
             baseCumul=baseObj->getCumulativeTransformation(true).getMatrix();
 
         baseCumul.inverse();
@@ -489,7 +489,7 @@ void CikEl::prepareIkEquations(float interpolFact)
     matrix=new CMatrix(equationNumber,doF);
     matrix_correctJacobian=new CMatrix(equationNumber,doF);
     errorVector=new CMatrix(equationNumber,1);
-    if (dummyObj!=NULL)
+    if (dummyObj!=nullptr)
     {
         // We set up the position/orientation errorVector and the matrix:
         int pos=0;
@@ -577,21 +577,21 @@ void CikEl::prepareIkEquations(float interpolFact)
 
 void CikEl::removeIkEquations()
 {
-    if (matrix==NULL)
+    if (matrix==nullptr)
         return;
     delete matrix;
     delete matrix_correctJacobian;
-    matrix=NULL;
-    matrix_correctJacobian=NULL;
+    matrix=nullptr;
+    matrix_correctJacobian=nullptr;
     delete errorVector;
-    errorVector=NULL;
+    errorVector=nullptr;
     rowJointIDs->clear();
     delete rowJointIDs;
-    rowJointIDs=NULL;
+    rowJointIDs=nullptr;
 
     rowJointStages->clear();
     delete rowJointStages;
-    rowJointStages=NULL;
+    rowJointStages=nullptr;
 }
 
 void CikEl::getError(const C4X4Matrix& m1,const C4X4Matrix& m2,float err[2],bool xC,bool yC,bool zC,bool abC,bool gC)

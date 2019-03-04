@@ -49,7 +49,7 @@ int CPropBrowserEngineJoint::_splitterPos=250;
 
 CPropBrowserEngineJoint::CPropBrowserEngineJoint(QWidget* pParent) : QtTreePropertyBrowser(pParent)
 {
-    show(NULL);
+    show(nullptr);
 }
 
 CPropBrowserEngineJoint::~CPropBrowserEngineJoint()
@@ -269,10 +269,10 @@ void CPropBrowserEngineJoint::show(QWidget* parentWindow)
     for (int i=0;i<int(App::ct->objCont->jointList.size());i++)
     {
         CJoint* it2=App::ct->objCont->getJoint(App::ct->objCont->jointList[i]);
-        if ( (it2!=it)&&(it2->getVortexDependentJointId()!=it->getID())&&(it2->getJointType()!=sim_joint_spherical_subtype) )
+        if ( (it2!=it)&&(it2->getVortexDependentJointId()!=it->getObjectHandle())&&(it2->getJointType()!=sim_joint_spherical_subtype) )
         {
-            names.push_back(it2->getName());
-            ids.push_back(it2->getID());
+            names.push_back(it2->getObjectName());
+            ids.push_back(it2->getObjectHandle());
         }
     }
     tt::orderStrings(names,ids);
@@ -581,10 +581,10 @@ void CPropBrowserEngineJoint::show(QWidget* parentWindow)
     for (int i=0;i<int(App::ct->objCont->jointList.size());i++)
     {
         CJoint* it2=App::ct->objCont->getJoint(App::ct->objCont->jointList[i]);
-        if ( (it2!=it)&&(it2->getNewtonDependentJointId()!=it->getID())&&(it2->getJointType()!=sim_joint_spherical_subtype) )
+        if ( (it2!=it)&&(it2->getNewtonDependentJointId()!=it->getObjectHandle())&&(it2->getJointType()!=sim_joint_spherical_subtype) )
         {
-            names.push_back(it2->getName());
-            ids.push_back(it2->getID());
+            names.push_back(it2->getObjectName());
+            ids.push_back(it2->getObjectHandle());
         }
     }
     tt::orderStrings(names,ids);
@@ -635,9 +635,9 @@ void CPropBrowserEngineJoint::refresh()
     p_bulletStopCFM->setPropertyName("Stop CFM");
 
     // Bullet parameters:
-    p_bulletNormalCFM->setValue(tt::floatToEInfString(it->getEngineFloatParam(sim_bullet_joint_normalcfm,NULL),false).c_str());
-    p_bulletStopERP->setValue(tt::floatToEInfString(it->getEngineFloatParam(sim_bullet_joint_stoperp,NULL),false).c_str());
-    p_bulletStopCFM->setValue(tt::floatToEInfString(it->getEngineFloatParam(sim_bullet_joint_stopcfm,NULL),false).c_str());
+    p_bulletNormalCFM->setValue(tt::floatToEInfString(it->getEngineFloatParam(sim_bullet_joint_normalcfm,nullptr),false).c_str());
+    p_bulletStopERP->setValue(tt::floatToEInfString(it->getEngineFloatParam(sim_bullet_joint_stoperp,nullptr),false).c_str());
+    p_bulletStopCFM->setValue(tt::floatToEInfString(it->getEngineFloatParam(sim_bullet_joint_stopcfm,nullptr),false).c_str());
 
     // ODE property names:
     p_odeNormalCFM->setPropertyName("Normal CFM");
@@ -647,11 +647,11 @@ void CPropBrowserEngineJoint::refresh()
     p_odeFudgeFactor->setPropertyName("Fudge factor");
 
     // ODE parameters:
-    p_odeNormalCFM->setValue(tt::floatToEInfString(it->getEngineFloatParam(sim_ode_joint_normalcfm,NULL),false).c_str());
-    p_odeStopERP->setValue(tt::floatToEInfString(it->getEngineFloatParam(sim_ode_joint_stoperp,NULL),false).c_str());
-    p_odeStopCFM->setValue(tt::floatToEInfString(it->getEngineFloatParam(sim_ode_joint_stopcfm,NULL),false).c_str());
-    p_odeBounce->setValue(tt::floatToEInfString(it->getEngineFloatParam(sim_ode_joint_bounce,NULL),false).c_str());
-    p_odeFudgeFactor->setValue(tt::floatToEInfString(it->getEngineFloatParam(sim_ode_joint_fudgefactor,NULL),false).c_str());
+    p_odeNormalCFM->setValue(tt::floatToEInfString(it->getEngineFloatParam(sim_ode_joint_normalcfm,nullptr),false).c_str());
+    p_odeStopERP->setValue(tt::floatToEInfString(it->getEngineFloatParam(sim_ode_joint_stoperp,nullptr),false).c_str());
+    p_odeStopCFM->setValue(tt::floatToEInfString(it->getEngineFloatParam(sim_ode_joint_stopcfm,nullptr),false).c_str());
+    p_odeBounce->setValue(tt::floatToEInfString(it->getEngineFloatParam(sim_ode_joint_bounce,nullptr),false).c_str());
+    p_odeFudgeFactor->setValue(tt::floatToEInfString(it->getEngineFloatParam(sim_ode_joint_fudgefactor,nullptr),false).c_str());
 
     // Vortex property names:
     p_vortexJointAxisFrictionEnabled->setPropertyName("Enabled");
@@ -758,74 +758,74 @@ void CPropBrowserEngineJoint::refresh()
 
     // Vortex parameters:
 
-    float limit_lower_damping=it->getEngineFloatParam(sim_vortex_joint_lowerlimitdamping,NULL);
-    float limit_upper_damping=it->getEngineFloatParam(sim_vortex_joint_upperlimitdamping,NULL);
-    float limit_lower_stiffness=it->getEngineFloatParam(sim_vortex_joint_lowerlimitstiffness,NULL);
-    float limit_upper_stiffness=it->getEngineFloatParam(sim_vortex_joint_upperlimitstiffness,NULL);
-    float limit_lower_restitution=it->getEngineFloatParam(sim_vortex_joint_lowerlimitrestitution,NULL);
-    float limit_upper_restitution=it->getEngineFloatParam(sim_vortex_joint_upperlimitrestitution,NULL);
-    float limit_lower_maxForce=it->getEngineFloatParam(sim_vortex_joint_lowerlimitmaxforce,NULL);
-    float limit_upper_maxForce=it->getEngineFloatParam(sim_vortex_joint_upperlimitmaxforce,NULL);
-    float motorConstraint_friction_coeff=it->getEngineFloatParam(sim_vortex_joint_motorconstraintfrictioncoeff,NULL);
-    float motorConstraint_friction_maxForce=it->getEngineFloatParam(sim_vortex_joint_motorconstraintfrictionmaxforce,NULL);
-    float motorConstraint_friction_loss=it->getEngineFloatParam(sim_vortex_joint_motorconstraintfrictionloss,NULL);
-    float P0_loss=it->getEngineFloatParam(sim_vortex_joint_p0loss,NULL);
-    float P0_stiffness=it->getEngineFloatParam(sim_vortex_joint_p0stiffness,NULL);
-    float P0_damping=it->getEngineFloatParam(sim_vortex_joint_p0damping,NULL);
-    float P0_friction_coeff=it->getEngineFloatParam(sim_vortex_joint_p0frictioncoeff,NULL);
-    float P0_friction_maxForce=it->getEngineFloatParam(sim_vortex_joint_p0frictionmaxforce,NULL);
-    float P0_friction_loss=it->getEngineFloatParam(sim_vortex_joint_p0frictionloss,NULL);
-    float P1_loss=it->getEngineFloatParam(sim_vortex_joint_p1loss,NULL);
-    float P1_stiffness=it->getEngineFloatParam(sim_vortex_joint_p1stiffness,NULL);
-    float P1_damping=it->getEngineFloatParam(sim_vortex_joint_p1damping,NULL);
-    float P1_friction_coeff=it->getEngineFloatParam(sim_vortex_joint_p1frictioncoeff,NULL);
-    float P1_friction_maxForce=it->getEngineFloatParam(sim_vortex_joint_p1frictionmaxforce,NULL);
-    float P1_friction_loss=it->getEngineFloatParam(sim_vortex_joint_p1frictionloss,NULL);
-    float P2_loss=it->getEngineFloatParam(sim_vortex_joint_p2loss,NULL);
-    float P2_stiffness=it->getEngineFloatParam(sim_vortex_joint_p2stiffness,NULL);
-    float P2_damping=it->getEngineFloatParam(sim_vortex_joint_p2damping,NULL);
-    float P2_friction_coeff=it->getEngineFloatParam(sim_vortex_joint_p2frictioncoeff,NULL);
-    float P2_friction_maxForce=it->getEngineFloatParam(sim_vortex_joint_p2frictionmaxforce,NULL);
-    float P2_friction_loss=it->getEngineFloatParam(sim_vortex_joint_p2frictionloss,NULL);
-    float A0_loss=it->getEngineFloatParam(sim_vortex_joint_a0loss,NULL);
-    float A0_stiffness=it->getEngineFloatParam(sim_vortex_joint_a0stiffness,NULL);
-    float A0_damping=it->getEngineFloatParam(sim_vortex_joint_a0damping,NULL);
-    float A0_friction_coeff=it->getEngineFloatParam(sim_vortex_joint_a0frictioncoeff,NULL);
-    float A0_friction_maxForce=it->getEngineFloatParam(sim_vortex_joint_a0frictionmaxforce,NULL);
-    float A0_friction_loss=it->getEngineFloatParam(sim_vortex_joint_a0frictionloss,NULL);
-    float A1_loss=it->getEngineFloatParam(sim_vortex_joint_a1loss,NULL);
-    float A1_stiffness=it->getEngineFloatParam(sim_vortex_joint_a1stiffness,NULL);
-    float A1_damping=it->getEngineFloatParam(sim_vortex_joint_a1damping,NULL);
-    float A1_friction_coeff=it->getEngineFloatParam(sim_vortex_joint_a1frictioncoeff,NULL);
-    float A1_friction_maxForce=it->getEngineFloatParam(sim_vortex_joint_a1frictionmaxforce,NULL);
-    float A1_friction_loss=it->getEngineFloatParam(sim_vortex_joint_a1frictionloss,NULL);
-    float A2_loss=it->getEngineFloatParam(sim_vortex_joint_a2loss,NULL);
-    float A2_stiffness=it->getEngineFloatParam(sim_vortex_joint_a2stiffness,NULL);
-    float A2_damping=it->getEngineFloatParam(sim_vortex_joint_a2damping,NULL);
-    float A2_friction_coeff=it->getEngineFloatParam(sim_vortex_joint_a2frictioncoeff,NULL);
-    float A2_friction_maxForce=it->getEngineFloatParam(sim_vortex_joint_a2frictionmaxforce,NULL);
-    float A2_friction_loss=it->getEngineFloatParam(sim_vortex_joint_a2frictionloss,NULL);
-    float dependentJointFact=it->getEngineFloatParam(sim_vortex_joint_dependencyfactor,NULL);
-    float dependentJointOff=it->getEngineFloatParam(sim_vortex_joint_dependencyoffset,NULL);
+    float limit_lower_damping=it->getEngineFloatParam(sim_vortex_joint_lowerlimitdamping,nullptr);
+    float limit_upper_damping=it->getEngineFloatParam(sim_vortex_joint_upperlimitdamping,nullptr);
+    float limit_lower_stiffness=it->getEngineFloatParam(sim_vortex_joint_lowerlimitstiffness,nullptr);
+    float limit_upper_stiffness=it->getEngineFloatParam(sim_vortex_joint_upperlimitstiffness,nullptr);
+    float limit_lower_restitution=it->getEngineFloatParam(sim_vortex_joint_lowerlimitrestitution,nullptr);
+    float limit_upper_restitution=it->getEngineFloatParam(sim_vortex_joint_upperlimitrestitution,nullptr);
+    float limit_lower_maxForce=it->getEngineFloatParam(sim_vortex_joint_lowerlimitmaxforce,nullptr);
+    float limit_upper_maxForce=it->getEngineFloatParam(sim_vortex_joint_upperlimitmaxforce,nullptr);
+    float motorConstraint_friction_coeff=it->getEngineFloatParam(sim_vortex_joint_motorconstraintfrictioncoeff,nullptr);
+    float motorConstraint_friction_maxForce=it->getEngineFloatParam(sim_vortex_joint_motorconstraintfrictionmaxforce,nullptr);
+    float motorConstraint_friction_loss=it->getEngineFloatParam(sim_vortex_joint_motorconstraintfrictionloss,nullptr);
+    float P0_loss=it->getEngineFloatParam(sim_vortex_joint_p0loss,nullptr);
+    float P0_stiffness=it->getEngineFloatParam(sim_vortex_joint_p0stiffness,nullptr);
+    float P0_damping=it->getEngineFloatParam(sim_vortex_joint_p0damping,nullptr);
+    float P0_friction_coeff=it->getEngineFloatParam(sim_vortex_joint_p0frictioncoeff,nullptr);
+    float P0_friction_maxForce=it->getEngineFloatParam(sim_vortex_joint_p0frictionmaxforce,nullptr);
+    float P0_friction_loss=it->getEngineFloatParam(sim_vortex_joint_p0frictionloss,nullptr);
+    float P1_loss=it->getEngineFloatParam(sim_vortex_joint_p1loss,nullptr);
+    float P1_stiffness=it->getEngineFloatParam(sim_vortex_joint_p1stiffness,nullptr);
+    float P1_damping=it->getEngineFloatParam(sim_vortex_joint_p1damping,nullptr);
+    float P1_friction_coeff=it->getEngineFloatParam(sim_vortex_joint_p1frictioncoeff,nullptr);
+    float P1_friction_maxForce=it->getEngineFloatParam(sim_vortex_joint_p1frictionmaxforce,nullptr);
+    float P1_friction_loss=it->getEngineFloatParam(sim_vortex_joint_p1frictionloss,nullptr);
+    float P2_loss=it->getEngineFloatParam(sim_vortex_joint_p2loss,nullptr);
+    float P2_stiffness=it->getEngineFloatParam(sim_vortex_joint_p2stiffness,nullptr);
+    float P2_damping=it->getEngineFloatParam(sim_vortex_joint_p2damping,nullptr);
+    float P2_friction_coeff=it->getEngineFloatParam(sim_vortex_joint_p2frictioncoeff,nullptr);
+    float P2_friction_maxForce=it->getEngineFloatParam(sim_vortex_joint_p2frictionmaxforce,nullptr);
+    float P2_friction_loss=it->getEngineFloatParam(sim_vortex_joint_p2frictionloss,nullptr);
+    float A0_loss=it->getEngineFloatParam(sim_vortex_joint_a0loss,nullptr);
+    float A0_stiffness=it->getEngineFloatParam(sim_vortex_joint_a0stiffness,nullptr);
+    float A0_damping=it->getEngineFloatParam(sim_vortex_joint_a0damping,nullptr);
+    float A0_friction_coeff=it->getEngineFloatParam(sim_vortex_joint_a0frictioncoeff,nullptr);
+    float A0_friction_maxForce=it->getEngineFloatParam(sim_vortex_joint_a0frictionmaxforce,nullptr);
+    float A0_friction_loss=it->getEngineFloatParam(sim_vortex_joint_a0frictionloss,nullptr);
+    float A1_loss=it->getEngineFloatParam(sim_vortex_joint_a1loss,nullptr);
+    float A1_stiffness=it->getEngineFloatParam(sim_vortex_joint_a1stiffness,nullptr);
+    float A1_damping=it->getEngineFloatParam(sim_vortex_joint_a1damping,nullptr);
+    float A1_friction_coeff=it->getEngineFloatParam(sim_vortex_joint_a1frictioncoeff,nullptr);
+    float A1_friction_maxForce=it->getEngineFloatParam(sim_vortex_joint_a1frictionmaxforce,nullptr);
+    float A1_friction_loss=it->getEngineFloatParam(sim_vortex_joint_a1frictionloss,nullptr);
+    float A2_loss=it->getEngineFloatParam(sim_vortex_joint_a2loss,nullptr);
+    float A2_stiffness=it->getEngineFloatParam(sim_vortex_joint_a2stiffness,nullptr);
+    float A2_damping=it->getEngineFloatParam(sim_vortex_joint_a2damping,nullptr);
+    float A2_friction_coeff=it->getEngineFloatParam(sim_vortex_joint_a2frictioncoeff,nullptr);
+    float A2_friction_maxForce=it->getEngineFloatParam(sim_vortex_joint_a2frictionmaxforce,nullptr);
+    float A2_friction_loss=it->getEngineFloatParam(sim_vortex_joint_a2frictionloss,nullptr);
+    float dependentJointFact=it->getEngineFloatParam(sim_vortex_joint_dependencyfactor,nullptr);
+    float dependentJointOff=it->getEngineFloatParam(sim_vortex_joint_dependencyoffset,nullptr);
 
-    bool motorFrictionEnabled=it->getEngineBoolParam(sim_vortex_joint_motorfrictionenabled,NULL);
-    bool motorFrictionProportional=it->getEngineBoolParam(sim_vortex_joint_proportionalmotorfriction,NULL);
+    bool motorFrictionEnabled=it->getEngineBoolParam(sim_vortex_joint_motorfrictionenabled,nullptr);
+    bool motorFrictionProportional=it->getEngineBoolParam(sim_vortex_joint_proportionalmotorfriction,nullptr);
     int vval;
-    vval=it->getEngineIntParam(sim_vortex_joint_relaxationenabledbc,NULL);
+    vval=it->getEngineIntParam(sim_vortex_joint_relaxationenabledbc,nullptr);
     bool P0_relaxation_enabled=((vval&1)!=0);
     bool P1_relaxation_enabled=((vval&2)!=0);
     bool P2_relaxation_enabled=((vval&4)!=0);
     bool A0_relaxation_enabled=((vval&8)!=0);
     bool A1_relaxation_enabled=((vval&16)!=0);
     bool A2_relaxation_enabled=((vval&32)!=0);
-    vval=it->getEngineIntParam(sim_vortex_joint_frictionenabledbc,NULL);
+    vval=it->getEngineIntParam(sim_vortex_joint_frictionenabledbc,nullptr);
     bool P0_friction_enabled=((vval&1)!=0);
     bool P1_friction_enabled=((vval&2)!=0);
     bool P2_friction_enabled=((vval&4)!=0);
     bool A0_friction_enabled=((vval&8)!=0);
     bool A1_friction_enabled=((vval&16)!=0);
     bool A2_friction_enabled=((vval&32)!=0);
-    vval=it->getEngineIntParam(sim_vortex_joint_frictionproportionalbc,NULL);
+    vval=it->getEngineIntParam(sim_vortex_joint_frictionproportionalbc,nullptr);
     bool P0_friction_proportional=((vval&1)!=0);
     bool P1_friction_proportional=((vval&2)!=0);
     bool P2_friction_proportional=((vval&4)!=0);
@@ -833,7 +833,7 @@ void CPropBrowserEngineJoint::refresh()
     bool A1_friction_proportional=((vval&16)!=0);
     bool A2_friction_proportional=((vval&32)!=0);
 
-    int dependentJointId=it->getEngineIntParam(sim_vortex_joint_dependentobjectid,NULL);
+    int dependentJointId=it->getEngineIntParam(sim_vortex_joint_dependentobjectid,nullptr);
 
     std::string jointAxisFrictionText("Joint axis friction");
     std::string xAxisPositionText("X axis position");
@@ -861,10 +861,10 @@ void CPropBrowserEngineJoint::refresh()
     for (int i=0;i<int(App::ct->objCont->jointList.size());i++)
     {
         CJoint* it2=App::ct->objCont->getJoint(App::ct->objCont->jointList[i]);
-        if ( (it2!=it)&&(it2->getVortexDependentJointId()!=it->getID())&&(it2->getJointType()!=sim_joint_spherical_subtype) )
+        if ( (it2!=it)&&(it2->getVortexDependentJointId()!=it->getObjectHandle())&&(it2->getJointType()!=sim_joint_spherical_subtype) )
         {
-            depNames.push_back(it2->getName());
-            depIds.push_back(it2->getID());
+            depNames.push_back(it2->getObjectName());
+            depIds.push_back(it2->getObjectHandle());
         }
     }
     tt::orderStrings(depNames,depIds);
@@ -933,11 +933,11 @@ void CPropBrowserEngineJoint::refresh()
         if (dependentJointId>=0)
         {
             CJoint* aJoint=App::ct->objCont->getJoint(dependentJointId);
-            if (aJoint!=NULL)
+            if (aJoint!=nullptr)
             {
                 for (int i=0;i<int(depNames.size());i++)
                 {
-                    if (depNames[i].compare(aJoint->getName())==0)
+                    if (depNames[i].compare(aJoint->getObjectName())==0)
                     {
                         depIndex=i+1;
                         break;
@@ -1392,20 +1392,20 @@ void CPropBrowserEngineJoint::refresh()
     p_newtonJointDependencyOff->setPropertyName("Offset");
 
     // Newton parameters:
-    float newtonDependentJointFact=it->getEngineFloatParam(sim_newton_joint_dependencyfactor,NULL);
-    float newtonDependentJointOff=it->getEngineFloatParam(sim_newton_joint_dependencyoffset,NULL);
+    float newtonDependentJointFact=it->getEngineFloatParam(sim_newton_joint_dependencyfactor,nullptr);
+    float newtonDependentJointOff=it->getEngineFloatParam(sim_newton_joint_dependencyoffset,nullptr);
 
-    int newtonDependentJointId=it->getEngineIntParam(sim_newton_joint_dependentobjectid,NULL);
+    int newtonDependentJointId=it->getEngineIntParam(sim_newton_joint_dependentobjectid,nullptr);
 
     depNames.clear();
     depIds.clear();
     for (int i=0;i<int(App::ct->objCont->jointList.size());i++)
     {
         CJoint* it2=App::ct->objCont->getJoint(App::ct->objCont->jointList[i]);
-        if ( (it2!=it)&&(it2->getNewtonDependentJointId()!=it->getID())&&(it2->getJointType()!=sim_joint_spherical_subtype) )
+        if ( (it2!=it)&&(it2->getNewtonDependentJointId()!=it->getObjectHandle())&&(it2->getJointType()!=sim_joint_spherical_subtype) )
         {
-            depNames.push_back(it2->getName());
-            depIds.push_back(it2->getID());
+            depNames.push_back(it2->getObjectName());
+            depIds.push_back(it2->getObjectHandle());
         }
     }
     tt::orderStrings(depNames,depIds);
@@ -1417,11 +1417,11 @@ void CPropBrowserEngineJoint::refresh()
         if (newtonDependentJointId>=0)
         {
             CJoint* aJoint=App::ct->objCont->getJoint(newtonDependentJointId);
-            if (aJoint!=NULL)
+            if (aJoint!=nullptr)
             {
                 for (int i=0;i<int(depNames.size());i++)
                 {
-                    if (depNames[i].compare(aJoint->getName())==0)
+                    if (depNames[i].compare(aJoint->getObjectName())==0)
                     {
                         depIndex=i+1;
                         break;
@@ -1456,7 +1456,7 @@ QtBrowserItem* CPropBrowserEngineJoint::getSubPropertyBrowserItem(const QtBrowse
         if (children[i]->property()==childProperty)
             return(children[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 
@@ -1485,13 +1485,13 @@ void CPropBrowserEngineJoint::handlePropertyChanges(QtProperty *_prop)
         // We modify the UI AND SIM thread resources:
         SSimulationThreadCommand cmd;
         cmd.cmdId=APPLY_ALLENGINEPARAMS_JOINTDYNGUITRIGGEREDCMD;
-        cmd.intParams.push_back(it->getID());
+        cmd.intParams.push_back(it->getObjectHandle());
         for (int i=0;i<App::ct->objCont->getSelSize()-1;i++)
         {
             CJoint* anotherJoint=App::ct->objCont->getJoint(App::ct->objCont->getSelID(i));
-            if (anotherJoint!=NULL)
+            if (anotherJoint!=nullptr)
             {
-                cmd.intParams.push_back(anotherJoint->getID());
+                cmd.intParams.push_back(anotherJoint->getObjectHandle());
                 it->copyEnginePropertiesTo(anotherJoint);
             }
         }
@@ -1617,10 +1617,10 @@ void CPropBrowserEngineJoint::handlePropertyChanges(QtProperty *_prop)
         for (int i=0;i<int(App::ct->objCont->jointList.size());i++)
         {
             CJoint* it2=App::ct->objCont->getJoint(App::ct->objCont->jointList[i]);
-            if ( (it2!=it)&&(it2->getVortexDependentJointId()!=it->getID())&&(it2->getJointType()!=sim_joint_spherical_subtype) )
+            if ( (it2!=it)&&(it2->getVortexDependentJointId()!=it->getObjectHandle())&&(it2->getJointType()!=sim_joint_spherical_subtype) )
             {
-                depNames.push_back(it2->getName());
-                depIds.push_back(it2->getID());
+                depNames.push_back(it2->getObjectName());
+                depIds.push_back(it2->getObjectHandle());
             }
         }
         tt::orderStrings(depNames,depIds);
@@ -1649,7 +1649,7 @@ void CPropBrowserEngineJoint::handlePropertyChanges(QtProperty *_prop)
     // P0
     if (_prop==p_vortexRelaxationP0Enabled)
     {
-        int vval=it->getEngineIntParam(sim_vortex_joint_relaxationenabledbc,NULL)|1;
+        int vval=it->getEngineIntParam(sim_vortex_joint_relaxationenabledbc,nullptr)|1;
         if (!((QtVariantProperty*)_prop)->value().toBool())
             vval-=1;
         it->setEngineIntParam(sim_vortex_joint_relaxationenabledbc,vval);
@@ -1671,14 +1671,14 @@ void CPropBrowserEngineJoint::handlePropertyChanges(QtProperty *_prop)
     }
     if (_prop==p_vortexFrictionP0Enabled)
     {
-        int vval=it->getEngineIntParam(sim_vortex_joint_frictionenabledbc,NULL)|1;
+        int vval=it->getEngineIntParam(sim_vortex_joint_frictionenabledbc,nullptr)|1;
         if (!((QtVariantProperty*)_prop)->value().toBool())
             vval-=1;
         it->setEngineIntParam(sim_vortex_joint_frictionenabledbc,vval);
     }
     if (_prop==p_vortexFrictionP0Proportional)
     {
-        int vval=it->getEngineIntParam(sim_vortex_joint_frictionproportionalbc,NULL)|1;
+        int vval=it->getEngineIntParam(sim_vortex_joint_frictionproportionalbc,nullptr)|1;
         if (!((QtVariantProperty*)_prop)->value().toBool())
             vval-=1;
         it->setEngineIntParam(sim_vortex_joint_frictionproportionalbc,vval);
@@ -1702,7 +1702,7 @@ void CPropBrowserEngineJoint::handlePropertyChanges(QtProperty *_prop)
     // P1
     if (_prop==p_vortexRelaxationP1Enabled)
     {
-        int vval=it->getEngineIntParam(sim_vortex_joint_relaxationenabledbc,NULL)|2;
+        int vval=it->getEngineIntParam(sim_vortex_joint_relaxationenabledbc,nullptr)|2;
         if (!((QtVariantProperty*)_prop)->value().toBool())
             vval-=2;
         it->setEngineIntParam(sim_vortex_joint_relaxationenabledbc,vval);
@@ -1724,14 +1724,14 @@ void CPropBrowserEngineJoint::handlePropertyChanges(QtProperty *_prop)
     }
     if (_prop==p_vortexFrictionP1Enabled)
     {
-        int vval=it->getEngineIntParam(sim_vortex_joint_frictionenabledbc,NULL)|2;
+        int vval=it->getEngineIntParam(sim_vortex_joint_frictionenabledbc,nullptr)|2;
         if (!((QtVariantProperty*)_prop)->value().toBool())
             vval-=2;
         it->setEngineIntParam(sim_vortex_joint_frictionenabledbc,vval);
     }
     if (_prop==p_vortexFrictionP1Proportional)
     {
-        int vval=it->getEngineIntParam(sim_vortex_joint_frictionproportionalbc,NULL)|2;
+        int vval=it->getEngineIntParam(sim_vortex_joint_frictionproportionalbc,nullptr)|2;
         if (!((QtVariantProperty*)_prop)->value().toBool())
             vval-=2;
         it->setEngineIntParam(sim_vortex_joint_frictionproportionalbc,vval);
@@ -1755,7 +1755,7 @@ void CPropBrowserEngineJoint::handlePropertyChanges(QtProperty *_prop)
     // P2
     if (_prop==p_vortexRelaxationP2Enabled)
     {
-        int vval=it->getEngineIntParam(sim_vortex_joint_relaxationenabledbc,NULL)|4;
+        int vval=it->getEngineIntParam(sim_vortex_joint_relaxationenabledbc,nullptr)|4;
         if (!((QtVariantProperty*)_prop)->value().toBool())
             vval-=4;
         it->setEngineIntParam(sim_vortex_joint_relaxationenabledbc,vval);
@@ -1777,14 +1777,14 @@ void CPropBrowserEngineJoint::handlePropertyChanges(QtProperty *_prop)
     }
     if (_prop==p_vortexFrictionP2Enabled)
     {
-        int vval=it->getEngineIntParam(sim_vortex_joint_frictionenabledbc,NULL)|4;
+        int vval=it->getEngineIntParam(sim_vortex_joint_frictionenabledbc,nullptr)|4;
         if (!((QtVariantProperty*)_prop)->value().toBool())
             vval-=4;
         it->setEngineIntParam(sim_vortex_joint_frictionenabledbc,vval);
     }
     if (_prop==p_vortexFrictionP2Proportional)
     {
-        int vval=it->getEngineIntParam(sim_vortex_joint_frictionproportionalbc,NULL)|4;
+        int vval=it->getEngineIntParam(sim_vortex_joint_frictionproportionalbc,nullptr)|4;
         if (!((QtVariantProperty*)_prop)->value().toBool())
             vval-=4;
         it->setEngineIntParam(sim_vortex_joint_frictionproportionalbc,vval);
@@ -1809,7 +1809,7 @@ void CPropBrowserEngineJoint::handlePropertyChanges(QtProperty *_prop)
     // A0
     if (_prop==p_vortexRelaxationA0Enabled)
     {
-        int vval=it->getEngineIntParam(sim_vortex_joint_relaxationenabledbc,NULL)|8;
+        int vval=it->getEngineIntParam(sim_vortex_joint_relaxationenabledbc,nullptr)|8;
         if (!((QtVariantProperty*)_prop)->value().toBool())
             vval-=8;
         it->setEngineIntParam(sim_vortex_joint_relaxationenabledbc,vval);
@@ -1831,14 +1831,14 @@ void CPropBrowserEngineJoint::handlePropertyChanges(QtProperty *_prop)
     }
     if (_prop==p_vortexFrictionA0Enabled)
     {
-        int vval=it->getEngineIntParam(sim_vortex_joint_frictionenabledbc,NULL)|8;
+        int vval=it->getEngineIntParam(sim_vortex_joint_frictionenabledbc,nullptr)|8;
         if (!((QtVariantProperty*)_prop)->value().toBool())
             vval-=8;
         it->setEngineIntParam(sim_vortex_joint_frictionenabledbc,vval);
     }
     if (_prop==p_vortexFrictionA0Proportional)
     {
-        int vval=it->getEngineIntParam(sim_vortex_joint_frictionproportionalbc,NULL)|8;
+        int vval=it->getEngineIntParam(sim_vortex_joint_frictionproportionalbc,nullptr)|8;
         if (!((QtVariantProperty*)_prop)->value().toBool())
             vval-=8;
         it->setEngineIntParam(sim_vortex_joint_frictionproportionalbc,vval);
@@ -1863,7 +1863,7 @@ void CPropBrowserEngineJoint::handlePropertyChanges(QtProperty *_prop)
     // A1
     if (_prop==p_vortexRelaxationA1Enabled)
     {
-        int vval=it->getEngineIntParam(sim_vortex_joint_relaxationenabledbc,NULL)|16;
+        int vval=it->getEngineIntParam(sim_vortex_joint_relaxationenabledbc,nullptr)|16;
         if (!((QtVariantProperty*)_prop)->value().toBool())
             vval-=16;
         it->setEngineIntParam(sim_vortex_joint_relaxationenabledbc,vval);
@@ -1885,14 +1885,14 @@ void CPropBrowserEngineJoint::handlePropertyChanges(QtProperty *_prop)
     }
     if (_prop==p_vortexFrictionA1Enabled)
     {
-        int vval=it->getEngineIntParam(sim_vortex_joint_frictionenabledbc,NULL)|16;
+        int vval=it->getEngineIntParam(sim_vortex_joint_frictionenabledbc,nullptr)|16;
         if (!((QtVariantProperty*)_prop)->value().toBool())
             vval-=16;
         it->setEngineIntParam(sim_vortex_joint_frictionenabledbc,vval);
     }
     if (_prop==p_vortexFrictionA1Proportional)
     {
-        int vval=it->getEngineIntParam(sim_vortex_joint_frictionproportionalbc,NULL)|16;
+        int vval=it->getEngineIntParam(sim_vortex_joint_frictionproportionalbc,nullptr)|16;
         if (!((QtVariantProperty*)_prop)->value().toBool())
             vval-=16;
         it->setEngineIntParam(sim_vortex_joint_frictionproportionalbc,vval);
@@ -1916,7 +1916,7 @@ void CPropBrowserEngineJoint::handlePropertyChanges(QtProperty *_prop)
     // A2
     if (_prop==p_vortexRelaxationA2Enabled)
     {
-        int vval=it->getEngineIntParam(sim_vortex_joint_relaxationenabledbc,NULL)|32;
+        int vval=it->getEngineIntParam(sim_vortex_joint_relaxationenabledbc,nullptr)|32;
         if (!((QtVariantProperty*)_prop)->value().toBool())
             vval-=32;
         it->setEngineIntParam(sim_vortex_joint_relaxationenabledbc,vval);
@@ -1938,14 +1938,14 @@ void CPropBrowserEngineJoint::handlePropertyChanges(QtProperty *_prop)
     }
     if (_prop==p_vortexFrictionA2Enabled)
     {
-        int vval=it->getEngineIntParam(sim_vortex_joint_frictionenabledbc,NULL)|32;
+        int vval=it->getEngineIntParam(sim_vortex_joint_frictionenabledbc,nullptr)|32;
         if (!((QtVariantProperty*)_prop)->value().toBool())
             vval-=32;
         it->setEngineIntParam(sim_vortex_joint_frictionenabledbc,vval);
     }
     if (_prop==p_vortexFrictionA2Proportional)
     {
-        int vval=it->getEngineIntParam(sim_vortex_joint_frictionproportionalbc,NULL)|32;
+        int vval=it->getEngineIntParam(sim_vortex_joint_frictionproportionalbc,nullptr)|32;
         if (!((QtVariantProperty*)_prop)->value().toBool())
             vval-=32;
         it->setEngineIntParam(sim_vortex_joint_frictionproportionalbc,vval);
@@ -1978,10 +1978,10 @@ void CPropBrowserEngineJoint::handlePropertyChanges(QtProperty *_prop)
         for (int i=0;i<int(App::ct->objCont->jointList.size());i++)
         {
             CJoint* it2=App::ct->objCont->getJoint(App::ct->objCont->jointList[i]);
-            if ( (it2!=it)&&(it2->getNewtonDependentJointId()!=it->getID())&&(it2->getJointType()!=sim_joint_spherical_subtype) )
+            if ( (it2!=it)&&(it2->getNewtonDependentJointId()!=it->getObjectHandle())&&(it2->getJointType()!=sim_joint_spherical_subtype) )
             {
-                depNames.push_back(it2->getName());
-                depIds.push_back(it2->getID());
+                depNames.push_back(it2->getObjectName());
+                depIds.push_back(it2->getObjectHandle());
             }
         }
         tt::orderStrings(depNames,depIds);

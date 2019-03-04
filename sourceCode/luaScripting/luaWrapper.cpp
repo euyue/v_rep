@@ -206,67 +206,67 @@ bool _getLibProcAddresses()
     luaLib_lua_error=(pluaLib_lua_error)(_getProcAddress("luaLib_lua_error"));
 
 
-    if (luaLibGet_LUA_MULTRET==NULL) return false;
-    if (luaLibGet_LUA_MASKCOUNT==NULL) return false;
-    if (luaLibGet_LUA_MASKCALL==NULL) return false;
-    if (luaLibGet_LUA_MASKRET==NULL) return false;
-    if (luaLibGet_LUA_HOOKCOUNT==NULL) return false;
-    if (luaLibGet_LUA_HOOKCALL==NULL) return false;
-    if (luaLibGet_LUA_HOOKRET==NULL) return false;
-    if (luaLibGet_LUA_GLOBALSINDEX==NULL) return false;
-    if (luaLib_luaL_newstate==NULL) return false;
-    if (luaLib_lua_close==NULL) return false;
-    if (luaLib_luaL_openlibs==NULL) return false;
-    if (luaLib_lua_sethook==NULL) return false;
-    if (luaLib_lua_register==NULL) return false;
-    if (luaLib_lua_pushnumber==NULL) return false;
-    if (luaLib_lua_pushnil==NULL) return false;
-    if (luaLib_lua_pushboolean==NULL) return false;
-    if (luaLib_lua_pushinteger==NULL) return false;
-    if (luaLib_lua_pushstring==NULL) return false;
-    if (luaLib_lua_pushlstring==NULL) return false;
-    if (luaLib_lua_pushcclosure==NULL) return false;
-    if (luaLib_lua_pushvalue==NULL) return false;
-    if (luaLib_lua_pushcfunction==NULL) return false;
-    if (luaLib_lua_createtable==NULL) return false;
-    if (luaLib_lua_tointeger==NULL) return false;
-    if (luaLib_lua_tonumber==NULL) return false;
-    if (luaLib_lua_toboolean==NULL) return false;
-    if (luaLib_lua_topointer==NULL) return false;
-    if (luaLib_lua_tostring==NULL) return false;
-    if (luaLib_lua_tolstring==NULL) return false;
-    if (luaLib_lua_isnumber==NULL) return false;
-    if (luaLib_lua_isstring==NULL) return false;
-    if (luaLib_lua_isnil==NULL) return false;
-    if (luaLib_lua_isboolean==NULL) return false;
-    if (luaLib_lua_istable==NULL) return false;
-    if (luaLib_lua_isfunction==NULL) return false;
-    if (luaLib_lua_getstack==NULL) return false;
-    if (luaLib_lua_getinfo==NULL) return false;
-    if (luaLib_lua_setglobal==NULL) return false;
-    if (luaLib_lua_getfield==NULL) return false;
-    if (luaLib_lua_setfield==NULL) return false;
-    if (luaLib_lua_yield==NULL) return false;
-    if (luaLib_luaL_dostring==NULL) return false;
-    if (luaLib_lua_getglobal==NULL) return false;
-    if (luaLib_lua_pop==NULL) return false;
-    if (luaLib_lua_gettop==NULL) return false;
-    if (luaLib_lua_settop==NULL) return false;
-    if (luaLib_lua_objlen==NULL) return false;
-    if (luaLib_lua_rawgeti==NULL) return false;
-    if (luaLib_lua_rawseti==NULL) return false;
-    if (luaLib_lua_newtable==NULL) return false;
-    if (luaLib_luaL_loadbuffer==NULL) return false;
-    if (luaLib_lua_pcall==NULL) return false;
-    if (luaLib_lua_remove==NULL) return false;
-    if (luaLib_lua_insert==NULL) return false;
-    if (luaLib_lua_isuserdata==NULL) return false;
-    if (luaLib_lua_upvalueindex==NULL) return false;
-    if (luaLib_getCurrentCodeLine==NULL) return false;
-    if (luaLib_lua_settable==NULL) return false;
-    if (luaLib_lua_next==NULL) return false;
-    if (luaLib_lua_type==NULL) return false;
-    if (luaLib_lua_error==NULL) return false;
+    if (luaLibGet_LUA_MULTRET==nullptr) return false;
+    if (luaLibGet_LUA_MASKCOUNT==nullptr) return false;
+    if (luaLibGet_LUA_MASKCALL==nullptr) return false;
+    if (luaLibGet_LUA_MASKRET==nullptr) return false;
+    if (luaLibGet_LUA_HOOKCOUNT==nullptr) return false;
+    if (luaLibGet_LUA_HOOKCALL==nullptr) return false;
+    if (luaLibGet_LUA_HOOKRET==nullptr) return false;
+    if (luaLibGet_LUA_GLOBALSINDEX==nullptr) return false;
+    if (luaLib_luaL_newstate==nullptr) return false;
+    if (luaLib_lua_close==nullptr) return false;
+    if (luaLib_luaL_openlibs==nullptr) return false;
+    if (luaLib_lua_sethook==nullptr) return false;
+    if (luaLib_lua_register==nullptr) return false;
+    if (luaLib_lua_pushnumber==nullptr) return false;
+    if (luaLib_lua_pushnil==nullptr) return false;
+    if (luaLib_lua_pushboolean==nullptr) return false;
+    if (luaLib_lua_pushinteger==nullptr) return false;
+    if (luaLib_lua_pushstring==nullptr) return false;
+    if (luaLib_lua_pushlstring==nullptr) return false;
+    if (luaLib_lua_pushcclosure==nullptr) return false;
+    if (luaLib_lua_pushvalue==nullptr) return false;
+    if (luaLib_lua_pushcfunction==nullptr) return false;
+    if (luaLib_lua_createtable==nullptr) return false;
+    if (luaLib_lua_tointeger==nullptr) return false;
+    if (luaLib_lua_tonumber==nullptr) return false;
+    if (luaLib_lua_toboolean==nullptr) return false;
+    if (luaLib_lua_topointer==nullptr) return false;
+    if (luaLib_lua_tostring==nullptr) return false;
+    if (luaLib_lua_tolstring==nullptr) return false;
+    if (luaLib_lua_isnumber==nullptr) return false;
+    if (luaLib_lua_isstring==nullptr) return false;
+    if (luaLib_lua_isnil==nullptr) return false;
+    if (luaLib_lua_isboolean==nullptr) return false;
+    if (luaLib_lua_istable==nullptr) return false;
+    if (luaLib_lua_isfunction==nullptr) return false;
+    if (luaLib_lua_getstack==nullptr) return false;
+    if (luaLib_lua_getinfo==nullptr) return false;
+    if (luaLib_lua_setglobal==nullptr) return false;
+    if (luaLib_lua_getfield==nullptr) return false;
+    if (luaLib_lua_setfield==nullptr) return false;
+    if (luaLib_lua_yield==nullptr) return false;
+    if (luaLib_luaL_dostring==nullptr) return false;
+    if (luaLib_lua_getglobal==nullptr) return false;
+    if (luaLib_lua_pop==nullptr) return false;
+    if (luaLib_lua_gettop==nullptr) return false;
+    if (luaLib_lua_settop==nullptr) return false;
+    if (luaLib_lua_objlen==nullptr) return false;
+    if (luaLib_lua_rawgeti==nullptr) return false;
+    if (luaLib_lua_rawseti==nullptr) return false;
+    if (luaLib_lua_newtable==nullptr) return false;
+    if (luaLib_luaL_loadbuffer==nullptr) return false;
+    if (luaLib_lua_pcall==nullptr) return false;
+    if (luaLib_lua_remove==nullptr) return false;
+    if (luaLib_lua_insert==nullptr) return false;
+    if (luaLib_lua_isuserdata==nullptr) return false;
+    if (luaLib_lua_upvalueindex==nullptr) return false;
+    if (luaLib_getCurrentCodeLine==nullptr) return false;
+    if (luaLib_lua_settable==nullptr) return false;
+    if (luaLib_lua_next==nullptr) return false;
+    if (luaLib_lua_type==nullptr) return false;
+    if (luaLib_lua_error==nullptr) return false;
 
     return true;
 }
@@ -310,32 +310,32 @@ void loadExtLuaLibrary(bool useExternalLuaLibrary,bool headless)
 
 bool _loadExtLuaLibrary(const char* pathAndFilename)
 {
-    if ( (pathAndFilename==NULL)||(strlen(pathAndFilename)==0) )
+    if ( (pathAndFilename==nullptr)||(strlen(pathAndFilename)==0) )
     {
-        lib=NULL;
+        lib=nullptr;
         return(true);
     }
     else
     {
         lib=VVarious::openLibrary(pathAndFilename);
-        if (lib!=NULL)
+        if (lib!=nullptr)
         {
             if (!_getLibProcAddresses())
             {
                 VVarious::closeLibrary(lib);
-                lib=NULL;
+                lib=nullptr;
             }
         }
-        return (lib!=NULL);
+        return (lib!=nullptr);
     }
 }
 
 void unloadExtLuaLibrary()
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
     {
         VVarious::closeLibrary(lib);
-        lib=NULL;
+        lib=nullptr;
     }
 }
 
@@ -343,70 +343,70 @@ void unloadExtLuaLibrary()
 
 int luaWrapGet_LUA_MULTRET()
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLibGet_LUA_MULTRET());
     return(LUA_MULTRET);
 }
 
 int luaWrapGet_LUA_MASKCOUNT()
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLibGet_LUA_MASKCOUNT());
     return(LUA_MASKCOUNT);
 }
 
 int luaWrapGet_LUA_MASKCALL()
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLibGet_LUA_MASKCALL());
     return(LUA_MASKCALL);
 }
 
 int luaWrapGet_LUA_MASKRET()
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLibGet_LUA_MASKRET());
     return(LUA_MASKRET);
 }
 
 int luaWrapGet_LUA_HOOKCOUNT()
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLibGet_LUA_HOOKCOUNT());
     return(LUA_HOOKCOUNT);
 }
 
 int luaWrapGet_LUA_HOOKCALL()
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLibGet_LUA_HOOKCALL());
     return(LUA_HOOKCALL);
 }
 
 int luaWrapGet_LUA_HOOKRET()
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLibGet_LUA_HOOKRET());
     return(LUA_HOOKRET);
 }
 
 int luaWrapGet_LUA_GLOBALSINDEX()
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLibGet_LUA_GLOBALSINDEX());
     return(LUA_GLOBALSINDEX);
 }
 
 luaWrap_lua_State* luaWrap_luaL_newstate()
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLib_luaL_newstate());
     return((luaWrap_lua_State*)luaL_newstate());
 }
 
 void luaWrap_lua_close(luaWrap_lua_State* L)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         luaLib_lua_close(L);
     else
         lua_close((lua_State*)L);
@@ -414,7 +414,7 @@ void luaWrap_lua_close(luaWrap_lua_State* L)
 
 void luaWrap_luaL_openlibs(luaWrap_lua_State* L)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         luaLib_luaL_openlibs(L);
     else
         luaL_openlibs((lua_State*)L);
@@ -422,14 +422,14 @@ void luaWrap_luaL_openlibs(luaWrap_lua_State* L)
 
 int luaWrap_lua_sethook(luaWrap_lua_State* L,luaWrap_lua_Hook func,int mask,int cnt)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLib_lua_sethook(L,func,mask,cnt));
     return(lua_sethook((lua_State*)L,(lua_Hook)func,mask,cnt));
 }
 
 void luaWrap_lua_register(luaWrap_lua_State* L,const char* name,luaWrap_lua_CFunction func)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         luaLib_lua_register(L,name,func);
     else
         lua_register((lua_State*)L,name,(lua_CFunction)func);
@@ -437,7 +437,7 @@ void luaWrap_lua_register(luaWrap_lua_State* L,const char* name,luaWrap_lua_CFun
 
 void luaWrap_lua_pushnumber(luaWrap_lua_State* L,luaWrap_lua_Number n)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         luaLib_lua_pushnumber(L,n);
     else
         lua_pushnumber((lua_State*)L,n);
@@ -445,7 +445,7 @@ void luaWrap_lua_pushnumber(luaWrap_lua_State* L,luaWrap_lua_Number n)
 
 void luaWrap_lua_pushnil(luaWrap_lua_State* L)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         luaLib_lua_pushnil(L);
     else
         lua_pushnil((lua_State*)L);
@@ -453,7 +453,7 @@ void luaWrap_lua_pushnil(luaWrap_lua_State* L)
 
 void luaWrap_lua_pushboolean(luaWrap_lua_State* L,int b)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         luaLib_lua_pushboolean(L,b);
     else
         lua_pushboolean((lua_State*)L,b);
@@ -461,7 +461,7 @@ void luaWrap_lua_pushboolean(luaWrap_lua_State* L,int b)
 
 void luaWrap_lua_pushinteger(luaWrap_lua_State* L,int n)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         luaLib_lua_pushinteger(L,n);
     else
         lua_pushinteger((lua_State*)L,n);
@@ -469,7 +469,7 @@ void luaWrap_lua_pushinteger(luaWrap_lua_State* L,int n)
 
 void luaWrap_lua_pushstring(luaWrap_lua_State* L,const char* str)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         luaLib_lua_pushstring(L,str);
     else
         lua_pushstring((lua_State*)L,str);
@@ -477,7 +477,7 @@ void luaWrap_lua_pushstring(luaWrap_lua_State* L,const char* str)
 
 void luaWrap_lua_pushlstring(luaWrap_lua_State* L,const char* str,size_t l)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         luaLib_lua_pushlstring(L,str,l);
     else
         lua_pushlstring((lua_State*)L,str,l);
@@ -485,7 +485,7 @@ void luaWrap_lua_pushlstring(luaWrap_lua_State* L,const char* str,size_t l)
 
 void luaWrap_lua_pushcclosure(luaWrap_lua_State* L,luaWrap_lua_CFunction func,int n)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         luaLib_lua_pushcclosure(L,func,n);
     else
         lua_pushcclosure((lua_State*)L,(lua_CFunction)func,n);
@@ -493,7 +493,7 @@ void luaWrap_lua_pushcclosure(luaWrap_lua_State* L,luaWrap_lua_CFunction func,in
 
 void luaWrap_lua_pushvalue(luaWrap_lua_State* L,int idx)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         luaLib_lua_pushvalue(L,idx);
     else
         lua_pushvalue((lua_State*)L,idx);
@@ -501,7 +501,7 @@ void luaWrap_lua_pushvalue(luaWrap_lua_State* L,int idx)
 
 void luaWrap_lua_pushcfunction(luaWrap_lua_State* L,luaWrap_lua_CFunction func)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         luaLib_lua_pushcfunction(L,func);
     else
         lua_pushcfunction((lua_State*)L,(lua_CFunction)func);
@@ -509,7 +509,7 @@ void luaWrap_lua_pushcfunction(luaWrap_lua_State* L,luaWrap_lua_CFunction func)
 
 void luaWrap_lua_createtable(luaWrap_lua_State* L,int narr, int nrec)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         luaLib_lua_createtable(L,narr,nrec);
     else
         lua_createtable((lua_State*)L,narr,nrec);
@@ -517,42 +517,42 @@ void luaWrap_lua_createtable(luaWrap_lua_State* L,int narr, int nrec)
 
 int luaWrap_lua_tointeger(luaWrap_lua_State* L,int idx)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLib_lua_tointeger(L,idx));
     return((int)lua_tointeger((lua_State*)L,idx));
 }
 
 luaWrap_lua_Number luaWrap_lua_tonumber(luaWrap_lua_State* L,int idx)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLib_lua_tonumber(L,idx));
     return((luaWrap_lua_Number)lua_tonumber((lua_State*)L,idx));
 }
 
 int luaWrap_lua_toboolean(luaWrap_lua_State* L,int idx)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLib_lua_toboolean(L,idx));
     return(lua_toboolean((lua_State*)L,idx));
 }
 
 const void* luaWrap_lua_topointer(luaWrap_lua_State* L,int idx)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLib_lua_topointer(L,idx));
     return(lua_topointer((lua_State*)L,idx));
 }
 
 const char* luaWrap_lua_tostring(luaWrap_lua_State* L,int idx)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLib_lua_tostring(L,idx));
     return(lua_tostring((lua_State*)L,idx));
 }
 
 const char* luaWrap_lua_tolstring(luaWrap_lua_State* L,int idx,size_t* len)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLib_lua_tolstring(L,idx,len));
     return(lua_tolstring((lua_State*)L,idx,len));
 }
@@ -560,63 +560,63 @@ const char* luaWrap_lua_tolstring(luaWrap_lua_State* L,int idx,size_t* len)
 
 int luaWrap_lua_isnumber(luaWrap_lua_State* L,int idx)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLib_lua_isnumber(L,idx));
     return(lua_isnumber((lua_State*)L,idx));
 }
 
 int luaWrap_lua_isstring(luaWrap_lua_State* L,int idx)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLib_lua_isstring(L,idx));
     return(lua_isstring((lua_State*)L,idx));
 }
 
 bool luaWrap_lua_isboolean(luaWrap_lua_State* L,int idx)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLib_lua_isboolean(L,idx));
     return(lua_isboolean((lua_State*)L,idx));
 }
 
 bool luaWrap_lua_isnil(luaWrap_lua_State* L,int idx)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLib_lua_isnil(L,idx));
     return(lua_isnil((lua_State*)L,idx));
 }
 
 bool luaWrap_lua_istable(luaWrap_lua_State* L,int idx)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLib_lua_istable(L,idx));
     return(lua_istable((lua_State*)L,idx));
 }
 
 bool luaWrap_lua_isfunction(luaWrap_lua_State* L,int idx)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLib_lua_isfunction(L,idx));
     return(lua_isfunction((lua_State*)L,idx));
 }
 
 int luaWrap_lua_getstack(luaWrap_lua_State* L,int level,luaWrap_lua_Debug* deb)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLib_lua_getstack(L,level,deb));
     return(lua_getstack((lua_State*)L,level,(lua_Debug*)deb));
 }
 
 int luaWrap_lua_getinfo(luaWrap_lua_State* L,const char* what,luaWrap_lua_Debug* deb)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLib_lua_getinfo(L,what,deb));
     return(lua_getinfo((lua_State*)L,what,(lua_Debug*)deb));
 }
 
 void luaWrap_lua_setglobal(luaWrap_lua_State* L,const char* name)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         luaLib_lua_setglobal(L,name);
     else
         lua_setglobal((lua_State*)L,name);
@@ -624,7 +624,7 @@ void luaWrap_lua_setglobal(luaWrap_lua_State* L,const char* name)
 
 void luaWrap_lua_getfield(luaWrap_lua_State* L,int idx,const char* name)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         luaLib_lua_getfield(L,idx,name);
     else
         lua_getfield((lua_State*)L,idx,name);
@@ -632,7 +632,7 @@ void luaWrap_lua_getfield(luaWrap_lua_State* L,int idx,const char* name)
 
 void luaWrap_lua_setfield(luaWrap_lua_State* L,int idx,const char* name)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         luaLib_lua_setfield(L,idx,name);
     else
         lua_setfield((lua_State*)L,idx,name);
@@ -640,7 +640,7 @@ void luaWrap_lua_setfield(luaWrap_lua_State* L,int idx,const char* name)
 
 void luaWrap_lua_yield(luaWrap_lua_State* L,int nresults)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         luaLib_lua_yield(L,nresults);
     else
         lua_yield((lua_State*)L,nresults);
@@ -648,14 +648,14 @@ void luaWrap_lua_yield(luaWrap_lua_State* L,int nresults)
 
 int luaWrap_luaL_dostring(luaWrap_lua_State* L,const char* str)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLib_luaL_dostring(L,str));
     return(luaL_dostring((lua_State*)L,str));
 }
 
 void luaWrap_lua_getglobal(luaWrap_lua_State* L,const char* str)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         luaLib_lua_getglobal(L,str);
     else
         lua_getglobal((lua_State*)L,str);
@@ -663,7 +663,7 @@ void luaWrap_lua_getglobal(luaWrap_lua_State* L,const char* str)
 
 void luaWrap_lua_pop(luaWrap_lua_State* L,int n)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         luaLib_lua_pop(L,n);
     else
         lua_pop((lua_State*)L,n);
@@ -671,14 +671,14 @@ void luaWrap_lua_pop(luaWrap_lua_State* L,int n)
 
 int luaWrap_lua_gettop(luaWrap_lua_State* L)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLib_lua_gettop(L));
     return(lua_gettop((lua_State*)L));
 }
 
 void luaWrap_lua_settop(luaWrap_lua_State* L,int idx)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         luaLib_lua_settop(L,idx);
     else
         lua_settop((lua_State*)L,idx);
@@ -686,14 +686,14 @@ void luaWrap_lua_settop(luaWrap_lua_State* L,int idx)
 
 size_t luaWrap_lua_objlen(luaWrap_lua_State* L,int idx)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLib_lua_objlen(L,idx));
     return(lua_objlen((lua_State*)L,idx));
 }
 
 void luaWrap_lua_rawgeti(luaWrap_lua_State* L,int idx,int n)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         luaLib_lua_rawgeti(L,idx,n);
     else
         lua_rawgeti((lua_State*)L,idx,n);
@@ -701,7 +701,7 @@ void luaWrap_lua_rawgeti(luaWrap_lua_State* L,int idx,int n)
 
 void luaWrap_lua_rawseti(luaWrap_lua_State* L,int idx,int n)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         luaLib_lua_rawseti(L,idx,n);
     else
         lua_rawseti((lua_State*)L,idx,n);
@@ -709,7 +709,7 @@ void luaWrap_lua_rawseti(luaWrap_lua_State* L,int idx,int n)
 
 void luaWrap_lua_newtable(luaWrap_lua_State* L)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         luaLib_lua_newtable(L);
     else
         lua_newtable((lua_State*)L);
@@ -717,14 +717,14 @@ void luaWrap_lua_newtable(luaWrap_lua_State* L)
 
 int luaWrap_luaL_loadbuffer(luaWrap_lua_State* L,const char* buff,size_t sz,const char* name)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLib_luaL_loadbuffer(L,buff,sz,name));
     return(luaL_loadbuffer((lua_State*)L,buff,sz,name));
 }
 
 void luaWrap_lua_remove(luaWrap_lua_State* L,int idx)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         luaLib_lua_remove(L,idx);
     else
         lua_remove((lua_State*)L,idx);
@@ -732,7 +732,7 @@ void luaWrap_lua_remove(luaWrap_lua_State* L,int idx)
 
 void luaWrap_lua_insert(luaWrap_lua_State* L,int idx)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         luaLib_lua_insert(L,idx);
     else
         lua_insert((lua_State*)L,idx);
@@ -740,28 +740,28 @@ void luaWrap_lua_insert(luaWrap_lua_State* L,int idx)
 
 int luaWrap_lua_pcall(luaWrap_lua_State* L,int nargs,int nresult,int errfunc)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLib_lua_pcall(L,nargs,nresult,errfunc));
     return(lua_pcall((lua_State*)L,nargs,nresult,errfunc));
 }
 
 int luaWrap_lua_isuserdata(luaWrap_lua_State* L,int idx)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLib_lua_isuserdata(L,idx));
     return(lua_isuserdata((lua_State*)L,idx));
 }
 
 int luaWrap_lua_upvalueindex(int i)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLib_lua_upvalueindex(i));
     return(lua_upvalueindex(i));
 }
 
 int luaWrap_getCurrentCodeLine(luaWrap_lua_State* L)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLib_getCurrentCodeLine(L));
     int r=-1;
     lua_Debug ar;
@@ -775,7 +775,7 @@ int luaWrap_getCurrentCodeLine(luaWrap_lua_State* L)
 
 void luaWrap_lua_settable(luaWrap_lua_State* L,int idx)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         luaLib_lua_settable(L,idx);
     else
         lua_settable((lua_State*)L,idx);
@@ -783,7 +783,7 @@ void luaWrap_lua_settable(luaWrap_lua_State* L,int idx)
 
 int luaWrap_lua_next(luaWrap_lua_State* L,int idx)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLib_lua_next(L,idx));
     else
         return(lua_next((lua_State*)L,idx));
@@ -792,7 +792,7 @@ int luaWrap_lua_next(luaWrap_lua_State* L,int idx)
 int luaWrap_lua_stype(luaWrap_lua_State* L,int idx)
 {
     int t;
-    if (lib!=NULL)
+    if (lib!=nullptr)
         t=luaLib_lua_type(L,idx);
     else
         t=lua_type((lua_State*)L,idx);
@@ -819,7 +819,7 @@ int luaWrap_lua_stype(luaWrap_lua_State* L,int idx)
 
 int luaWrap_lua_error(luaWrap_lua_State* L)
 {
-    if (lib!=NULL)
+    if (lib!=nullptr)
         return(luaLib_lua_error(L));
     else
         return(lua_error((lua_State*)L));

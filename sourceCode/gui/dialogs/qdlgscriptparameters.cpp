@@ -99,7 +99,7 @@ void CQDlgScriptParameters::on_qqAddNew_clicked()
 
 void CQDlgScriptParameters::on_qqParameterList_itemChanged(QListWidgetItem *item)
 {
-    if (item!=NULL)
+    if (item!=nullptr)
     {
         std::string newName(item->text().toStdString());
         CLuaScriptParameters* it=script->getScriptParametersObject();
@@ -206,7 +206,7 @@ void CQDlgScriptParameters::selectObjectInList(int objectID)
     for (int i=0;i<ui->qqParameterList->count();i++)
     {
         QListWidgetItem* it=ui->qqParameterList->item(i);
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             if (it->data(Qt::UserRole).toInt()==objectID)
             {

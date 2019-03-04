@@ -22,7 +22,7 @@ CStaticGraphCurve::CStaticGraphCurve(int type,std::vector<float>* xVals,std::vec
     {
         values.push_back((*xVals)[i]);
         values.push_back((*yVals)[i]);
-        if (zVals!=NULL)
+        if (zVals!=nullptr)
             values.push_back((*zVals)[i]);
     }
 }

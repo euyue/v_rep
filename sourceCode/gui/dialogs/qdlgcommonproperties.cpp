@@ -43,7 +43,7 @@ void CQDlgCommonProperties::refresh()
 
     bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::ct->simulation->isSimulationStopped();
     C3DObject* ls=App::ct->objCont->getLastSelection_object();
-    bool objIsSelected=(ls!=NULL);
+    bool objIsSelected=(ls!=nullptr);
     bool isDummy=false;
     bool isOctree=false;
     bool isPointcloud=false;
@@ -85,7 +85,7 @@ void CQDlgCommonProperties::refresh()
     ui->qqViewableObjects->setEnabled(noEditModeNoSim&&objIsSelected);
     ui->qqViewableObjects->clear();
 
-    if (ls!=NULL)
+    if (ls!=nullptr)
     {
         ui->qqSelectable->setChecked((ls->getLocalObjectProperty()&sim_objectproperty_selectable)!=0);
         ui->qqSelectInvisible->setChecked((ls->getLocalObjectProperty()&sim_objectproperty_selectinvisible)!=0);
@@ -127,7 +127,7 @@ void CQDlgCommonProperties::refresh()
     ui->a_15->setEnabled(noEditModeNoSim&&objIsSelected);
     ui->a_16->setEnabled(noEditModeNoSim&&objIsSelected);
     ui->qqApplyLayers->setEnabled(noEditModeNoSim&&bigSel);
-    if (ls!=NULL)
+    if (ls!=nullptr)
     {
         ui->a_1->setChecked(ls->layer&1);
         ui->a_2->setChecked(ls->layer&2);
@@ -166,7 +166,7 @@ void CQDlgCommonProperties::refresh()
         ui->a_16->setChecked(false);
     }
 
-    if (ls!=NULL)
+    if (ls!=nullptr)
     {
         ui->qqViewableObjects->addItem(strTranslate(IDSN_ALL_CAMERAS_AND_VISION_SENSORS),QVariant(-1));
         ui->qqViewableObjects->addItem(strTranslate(IDSN_NEVER_VISIBLE),QVariant(-2));
@@ -194,9 +194,9 @@ void CQDlgCommonProperties::refresh()
         {
             CCamera* it2=App::ct->objCont->getCamera(App::ct->objCont->cameraList[i]);
             std::string name(tt::decorateString("[",strTranslate(IDSN_CAMERA),"] "));
-            name+=it2->getName();
+            name+=it2->getObjectName();
             names.push_back(name);
-            ids.push_back(it2->getID());
+            ids.push_back(it2->getObjectHandle());
         }
         tt::orderStrings(names,ids);
         for (int i=0;i<int(names.size());i++)
@@ -209,9 +209,9 @@ void CQDlgCommonProperties::refresh()
         {
             CVisionSensor* it2=App::ct->objCont->getVisionSensor(App::ct->objCont->visionSensorList[i]);
             std::string name(tt::decorateString("[",strTranslate(IDSN_VISION_SENSOR),"] "));
-            name+=it2->getName();
+            name+=it2->getObjectName();
             names.push_back(name);
-            ids.push_back(it2->getID());
+            ids.push_back(it2->getObjectHandle());
         }
         tt::orderStrings(names,ids);
         for (int i=0;i<int(names.size());i++)
@@ -229,7 +229,7 @@ void CQDlgCommonProperties::refresh()
     }
 
     ui->qqModelBase->setEnabled(noEditModeNoSim&&objIsSelected);
-    if (ls!=NULL)
+    if (ls!=nullptr)
     {
         ui->qqModelBase->setChecked(ls->getModelBase());
         ui->qqEditModelProperties->setEnabled(ls->getModelBase());
@@ -241,7 +241,7 @@ void CQDlgCommonProperties::refresh()
     }
 
     ui->qqApplySpecialProperties->setEnabled(bigSel&&noEditModeNoSim);//(isShape||isPath||isDummy||isGraph||isMirror)));
-    if (ls!=NULL)
+    if (ls!=nullptr)
     {
         //** Collidable
         ui->qqCollidable->setEnabled(ls->isPotentiallyCollidable()&&noEditModeNoSim);
@@ -331,7 +331,7 @@ void CQDlgCommonProperties::refresh()
 
     ui->qqSelfCollisionIndicator->setEnabled(objIsSelected&&noEditModeNoSim&&(isDummy||isShape));
 
-    if (ls!=NULL)
+    if (ls!=nullptr)
     {
         if (isDummy||isShape||isOctree)
             ui->qqSelfCollisionIndicator->setText(tt::getIString(false,ls->getCollectionSelfCollisionIndicator()).c_str());
@@ -398,7 +398,7 @@ void CQDlgCommonProperties::on_qqApplyGeneralProperties_clicked()
             C3DObject* last=App::ct->objCont->getLastSelection_object();
             SSimulationThreadCommand cmd;
             cmd.cmdId=APPLY_GENERALPROP_COMMONPROPGUITRIGGEREDCMD;
-            cmd.intParams.push_back(last->getID());
+            cmd.intParams.push_back(last->getObjectHandle());
             for (int i=0;i<App::ct->objCont->getSelSize()-1;i++)
                 cmd.intParams.push_back(App::ct->objCont->getSelID(i));
             App::appendSimulationThreadCommand(cmd);
@@ -412,10 +412,10 @@ void CQDlgCommonProperties::on_a_1_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         C3DObject* it=App::ct->objCont->getLastSelection_object();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             int layer=it->layer^1;
-            App::appendSimulationThreadCommand(SET_CAMERAVISIBILITYLAYERS_COMMONPROPGUITRIGGEREDCMD,it->getID(),layer);
+            App::appendSimulationThreadCommand(SET_CAMERAVISIBILITYLAYERS_COMMONPROPGUITRIGGEREDCMD,it->getObjectHandle(),layer);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_HIERARCHY_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -428,10 +428,10 @@ void CQDlgCommonProperties::on_a_2_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         C3DObject* it=App::ct->objCont->getLastSelection_object();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             int layer=it->layer^2;
-            App::appendSimulationThreadCommand(SET_CAMERAVISIBILITYLAYERS_COMMONPROPGUITRIGGEREDCMD,it->getID(),layer);
+            App::appendSimulationThreadCommand(SET_CAMERAVISIBILITYLAYERS_COMMONPROPGUITRIGGEREDCMD,it->getObjectHandle(),layer);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_HIERARCHY_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -444,10 +444,10 @@ void CQDlgCommonProperties::on_a_3_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         C3DObject* it=App::ct->objCont->getLastSelection_object();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             int layer=it->layer^4;
-            App::appendSimulationThreadCommand(SET_CAMERAVISIBILITYLAYERS_COMMONPROPGUITRIGGEREDCMD,it->getID(),layer);
+            App::appendSimulationThreadCommand(SET_CAMERAVISIBILITYLAYERS_COMMONPROPGUITRIGGEREDCMD,it->getObjectHandle(),layer);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_HIERARCHY_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -460,10 +460,10 @@ void CQDlgCommonProperties::on_a_4_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         C3DObject* it=App::ct->objCont->getLastSelection_object();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             int layer=it->layer^8;
-            App::appendSimulationThreadCommand(SET_CAMERAVISIBILITYLAYERS_COMMONPROPGUITRIGGEREDCMD,it->getID(),layer);
+            App::appendSimulationThreadCommand(SET_CAMERAVISIBILITYLAYERS_COMMONPROPGUITRIGGEREDCMD,it->getObjectHandle(),layer);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_HIERARCHY_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -476,10 +476,10 @@ void CQDlgCommonProperties::on_a_5_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         C3DObject* it=App::ct->objCont->getLastSelection_object();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             int layer=it->layer^16;
-            App::appendSimulationThreadCommand(SET_CAMERAVISIBILITYLAYERS_COMMONPROPGUITRIGGEREDCMD,it->getID(),layer);
+            App::appendSimulationThreadCommand(SET_CAMERAVISIBILITYLAYERS_COMMONPROPGUITRIGGEREDCMD,it->getObjectHandle(),layer);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_HIERARCHY_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -492,10 +492,10 @@ void CQDlgCommonProperties::on_a_6_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         C3DObject* it=App::ct->objCont->getLastSelection_object();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             int layer=it->layer^32;
-            App::appendSimulationThreadCommand(SET_CAMERAVISIBILITYLAYERS_COMMONPROPGUITRIGGEREDCMD,it->getID(),layer);
+            App::appendSimulationThreadCommand(SET_CAMERAVISIBILITYLAYERS_COMMONPROPGUITRIGGEREDCMD,it->getObjectHandle(),layer);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_HIERARCHY_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -508,10 +508,10 @@ void CQDlgCommonProperties::on_a_7_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         C3DObject* it=App::ct->objCont->getLastSelection_object();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             int layer=it->layer^64;
-            App::appendSimulationThreadCommand(SET_CAMERAVISIBILITYLAYERS_COMMONPROPGUITRIGGEREDCMD,it->getID(),layer);
+            App::appendSimulationThreadCommand(SET_CAMERAVISIBILITYLAYERS_COMMONPROPGUITRIGGEREDCMD,it->getObjectHandle(),layer);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_HIERARCHY_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -524,10 +524,10 @@ void CQDlgCommonProperties::on_a_8_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         C3DObject* it=App::ct->objCont->getLastSelection_object();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             int layer=it->layer^128;
-            App::appendSimulationThreadCommand(SET_CAMERAVISIBILITYLAYERS_COMMONPROPGUITRIGGEREDCMD,it->getID(),layer);
+            App::appendSimulationThreadCommand(SET_CAMERAVISIBILITYLAYERS_COMMONPROPGUITRIGGEREDCMD,it->getObjectHandle(),layer);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_HIERARCHY_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -540,10 +540,10 @@ void CQDlgCommonProperties::on_a_9_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         C3DObject* it=App::ct->objCont->getLastSelection_object();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             int layer=it->layer^256;
-            App::appendSimulationThreadCommand(SET_CAMERAVISIBILITYLAYERS_COMMONPROPGUITRIGGEREDCMD,it->getID(),layer);
+            App::appendSimulationThreadCommand(SET_CAMERAVISIBILITYLAYERS_COMMONPROPGUITRIGGEREDCMD,it->getObjectHandle(),layer);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_HIERARCHY_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -556,10 +556,10 @@ void CQDlgCommonProperties::on_a_10_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         C3DObject* it=App::ct->objCont->getLastSelection_object();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             int layer=it->layer^512;
-            App::appendSimulationThreadCommand(SET_CAMERAVISIBILITYLAYERS_COMMONPROPGUITRIGGEREDCMD,it->getID(),layer);
+            App::appendSimulationThreadCommand(SET_CAMERAVISIBILITYLAYERS_COMMONPROPGUITRIGGEREDCMD,it->getObjectHandle(),layer);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_HIERARCHY_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -572,10 +572,10 @@ void CQDlgCommonProperties::on_a_11_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         C3DObject* it=App::ct->objCont->getLastSelection_object();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             int layer=it->layer^1024;
-            App::appendSimulationThreadCommand(SET_CAMERAVISIBILITYLAYERS_COMMONPROPGUITRIGGEREDCMD,it->getID(),layer);
+            App::appendSimulationThreadCommand(SET_CAMERAVISIBILITYLAYERS_COMMONPROPGUITRIGGEREDCMD,it->getObjectHandle(),layer);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_HIERARCHY_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -588,10 +588,10 @@ void CQDlgCommonProperties::on_a_12_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         C3DObject* it=App::ct->objCont->getLastSelection_object();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             int layer=it->layer^2048;
-            App::appendSimulationThreadCommand(SET_CAMERAVISIBILITYLAYERS_COMMONPROPGUITRIGGEREDCMD,it->getID(),layer);
+            App::appendSimulationThreadCommand(SET_CAMERAVISIBILITYLAYERS_COMMONPROPGUITRIGGEREDCMD,it->getObjectHandle(),layer);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_HIERARCHY_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -604,10 +604,10 @@ void CQDlgCommonProperties::on_a_13_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         C3DObject* it=App::ct->objCont->getLastSelection_object();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             int layer=it->layer^4096;
-            App::appendSimulationThreadCommand(SET_CAMERAVISIBILITYLAYERS_COMMONPROPGUITRIGGEREDCMD,it->getID(),layer);
+            App::appendSimulationThreadCommand(SET_CAMERAVISIBILITYLAYERS_COMMONPROPGUITRIGGEREDCMD,it->getObjectHandle(),layer);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_HIERARCHY_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -620,10 +620,10 @@ void CQDlgCommonProperties::on_a_14_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         C3DObject* it=App::ct->objCont->getLastSelection_object();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             int layer=it->layer^8192;
-            App::appendSimulationThreadCommand(SET_CAMERAVISIBILITYLAYERS_COMMONPROPGUITRIGGEREDCMD,it->getID(),layer);
+            App::appendSimulationThreadCommand(SET_CAMERAVISIBILITYLAYERS_COMMONPROPGUITRIGGEREDCMD,it->getObjectHandle(),layer);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_HIERARCHY_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -636,10 +636,10 @@ void CQDlgCommonProperties::on_a_15_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         C3DObject* it=App::ct->objCont->getLastSelection_object();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             int layer=it->layer^16384;
-            App::appendSimulationThreadCommand(SET_CAMERAVISIBILITYLAYERS_COMMONPROPGUITRIGGEREDCMD,it->getID(),layer);
+            App::appendSimulationThreadCommand(SET_CAMERAVISIBILITYLAYERS_COMMONPROPGUITRIGGEREDCMD,it->getObjectHandle(),layer);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_HIERARCHY_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -652,10 +652,10 @@ void CQDlgCommonProperties::on_a_16_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         C3DObject* it=App::ct->objCont->getLastSelection_object();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             int layer=it->layer^32768;
-            App::appendSimulationThreadCommand(SET_CAMERAVISIBILITYLAYERS_COMMONPROPGUITRIGGEREDCMD,it->getID(),layer);
+            App::appendSimulationThreadCommand(SET_CAMERAVISIBILITYLAYERS_COMMONPROPGUITRIGGEREDCMD,it->getObjectHandle(),layer);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_HIERARCHY_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -673,7 +673,7 @@ void CQDlgCommonProperties::on_qqApplyLayers_clicked()
             C3DObject* last=App::ct->objCont->getLastSelection_object();
             SSimulationThreadCommand cmd;
             cmd.cmdId=APPLY_VISIBILITYPROP_COMMONPROPGUITRIGGEREDCMD;
-            cmd.intParams.push_back(last->getID());
+            cmd.intParams.push_back(last->getObjectHandle());
             for (int i=0;i<App::ct->objCont->getSelSize()-1;i++)
                 cmd.intParams.push_back(App::ct->objCont->getSelID(i));
             App::appendSimulationThreadCommand(cmd);
@@ -699,7 +699,7 @@ void CQDlgCommonProperties::on_qqEditModelProperties_clicked()
         if (App::ct->objCont->getSelSize()>0)
         {
             C3DObject* it=App::ct->objCont->getLastSelection_object();
-            if ((it!=NULL)&&it->getModelBase())
+            if ((it!=nullptr)&&it->getModelBase())
             {
                 CQDlgModelProperties theDialog(this);
                 theDialog.modelBaseObject=it;
@@ -715,9 +715,9 @@ void CQDlgCommonProperties::on_qqCollidable_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         C3DObject* ls=App::ct->objCont->getLastSelection_object();
-        if ((ls!=NULL)&&ls->isPotentiallyCollidable())
+        if ((ls!=nullptr)&&ls->isPotentiallyCollidable())
         {
-            App::appendSimulationThreadCommand(TOGGLE_COLLIDABLE_COMMONPROPGUITRIGGEREDCMD,ls->getID());
+            App::appendSimulationThreadCommand(TOGGLE_COLLIDABLE_COMMONPROPGUITRIGGEREDCMD,ls->getObjectHandle());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -729,9 +729,9 @@ void CQDlgCommonProperties::on_qqMeasurable_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         C3DObject* ls=App::ct->objCont->getLastSelection_object();
-        if ((ls!=NULL)&&ls->isPotentiallyMeasurable())
+        if ((ls!=nullptr)&&ls->isPotentiallyMeasurable())
         {
-            App::appendSimulationThreadCommand(TOGGLE_MEASURABLE_COMMONPROPGUITRIGGEREDCMD,ls->getID());
+            App::appendSimulationThreadCommand(TOGGLE_MEASURABLE_COMMONPROPGUITRIGGEREDCMD,ls->getObjectHandle());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -744,9 +744,9 @@ void CQDlgCommonProperties::on_qqRenderable_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         C3DObject* ls=App::ct->objCont->getLastSelection_object();
-        if ((ls!=NULL)&&ls->isPotentiallyRenderable())
+        if ((ls!=nullptr)&&ls->isPotentiallyRenderable())
         {
-            App::appendSimulationThreadCommand(TOGGLE_RENDERABLE_COMMONPROPGUITRIGGEREDCMD,ls->getID());
+            App::appendSimulationThreadCommand(TOGGLE_RENDERABLE_COMMONPROPGUITRIGGEREDCMD,ls->getObjectHandle());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -758,9 +758,9 @@ void CQDlgCommonProperties::on_qqCuttable_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         C3DObject* ls=App::ct->objCont->getLastSelection_object();
-        if ((ls!=NULL)&&ls->isPotentiallyCuttable())
+        if ((ls!=nullptr)&&ls->isPotentiallyCuttable())
         {
-            App::appendSimulationThreadCommand(TOGGLE_CUTTABLE_COMMONPROPGUITRIGGEREDCMD,ls->getID());
+            App::appendSimulationThreadCommand(TOGGLE_CUTTABLE_COMMONPROPGUITRIGGEREDCMD,ls->getObjectHandle());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -772,9 +772,9 @@ void CQDlgCommonProperties::on_qqDetectable_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         C3DObject* ls=App::ct->objCont->getLastSelection_object();
-        if ((ls!=NULL)&&ls->isPotentiallyDetectable())
+        if ((ls!=nullptr)&&ls->isPotentiallyDetectable())
         {
-            App::appendSimulationThreadCommand(TOGGLE_DETECTABLE_COMMONPROPGUITRIGGEREDCMD,ls->getID());
+            App::appendSimulationThreadCommand(TOGGLE_DETECTABLE_COMMONPROPGUITRIGGEREDCMD,ls->getObjectHandle());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -786,14 +786,14 @@ void CQDlgCommonProperties::on_qqEditDetectableDetails_clicked()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         C3DObject* last=App::ct->objCont->getLastSelection_object();
-        if ((last!=NULL)&&last->isPotentiallyDetectable())
+        if ((last!=nullptr)&&last->isPotentiallyDetectable())
         {
             CQDlgDetectableProperties dlg(this);
             dlg.objectProperties=last->getLocalObjectSpecialProperty();
             dlg.refresh();
             if (dlg.makeDialogModal()!=VDIALOG_MODAL_RETURN_CANCEL)
             {
-                App::appendSimulationThreadCommand(SET_DETECTABLEITEMS_COMMONPROPGUITRIGGEREDCMD,last->getID(),dlg.objectProperties);
+                App::appendSimulationThreadCommand(SET_DETECTABLEITEMS_COMMONPROPGUITRIGGEREDCMD,last->getObjectHandle(),dlg.objectProperties);
                 App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
                 App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
             }
@@ -810,7 +810,7 @@ void CQDlgCommonProperties::on_qqApplySpecialProperties_clicked()
             C3DObject* last=App::ct->objCont->getLastSelection_object();
             SSimulationThreadCommand cmd;
             cmd.cmdId=APPLY_SPECIALPROP_COMMONPROPGUITRIGGEREDCMD;
-            cmd.intParams.push_back(last->getID());
+            cmd.intParams.push_back(last->getObjectHandle());
             for (int i=0;i<App::ct->objCont->getSelSize()-1;i++)
                 cmd.intParams.push_back(App::ct->objCont->getSelID(i));
             App::appendSimulationThreadCommand(cmd);
@@ -850,16 +850,16 @@ void CQDlgCommonProperties::on_qqUpdatable_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         C3DObject* ls=App::ct->objCont->getLastSelection_object();
-        if (ls!=NULL)
+        if (ls!=nullptr)
         {
             int p=ls->getLocalObjectProperty();
             if (p&sim_objectproperty_canupdatedna)
             {
                 if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,strTranslate("Updatable property"),strTranslate(IDSN_SURE_TO_DISABLE_UPDATABLE_WARNING),VMESSAGEBOX_YES_NO))
-                    App::appendSimulationThreadCommand(TOGGLE_CANTRANSFERDNA_COMMONPROPGUITRIGGEREDCMD,ls->getID());
+                    App::appendSimulationThreadCommand(TOGGLE_CANTRANSFERDNA_COMMONPROPGUITRIGGEREDCMD,ls->getObjectHandle());
             }
             else
-                App::appendSimulationThreadCommand(TOGGLE_CANTRANSFERDNA_COMMONPROPGUITRIGGEREDCMD,ls->getID());
+                App::appendSimulationThreadCommand(TOGGLE_CANTRANSFERDNA_COMMONPROPGUITRIGGEREDCMD,ls->getObjectHandle());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);

@@ -61,7 +61,7 @@ void displayEmitterOrReceiver(CBroadcastDataVisual* it)
                         ogl::addBuffer3DPoints(d1*cos(a)*cos(b+dB),d1*cos(a)*sin(b+dB),d1*sin(a));
                     }
                 }
-                ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,false,NULL);
+                ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,false,nullptr);
                 ogl::buffer.clear();
                 b+=dB;
             }
@@ -76,7 +76,7 @@ void displayEmitterOrReceiver(CBroadcastDataVisual* it)
         glLineStipple(1,stipple);
         glLineWidth(4.0f);
         glEnable(GL_LINE_STIPPLE);
-        ogl::drawSingle3dLine(it->_emitterConf.X.data,it->_receiverPos.data,NULL);
+        ogl::drawSingle3dLine(it->_emitterConf.X.data,it->_receiverPos.data,nullptr);
         glDisable(GL_LINE_STIPPLE);
         glLineWidth(1.0f);
     }

@@ -18,7 +18,7 @@ unsigned int VDateTime::getOSTimeInMs()
     return(timeGetTime());
 #else
     struct timeval now;
-    gettimeofday(&now,NULL);
+    gettimeofday(&now,nullptr);
     return(now.tv_sec*1000+now.tv_usec/1000);
 #endif
 }
@@ -68,32 +68,32 @@ void VDateTime::getYearMonthDayHourMinuteSecond(int* year,int* month,int* day,in
 #ifdef SIM_WITHOUT_QT_AT_ALL
     time_t now=std::time(0);
     tm *ltm=std::localtime(&now);
-    if (year!=NULL)
+    if (year!=nullptr)
         year[0]=1900+ltm->tm_year;
-    if (month!=NULL)
+    if (month!=nullptr)
         month[0]=1+ltm->tm_mon;
-    if (day!=NULL)
+    if (day!=nullptr)
         day[0]=ltm->tm_mday;
-    if (hour!=NULL)
+    if (hour!=nullptr)
         hour[0]=ltm->tm_hour;
-    if (minute!=NULL)
+    if (minute!=nullptr)
         minute[0]=ltm->tm_min;
-    if (second!=NULL)
+    if (second!=nullptr)
         second[0]=ltm->tm_sec;
 #else
     QDate now=QDate::currentDate();
     QTime nowTime=QTime::currentTime();
-    if (year!=NULL)
+    if (year!=nullptr)
         year[0]=now.year();
-    if (month!=NULL)
+    if (month!=nullptr)
         month[0]=now.month();
-    if (day!=NULL)
+    if (day!=nullptr)
         day[0]=now.day();
-    if (hour!=NULL)
+    if (hour!=nullptr)
         hour[0]=nowTime.hour();
-    if (minute!=NULL)
+    if (minute!=nullptr)
         minute[0]=nowTime.minute();
-    if (second!=NULL)
+    if (second!=nullptr)
         second[0]=nowTime.second();
 #endif
 }
@@ -177,7 +177,7 @@ int VDateTime::_getTimeWithStartInMs_viaTimeGetTime(bool& success)
 int VDateTime::_getTimeWithStartInMs_viaGetTimeOfDay(bool& success)
 {
     struct timeval now;
-    success=(gettimeofday(&now,NULL)==0);
+    success=(gettimeofday(&now,nullptr)==0);
     static time_t initSec=now.tv_sec;
     static suseconds_t initUSec=now.tv_usec;
     return((now.tv_sec-initSec)*1000+(now.tv_usec-initUSec)/1000);

@@ -7,7 +7,7 @@
 void displayMotionPlanningTask(CMotionPlanningTask* task)
 {
     C3DObject* basef=task->getBaseObject();
-    if ((task->_data!=NULL)&&(basef!=NULL))
+    if ((task->_data!=nullptr)&&(basef!=nullptr))
     {
         float* p;
         int ind=0;
@@ -38,7 +38,7 @@ void displayMotionPlanningTask(CMotionPlanningTask* task)
                 }
             }
             if (ogl::buffer.size()!=0)
-                ogl::drawRandom3dPoints(&ogl::buffer[0],int(ogl::buffer.size())/3,NULL);
+                ogl::drawRandom3dPoints(&ogl::buffer[0],int(ogl::buffer.size())/3,nullptr);
             ogl::buffer.clear();
 /* KEEP!!
             ind=0;
@@ -63,7 +63,7 @@ void displayMotionPlanningTask(CMotionPlanningTask* task)
                 ind++;
             }
             if (ogl::buffer.size()!=0)
-                ogl::drawRandom3dLines(&ogl::buffer[0],ogl::buffer.size()/3,false,NULL);
+                ogl::drawRandom3dLines(&ogl::buffer[0],ogl::buffer.size()/3,false,nullptr);
             ogl::buffer.clear();
 */
         }
@@ -108,7 +108,7 @@ void _renderPhase2data(CMotionPlanningTask* task,unsigned int what)
         ogl::buffer.push_back(p2[2]);
     }
     if (ogl::buffer.size()!=0)
-        ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,false,NULL);
+        ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,false,nullptr);
     ogl::buffer.clear();
 }
 

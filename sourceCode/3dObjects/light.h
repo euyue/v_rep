@@ -18,7 +18,7 @@ public:
     void scaleObjectNonIsometrically(float x,float y,float z);
     void serialize(CSer& ar);
     void serializeWExtIk(CExtIkSer& ar);
-    bool announceObjectWillBeErased(int objID,bool copyBuffer);
+    bool announceObjectWillBeErased(int objectHandle,bool copyBuffer);
     void announceCollectionWillBeErased(int groupID,bool copyBuffer);
     void announceCollisionWillBeErased(int collisionID,bool copyBuffer);
     void announceDistanceWillBeErased(int distanceID,bool copyBuffer);

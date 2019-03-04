@@ -32,7 +32,7 @@ void CQDlgPrimitives::okEvent()
 
 void CQDlgPrimitives::initialize(int type,const C3Vector* sizes)
 {
-    if (sizes!=NULL)
+    if (sizes!=nullptr)
     {
         xSize=(*sizes)(0);
         ySize=(*sizes)(1);
@@ -62,7 +62,7 @@ void CQDlgPrimitives::initialize(int type,const C3Vector* sizes)
     negativeVolume=false;
     negativeVolumeScaling=0.5f;
     primitiveType=type;
-    sizesAreLocked=(sizes!=NULL);
+    sizesAreLocked=(sizes!=nullptr);
     refresh();
 }
 

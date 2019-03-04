@@ -24,7 +24,7 @@ int CPropBrowserEngineMaterial::_splitterPos=250;
 
 CPropBrowserEngineMaterial::CPropBrowserEngineMaterial(QWidget* pParent) : QtTreePropertyBrowser(pParent)
 {
-    show(NULL);
+    show(nullptr);
 }
 
 CPropBrowserEngineMaterial::~CPropBrowserEngineMaterial()
@@ -389,17 +389,17 @@ void CPropBrowserEngineMaterial::refresh()
     p_bulletMarginScalingFactor->setPropertyName("Custom collision margin factor");
 
     // Bullet parameters:
-    float b_oldFriction=mat->getEngineFloatParam(sim_bullet_body_oldfriction,NULL);
-    float b_newFriction=mat->getEngineFloatParam(sim_bullet_body_friction,NULL);
-    float b_restitution=mat->getEngineFloatParam(sim_bullet_body_restitution,NULL);
-    float b_linDamp=mat->getEngineFloatParam(sim_bullet_body_lineardamping,NULL);
-    float b_angDamp=mat->getEngineFloatParam(sim_bullet_body_angulardamping,NULL);
-    float b_nonDefCollMargFact=mat->getEngineFloatParam(sim_bullet_body_nondefaultcollisionmargingfactor,NULL);
-    float b_nonDefCollMargFact_convex=mat->getEngineFloatParam(sim_bullet_body_nondefaultcollisionmargingfactorconvex,NULL);
-    bool b_sticky=mat->getEngineBoolParam(sim_bullet_body_sticky,NULL);
-    bool b_useNonDefCollMargin=mat->getEngineBoolParam(sim_bullet_body_usenondefaultcollisionmargin,NULL);
-    bool b_useNonDefCollMargin_convex=mat->getEngineBoolParam(sim_bullet_body_usenondefaultcollisionmarginconvex,NULL);
-    bool b_autoShrink=mat->getEngineBoolParam(sim_bullet_body_autoshrinkconvex,NULL);
+    float b_oldFriction=mat->getEngineFloatParam(sim_bullet_body_oldfriction,nullptr);
+    float b_newFriction=mat->getEngineFloatParam(sim_bullet_body_friction,nullptr);
+    float b_restitution=mat->getEngineFloatParam(sim_bullet_body_restitution,nullptr);
+    float b_linDamp=mat->getEngineFloatParam(sim_bullet_body_lineardamping,nullptr);
+    float b_angDamp=mat->getEngineFloatParam(sim_bullet_body_angulardamping,nullptr);
+    float b_nonDefCollMargFact=mat->getEngineFloatParam(sim_bullet_body_nondefaultcollisionmargingfactor,nullptr);
+    float b_nonDefCollMargFact_convex=mat->getEngineFloatParam(sim_bullet_body_nondefaultcollisionmargingfactorconvex,nullptr);
+    bool b_sticky=mat->getEngineBoolParam(sim_bullet_body_sticky,nullptr);
+    bool b_useNonDefCollMargin=mat->getEngineBoolParam(sim_bullet_body_usenondefaultcollisionmargin,nullptr);
+    bool b_useNonDefCollMargin_convex=mat->getEngineBoolParam(sim_bullet_body_usenondefaultcollisionmarginconvex,nullptr);
+    bool b_autoShrink=mat->getEngineBoolParam(sim_bullet_body_autoshrinkconvex,nullptr);
     p_bulletFrictionOld->setValue(tt::floatToEInfString(b_oldFriction,false).c_str());
     p_bulletFrictionOld->setEnabled(editable);
     p_bulletFriction->setValue(tt::floatToEInfString(b_newFriction,false).c_str());
@@ -436,12 +436,12 @@ void CPropBrowserEngineMaterial::refresh()
     p_odeAngDamping->setPropertyName("Angular damping");
 
     // ODE parameters:
-    float o_friction=mat->getEngineFloatParam(sim_ode_body_friction,NULL);
-    float o_softErp=mat->getEngineFloatParam(sim_ode_body_softerp,NULL);
-    float o_softCfm=mat->getEngineFloatParam(sim_ode_body_softcfm,NULL);
-    float o_linDamp=mat->getEngineFloatParam(sim_ode_body_lineardamping,NULL);
-    float o_angDamp=mat->getEngineFloatParam(sim_ode_body_angulardamping,NULL);
-    int o_maxContacts=mat->getEngineIntParam(sim_ode_body_maxcontacts,NULL);
+    float o_friction=mat->getEngineFloatParam(sim_ode_body_friction,nullptr);
+    float o_softErp=mat->getEngineFloatParam(sim_ode_body_softerp,nullptr);
+    float o_softCfm=mat->getEngineFloatParam(sim_ode_body_softcfm,nullptr);
+    float o_linDamp=mat->getEngineFloatParam(sim_ode_body_lineardamping,nullptr);
+    float o_angDamp=mat->getEngineFloatParam(sim_ode_body_angulardamping,nullptr);
+    int o_maxContacts=mat->getEngineIntParam(sim_ode_body_maxcontacts,nullptr);
     p_odeFriction->setValue(tt::floatToEInfString(o_friction,false).c_str());
     p_odeFriction->setEnabled(editable);
     p_odeMaxContacts->setValue(tt::intToString(o_maxContacts).c_str());
@@ -517,60 +517,60 @@ void CPropBrowserEngineMaterial::refresh()
 
 
     // Vortex parameters:
-    float frictionCoeff_primary_linearAxis=mat->getEngineFloatParam(sim_vortex_body_primlinearaxisfriction,NULL);
-    float frictionCoeff_secondary_linearAxis=mat->getEngineFloatParam(sim_vortex_body_seclinearaxisfriction,NULL);
-    float frictionCoeff_primary_angularAxis=mat->getEngineFloatParam(sim_vortex_body_primangularaxisfriction,NULL);
-    float frictionCoeff_secondary_angularAxis=mat->getEngineFloatParam(sim_vortex_body_secangularaxisfriction,NULL);
-    float frictionCoeff_normal_angularAxis=mat->getEngineFloatParam(sim_vortex_body_normalangularaxisfriction,NULL);
-    float staticFrictionScale_primary_linearAxis=mat->getEngineFloatParam(sim_vortex_body_primlinearaxisstaticfrictionscale,NULL);
-    float staticFrictionScale_secondary_linearAxis=mat->getEngineFloatParam(sim_vortex_body_seclinearaxisstaticfrictionscale,NULL);
-    float staticFrictionScale_primary_angularAxis=mat->getEngineFloatParam(sim_vortex_body_primangularaxisstaticfrictionscale,NULL);
-    float staticFrictionScale_secondary_angularAxis=mat->getEngineFloatParam(sim_vortex_body_secangularaxisstaticfrictionscale,NULL);
-    float staticFrictionScale_normal_angularAxis=mat->getEngineFloatParam(sim_vortex_body_normalangularaxisstaticfrictionscale,NULL);
-    float compliance=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_compliance,NULL),1.0f,true);
-    float damping=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_damping,NULL),1.0f,true);
-    float restitution=mat->getEngineFloatParam(sim_vortex_body_restitution,NULL);
-    float restitutionThreshold=mat->getEngineFloatParam(sim_vortex_body_restitutionthreshold,NULL);
-    float adhesiveForce=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_adhesiveforce,NULL),1.0f,true);
-    float linearVelocityDamping=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_linearvelocitydamping,NULL),1.0f,true);
-    float angularVelocityDamping=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_angularvelocitydamping,NULL),1.0f,true);
-    float slide_primary_linearAxis=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_primlinearaxisslide,NULL),1.0f,true);
-    float slide_secondary_linearAxis=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_seclinearaxisslide,NULL),1.0f,true);
-    float slide_primary_angularAxis=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_primangularaxisslide,NULL),gv::angularVelToUser,true);
-    float slide_secondary_angularAxis=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_secangularaxisslide,NULL),gv::angularVelToUser,true);
-    float slide_normal_angularAxis=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_normalangularaxisslide,NULL),gv::angularVelToUser,true);
-    float slip_primary_linearAxis=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_primlinearaxisslip,NULL),1.0f,true);
-    float slip_secondary_linearAxis=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_seclinearaxisslip,NULL),1.0f,true);
-    float slip_primary_angularAxis=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_primangularaxisslip,NULL),1.0f,true);
-    float slip_secondary_angularAxis=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_secangularaxisslip,NULL),1.0f,true);
-    float slip_normal_angularAxis=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_normalangularaxisslip,NULL),1.0f,true);
-    float autoSleep_linear_speed_threshold=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_autosleeplinearspeedthreshold,NULL),1.0f,true);
-    float autoSleep_linear_accel_threshold=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_autosleeplinearaccelthreshold,NULL),1.0f,true);
-    float autoSleep_angular_speed_threshold=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_autosleepangularspeedthreshold,NULL),gv::angularVelToUser,true);
-    float autoSleep_angular_accel_threshold=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_autosleepangularaccelthreshold,NULL),gv::angularAccelToUser,true);
-    float skin_thickness=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_skinthickness,NULL),1.0f,true);;
-    float autoAngularDampingTensionRatio=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_autoangulardampingtensionratio,NULL),1,true);
-    float primaryAxisVectorX=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_primaxisvectorx,NULL),1,false);
-    float primaryAxisVectorY=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_primaxisvectory,NULL),1,false);
-    float primaryAxisVectorZ=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_primaxisvectorz,NULL),1,false);
+    float frictionCoeff_primary_linearAxis=mat->getEngineFloatParam(sim_vortex_body_primlinearaxisfriction,nullptr);
+    float frictionCoeff_secondary_linearAxis=mat->getEngineFloatParam(sim_vortex_body_seclinearaxisfriction,nullptr);
+    float frictionCoeff_primary_angularAxis=mat->getEngineFloatParam(sim_vortex_body_primangularaxisfriction,nullptr);
+    float frictionCoeff_secondary_angularAxis=mat->getEngineFloatParam(sim_vortex_body_secangularaxisfriction,nullptr);
+    float frictionCoeff_normal_angularAxis=mat->getEngineFloatParam(sim_vortex_body_normalangularaxisfriction,nullptr);
+    float staticFrictionScale_primary_linearAxis=mat->getEngineFloatParam(sim_vortex_body_primlinearaxisstaticfrictionscale,nullptr);
+    float staticFrictionScale_secondary_linearAxis=mat->getEngineFloatParam(sim_vortex_body_seclinearaxisstaticfrictionscale,nullptr);
+    float staticFrictionScale_primary_angularAxis=mat->getEngineFloatParam(sim_vortex_body_primangularaxisstaticfrictionscale,nullptr);
+    float staticFrictionScale_secondary_angularAxis=mat->getEngineFloatParam(sim_vortex_body_secangularaxisstaticfrictionscale,nullptr);
+    float staticFrictionScale_normal_angularAxis=mat->getEngineFloatParam(sim_vortex_body_normalangularaxisstaticfrictionscale,nullptr);
+    float compliance=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_compliance,nullptr),1.0f,true);
+    float damping=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_damping,nullptr),1.0f,true);
+    float restitution=mat->getEngineFloatParam(sim_vortex_body_restitution,nullptr);
+    float restitutionThreshold=mat->getEngineFloatParam(sim_vortex_body_restitutionthreshold,nullptr);
+    float adhesiveForce=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_adhesiveforce,nullptr),1.0f,true);
+    float linearVelocityDamping=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_linearvelocitydamping,nullptr),1.0f,true);
+    float angularVelocityDamping=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_angularvelocitydamping,nullptr),1.0f,true);
+    float slide_primary_linearAxis=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_primlinearaxisslide,nullptr),1.0f,true);
+    float slide_secondary_linearAxis=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_seclinearaxisslide,nullptr),1.0f,true);
+    float slide_primary_angularAxis=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_primangularaxisslide,nullptr),gv::angularVelToUser,true);
+    float slide_secondary_angularAxis=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_secangularaxisslide,nullptr),gv::angularVelToUser,true);
+    float slide_normal_angularAxis=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_normalangularaxisslide,nullptr),gv::angularVelToUser,true);
+    float slip_primary_linearAxis=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_primlinearaxisslip,nullptr),1.0f,true);
+    float slip_secondary_linearAxis=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_seclinearaxisslip,nullptr),1.0f,true);
+    float slip_primary_angularAxis=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_primangularaxisslip,nullptr),1.0f,true);
+    float slip_secondary_angularAxis=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_secangularaxisslip,nullptr),1.0f,true);
+    float slip_normal_angularAxis=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_normalangularaxisslip,nullptr),1.0f,true);
+    float autoSleep_linear_speed_threshold=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_autosleeplinearspeedthreshold,nullptr),1.0f,true);
+    float autoSleep_linear_accel_threshold=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_autosleeplinearaccelthreshold,nullptr),1.0f,true);
+    float autoSleep_angular_speed_threshold=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_autosleepangularspeedthreshold,nullptr),gv::angularVelToUser,true);
+    float autoSleep_angular_accel_threshold=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_autosleepangularaccelthreshold,nullptr),gv::angularAccelToUser,true);
+    float skin_thickness=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_skinthickness,nullptr),1.0f,true);;
+    float autoAngularDampingTensionRatio=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_autoangulardampingtensionratio,nullptr),1,true);
+    float primaryAxisVectorX=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_primaxisvectorx,nullptr),1,false);
+    float primaryAxisVectorY=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_primaxisvectory,nullptr),1,false);
+    float primaryAxisVectorZ=tt::floatToUserFloat(mat->getEngineFloatParam(sim_vortex_body_primaxisvectorz,nullptr),1,false);
 
-    int frictionModel_primary_linearAxis=mat->getEngineIntParam(sim_vortex_body_primlinearaxisfrictionmodel,NULL);
-    int frictionModel_secondary_linearAxis=mat->getEngineIntParam(sim_vortex_body_seclinearaxisfrictionmodel,NULL);
-    int frictionModel_primary_angularAxis=mat->getEngineIntParam(sim_vortex_body_primangulararaxisfrictionmodel,NULL);
-    int frictionModel_secondary_angularAxis=mat->getEngineIntParam(sim_vortex_body_secmangulararaxisfrictionmodel,NULL);
-    int frictionModel_normal_angularAxis=mat->getEngineIntParam(sim_vortex_body_normalmangulararaxisfrictionmodel,NULL);
-    int autoSleepStepLiveThreshold=mat->getEngineIntParam(sim_vortex_body_autosleepsteplivethreshold,NULL);
+    int frictionModel_primary_linearAxis=mat->getEngineIntParam(sim_vortex_body_primlinearaxisfrictionmodel,nullptr);
+    int frictionModel_secondary_linearAxis=mat->getEngineIntParam(sim_vortex_body_seclinearaxisfrictionmodel,nullptr);
+    int frictionModel_primary_angularAxis=mat->getEngineIntParam(sim_vortex_body_primangulararaxisfrictionmodel,nullptr);
+    int frictionModel_secondary_angularAxis=mat->getEngineIntParam(sim_vortex_body_secmangulararaxisfrictionmodel,nullptr);
+    int frictionModel_normal_angularAxis=mat->getEngineIntParam(sim_vortex_body_normalmangulararaxisfrictionmodel,nullptr);
+    int autoSleepStepLiveThreshold=mat->getEngineIntParam(sim_vortex_body_autosleepsteplivethreshold,nullptr);
     //int uniqueId=mat->getEngineIntParam(sim_vortex_body_materialuniqueid);
 
-    bool treatPureShapesAsConvexShapes=mat->getEngineBoolParam(sim_vortex_body_pureshapesasconvex,NULL);
-    bool treatConvexShapesAsRandomShapes=mat->getEngineBoolParam(sim_vortex_body_convexshapesasrandom,NULL);
-    bool treatRandomShapesAsTerrain=mat->getEngineBoolParam(sim_vortex_body_randomshapesasterrain,NULL);
-    bool fastMoving=mat->getEngineBoolParam(sim_vortex_body_fastmoving,NULL);
-    bool autoSlip=mat->getEngineBoolParam(sim_vortex_body_autoslip,NULL);
-    bool linearSecFollowsLinearPrim=mat->getEngineBoolParam(sim_vortex_body_seclinaxissameasprimlinaxis,NULL);
-    bool angularSecFollowsAngularPrim=mat->getEngineBoolParam(sim_vortex_body_secangaxissameasprimangaxis,NULL);
-    bool angularNormFollowsAngularPrim=mat->getEngineBoolParam(sim_vortex_body_normangaxissameasprimangaxis,NULL);
-    bool autoAngularDampingEnabled=mat->getEngineBoolParam(sim_vortex_body_autoangulardamping,NULL);
+    bool treatPureShapesAsConvexShapes=mat->getEngineBoolParam(sim_vortex_body_pureshapesasconvex,nullptr);
+    bool treatConvexShapesAsRandomShapes=mat->getEngineBoolParam(sim_vortex_body_convexshapesasrandom,nullptr);
+    bool treatRandomShapesAsTerrain=mat->getEngineBoolParam(sim_vortex_body_randomshapesasterrain,nullptr);
+    bool fastMoving=mat->getEngineBoolParam(sim_vortex_body_fastmoving,nullptr);
+    bool autoSlip=mat->getEngineBoolParam(sim_vortex_body_autoslip,nullptr);
+    bool linearSecFollowsLinearPrim=mat->getEngineBoolParam(sim_vortex_body_seclinaxissameasprimlinaxis,nullptr);
+    bool angularSecFollowsAngularPrim=mat->getEngineBoolParam(sim_vortex_body_secangaxissameasprimangaxis,nullptr);
+    bool angularNormFollowsAngularPrim=mat->getEngineBoolParam(sim_vortex_body_normangaxissameasprimangaxis,nullptr);
+    bool autoAngularDampingEnabled=mat->getEngineBoolParam(sim_vortex_body_autoangulardamping,nullptr);
 
     std::string linAxis1Text("Linear primary axis (friction: ");
     std::string linAxis2Text("Linear secondary axis (friction: ");
@@ -749,13 +749,13 @@ void CPropBrowserEngineMaterial::refresh()
     p_newtonFastMoving->setPropertyName("Fast moving");
 
     // Newton parameters:
-    float newtonStaticFriction=mat->getEngineFloatParam(sim_newton_body_staticfriction,NULL);
-    float newtonKineticFriction=mat->getEngineFloatParam(sim_newton_body_kineticfriction,NULL);
-    float newtonRestitution=mat->getEngineFloatParam(sim_newton_body_restitution,NULL);
-    float newtonLinearDrag=mat->getEngineFloatParam(sim_newton_body_lineardrag,NULL);
-    float newtonAngularDrag=mat->getEngineFloatParam(sim_newton_body_angulardrag,NULL);
+    float newtonStaticFriction=mat->getEngineFloatParam(sim_newton_body_staticfriction,nullptr);
+    float newtonKineticFriction=mat->getEngineFloatParam(sim_newton_body_kineticfriction,nullptr);
+    float newtonRestitution=mat->getEngineFloatParam(sim_newton_body_restitution,nullptr);
+    float newtonLinearDrag=mat->getEngineFloatParam(sim_newton_body_lineardrag,nullptr);
+    float newtonAngularDrag=mat->getEngineFloatParam(sim_newton_body_angulardrag,nullptr);
 
-    bool newtonFastMoving=mat->getEngineBoolParam(sim_newton_body_fastmoving,NULL);
+    bool newtonFastMoving=mat->getEngineBoolParam(sim_newton_body_fastmoving,nullptr);
 
     p_newtonStaticFriction->setValue(tt::floatToEInfString(newtonStaticFriction,false).c_str());
     p_newtonStaticFriction->setEnabled(editable);
@@ -780,7 +780,7 @@ QtBrowserItem* CPropBrowserEngineMaterial::getSubPropertyBrowserItem(const QtBro
         if (children[i]->property()==childProperty)
             return(children[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 
@@ -1134,29 +1134,29 @@ void CPropBrowserEngineMaterial::handlePropertyChanges(QtProperty *_prop)
     }
 
     //************************************
-    if (mat->getEngineBoolParam(sim_vortex_body_seclinaxissameasprimlinaxis,NULL))
+    if (mat->getEngineBoolParam(sim_vortex_body_seclinaxissameasprimlinaxis,nullptr))
     {
-        mat->setEngineFloatParam(sim_vortex_body_seclinearaxisfriction,mat->getEngineFloatParam(sim_vortex_body_primlinearaxisfriction,NULL));
-        mat->setEngineFloatParam(sim_vortex_body_seclinearaxisstaticfrictionscale,mat->getEngineFloatParam(sim_vortex_body_primlinearaxisstaticfrictionscale,NULL));
-        mat->setEngineFloatParam(sim_vortex_body_seclinearaxisslide,mat->getEngineFloatParam(sim_vortex_body_primlinearaxisslide,NULL));
-        mat->setEngineFloatParam(sim_vortex_body_seclinearaxisslip,mat->getEngineFloatParam(sim_vortex_body_primlinearaxisslip,NULL));
-        mat->setEngineIntParam(sim_vortex_body_seclinearaxisfrictionmodel,mat->getEngineIntParam(sim_vortex_body_primlinearaxisfrictionmodel,NULL));
+        mat->setEngineFloatParam(sim_vortex_body_seclinearaxisfriction,mat->getEngineFloatParam(sim_vortex_body_primlinearaxisfriction,nullptr));
+        mat->setEngineFloatParam(sim_vortex_body_seclinearaxisstaticfrictionscale,mat->getEngineFloatParam(sim_vortex_body_primlinearaxisstaticfrictionscale,nullptr));
+        mat->setEngineFloatParam(sim_vortex_body_seclinearaxisslide,mat->getEngineFloatParam(sim_vortex_body_primlinearaxisslide,nullptr));
+        mat->setEngineFloatParam(sim_vortex_body_seclinearaxisslip,mat->getEngineFloatParam(sim_vortex_body_primlinearaxisslip,nullptr));
+        mat->setEngineIntParam(sim_vortex_body_seclinearaxisfrictionmodel,mat->getEngineIntParam(sim_vortex_body_primlinearaxisfrictionmodel,nullptr));
     }
-    if (mat->getEngineBoolParam(sim_vortex_body_secangaxissameasprimangaxis,NULL))
+    if (mat->getEngineBoolParam(sim_vortex_body_secangaxissameasprimangaxis,nullptr))
     {
-        mat->setEngineFloatParam(sim_vortex_body_secangularaxisfriction,mat->getEngineFloatParam(sim_vortex_body_primangularaxisfriction,NULL));
-        mat->setEngineFloatParam(sim_vortex_body_secangularaxisstaticfrictionscale,mat->getEngineFloatParam(sim_vortex_body_primangularaxisstaticfrictionscale,NULL));
-        mat->setEngineFloatParam(sim_vortex_body_secangularaxisslide,mat->getEngineFloatParam(sim_vortex_body_primangularaxisslide,NULL));
-        mat->setEngineFloatParam(sim_vortex_body_secangularaxisslip,mat->getEngineFloatParam(sim_vortex_body_primangularaxisslip,NULL));
-        mat->setEngineIntParam(sim_vortex_body_secmangulararaxisfrictionmodel,mat->getEngineIntParam(sim_vortex_body_primangulararaxisfrictionmodel,NULL));
+        mat->setEngineFloatParam(sim_vortex_body_secangularaxisfriction,mat->getEngineFloatParam(sim_vortex_body_primangularaxisfriction,nullptr));
+        mat->setEngineFloatParam(sim_vortex_body_secangularaxisstaticfrictionscale,mat->getEngineFloatParam(sim_vortex_body_primangularaxisstaticfrictionscale,nullptr));
+        mat->setEngineFloatParam(sim_vortex_body_secangularaxisslide,mat->getEngineFloatParam(sim_vortex_body_primangularaxisslide,nullptr));
+        mat->setEngineFloatParam(sim_vortex_body_secangularaxisslip,mat->getEngineFloatParam(sim_vortex_body_primangularaxisslip,nullptr));
+        mat->setEngineIntParam(sim_vortex_body_secmangulararaxisfrictionmodel,mat->getEngineIntParam(sim_vortex_body_primangulararaxisfrictionmodel,nullptr));
     }
-    if (mat->getEngineBoolParam(sim_vortex_body_normangaxissameasprimangaxis,NULL))
+    if (mat->getEngineBoolParam(sim_vortex_body_normangaxissameasprimangaxis,nullptr))
     {
-        mat->setEngineFloatParam(sim_vortex_body_normalangularaxisfriction,mat->getEngineFloatParam(sim_vortex_body_primangularaxisfriction,NULL));
-        mat->setEngineFloatParam(sim_vortex_body_normalangularaxisstaticfrictionscale,mat->getEngineFloatParam(sim_vortex_body_primangularaxisstaticfrictionscale,NULL));
-        mat->setEngineFloatParam(sim_vortex_body_normalangularaxisslide,mat->getEngineFloatParam(sim_vortex_body_primangularaxisslide,NULL));
-        mat->setEngineFloatParam(sim_vortex_body_normalangularaxisslip,mat->getEngineFloatParam(sim_vortex_body_primangularaxisslip,NULL));
-        mat->setEngineIntParam(sim_vortex_body_normalmangulararaxisfrictionmodel,mat->getEngineIntParam(sim_vortex_body_primangulararaxisfrictionmodel,NULL));
+        mat->setEngineFloatParam(sim_vortex_body_normalangularaxisfriction,mat->getEngineFloatParam(sim_vortex_body_primangularaxisfriction,nullptr));
+        mat->setEngineFloatParam(sim_vortex_body_normalangularaxisstaticfrictionscale,mat->getEngineFloatParam(sim_vortex_body_primangularaxisstaticfrictionscale,nullptr));
+        mat->setEngineFloatParam(sim_vortex_body_normalangularaxisslide,mat->getEngineFloatParam(sim_vortex_body_primangularaxisslide,nullptr));
+        mat->setEngineFloatParam(sim_vortex_body_normalangularaxisslip,mat->getEngineFloatParam(sim_vortex_body_primangularaxisslip,nullptr));
+        mat->setEngineIntParam(sim_vortex_body_normalmangulararaxisfrictionmodel,mat->getEngineIntParam(sim_vortex_body_primangulararaxisfrictionmodel,nullptr));
     }
     //************************************
 

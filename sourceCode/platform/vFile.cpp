@@ -69,7 +69,7 @@ VFile::VFile(const std::string& filename,unsigned short flags,bool dontThrow)
     if (!_theFile->open(openFlags))
     {
         delete _theFile;
-        _theFile=NULL;
+        _theFile=nullptr;
         if (!dontThrow)
             throw dummyException;
     }
@@ -96,7 +96,7 @@ VFile::VFile(const std::string& filename)
 VFile::~VFile()
 {
 #ifdef SIM_WITHOUT_QT_AT_ALL
-    if (_theFile!=NULL)
+    if (_theFile!=nullptr)
     {
         _theFile->close();
         delete _theFile;
@@ -110,7 +110,7 @@ void VFile::reportAndHandleFileExceptionError(VFILE_EXCEPTION_TYPE e)
 {
 #ifdef SIM_WITH_GUI
     // stl file exceptions:
-    App::uiThread->messageBox_critical(NULL,strTranslate(IDSN_FILE_EXCEPTION_ERROR),e.what(),VMESSAGEBOX_OKELI);
+    App::uiThread->messageBox_critical(nullptr,strTranslate(IDSN_FILE_EXCEPTION_ERROR),e.what(),VMESSAGEBOX_OKELI);
     // And #include <exception>
 #endif
     printf("File exception error: %s\n",e.what());
@@ -176,7 +176,7 @@ bool VFile::createFolder(const std::string& pathAndName)
 {
 #ifdef SIM_WITHOUT_QT_AT_ALL
 #ifdef WIN_VREP
-    return(CreateDirectoryA(pathAndName.c_str(),NULL)!=0);
+    return(CreateDirectoryA(pathAndName.c_str(),nullptr)!=0);
 #else // WIN_VREP
     std::string tmp("mkdir -p ");
     tmp+=pathAndName;

@@ -17,14 +17,12 @@ public:
     static bool loadScene(const char* pathAndFilename,bool displayMessages,bool displayDialogs,bool setCurrentDir);
     static bool loadModel(const char* pathAndFilename,bool displayMessages,bool displayDialogs,bool setCurrentDir,std::string* acknowledgmentPointerInReturn,bool doUndoThingInHere,std::vector<char>* loadBuffer,bool onlyThumbnail,bool forceModelAsCopy);
     static bool saveScene(const char* pathAndFilename,bool displayMessages,bool displayDialogs,bool setCurrentDir,bool changeSceneUniqueId);
-    static bool saveModel(int modelBaseDummyID,const char* pathAndFilename,bool displayMessages,bool displayDialogs,bool setCurrentDir,std::vector<char>* saveBuffer=NULL);
+    static bool saveModel(int modelBaseDummyID,const char* pathAndFilename,bool displayMessages,bool displayDialogs,bool setCurrentDir,std::vector<char>* saveBuffer=nullptr);
 
     static bool saveUserInterfaces(const char* pathAndFilename,bool displayMessages,bool displayDialogs,bool setCurrentDir,std::vector<int>* uiHandlesOrNullForAll);
     static bool loadUserInterfaces(const char* pathAndFilename,bool displayMessages,bool displayDialogs,bool setCurrentDir,std::vector<int>* uiHandles,bool doUndoThingInHere);
 
 
-    static bool commonImportRoutine(int importType,const std::string& pathName,bool showDlg,bool showProgress,float& sf,int options,bool useOrientSizeFromPreviousImport);
-    static bool apiImportRoutine(int importType,const std::string& pathName,int options,float identicalVerticesTolerance,float sizeFactor,std::vector<std::vector<float>*>& listOfVertices,std::vector<std::vector<int>*>& listOfIndices,std::vector<std::string>& groupNames);
     static int apiAddHeightfieldToScene(int xSize,float pointSpacing,const std::vector<std::vector<float>*>& readData,float shadingAngle,int options);
     static void createNewScene(bool displayMessages,bool forceForNewInstance);
     static void closeScene(bool displayMessages,bool displayDialogs);

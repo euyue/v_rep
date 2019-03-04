@@ -78,7 +78,7 @@ bool CLuaCustomFuncAndVarContainer::insertCustomFunction(CLuaCustomFunction* fun
     }
 
     int newID=0;
-    while (getCustomFunctionFromID(newID)!=NULL)
+    while (getCustomFunctionFromID(newID)!=nullptr)
         newID++;
     function->setFunctionID(newID);
     allCustomFunctions.push_back(function);
@@ -102,7 +102,7 @@ CLuaCustomFunction* CLuaCustomFuncAndVarContainer::getCustomFunctionFromID(int f
         if (functionID==allCustomFunctions[i]->getFunctionID())
             return(allCustomFunctions[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 void CLuaCustomFuncAndVarContainer::appendAllFunctionNames_spaceSeparated(std::string& v)
@@ -182,7 +182,7 @@ bool CLuaCustomFuncAndVarContainer::removeCustomVariable(const char* fullVariabl
 
 bool CLuaCustomFuncAndVarContainer::insertCustomVariable(const char* fullVariableName,const char* variableValue,int stackHandle)
 {
-    if (variableValue!=NULL)
+    if (variableValue!=nullptr)
     { // we register a simple variable
         removeCustomVariable(fullVariableName);
         CLuaCustomVariable* v=new CLuaCustomVariable(fullVariableName,variableValue,stackHandle);
@@ -194,13 +194,13 @@ bool CLuaCustomFuncAndVarContainer::insertCustomVariable(const char* fullVariabl
         if (stackHandle==0)
         { // we only register a variable name for auto-completion (variable has no value!)
             removeCustomVariable(fullVariableName);
-            CLuaCustomVariable* v=new CLuaCustomVariable(fullVariableName,NULL,0);
+            CLuaCustomVariable* v=new CLuaCustomVariable(fullVariableName,nullptr,0);
             allCustomVariables.push_back(v);
         }
         else
         { // register a stack variable
             CInterfaceStack* stack=App::ct->interfaceStackContainer->getStack(stackHandle);
-            if (stack==NULL)
+            if (stack==nullptr)
                 return(false);
             if (stack->getStackSize()<1)
                 return(false);
@@ -210,7 +210,7 @@ bool CLuaCustomFuncAndVarContainer::insertCustomVariable(const char* fullVariabl
                 stack->popStackValue(1);
             }
             removeCustomVariable(fullVariableName);
-            CLuaCustomVariable* v=new CLuaCustomVariable(fullVariableName,NULL,stackHandle);
+            CLuaCustomVariable* v=new CLuaCustomVariable(fullVariableName,nullptr,stackHandle);
             allCustomVariables.push_back(v);
         }
         return(true);

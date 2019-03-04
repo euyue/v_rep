@@ -70,7 +70,7 @@ COffscreenGlContext::COffscreenGlContext(int offscreenType,int resX,int resY,QGL
         {
             _qContext=new QOpenGLContext();
             _qContext->setFormat(_qOffscreenSurface->format());
-            if (otherWidgetToShareResourcesWith!=NULL)
+            if (otherWidgetToShareResourcesWith!=nullptr)
             {
                 #ifdef USING_QOPENGLWIDGET
                     _qContext->setShareContext(otherWidgetToShareResourcesWith->context());
@@ -118,7 +118,7 @@ COffscreenGlContext::COffscreenGlContext(int offscreenType,int resX,int resY,QGL
 #ifdef SIM_WITH_GUI
     if ((_offscreenType==QT_WINDOW_SHOW_TP)||(_offscreenType==QT_WINDOW_HIDE_TP))
     {
-        if ((otherWidgetToShareResourcesWith==NULL)&&(_allQtWidgets.size()!=0))
+        if ((otherWidgetToShareResourcesWith==nullptr)&&(_allQtWidgets.size()!=0))
             otherWidgetToShareResourcesWith=_allQtWidgets[0];
 
         if ((majorOpenGl!=-1)||(minorOpenGl!=-1))
@@ -148,7 +148,7 @@ COffscreenGlContext::COffscreenGlContext(int offscreenType,int resX,int resY,QGL
 #ifdef WIN_VREP
                 _hiddenWindow=new QOpenGLWidget(App::mainWindow,Qt::Tool|Qt::CustomizeWindowHint);
 #else
-                _hiddenWindow=new QOpenGLWidget(NULL);
+                _hiddenWindow=new QOpenGLWidget(nullptr);
 #endif
 
             _hiddenWindow->setFormat(fmt);
@@ -157,7 +157,7 @@ COffscreenGlContext::COffscreenGlContext(int offscreenType,int resX,int resY,QGL
             _hiddenWindow->show(); // if show is not called, the window's context is not created!
             if (_offscreenType==QT_WINDOW_HIDE_TP)
                 _hiddenWindow->hide();
-            if (otherWidgetToShareResourcesWith!=NULL)
+            if (otherWidgetToShareResourcesWith!=nullptr)
                 _hiddenWindow->context()->setShareContext(otherWidgetToShareResourcesWith->context());
             _hiddenWindow->context()->create(); // if create is not called, the contexts are not shared!
 #else
@@ -191,7 +191,7 @@ COffscreenGlContext::COffscreenGlContext(int offscreenType,int resX,int resY,QGL
 #ifdef WIN_VREP
                 _hiddenWindow=new QOpenGLWidget(App::mainWindow,Qt::Tool|Qt::CustomizeWindowHint);
 #else
-                _hiddenWindow=new QOpenGLWidget(NULL);
+                _hiddenWindow=new QOpenGLWidget(nullptr);
 #endif
 
             _hiddenWindow->setFixedWidth(resX);
@@ -199,7 +199,7 @@ COffscreenGlContext::COffscreenGlContext(int offscreenType,int resX,int resY,QGL
             _hiddenWindow->show(); // if show is not called, the window's context is not created!
             if (_offscreenType==QT_WINDOW_HIDE_TP)
                 _hiddenWindow->hide();
-            if (otherWidgetToShareResourcesWith!=NULL)
+            if (otherWidgetToShareResourcesWith!=nullptr)
                 _hiddenWindow->context()->setShareContext(otherWidgetToShareResourcesWith->context());
             _hiddenWindow->context()->create(); // if create is not called, the contexts are not shared!
 #else

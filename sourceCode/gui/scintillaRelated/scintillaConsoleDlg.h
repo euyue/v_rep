@@ -29,22 +29,22 @@ public:
         _backgroundColor[0]=1.0f;
         _backgroundColor[1]=1.0f;
         _backgroundColor[2]=1.0f;
-        if (thePos!=NULL)
+        if (thePos!=nullptr)
         {
             _initialPosition[0]=thePos[0];
             _initialPosition[1]=thePos[1];
         }
-        if (theSize!=NULL)
+        if (theSize!=nullptr)
         {
             _initialSize[0]=theSize[0];
             _initialSize[1]=theSize[1];
         }
-        if (textCol!=NULL)
+        if (textCol!=nullptr)
         {
             for (int i=0;i<3;i++)
             _textColor[i]=textCol[i];
         }
-        if (backgroundCol!=NULL)
+        if (backgroundCol!=nullptr)
         {
             for (int i=0;i<3;i++)
             _backgroundColor[i]=backgroundCol[i];
@@ -66,7 +66,7 @@ public:
     }
     void addText(const char* txt)
     {
-        if (txt==NULL)
+        if (txt==nullptr)
         {
             _textToAdd="";
             _clearBuffer=true;
@@ -102,7 +102,7 @@ class CScintillaConsoleDlg : public QDialog
 //  Q_OBJECT
 
 public:
-    CScintillaConsoleDlg(CConsoleInitInfo* initInfo,QWidget* pParent = NULL, Qt::WindowFlags f= 0);
+    CScintillaConsoleDlg(CConsoleInitInfo* initInfo,QWidget* pParent = nullptr, Qt::WindowFlags f= 0);
     virtual ~CScintillaConsoleDlg();
 
     void closeEvent(QCloseEvent *event);

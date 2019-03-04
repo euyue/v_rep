@@ -16,7 +16,7 @@ CQDlgGeometry::CQDlgGeometry(QWidget *parent) :
     _dlgType=GEOMETRY_DLG;
     ui->setupUi(this);
     _shapeHandle=-1;
-    if (App::mainWindow!=NULL)
+    if (App::mainWindow!=nullptr)
         App::mainWindow->dlgCont->close(GEOMETRY_DLG);
 }
 
@@ -36,7 +36,7 @@ void CQDlgGeometry::refresh()
         _setCurrentSizes();
     insideRefreshTriggered=false;
     CShape* shape=App::ct->objCont->getShape(_shapeHandle);
-    if (shape==NULL)
+    if (shape==nullptr)
         return;
     bool g=!shape->geomData->geomInfo->isGeometric();
 
@@ -136,14 +136,14 @@ void CQDlgGeometry::_initialize(int shapeHandle)
     isConvex=true;
     isGroup=false;
     CShape* shape=App::ct->objCont->getShape(_shapeHandle);
-    if (shape!=NULL)
+    if (shape!=nullptr)
     {
         titleText=strTranslate("Geometry associated with '");
-        titleText+=shape->getName();
+        titleText+=shape->getObjectName();
         titleText+="'";
         std::vector<float> wvert;
         std::vector<int> wind;
-        shape->geomData->geomInfo->getCumulativeMeshes(wvert,&wind,NULL);
+        shape->geomData->geomInfo->getCumulativeMeshes(wvert,&wind,nullptr);
         vertexCount=(int)wvert.size()/3;
         triangleCount=(int)wind.size()/3;
         isPureShape=shape->geomData->geomInfo->isPure();
@@ -157,7 +157,7 @@ void CQDlgGeometry::_initialize(int shapeHandle)
 void CQDlgGeometry::_setCurrentSizes()
 {
     CShape* shape=App::ct->objCont->getShape(_shapeHandle);
-    if (shape!=NULL)
+    if (shape!=nullptr)
     {
         C3Vector bbhalfSizes(shape->geomData->getBoundingBoxHalfSizes());
         sizeVal[0]=2.0f*bbhalfSizes(0);
@@ -172,20 +172,20 @@ bool CQDlgGeometry::isLinkedDataValid()
         return(false);
     if (App::getEditModeType()!=NO_EDIT_MODE)
         return(false);
-    if (App::ct->objCont->getShape(_shapeHandle)!=NULL)
+    if (App::ct->objCont->getShape(_shapeHandle)!=nullptr)
         return(App::ct->objCont->getLastSelectionID()==_shapeHandle);
     return(false);
 }
 
 void CQDlgGeometry::display(int shapeHandle,QWidget* theParentWindow)
 {
-    if (App::mainWindow==NULL)
+    if (App::mainWindow==nullptr)
         return;
     App::mainWindow->dlgCont->close(GEOMETRY_DLG);
     if (App::mainWindow->dlgCont->openOrBringToFront(GEOMETRY_DLG))
     {
         CQDlgGeometry* geom=(CQDlgGeometry*)App::mainWindow->dlgCont->getDialog(GEOMETRY_DLG);
-        if (geom!=NULL)
+        if (geom!=nullptr)
             geom->_initialize(shapeHandle);
     }
 }
@@ -207,7 +207,7 @@ void CQDlgGeometry::_readSize(int index)
     if (!isLinkedDataValid())
         return;
     CShape* shape=App::ct->objCont->getShape(_shapeHandle);
-    if (shape!=NULL)
+    if (shape!=nullptr)
     {
         bool ok;
         float newVal=ww[index]->text().toFloat(&ok);
@@ -277,7 +277,7 @@ void CQDlgGeometry::_readScaling(int index)
     if (!isLinkedDataValid())
         return;
     CShape* shape=App::ct->objCont->getShape(_shapeHandle);
-    if (shape!=NULL)
+    if (shape!=nullptr)
     {
         bool ok;
         float newVal=ww[index]->text().toFloat(&ok);

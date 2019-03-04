@@ -66,7 +66,7 @@ bool CCustomMenuBarItem::setItemState(int commandID,bool checked,bool enabled,co
     {
         if (_commandIDs[i]==commandID)
         {
-            if (newLabel!=NULL)
+            if (newLabel!=nullptr)
                 _labels[i]=newLabel;
             _states[i]=0;
             if (checked)
@@ -87,7 +87,7 @@ bool CCustomMenuBarItem::processCommand(int commandID)
         if (_commandIDs[i]==commandID)
         { // We have to post a message here!!
             int data[4]={commandID,_states[i],0,0};
-            void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_menuitemselected,data,NULL,NULL);
+            void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_menuitemselected,data,nullptr,nullptr);
             delete[] (char*)returnVal;
             return(true);
         }

@@ -7,7 +7,7 @@
 #include "glBufferObjects.h"
 #include "oglExt.h"
 
-CGlBufferObjects* _glBufferObjects=NULL;
+CGlBufferObjects* _glBufferObjects=nullptr;
 bool _glInitialized=false;
 
 void initializeRendering()
@@ -18,7 +18,7 @@ void initializeRendering()
 void deinitializeRendering()
 {
     delete _glBufferObjects;
-    _glBufferObjects=NULL;
+    _glBufferObjects=nullptr;
 }
 
 void initGl_ifNeeded()
@@ -73,62 +73,62 @@ void deinitGl_ifNeeded()
 
 void increaseVertexBufferRefCnt(int vertexBufferId)
 {
-    if (_glBufferObjects!=NULL)
+    if (_glBufferObjects!=nullptr)
         _glBufferObjects->increaseVertexBufferRefCnt(vertexBufferId);
 }
 
 void decreaseVertexBufferRefCnt(int vertexBufferId)
 {
-    if (_glBufferObjects!=NULL)
+    if (_glBufferObjects!=nullptr)
         _glBufferObjects->removeVertexBuffer(vertexBufferId);
 }
 
 void increaseNormalBufferRefCnt(int normalBufferId)
 {
-    if (_glBufferObjects!=NULL)
+    if (_glBufferObjects!=nullptr)
         _glBufferObjects->increaseNormalBufferRefCnt(normalBufferId);
 }
 
 void decreaseNormalBufferRefCnt(int normalBufferId)
 {
-    if (_glBufferObjects!=NULL)
+    if (_glBufferObjects!=nullptr)
         _glBufferObjects->removeNormalBuffer(normalBufferId);
 }
 
 void increaseEdgeBufferRefCnt(int edgeBufferId)
 {
-    if (_glBufferObjects!=NULL)
+    if (_glBufferObjects!=nullptr)
         _glBufferObjects->increaseEdgeBufferRefCnt(edgeBufferId);
 }
 
 void decreaseEdgeBufferRefCnt(int edgeBufferId)
 {
-    if (_glBufferObjects!=NULL)
+    if (_glBufferObjects!=nullptr)
         _glBufferObjects->removeEdgeBuffer(edgeBufferId);
 }
 
 void decreaseTexCoordBufferRefCnt(int texCoordBufferId)
 {
-    if (_glBufferObjects!=NULL)
+    if (_glBufferObjects!=nullptr)
         _glBufferObjects->removeTexCoordBuffer(texCoordBufferId);
 }
 
 void _drawTriangles(const float* vertices,int verticesCnt,const int* indices,int indicesCnt,const float* normals,const float* textureCoords,int* vertexBufferId,int* normalBufferId,int* texCoordBufferId)
 {
-    if (_glBufferObjects!=NULL)
+    if (_glBufferObjects!=nullptr)
         _glBufferObjects->drawTriangles(vertices,verticesCnt,indices,indicesCnt,normals,textureCoords,vertexBufferId,normalBufferId,texCoordBufferId);
 }
 
 bool _drawEdges(const float* vertices,int verticesCnt,const int* indices,int indicesCnt,const unsigned char* edges,int* edgeBufferId)
 {
-    if (_glBufferObjects!=NULL)
+    if (_glBufferObjects!=nullptr)
         return(_glBufferObjects->drawEdges(vertices,verticesCnt,indices,indicesCnt,edges,edgeBufferId));
     return(false);
 }
 
 void _drawColorCodedTriangles(const float* vertices,int verticesCnt,const int* indices,int indicesCnt,const float* normals,int* vertexBufferId,int* normalBufferId)
 {
-    if (_glBufferObjects!=NULL)
+    if (_glBufferObjects!=nullptr)
         _glBufferObjects->drawColorCodedTriangles(vertices,verticesCnt,indices,indicesCnt,normals,vertexBufferId,normalBufferId);
 }
 
@@ -214,18 +214,18 @@ void _activateNonAmbientLights(int lightHandle,CViewableBase* viewable)
             if (lightHandle<SIM_IDSTART_COLLECTION)
             {
                 CLight* light=App::ct->objCont->getLight(lightHandle);
-                if (light!=NULL)
+                if (light!=nullptr)
                     lList.push_back(light);
             }
             else
             {
                 CRegCollection* gr=App::ct->collections->getCollection(lightHandle);
-                if (gr!=NULL)
+                if (gr!=nullptr)
                 {
                     for (size_t i=0;i<gr->collectionObjects.size();i++)
                     {
                         CLight* light=App::ct->objCont->getLight(gr->collectionObjects[i]);
-                        if (light!=NULL)
+                        if (light!=nullptr)
                             lList.push_back(light);
                     }
                 }
@@ -379,7 +379,7 @@ void _drawReference(C3DObject* object,float refSize)
         s=(maxV(0)+maxV(1)+maxV(2))/4.0f;
     }
     glPushMatrix();
-    ogl::drawReference(s,true,true,true,NULL);
+    ogl::drawReference(s,true,true,true,nullptr);
     glPopMatrix();
 }
 
@@ -439,7 +439,7 @@ void _displayBoundingBox(C3DObject* object,int displayAttrib,bool displRef,float
         ogl::addBuffer3DPoints(bbMax(0)+dx(0),bbMax(1)+dx(1),bbMin(2)-dx(2));
         ogl::addBuffer3DPoints(bbMin(0)-dx(0),bbMax(1)+dx(1),bbMin(2)-dx(2));
         ogl::addBuffer3DPoints(bbMin(0)-dx(0),bbMax(1)+dx(1),bbMax(2)+dx(2));
-        ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,true,NULL);
+        ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,true,nullptr);
 
         ogl::buffer.clear();
         ogl::addBuffer3DPoints(bbMin(0)-dx(0),bbMin(1)-dx(1),bbMin(2)-dx(2));
@@ -448,7 +448,7 @@ void _displayBoundingBox(C3DObject* object,int displayAttrib,bool displRef,float
         ogl::addBuffer3DPoints(bbMax(0)+dx(0),bbMax(1)+dx(1),bbMin(2)-dx(2));
         ogl::addBuffer3DPoints(bbMax(0)+dx(0),bbMin(1)-dx(1),bbMax(2)+dx(2));
         ogl::addBuffer3DPoints(bbMax(0)+dx(0),bbMax(1)+dx(1),bbMax(2)+dx(2));
-        ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,false,NULL);
+        ogl::drawRandom3dLines(&ogl::buffer[0],(int)ogl::buffer.size()/3,false,nullptr);
         ogl::buffer.clear();
         App::ct->environment->reactivateFogThatWasTemporarilyDisabled();
         if (true)
@@ -495,11 +495,11 @@ void _displayBoundingBox(C3DObject* object,int displayAttrib,bool displRef,float
                     corner(i)=bbMin(i)-dx(i);
                 else
                     corner(i)=bbMax(i)+dx(i);
-                corner2(i)=corner(i)*(1.1f+0.15f*float((object->getID()>>((2-i)*2))%4));
+                corner2(i)=corner(i)*(1.1f+0.15f*float((object->getObjectHandle()>>((2-i)*2))%4));
             }
             App::ct->environment->temporarilyDeactivateFog();
-            ogl::drawSingle3dLine(corner.data,corner2.data,NULL);
-            ogl::drawBitmapTextTo3dPosition(corner2.data,object->getDisplayName(),NULL);
+            ogl::drawSingle3dLine(corner.data,corner2.data,nullptr);
+            ogl::drawBitmapTextTo3dPosition(corner2.data,object->getDisplayName(),nullptr);
             App::ct->environment->reactivateFogThatWasTemporarilyDisabled();
         }
         glLineWidth(1.0f);
@@ -561,17 +561,17 @@ bool _start3DTextureDisplay(CTextureProperty* tp)
     int _textureOrVisionSensorObjectID=tp->getTextureObjectID();
     if (_textureOrVisionSensorObjectID==-1)
         return(false);
-    CTextureObject* it=NULL;
+    CTextureObject* it=nullptr;
     if ((_textureOrVisionSensorObjectID>=SIM_IDSTART_TEXTURE)&&(_textureOrVisionSensorObjectID<=SIM_IDEND_TEXTURE))
         it=App::ct->textureCont->getObject(_textureOrVisionSensorObjectID);
-    CVisionSensor* rs=NULL;
+    CVisionSensor* rs=nullptr;
     if ((_textureOrVisionSensorObjectID>=SIM_IDSTART_3DOBJECT)&&(_textureOrVisionSensorObjectID<=SIM_IDEND_3DOBJECT))
     {
         rs=App::ct->objCont->getVisionSensor(_textureOrVisionSensorObjectID);
-        if (rs!=NULL)
+        if (rs!=nullptr)
             it=rs->getTextureObject();
     }
-    if (it!=NULL)
+    if (it!=nullptr)
     {
         tp->setStartedTextureObject(it);
         _startTextureDisplay(it,tp->getInterpolateColors(),tp->getApplyMode(),tp->getRepeatU(),tp->getRepeatV());
@@ -582,9 +582,9 @@ bool _start3DTextureDisplay(CTextureProperty* tp)
 
 void _end3DTextureDisplay(CTextureProperty* tp)
 {
-    if (tp->getStartedTextureObject()!=NULL)
+    if (tp->getStartedTextureObject()!=nullptr)
         _endTextureDisplay();
-    tp->setStartedTextureObject(NULL);
+    tp->setStartedTextureObject(nullptr);
 }
 
 bool _start2DTextureDisplay(CTextureProperty* tp)
@@ -592,17 +592,17 @@ bool _start2DTextureDisplay(CTextureProperty* tp)
     int _textureOrVisionSensorObjectID=tp->getTextureObjectID();
     if (_textureOrVisionSensorObjectID==-1)
         return(false);
-    CTextureObject* it=NULL;
+    CTextureObject* it=nullptr;
     if ((_textureOrVisionSensorObjectID>=SIM_IDSTART_TEXTURE)&&(_textureOrVisionSensorObjectID<=SIM_IDEND_TEXTURE))
         it=App::ct->textureCont->getObject(_textureOrVisionSensorObjectID);
-    CVisionSensor* rs=NULL;
+    CVisionSensor* rs=nullptr;
     if ((_textureOrVisionSensorObjectID>=SIM_IDSTART_3DOBJECT)&&(_textureOrVisionSensorObjectID<=SIM_IDEND_3DOBJECT))
     {
         rs=App::ct->objCont->getVisionSensor(_textureOrVisionSensorObjectID);
-        if (rs!=NULL)
+        if (rs!=nullptr)
             it=rs->getTextureObject();
     }
-    if (it!=NULL)
+    if (it!=nullptr)
     {
         tp->setStartedTextureObject(it);
         // Following 3 to have "transparency"
@@ -618,9 +618,9 @@ bool _start2DTextureDisplay(CTextureProperty* tp)
 
 void _end2DTextureDisplay(CTextureProperty* tp)
 {
-    if (tp->getStartedTextureObject()!=NULL)
+    if (tp->getStartedTextureObject()!=nullptr)
         _endTextureDisplay();
-    tp->setStartedTextureObject(NULL);
+    tp->setStartedTextureObject(nullptr);
     // Following 2 to remove "transparency"
     ogl::setBlending(false);
     glDisable(GL_ALPHA_TEST);

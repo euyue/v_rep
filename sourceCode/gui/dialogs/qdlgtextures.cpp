@@ -21,7 +21,7 @@ CQDlgTextures::CQDlgTextures(QWidget *parent) :
 {
     _dlgType=TEXTURE_DLG;
     ui->setupUi(this);
-    if (App::mainWindow!=NULL)
+    if (App::mainWindow!=nullptr)
         App::mainWindow->dlgCont->close(TEXTURE_DLG);
     inMainRefreshRoutine=false;
 }
@@ -38,8 +38,8 @@ void CQDlgTextures::refresh()
     inMainRefreshRoutine=true;
     QLineEdit* lineEditToSelect=getSelectedLineEdit();
     bool applyTexture3D;
-    CGeometric* geom=NULL;
-    CTextureProperty* tp=App::getTexturePropertyPointerFromItem(_objType,_objID1,_objID2,NULL,&applyTexture3D,NULL,&geom);
+    CGeometric* geom=nullptr;
+    CTextureProperty* tp=App::getTexturePropertyPointerFromItem(_objType,_objID1,_objID2,nullptr,&applyTexture3D,nullptr,&geom);
     bool simStopped=App::ct->simulation->isSimulationStopped();
     bool usingFixedTextureCoordinates=false;
     bool foundTextureCoordinatesOnShape=false;
@@ -48,7 +48,7 @@ void CQDlgTextures::refresh()
 
     if (applyTexture3D)
     {
-        if (tp!=NULL)
+        if (tp!=nullptr)
         {
             usingFixedTextureCoordinates=tp->getFixedCoordinates();
             forbidU=(tp->getTextureMapMode()==sim_texturemap_cylinder)||(tp->getTextureMapMode()==sim_texturemap_sphere);
@@ -59,27 +59,27 @@ void CQDlgTextures::refresh()
     }
 
     // Common part (plus select/remove, enabled later)
-    ui->qqLoad->setEnabled((tp==NULL)&&simStopped);
-    ui->qqInterpolate->setEnabled((tp!=NULL)&&simStopped);
+    ui->qqLoad->setEnabled((tp==nullptr)&&simStopped);
+    ui->qqInterpolate->setEnabled((tp!=nullptr)&&simStopped);
 
     // 3D part only:
-    ui->qqX->setEnabled((tp!=NULL)&&simStopped&&applyTexture3D&&(!usingFixedTextureCoordinates));
-    ui->qqY->setEnabled((tp!=NULL)&&simStopped&&applyTexture3D&&(!usingFixedTextureCoordinates));
-    ui->qqZ->setEnabled((tp!=NULL)&&applyTexture3D&&(!usingFixedTextureCoordinates));
-    ui->qqU->setEnabled((tp!=NULL)&&simStopped&&applyTexture3D&&(!usingFixedTextureCoordinates)&&(!forbidU));
-    ui->qqV->setEnabled((tp!=NULL)&&simStopped&&applyTexture3D&&(!usingFixedTextureCoordinates)&&(!forbidV));
-    ui->qqRepeatU->setEnabled((tp!=NULL)&&simStopped&&applyTexture3D&&(!usingFixedTextureCoordinates)&&(!forbidU));
-    ui->qqRepeatV->setEnabled((tp!=NULL)&&simStopped&&applyTexture3D&&(!usingFixedTextureCoordinates)&&(!forbidV));
-    ui->qqAlpha->setEnabled((tp!=NULL)&&simStopped&&applyTexture3D&&(!usingFixedTextureCoordinates));
-    ui->qqBeta->setEnabled((tp!=NULL)&&simStopped&&applyTexture3D&&(!usingFixedTextureCoordinates));
-    ui->qqGamma->setEnabled((tp!=NULL)&&simStopped&&applyTexture3D&&(!usingFixedTextureCoordinates));
-    ui->qqApplyMode->setEnabled((tp!=NULL)&&simStopped&&applyTexture3D);
-    ui->qqMapMode->setEnabled((tp!=NULL)&&simStopped&&applyTexture3D);
+    ui->qqX->setEnabled((tp!=nullptr)&&simStopped&&applyTexture3D&&(!usingFixedTextureCoordinates));
+    ui->qqY->setEnabled((tp!=nullptr)&&simStopped&&applyTexture3D&&(!usingFixedTextureCoordinates));
+    ui->qqZ->setEnabled((tp!=nullptr)&&applyTexture3D&&(!usingFixedTextureCoordinates));
+    ui->qqU->setEnabled((tp!=nullptr)&&simStopped&&applyTexture3D&&(!usingFixedTextureCoordinates)&&(!forbidU));
+    ui->qqV->setEnabled((tp!=nullptr)&&simStopped&&applyTexture3D&&(!usingFixedTextureCoordinates)&&(!forbidV));
+    ui->qqRepeatU->setEnabled((tp!=nullptr)&&simStopped&&applyTexture3D&&(!usingFixedTextureCoordinates)&&(!forbidU));
+    ui->qqRepeatV->setEnabled((tp!=nullptr)&&simStopped&&applyTexture3D&&(!usingFixedTextureCoordinates)&&(!forbidV));
+    ui->qqAlpha->setEnabled((tp!=nullptr)&&simStopped&&applyTexture3D&&(!usingFixedTextureCoordinates));
+    ui->qqBeta->setEnabled((tp!=nullptr)&&simStopped&&applyTexture3D&&(!usingFixedTextureCoordinates));
+    ui->qqGamma->setEnabled((tp!=nullptr)&&simStopped&&applyTexture3D&&(!usingFixedTextureCoordinates));
+    ui->qqApplyMode->setEnabled((tp!=nullptr)&&simStopped&&applyTexture3D);
+    ui->qqMapMode->setEnabled((tp!=nullptr)&&simStopped&&applyTexture3D);
 
     ui->qqApplyMode->clear();
     ui->qqMapMode->clear();
 
-    if (tp!=NULL)
+    if (tp!=nullptr)
     {
         C7Vector v(tp->getTextureRelativeConfig());
         C3Vector euler(v.Q.getEulerAngles());
@@ -169,7 +169,7 @@ void CQDlgTextures::refresh()
         if ((tp->getTextureObjectID()>=SIM_IDSTART_TEXTURE)&&(tp->getTextureObjectID()<=SIM_IDEND_TEXTURE))
         { // we have a static texture
             CTextureObject* to=App::ct->textureCont->getObject(tp->getTextureObjectID());
-            if (to!=NULL)
+            if (to!=nullptr)
             {
                 textureName=to->getObjectName();
                 int sx,sy;
@@ -182,9 +182,9 @@ void CQDlgTextures::refresh()
         else
         { // we have a dynamic texture
             CVisionSensor* rs=App::ct->objCont->getVisionSensor(tp->getTextureObjectID());
-            if (rs!=NULL)
+            if (rs!=nullptr)
             {
-                textureName=rs->getName();
+                textureName=rs->getObjectName();
                 int s[2];
                 rs->getRealResolution(s);
                 textureName+=" [";
@@ -202,7 +202,7 @@ void CQDlgTextures::refresh()
     else
     {
         // Check if there are already existing textures:
-        ui->qqRemoveSelect->setEnabled( (App::ct->textureCont->getObjectAtIndex(0)!=NULL)||(App::ct->objCont->visionSensorList.size()!=0) );
+        ui->qqRemoveSelect->setEnabled( (App::ct->textureCont->getObjectAtIndex(0)!=nullptr)||(App::ct->objCont->visionSensorList.size()!=0) );
         if (foundTextureCoordinatesOnShape)
             ui->qqTextureCoordinates->setText(strTranslate(IDS_FROM_SHAPE_IMPORT));
         else
@@ -262,7 +262,7 @@ bool CQDlgTextures::isLinkedDataValid()
         if (App::ct->buttonBlockContainer->getBlockInEdition()!=_objID1)
             return(false);
         CButtonBlock* itBlock=App::ct->buttonBlockContainer->getBlockWithID(_objID1);
-        if (itBlock==NULL)
+        if (itBlock==nullptr)
             return(false);
         if (App::ct->buttonBlockContainer->selectedButtons.size()<=0)
             return(false);
@@ -270,27 +270,27 @@ bool CQDlgTextures::isLinkedDataValid()
         VPoint size;
         itBlock->getBlockSize(size);
         CSoftButton* itButton=itBlock->getButtonAtPos(butt%size.x,butt/size.x);
-        if (itButton==NULL)
+        if (itButton==nullptr)
             return(false);
         if (itButton->buttonID!=_objID2)
             return(false);
     }
 
     bool isValid;
-    App::getTexturePropertyPointerFromItem(_objType,_objID1,_objID2,NULL,NULL,&isValid,NULL);
+    App::getTexturePropertyPointerFromItem(_objType,_objID1,_objID2,nullptr,nullptr,&isValid,nullptr);
     return(isValid);
 }
 
 
 void CQDlgTextures::displayDlg(int objType,int objID1,int objID2,QWidget* theParentWindow)
 {
-    if (App::mainWindow==NULL)
+    if (App::mainWindow==nullptr)
         return;
     App::mainWindow->dlgCont->close(TEXTURE_DLG);
     if (App::mainWindow->dlgCont->openOrBringToFront(TEXTURE_DLG))
     {
         CQDlgTextures* tex=(CQDlgTextures*)App::mainWindow->dlgCont->getDialog(TEXTURE_DLG);
-        if (tex!=NULL)
+        if (tex!=nullptr)
             tex->_initializeDlg(objType,objID1,objID2);
     }
 }
@@ -301,7 +301,7 @@ void CQDlgTextures::_initializeDlg(int objType,int objID1,int objID2)
     _objID1=objID1;
     _objID2=objID2;
     std::string str;
-    App::getTexturePropertyPointerFromItem(_objType,_objID1,_objID2,&str,NULL,NULL,NULL);
+    App::getTexturePropertyPointerFromItem(_objType,_objID1,_objID2,&str,nullptr,nullptr,nullptr);
     setWindowTitle(str.c_str());
     refresh();
 }
@@ -484,9 +484,9 @@ void CQDlgTextures::on_qqRemoveSelect_clicked()
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        CTextureProperty* tp=App::getTexturePropertyPointerFromItem(_objType,_objID1,_objID2,NULL,NULL,NULL,NULL);
+        CTextureProperty* tp=App::getTexturePropertyPointerFromItem(_objType,_objID1,_objID2,nullptr,nullptr,nullptr,nullptr);
         int tObject=-1; // means remove
-        if (tp==NULL)
+        if (tp==nullptr)
         { // add an existing texture
             CQDlgTextureSelection dlg(this);
             dlg.makeDialogModal();
@@ -526,9 +526,9 @@ void CQDlgTextures::on_qqLoad_clicked()
                 if ( (n<3)||(n>4) )
                 {
                     delete[] data;
-                    data=NULL;
+                    data=nullptr;
                 }
-                if (data==NULL)
+                if (data==nullptr)
                     App::uiThread->messageBox_critical(App::mainWindow,strTranslate("Texture"),strTranslate(IDS_TEXTURE_FILE_COULD_NOT_BE_LOADED),VMESSAGEBOX_OKELI);
                 else
                 {

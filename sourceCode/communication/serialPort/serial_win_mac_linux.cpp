@@ -15,7 +15,7 @@ CSerialPortWin * _getOpenedPortFromHandle(int portHandle)
         if (allOpenedSerialPorts[i]->getPortHandle()==portHandle)
             return(allOpenedSerialPorts[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 int serialOpen(const char *portName, int baudrate)
@@ -49,7 +49,7 @@ char serialClose(int portHandle)
 int serialWrite(int portHandle, const char* buffer, int size)
 {
     CSerialPortWin* p=_getOpenedPortFromHandle(portHandle);
-    if (p==NULL)
+    if (p==nullptr)
         return(0);
     return(p->SendData(buffer,size));
 }
@@ -57,7 +57,7 @@ int serialWrite(int portHandle, const char* buffer, int size)
 int serialCheck(int portHandle)
 {
     CSerialPortWin* p=_getOpenedPortFromHandle(portHandle);
-    if (p==NULL)
+    if (p==nullptr)
         return(0);
     return(p->ReadDataWaiting());
 }
@@ -65,7 +65,7 @@ int serialCheck(int portHandle)
 int serialRead(int portHandle, char *buffer, int maxSize)
 {
     CSerialPortWin* p=_getOpenedPortFromHandle(portHandle);
-    if (p==NULL)
+    if (p==nullptr)
         return(0);
     return(p->ReadData(buffer,maxSize));
 }
@@ -190,7 +190,7 @@ static void cleanup(void)
  */
 void __attribute__ ((constructor)) serial_constructor(void)
 {
-  pthread_mutex_init(&serial_map_mutex, NULL);
+  pthread_mutex_init(&serial_map_mutex, nullptr);
 }
 
 /*
@@ -231,12 +231,12 @@ static bool in_map(const char *name)
  *
  * @param a serial port handle
  *
- * @result a pointer to serial_port structure or NULL when invalid handle
+ * @result a pointer to serial_port structure or nullptr when invalid handle
  */
 static serial_struct_t *get_handle(int portHandle)
 {
   std::map<int, serial_struct_t *>::const_iterator it = serial_map.find(portHandle);
-  return (it != serial_map.end() ? (serial_struct_t *) it->second : NULL);
+  return (it != serial_map.end() ? (serial_struct_t *) it->second : nullptr);
 }
 
 /* --------------------------------- API ---------------------------------- */
@@ -263,7 +263,7 @@ int serialOpen(const char *portName, int baudrate)
   {
     serial_struct_t *s_ptr = new serial_struct_t;
 
-    if (s_ptr != NULL)
+    if (s_ptr != nullptr)
     {
       s_ptr->name = std::string(portName);
 
@@ -370,14 +370,14 @@ char serialClose(int portHandle)
 int serialWrite(int portHandle, const char* buffer, int size)
 {
   int result = convert<int>(SERIAL_RESULT_INVALID_HANDLE);
-  serial_struct_t *s_ptr = NULL;
+  serial_struct_t *s_ptr = nullptr;
   pthread_mutex_lock(&serial_map_mutex);
 
-  if ((buffer == NULL) || (size == 0))
+  if ((buffer == nullptr) || (size == 0))
   {
     result = convert<int>(SERIAL_RESULT_INVALID_PARAMETER);
   }
-  else if ((s_ptr = get_handle(portHandle)) != NULL)
+  else if ((s_ptr = get_handle(portHandle)) != nullptr)
   {
     result = (int) write(s_ptr->fd, buffer, size);
   }
@@ -396,10 +396,10 @@ int serialWrite(int portHandle, const char* buffer, int size)
 int serialCheck(int portHandle)
 {
   int result = convert<int>(SERIAL_RESULT_INVALID_HANDLE);
-  serial_struct_t *s_ptr = NULL;
+  serial_struct_t *s_ptr = nullptr;
   pthread_mutex_lock(&serial_map_mutex);
 
-  if ((s_ptr = get_handle(portHandle)) != NULL)
+  if ((s_ptr = get_handle(portHandle)) != nullptr)
   {
     int ncharin = 0;
     if (ioctl(s_ptr->fd, FIONREAD, &ncharin) == -1)
@@ -429,14 +429,14 @@ int serialCheck(int portHandle)
 int serialRead(int portHandle, char *buffer, int maxSize)
 {
   int result = convert<int>(SERIAL_RESULT_INVALID_HANDLE);
-  serial_struct_t *s_ptr = NULL;
+  serial_struct_t *s_ptr = nullptr;
   pthread_mutex_lock(&serial_map_mutex);
 
-  if ((buffer == NULL) || (maxSize == 0))
+  if ((buffer == nullptr) || (maxSize == 0))
   {
     result = convert<int>(SERIAL_RESULT_INVALID_PARAMETER);
   }
-  else if ((s_ptr = get_handle(portHandle)) != NULL)
+  else if ((s_ptr = get_handle(portHandle)) != nullptr)
   {
     result = (int) read(s_ptr->fd, buffer, maxSize);
   }

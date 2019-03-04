@@ -158,7 +158,7 @@ void CQDlgOctrees::on_qqInsert_clicked()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         COctree* it=App::ct->objCont->getLastSelection_octree();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             std::vector<int> sel;
             for (int i=0;i<App::ct->objCont->getSelSize()-1;i++)
@@ -169,7 +169,7 @@ void CQDlgOctrees::on_qqInsert_clicked()
             std::vector<int> sel2;
             for (size_t i=0;i<sel.size();i++)
             {
-                C3DObject* it=App::ct->objCont->getObject(sel[i]);
+                C3DObject* it=App::ct->objCont->getObjectFromHandle(sel[i]);
                 if ( (!it->isObjectPartOfInvisibleModel())&&(App::ct->mainSettings->getActiveLayers()&it->layer) )
                     sel2.push_back(sel[i]);
             }
@@ -193,7 +193,7 @@ void CQDlgOctrees::on_qqSubtract_clicked()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         COctree* it=App::ct->objCont->getLastSelection_octree();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             std::vector<int> sel;
             for (int i=0;i<App::ct->objCont->getSelSize()-1;i++)
@@ -204,7 +204,7 @@ void CQDlgOctrees::on_qqSubtract_clicked()
             std::vector<int> sel2;
             for (size_t i=0;i<sel.size();i++)
             {
-                C3DObject* it=App::ct->objCont->getObject(sel[i]);
+                C3DObject* it=App::ct->objCont->getObjectFromHandle(sel[i]);
                 if ( (!it->isObjectPartOfInvisibleModel())&&(App::ct->mainSettings->getActiveLayers()&it->layer) )
                     sel2.push_back(sel[i]);
             }

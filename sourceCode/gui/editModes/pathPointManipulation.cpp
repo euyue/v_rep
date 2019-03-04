@@ -77,17 +77,17 @@ void CPathPointManipulation::xorAddPathPointToSelection_nonEditMode(int pathPoin
 void CPathPointManipulation::announceObjectSelectionChanged()
 {
     FUNCTION_DEBUG;
-    if ((App::ct==NULL)||(App::ct->objCont==NULL))
+    if ((App::ct==nullptr)||(App::ct->objCont==nullptr))
         return;
     if ( (App::ct->objCont->getSelSize()==1)&&_simulationStopped )
     {
         CPath* selPath=App::ct->objCont->getPath(App::ct->objCont->getLastSelectionID());
-        if (selPath!=NULL)
+        if (selPath!=nullptr)
         {
-            if (selPath->getID()!=_uniqueSelectedPathID_nonEditMode)
+            if (selPath->getObjectHandle()!=_uniqueSelectedPathID_nonEditMode)
             {
                 _selectedPathPointIndices_nonEditMode.clear();
-                _uniqueSelectedPathID_nonEditMode=selPath->getID();
+                _uniqueSelectedPathID_nonEditMode=selPath->getObjectHandle();
             }
         }
         else

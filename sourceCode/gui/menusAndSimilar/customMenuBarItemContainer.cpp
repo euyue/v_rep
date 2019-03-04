@@ -6,7 +6,7 @@
 CCustomMenuBarItemContainer::CCustomMenuBarItemContainer()
 {
     _nextSmallItemCommandID=ADDITIONAL_TOOL_MENU_ITEM_START_CMD;
-    _menuHandle=NULL;
+    _menuHandle=nullptr;
 }
 
 CCustomMenuBarItemContainer::~CCustomMenuBarItemContainer()
@@ -30,7 +30,7 @@ bool CCustomMenuBarItemContainer::addMenuBarItem(const char* title,int subItemCo
     commandIDs.clear();
     if (subItemCount+_nextSmallItemCommandID-1>ADDITIONAL_TOOL_MENU_ITEM_END_CMD)
         return(false); // Too many!!
-    CCustomMenuBarItem* it=NULL;
+    CCustomMenuBarItem* it=nullptr;
     for (int i=0;i<int(allItems.size());i++)
     {
         if ( (allItems[i]->getMenuBarLabel()==title)&&(strlen(title)!=0) )
@@ -39,7 +39,7 @@ bool CCustomMenuBarItemContainer::addMenuBarItem(const char* title,int subItemCo
             break;
         }
     }
-    if (it==NULL)
+    if (it==nullptr)
     { // That menu doesn't yet exist! We create it
         it=new CCustomMenuBarItem(title);
         allItems.push_back(it);

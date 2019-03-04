@@ -171,7 +171,7 @@ void CQDlgPointclouds::on_qqInsert_clicked()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         CPointCloud* it=App::ct->objCont->getLastSelection_pointCloud();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             std::vector<int> sel;
             for (int i=0;i<App::ct->objCont->getSelSize()-1;i++)
@@ -182,7 +182,7 @@ void CQDlgPointclouds::on_qqInsert_clicked()
             std::vector<int> sel2;
             for (size_t i=0;i<sel.size();i++)
             {
-                C3DObject* it=App::ct->objCont->getObject(sel[i]);
+                C3DObject* it=App::ct->objCont->getObjectFromHandle(sel[i]);
                 if ( (!it->isObjectPartOfInvisibleModel())&&(App::ct->mainSettings->getActiveLayers()&it->layer) )
                     sel2.push_back(sel[i]);
             }
@@ -240,7 +240,7 @@ void CQDlgPointclouds::on_qqNoOctreeStructure_clicked()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         CPointCloud* it=App::ct->objCont->getLastSelection_pointCloud();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             if (!it->getDoNotUseCalculationStructure())
                 App::uiThread->messageBox_warning(App::mainWindow,"Point cloud octree calculation structure","Be aware that when disabling the octree calculation structure, your point cloud will not be collidable, measurable nor detectable anymore. Also, some functionality might be limited in that case.",VMESSAGEBOX_OKELI);
@@ -283,7 +283,7 @@ void CQDlgPointclouds::on_qqSubtract_clicked()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         CPointCloud* it=App::ct->objCont->getLastSelection_pointCloud();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             std::vector<int> sel;
             for (int i=0;i<App::ct->objCont->getSelSize()-1;i++)
@@ -294,7 +294,7 @@ void CQDlgPointclouds::on_qqSubtract_clicked()
             std::vector<int> sel2;
             for (size_t i=0;i<sel.size();i++)
             {
-                C3DObject* it=App::ct->objCont->getObject(sel[i]);
+                C3DObject* it=App::ct->objCont->getObjectFromHandle(sel[i]);
                 if ( (!it->isObjectPartOfInvisibleModel())&&(App::ct->mainSettings->getActiveLayers()&it->layer) )
                     sel2.push_back(sel[i]);
             }

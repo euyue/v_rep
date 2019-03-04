@@ -16,7 +16,7 @@
 CPath::CPath()
 {
     setObjectType(sim_object_path_type);
-    pathContainer=NULL;
+    pathContainer=nullptr;
     layer=PATH_LAYER;
     _explicitHandling=false;
     _shapingEnabled=false;
@@ -91,7 +91,7 @@ bool CPath::getExportableMeshAtIndex(int index,std::vector<float>& vertices,std:
 
 void CPath::scaleObject(float scalingFactor)
 {
-    if (pathContainer!=NULL)
+    if (pathContainer!=nullptr)
         pathContainer->scaleObject(scalingFactor);
     _shapingScaling*=scalingFactor;
     setShapingElementMaxLength(getShapingElementMaxLength()*scalingFactor);
@@ -100,7 +100,7 @@ void CPath::scaleObject(float scalingFactor)
 
 void CPath::scaleObjectNonIsometrically(float x,float y,float z)
 {
-    if (pathContainer!=NULL)
+    if (pathContainer!=nullptr)
         pathContainer->scaleObjectNonIsometrically(x,y,z);
     _shapingScaling*=cbrt(x*y*z);
     setShapingElementMaxLength(getShapingElementMaxLength()*cbrt(x*y*z));
@@ -249,13 +249,13 @@ bool CPath::getShapingThroughConvexHull()
 
 void CPath::resetPath()
 {
-    if (pathContainer!=NULL)
+    if (pathContainer!=nullptr)
         pathContainer->resetPath(this);
 }
 
 void CPath::handlePath(float deltaTime)
 {
-    if (pathContainer!=NULL)
+    if (pathContainer!=nullptr)
         pathContainer->handlePath(this,deltaTime);
 }
 
@@ -292,14 +292,14 @@ C3DObject* CPath::copyYourself()
     return(newPath);
 }
 
-bool CPath::announceObjectWillBeErased(int objID,bool copyBuffer)
+bool CPath::announceObjectWillBeErased(int objectHandle,bool copyBuffer)
 {   // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     // This routine can be called for objCont-objects, but also for objects
     // in the copy-buffer!! So never make use of any 
-    // 'CObjCont::getObject(id)'-call or similar
+    // 'CObjCont::getObject(objectHandle)'-call or similar
     // Return value true means 'this' has to be erased too!
-    bool retVal=announceObjectWillBeErasedMain(objID,copyBuffer);
+    bool retVal=announceObjectWillBeErasedMain(objectHandle,copyBuffer);
     return(retVal);
 }
 
@@ -417,7 +417,7 @@ void CPath::initializeInitialValues(bool simulationIsRunning)
     {
         _initialExplicitHandling=_explicitHandling;
     }
-    if (pathContainer!=NULL)
+    if (pathContainer!=nullptr)
         pathContainer->initializeInitialValues(simulationIsRunning);
 }
 
@@ -433,7 +433,7 @@ void CPath::simulationEnded()
         _explicitHandling=_initialExplicitHandling;
     }
     _initialValuesInitialized=false;
-    if (pathContainer!=NULL)
+    if (pathContainer!=nullptr)
         pathContainer->simulationEnded();
     simulationEndedMain();
 }
@@ -525,15 +525,15 @@ void CPath::_generatePathShape()
             }
 
             // We remove the degenerate triangles:
-            CMeshManip::checkVerticesIndicesNormalsTexCoords(vertOut,indOut,NULL,NULL,true,0.00001f,true);
+            CMeshManip::checkVerticesIndicesNormalsTexCoords(vertOut,indOut,nullptr,nullptr,true,0.00001f,true);
 
             // we merge the individual elements
-            CMeshManip::mergeWith(&_pathShapeVertices,&_pathShapeIndices,NULL,&vertOut,&indOut,NULL);
+            CMeshManip::mergeWith(&_pathShapeVertices,&_pathShapeIndices,nullptr,&vertOut,&indOut,nullptr);
         }
 
         if (convexSuccess)
         { // We make a final check of the resulting shape:
-            CMeshManip::checkVerticesIndicesNormalsTexCoords(_pathShapeVertices,_pathShapeIndices,NULL,NULL,true,0.00001f,true);
+            CMeshManip::checkVerticesIndicesNormalsTexCoords(_pathShapeVertices,_pathShapeIndices,nullptr,nullptr,true,0.00001f,true);
         }
     }
 
@@ -593,7 +593,7 @@ bool CPath::getShape(CGeomProxy* geomObj[1],CShape* shapeObj[1])
             vert[3*i+2]=v(2);
         }
         std::vector<int> ind(_pathShapeIndices);
-        geomObj[0]=new CGeomProxy(NULL,vert,ind,NULL,NULL);
+        geomObj[0]=new CGeomProxy(nullptr,vert,ind,nullptr,nullptr);
         shapeObj[0]=new CShape();
         shapeObj[0]->setLocalTransformation(geomObj[0]->getCreationTransformation());
         geomObj[0]->setCreationTransformation(C7Vector::identityTransformation);
@@ -756,7 +756,7 @@ bool CPath::transformSelectedPathPoints(const C4X4Matrix& cameraAbsConf,const C3
     for (int i=0;i<int(selectedPathPoints.size());i++)
     {
         CSimplePathPoint* aPt=pc->getSimplePathPoint(selectedPathPoints[i]);
-        if (aPt!=NULL)
+        if (aPt!=nullptr)
         {
             pointCenter+=(getCumulativeTransformationPart1()*aPt->getTransformation()).X;
         }
@@ -767,7 +767,7 @@ bool CPath::transformSelectedPathPoints(const C4X4Matrix& cameraAbsConf,const C3
     C4X4Matrix objAbs;
     objAbs.X=pointCenter;
         objAbs.M=getCumulativeTransformationPart1().getMatrix().M;
-    bool ctrlKeyDown=((App::mainWindow!=NULL)&&(App::mainWindow->getKeyDownState()&1));
+    bool ctrlKeyDown=((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&1));
     if (eventID!=_objectManipulationModeEventId)
         _objectManipulationModeRelativePositionOfClickedPoint=clicked3DPoint-objAbs.X;
     if ( (eventID!=_objectManipulationModeEventId)||(ctrlKeyDown!=_objectManipulationModePermissionsPreviousCtrlKeyDown) )
@@ -887,7 +887,7 @@ bool CPath::transformSelectedPathPoints(const C4X4Matrix& cameraAbsConf,const C3
         float ss=getNonDefaultTranslationStepSize();
         if (ss==0.0f)
             ss=App::userSettings->getTranslationStepSize();
-        if ((App::mainWindow!=NULL)&&(App::mainWindow->getKeyDownState()&2))
+        if ((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&2))
             ss=0.001f;
         float w=fmod(_objectManipulationModeSubTranslation(i),ss);
         v(i)=_objectManipulationModeSubTranslation(i)-w;
@@ -898,7 +898,7 @@ bool CPath::transformSelectedPathPoints(const C4X4Matrix& cameraAbsConf,const C3
     for (int i=0;i<int(selectedPathPoints.size());i++)
     {
         CSimplePathPoint* aPt=pc->getSimplePathPoint(selectedPathPoints[i]);
-        if (aPt!=NULL)
+        if (aPt!=nullptr)
         {
             C4X4Matrix m(getCumulativeTransformationPart1()*aPt->getTransformation());
             m.X+=v;

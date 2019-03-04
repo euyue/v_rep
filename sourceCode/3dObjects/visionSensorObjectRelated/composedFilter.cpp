@@ -6,9 +6,9 @@
 
 CComposedFilter::CComposedFilter()
 {
-    buffer1=NULL;
-    buffer2=NULL;
-    workImage=NULL;
+    buffer1=nullptr;
+    buffer2=nullptr;
+    workImage=nullptr;
 }
 
 CComposedFilter::~CComposedFilter()
@@ -31,7 +31,7 @@ void CComposedFilter::insertSimpleFilter(CSimpleFilter* it)
 CSimpleFilter* CComposedFilter::getSimpleFilter(int index)
 {
     if ((index<0)||(index>=int(_allSimpleFilters.size())))
-        return(NULL);
+        return(nullptr);
     return(_allSimpleFilters[index]);
 }
 
@@ -42,7 +42,7 @@ CSimpleFilter* CComposedFilter::getSimpleFilterFromUniqueID(int uniqueID)
         if (_allSimpleFilters[i]->getUniqueID()==uniqueID)
             return(_allSimpleFilters[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 void CComposedFilter::removeSimpleFilter(int index)
@@ -155,11 +155,11 @@ void CComposedFilter::simulationEnded()
 void CComposedFilter::removeBuffers()
 {
     delete[] buffer1;
-    buffer1=NULL;
+    buffer1=nullptr;
     delete[] buffer2;
-    buffer2=NULL;
+    buffer2=nullptr;
     delete[] workImage;
-    workImage=NULL;
+    workImage=nullptr;
 }
 
 bool CComposedFilter::includesDepthBufferModification()
@@ -176,7 +176,7 @@ bool CComposedFilter::includesDepthBufferModification()
 bool CComposedFilter::processAndTrigger(CVisionSensor* sensor,int sizeX,int sizeY,const float* inputImage,const float* inputDepth,float* outputImage,float* outputDepthBuffer,std::vector<std::vector<float> >& returnData)
 {
     bool retVal=false;
-    if (workImage==NULL)
+    if (workImage==nullptr)
     {
         int s=sizeX*sizeY*3;
         buffer1=new float[s];

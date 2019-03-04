@@ -36,30 +36,30 @@ void CQDlgCameras::refresh()
     bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::ct->simulation->isSimulationStopped();
     CCamera* it=App::ct->objCont->getLastSelection_camera();
 
-    ui->qqAlongX->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqAlongY->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqAlongZ->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqColorA->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqColorB->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqFarClipping->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqNearClipping->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqFullRotation->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqKeepHeadUp->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqLocalLights->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqAllowPicking->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqManipProxy->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqPerspectiveProjectionAngle->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqOrthographicProjectionSize->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqShowFog->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqSize->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqTilting->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqTrackedCombo->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqRenderModeCombo->setEnabled((it!=NULL)&&noEditModeNoSim);
+    ui->qqAlongX->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqAlongY->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqAlongZ->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqColorA->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqColorB->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqFarClipping->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqNearClipping->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqFullRotation->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqKeepHeadUp->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqLocalLights->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqAllowPicking->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqManipProxy->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqPerspectiveProjectionAngle->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqOrthographicProjectionSize->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqShowFog->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqSize->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqTilting->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqTrackedCombo->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqRenderModeCombo->setEnabled((it!=nullptr)&&noEditModeNoSim);
 
     ui->qqTrackedCombo->clear();
     ui->qqRenderModeCombo->clear();
 
-    if (it!=NULL)
+    if (it!=nullptr)
     {
         ui->qqManipProxy->setChecked(it->getUseParentObjectAsManipulationProxy());
         ui->qqKeepHeadUp->setChecked((it->getCameraManipulationModePermissions()&0x020)!=0);
@@ -82,11 +82,11 @@ void CQDlgCameras::refresh()
         std::vector<int> ids;
         for (int i=0;i<int(App::ct->objCont->objectList.size());i++)
         {
-            C3DObject* it2=App::ct->objCont->getObject(App::ct->objCont->objectList[i]);
+            C3DObject* it2=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
             if (it2!=it)
             {
-                names.push_back(it2->getName());
-                ids.push_back(it2->getID());
+                names.push_back(it2->getObjectName());
+                ids.push_back(it2->getObjectHandle());
             }
         }
         tt::orderStrings(names,ids);

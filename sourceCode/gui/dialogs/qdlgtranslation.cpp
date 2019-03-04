@@ -56,7 +56,7 @@ void CQDlgTranslation::refresh()
         _enableTranslationPart(sel,sel,true);
         _enableScalingPart(sel&&(scaleMode!=2),sel&&(scaleMode!=2),true);
         C3DObject* object=App::ct->objCont->getLastSelection_object();
-        if (sel&&(object!=NULL))
+        if (sel&&(object!=nullptr))
         {
             // Coordinate part:
             C3Vector euler,pos;
@@ -92,24 +92,24 @@ void CQDlgTranslation::refresh()
         }
 
         // mouse manip part:
-        ui->qqPosWorld->setEnabled((object!=NULL)&&(!objectTranslationSettingsLocked));
-        ui->qqPosParent->setEnabled((object!=NULL)&&(!objectTranslationSettingsLocked));
-        ui->qqPosOwn->setEnabled((object!=NULL)&&(!objectTranslationSettingsLocked));
-        ui->qqPosX->setEnabled((object!=NULL)&&(!objectTranslationSettingsLocked));
-        ui->qqPosY->setEnabled((object!=NULL)&&(!objectTranslationSettingsLocked));
-        ui->qqPosZ->setEnabled((object!=NULL)&&(!objectTranslationSettingsLocked));
-        ui->qqPosCombo->setEnabled((object!=NULL)&&(!objectTranslationSettingsLocked));
+        ui->qqPosWorld->setEnabled((object!=nullptr)&&(!objectTranslationSettingsLocked));
+        ui->qqPosParent->setEnabled((object!=nullptr)&&(!objectTranslationSettingsLocked));
+        ui->qqPosOwn->setEnabled((object!=nullptr)&&(!objectTranslationSettingsLocked));
+        ui->qqPosX->setEnabled((object!=nullptr)&&(!objectTranslationSettingsLocked));
+        ui->qqPosY->setEnabled((object!=nullptr)&&(!objectTranslationSettingsLocked));
+        ui->qqPosZ->setEnabled((object!=nullptr)&&(!objectTranslationSettingsLocked));
+        ui->qqPosCombo->setEnabled((object!=nullptr)&&(!objectTranslationSettingsLocked));
 
-        ui->qqPosWorld->setChecked((object!=NULL)&&(manipulationTranslationRelativeTo==0));
-        ui->qqPosParent->setChecked((object!=NULL)&&(manipulationTranslationRelativeTo==1));
-        ui->qqPosOwn->setChecked((object!=NULL)&&(manipulationTranslationRelativeTo==2));
+        ui->qqPosWorld->setChecked((object!=nullptr)&&(manipulationTranslationRelativeTo==0));
+        ui->qqPosParent->setChecked((object!=nullptr)&&(manipulationTranslationRelativeTo==1));
+        ui->qqPosOwn->setChecked((object!=nullptr)&&(manipulationTranslationRelativeTo==2));
 
-        ui->qqPosX->setChecked((object!=NULL)&&(manipulationModePermission&0x01));
-        ui->qqPosY->setChecked((object!=NULL)&&(manipulationModePermission&0x02));
-        ui->qqPosZ->setChecked((object!=NULL)&&(manipulationModePermission&0x04));
+        ui->qqPosX->setChecked((object!=nullptr)&&(manipulationModePermission&0x01));
+        ui->qqPosY->setChecked((object!=nullptr)&&(manipulationModePermission&0x02));
+        ui->qqPosZ->setChecked((object!=nullptr)&&(manipulationModePermission&0x04));
 
         ui->qqPosCombo->clear();
-        if (object!=NULL)
+        if (object!=nullptr)
         {
             ui->qqPosCombo->addItem(IDS_MANIP_NONE,QVariant(-1));
             ui->qqPosCombo->addItem(IDS_DEFAULT,QVariant(0));
@@ -191,7 +191,7 @@ void CQDlgTranslation::refresh()
                 ui->qqScaleWorld->setEnabled(sel);
                 ui->qqScaleParent->setEnabled(sel);
                 CShape* shape=App::mainWindow->editModeContainer->getEditModeShape();
-                if (sel&&(shape!=NULL))
+                if (sel&&(shape!=nullptr))
                 {
                     // Coordinate part:
                     int ind=App::mainWindow->editModeContainer->getLastEditModeBufferValue();
@@ -227,7 +227,7 @@ void CQDlgTranslation::refresh()
                     CPath* path=App::mainWindow->editModeContainer->getEditModePath();
                     int ind=App::mainWindow->editModeContainer->getLastEditModeBufferValue();
                     CSimplePathPoint* pp=App::mainWindow->editModeContainer->getEditModePathContainer()->getSimplePathPoint(ind);
-                    if (sel&&(path!=NULL)&&(pp!=NULL))
+                    if (sel&&(path!=nullptr)&&(pp!=nullptr))
                     {
                         // Coordinate part:
                         C7Vector tr(pp->getTransformation());
@@ -378,7 +378,7 @@ bool CQDlgTranslation::_setCoord_userUnit(float newValueInUserUnit,int index)
     bool retVal=false;
     int editMode=App::getEditModeType();
     C3DObject* object=App::ct->objCont->getLastSelection_object();
-    if ( (editMode==NO_EDIT_MODE)&&(object!=NULL) )
+    if ( (editMode==NO_EDIT_MODE)&&(object!=nullptr) )
     {
         C7Vector tr;
         if (coordMode==0)
@@ -396,13 +396,13 @@ bool CQDlgTranslation::_setCoord_userUnit(float newValueInUserUnit,int index)
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
-    if ( (editMode&PATH_EDIT_MODE)&&(App::mainWindow->editModeContainer->getEditModeBufferSize()!=0)&&(App::mainWindow->editModeContainer->getEditModePathContainer()!=NULL) )
+    if ( (editMode&PATH_EDIT_MODE)&&(App::mainWindow->editModeContainer->getEditModeBufferSize()!=0)&&(App::mainWindow->editModeContainer->getEditModePathContainer()!=nullptr) )
     {
         CPathCont* pathCont=App::mainWindow->editModeContainer->getEditModePathContainer();
         int ind=App::mainWindow->editModeContainer->getLastEditModeBufferValue();
         CSimplePathPoint* pp=pathCont->getSimplePathPoint(ind);
         CPath* path=App::mainWindow->editModeContainer->getEditModePath();
-        if ( (pp!=NULL)&&(path!=NULL) )
+        if ( (pp!=nullptr)&&(path!=nullptr) )
         {
             C7Vector tr(pp->getTransformation());
             if (coordMode==0)
@@ -421,7 +421,7 @@ bool CQDlgTranslation::_setCoord_userUnit(float newValueInUserUnit,int index)
         int ind=App::mainWindow->editModeContainer->getLastEditModeBufferValue();
         C3Vector v(App::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind));
         CShape* shape=App::mainWindow->editModeContainer->getEditModeShape();
-        if (shape!=NULL)
+        if (shape!=nullptr)
         {
             C7Vector tr;
             tr.setIdentity();
@@ -452,7 +452,7 @@ bool CQDlgTranslation::_applyCoord(int mask)
     C3DObject* object=App::ct->objCont->getLastSelection_object();
     int objSelSize=App::ct->objCont->getSelSize();
     int editObjSelSize=App::mainWindow->editModeContainer->getEditModeBufferSize();
-    if ( (editMode==NO_EDIT_MODE)&&(object!=NULL)&&(objSelSize>1) )
+    if ( (editMode==NO_EDIT_MODE)&&(object!=nullptr)&&(objSelSize>1) )
     {
         SSimulationThreadCommand cmd;
         cmd.cmdId=APPLY_POS_POSITIONTRANSLATIONGUITRIGGEREDCMD;
@@ -465,13 +465,13 @@ bool CQDlgTranslation::_applyCoord(int mask)
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
-    if ( (editMode&PATH_EDIT_MODE)&&(editObjSelSize>1)&&(App::mainWindow->editModeContainer->getEditModePathContainer()!=NULL) )
+    if ( (editMode&PATH_EDIT_MODE)&&(editObjSelSize>1)&&(App::mainWindow->editModeContainer->getEditModePathContainer()!=nullptr) )
     {
         CPathCont* pathCont=App::mainWindow->editModeContainer->getEditModePathContainer();
         int ind=App::mainWindow->editModeContainer->getLastEditModeBufferValue();
         CSimplePathPoint* pp=pathCont->getSimplePathPoint(ind);
         CPath* path=App::mainWindow->editModeContainer->getEditModePath();
-        if ( (pp!=NULL)&&(path!=NULL) )
+        if ( (pp!=nullptr)&&(path!=nullptr) )
         {
             C7Vector tr(pp->getTransformation());
             if (coordMode==0)
@@ -479,7 +479,7 @@ bool CQDlgTranslation::_applyCoord(int mask)
             for (int i=0;i<editObjSelSize-1;i++)
             {
                 CSimplePathPoint* ppIt=App::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(i);
-                if (ppIt!=NULL)
+                if (ppIt!=nullptr)
                 {
                     C7Vector trIt(ppIt->getTransformation());
                     if (coordMode==0)
@@ -499,7 +499,7 @@ bool CQDlgTranslation::_applyCoord(int mask)
         int ind=App::mainWindow->editModeContainer->getLastEditModeBufferValue();
         C3Vector v(App::mainWindow->editModeContainer->getShapeEditMode()->getEditionVertex(ind));
         CShape* shape=App::mainWindow->editModeContainer->getEditModeShape();
-        if (shape!=NULL)
+        if (shape!=nullptr)
         {
             C7Vector tr;
             tr.setIdentity();
@@ -568,14 +568,14 @@ bool CQDlgTranslation::_applyTranslation(int axis)
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
-    if ( (editMode&PATH_EDIT_MODE)&&(editObjSelSize>0)&&(App::mainWindow->editModeContainer->getEditModePathContainer()!=NULL) )
+    if ( (editMode&PATH_EDIT_MODE)&&(editObjSelSize>0)&&(App::mainWindow->editModeContainer->getEditModePathContainer()!=nullptr) )
     {
         CPathCont* pathCont=App::mainWindow->editModeContainer->getEditModePathContainer();
         CPath* path=App::mainWindow->editModeContainer->getEditModePath();
         for (int i=0;i<editObjSelSize;i++)
         {
             CSimplePathPoint* pp=App::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(i);
-            if ( (pp!=NULL)&&(path!=NULL) )
+            if ( (pp!=nullptr)&&(path!=nullptr) )
             {
                 C7Vector tr(pp->getTransformation());
                 if (translateMode==0)
@@ -592,7 +592,7 @@ bool CQDlgTranslation::_applyTranslation(int axis)
     if ( (editMode&VERTEX_EDIT_MODE)&&(editObjSelSize>0) )
     {
         CShape* shape=App::mainWindow->editModeContainer->getEditModeShape();
-        if (shape!=NULL)
+        if (shape!=nullptr)
         {
             for (int i=0;i<editObjSelSize;i++)
             {
@@ -646,14 +646,14 @@ bool CQDlgTranslation::_applyScaling(int axis)
         App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }
-    if ( (editMode&PATH_EDIT_MODE)&&(editObjSelSize>0)&&(App::mainWindow->editModeContainer->getEditModePathContainer()!=NULL) )
+    if ( (editMode&PATH_EDIT_MODE)&&(editObjSelSize>0)&&(App::mainWindow->editModeContainer->getEditModePathContainer()!=nullptr) )
     {
         CPathCont* pathCont=App::mainWindow->editModeContainer->getEditModePathContainer();
         CPath* path=App::mainWindow->editModeContainer->getEditModePath();
         for (int i=0;i<editObjSelSize;i++)
         {
             CSimplePathPoint* pp=App::mainWindow->editModeContainer->getPathEditMode()->getSimplePathPoint(i);
-            if ( (pp!=NULL)&&(path!=NULL) )
+            if ( (pp!=nullptr)&&(path!=nullptr) )
             {
                 C7Vector tr(pp->getTransformation());
                 if (scaleMode==0)
@@ -670,7 +670,7 @@ bool CQDlgTranslation::_applyScaling(int axis)
     if ( (editMode&VERTEX_EDIT_MODE)&&(editObjSelSize>0) )
     {
         CShape* shape=App::mainWindow->editModeContainer->getEditModeShape();
-        if (shape!=NULL)
+        if (shape!=nullptr)
         {
             for (int i=0;i<editObjSelSize;i++)
             {
@@ -1095,7 +1095,7 @@ void CQDlgTranslation::on_qqPosX_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         C3DObject* object=App::ct->objCont->getLastSelection_object();
-        if (object!=NULL)
+        if (object!=nullptr)
         {
             int permission=object->getObjectManipulationModePermissions();
             permission=permission^0x01;
@@ -1118,7 +1118,7 @@ void CQDlgTranslation::on_qqPosY_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         C3DObject* object=App::ct->objCont->getLastSelection_object();
-        if (object!=NULL)
+        if (object!=nullptr)
         {
             int permission=object->getObjectManipulationModePermissions();
             permission=permission^0x02;
@@ -1141,7 +1141,7 @@ void CQDlgTranslation::on_qqPosZ_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         C3DObject* object=App::ct->objCont->getLastSelection_object();
-        if (object!=NULL)
+        if (object!=nullptr)
         {
             int permission=object->getObjectManipulationModePermissions();
             permission=permission^0x04;

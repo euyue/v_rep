@@ -141,10 +141,10 @@ char* CCommTube::readData(int partner,int& dataSize)
                 _packetSizes[j].erase(_packetSizes[j].begin());
                 return(retVal);
             }
-            return(NULL);
+            return(nullptr);
         }
     }
-    return(NULL);
+    return(nullptr);
 }
 
 bool CCommTube::isPartnerThere(int partner)

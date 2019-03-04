@@ -243,7 +243,7 @@ int CCodeEditorContainer::open(const char* initText,const char* xml,int callingS
     int retVal=-1;
     if (CPluginContainer::isCodeEditorPluginAvailable())
     {
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             retVal=CPluginContainer::codeEditor_open(initText,xml);
             SCodeEditor inf;
@@ -278,7 +278,7 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
     int retVal=-1;
     if (CPluginContainer::isCodeEditorPluginAvailable())
     {
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             if (it->getScriptType()==sim_scripttype_mainscript)
             {
@@ -402,7 +402,7 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingSc
     int retVal=-1;
     if (CPluginContainer::isCodeEditorPluginAvailable())
     {
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             int posAndSize[4];
             it->getPreviousEditionWindowPosAndSize(posAndSize);
@@ -831,7 +831,7 @@ void CCodeEditorContainer::sceneClosed(int sceneUniqueId)
 
 void CCodeEditorContainer::showOrHideAll(bool showState)
 {
-    if (App::ct->environment!=NULL)
+    if (App::ct->environment!=nullptr)
     {
         int sceneId=App::ct->environment->getSceneUniqueID();
         for (size_t i=0;i<_allEditors.size();i++)

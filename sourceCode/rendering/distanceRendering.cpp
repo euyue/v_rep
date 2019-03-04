@@ -9,7 +9,7 @@ void displayDistance(CRegDist* dist,int segWidth,const float* distResult)
 {
     dist->segmentColor.makeCurrentColor(false);
     glLineWidth(float(segWidth));
-    ogl::drawSingle3dLine(distResult+0,distResult+3,NULL);
+    ogl::drawSingle3dLine(distResult+0,distResult+3,nullptr);
     glLineWidth(1.0f);
     std::string txt("d=");
     txt+=tt::FNb(0,distResult[6],6,false)+" ";

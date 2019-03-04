@@ -21,12 +21,12 @@ public:
     CShape* getEditModeShape();
     void swapShapeEditModeType(int theType);
 
-    void selectionFromTriangleToVertexEditMode(std::vector<int>* newVertexSel=NULL);
-    void selectionFromVertexToTriangleEditMode(std::vector<int>* newTriangleSel=NULL);
-    void selectionFromEdgeToTriangleEditMode(std::vector<int>* newTriangleSel=NULL);
-    void selectionFromEdgeToVertexEditMode(std::vector<int>* newTriangleSel=NULL);
-    void selectionFromTriangleToEdgeEditMode(std::vector<int>* newEdgeSel=NULL);
-    void selectionFromVertexToEdgeEditMode(std::vector<int>* newEdgeSel=NULL);
+    void selectionFromTriangleToVertexEditMode(std::vector<int>* newVertexSel=nullptr);
+    void selectionFromVertexToTriangleEditMode(std::vector<int>* newTriangleSel=nullptr);
+    void selectionFromEdgeToTriangleEditMode(std::vector<int>* newTriangleSel=nullptr);
+    void selectionFromEdgeToVertexEditMode(std::vector<int>* newTriangleSel=nullptr);
+    void selectionFromTriangleToEdgeEditMode(std::vector<int>* newEdgeSel=nullptr);
+    void selectionFromVertexToEdgeEditMode(std::vector<int>* newEdgeSel=nullptr);
 
     // Edit mode selection routines:
     int getEditModeBufferSize();

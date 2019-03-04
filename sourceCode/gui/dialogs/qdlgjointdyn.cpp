@@ -49,7 +49,7 @@ void CQDlgJointDyn::refresh()
     bool pidCtrlEnabled=true;
     bool springCtrlEnabled=false;
     bool customCtrlEnabled=false;
-    CJoint* it=NULL;
+    CJoint* it=nullptr;
     if (sel)
     {
         it=App::ct->objCont->getLastSelection_joint();
@@ -222,7 +222,7 @@ void CQDlgJointDyn::on_qqTargetVelocity_editingFinished()
         CJoint* it=App::ct->objCont->getLastSelection_joint();
         bool ok;
         float newVal=ui->qqTargetVelocity->text().toFloat(&ok);
-        if (ok&&(it!=NULL))
+        if (ok&&(it!=nullptr))
         {
             if (it->getJointType()!=sim_joint_prismatic_subtype)
                 newVal*=gv::userToAngularVel;
@@ -238,7 +238,7 @@ void CQDlgJointDyn::on_qqAdjustEngineProperties_clicked()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         CJoint* it=App::ct->objCont->getLastSelection_joint();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             CPropBrowserEngineJoint dlg(this);// App::mainWindow);
             dlg.setModal(true);
@@ -246,7 +246,7 @@ void CQDlgJointDyn::on_qqAdjustEngineProperties_clicked()
             // We however still need to modify the sim thread resources:
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_ALLENGINEPARAMS_JOINTDYNGUITRIGGEREDCMD;
-            cmd.intParams.push_back(it->getID());
+            cmd.intParams.push_back(it->getObjectHandle());
             std::vector<int> iParams;
             std::vector<float> fParams;
             it->getBulletIntParams(iParams);
@@ -331,7 +331,7 @@ void CQDlgJointDyn::on_qqVelocityUpperLimit_editingFinished()
         CJoint* it=App::ct->objCont->getLastSelection_joint();
         bool ok;
         float newVal=ui->qqVelocityUpperLimit->text().toFloat(&ok);
-        if (ok&&(it!=NULL))
+        if (ok&&(it!=nullptr))
         {
             if (it->getJointType()!=sim_joint_prismatic_subtype)
                 newVal*=gv::userToRad;
@@ -351,7 +351,7 @@ void CQDlgJointDyn::on_qqTargetPosition_editingFinished()
         CJoint* it=App::ct->objCont->getLastSelection_joint();
         bool ok;
         float newVal=ui->qqTargetPosition->text().toFloat(&ok);
-        if (ok&&(it!=NULL))
+        if (ok&&(it!=nullptr))
         {
             if (it->getJointType()!=sim_joint_prismatic_subtype)
                 newVal*=gv::userToRad;
@@ -371,13 +371,13 @@ void CQDlgJointDyn::on_qqP_editingFinished()
         bool ok;
         float newVal=ui->qqP->text().toFloat(&ok);
         CJoint* it=App::ct->objCont->getLastSelection_joint();
-        if (ok&&(it!=NULL))
+        if (ok&&(it!=nullptr))
         {
             float pp,ip,dp;
             it->getDynamicMotorPositionControlParameters(pp,ip,dp);
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_PIDVALUES_JOINTDYNGUITRIGGEREDCMD;
-            cmd.intParams.push_back(it->getID());
+            cmd.intParams.push_back(it->getObjectHandle());
             cmd.floatParams.push_back(newVal);
             cmd.floatParams.push_back(ip);
             cmd.floatParams.push_back(dp);
@@ -397,13 +397,13 @@ void CQDlgJointDyn::on_qqI_editingFinished()
         bool ok;
         float newVal=ui->qqI->text().toFloat(&ok);
         CJoint* it=App::ct->objCont->getLastSelection_joint();
-        if (ok&&(it!=NULL))
+        if (ok&&(it!=nullptr))
         {
             float pp,ip,dp;
             it->getDynamicMotorPositionControlParameters(pp,ip,dp);
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_PIDVALUES_JOINTDYNGUITRIGGEREDCMD;
-            cmd.intParams.push_back(it->getID());
+            cmd.intParams.push_back(it->getObjectHandle());
             cmd.floatParams.push_back(pp);
             cmd.floatParams.push_back(newVal);
             cmd.floatParams.push_back(dp);
@@ -423,13 +423,13 @@ void CQDlgJointDyn::on_qqD_editingFinished()
         bool ok;
         float newVal=ui->qqD->text().toFloat(&ok);
         CJoint* it=App::ct->objCont->getLastSelection_joint();
-        if (ok&&(it!=NULL))
+        if (ok&&(it!=nullptr))
         {
             float pp,ip,dp;
             it->getDynamicMotorPositionControlParameters(pp,ip,dp);
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_PIDVALUES_JOINTDYNGUITRIGGEREDCMD;
-            cmd.intParams.push_back(it->getID());
+            cmd.intParams.push_back(it->getObjectHandle());
             cmd.floatParams.push_back(pp);
             cmd.floatParams.push_back(ip);
             cmd.floatParams.push_back(newVal);
@@ -460,11 +460,11 @@ void CQDlgJointDyn::on_qqCustomControl_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CJoint* it=App::ct->objCont->getLastSelection_joint();
-        if ((it!=NULL)&&(!it->getEnableDynamicMotorCustomControl_OLD()))
+        if ((it!=nullptr)&&(!it->getEnableDynamicMotorCustomControl_OLD()))
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId=SELECT_CUSTOMCTRL_JOINTDYNGUITRIGGEREDCMD;
-            cmd.intParams.push_back(it->getID());
+            cmd.intParams.push_back(it->getObjectHandle());
             cmd.stringParams.push_back("Default joint custom control script file could not be found!"); // do not use comments ("--"), we want to cause an execution error!
 
             App::appendSimulationThreadCommand(cmd);
@@ -479,7 +479,7 @@ void CQDlgJointDyn::on_qqPositionControl_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CJoint* it=App::ct->objCont->getLastSelection_joint();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             bool doIt=true;
             if (App::userSettings->enableOldJointCallbackScriptEdition)
@@ -489,7 +489,7 @@ void CQDlgJointDyn::on_qqPositionControl_clicked()
             }
             if (doIt)
             {
-                App::appendSimulationThreadCommand(SELECT_PIDCTRL_JOINTDYNGUITRIGGEREDCMD,it->getID());
+                App::appendSimulationThreadCommand(SELECT_PIDCTRL_JOINTDYNGUITRIGGEREDCMD,it->getObjectHandle());
                 App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             }
         }
@@ -502,9 +502,9 @@ void CQDlgJointDyn::on_qqEditCustomControl_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CJoint* it=App::ct->objCont->getLastSelection_joint();
-        if ((it!=NULL)&&it->getEnableDynamicMotorCustomControl_OLD())
+        if ((it!=nullptr)&&it->getEnableDynamicMotorCustomControl_OLD())
         {
-            CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(it->getID());
+            CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(it->getObjectHandle());
             if (script)
                 App::mainWindow->scintillaEditorContainer->openEditorForScript(script->getScriptID());
         }
@@ -516,7 +516,7 @@ void CQDlgJointDyn::on_qqSpringControl_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CJoint* it=App::ct->objCont->getLastSelection_joint();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             bool doIt=true;
             if (App::userSettings->enableOldJointCallbackScriptEdition)
@@ -526,7 +526,7 @@ void CQDlgJointDyn::on_qqSpringControl_clicked()
             }
             if (doIt)
             {
-                App::appendSimulationThreadCommand(SELECT_SPRINGDAMPERCTRL_JOINTDYNGUITRIGGEREDCMD,it->getID());
+                App::appendSimulationThreadCommand(SELECT_SPRINGDAMPERCTRL_JOINTDYNGUITRIGGEREDCMD,it->getObjectHandle());
                 App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             }
         }
@@ -543,11 +543,11 @@ void CQDlgJointDyn::on_qqK_editingFinished()
         CJoint* it=App::ct->objCont->getLastSelection_joint();
         bool ok;
         float newVal=ui->qqK->text().toFloat(&ok);
-        if (ok&&(it!=NULL))
+        if (ok&&(it!=nullptr))
         {
             float kp,cp;
             it->getDynamicMotorSpringControlParameters(kp,cp);
-            App::appendSimulationThreadCommand(SET_KCVALUES_JOINTDYNGUITRIGGEREDCMD,it->getID(),-1,newVal,cp);
+            App::appendSimulationThreadCommand(SET_KCVALUES_JOINTDYNGUITRIGGEREDCMD,it->getObjectHandle(),-1,newVal,cp);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
@@ -563,11 +563,11 @@ void CQDlgJointDyn::on_qqC_editingFinished()
         CJoint* it=App::ct->objCont->getLastSelection_joint();
         bool ok;
         float newVal=ui->qqC->text().toFloat(&ok);
-        if (ok&&(it!=NULL))
+        if (ok&&(it!=nullptr))
         {
             float kp,cp;
             it->getDynamicMotorSpringControlParameters(kp,cp);
-            App::appendSimulationThreadCommand(SET_KCVALUES_JOINTDYNGUITRIGGEREDCMD,it->getID(),-1,kp,newVal);
+            App::appendSimulationThreadCommand(SET_KCVALUES_JOINTDYNGUITRIGGEREDCMD,it->getObjectHandle(),-1,kp,newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);

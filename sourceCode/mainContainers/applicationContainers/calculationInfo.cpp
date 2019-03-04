@@ -414,20 +414,20 @@ void CCalculationInfo::millSimulationEnd(float surfaceRemoved,float volumeRemove
 #ifdef SIM_WITH_GUI
 void CCalculationInfo::printInformation()
 {
-    if (App::ct->buttonBlockContainer==NULL)
+    if (App::ct->buttonBlockContainer==nullptr)
         return;
-    if (App::ct->objCont==NULL)
+    if (App::ct->objCont==nullptr)
         return;
     for (int i=0;i<INFO_BOX_ROW_COUNT;i++)
     {
-        if (App::ct->buttonBlockContainer->getInfoBoxButton(i,0)==NULL)
+        if (App::ct->buttonBlockContainer->getInfoBoxButton(i,0)==nullptr)
             return;
-        if (App::ct->buttonBlockContainer->getInfoBoxButton(i,1)==NULL)
+        if (App::ct->buttonBlockContainer->getInfoBoxButton(i,1)==nullptr)
             return;
         App::ct->buttonBlockContainer->getInfoBoxButton(i,0)->label="";
         App::ct->buttonBlockContainer->getInfoBoxButton(i,1)->label="";
     }
-    if (App::ct->buttonBlockContainer!=NULL)
+    if (App::ct->buttonBlockContainer!=nullptr)
     {
         int pos=0;
         std::string tmp;
@@ -435,7 +435,7 @@ void CCalculationInfo::printInformation()
         if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE)==0)
         {
             C3DObject* it=App::ct->objCont->getLastSelection_object();
-            if (it!=NULL)
+            if (it!=nullptr)
             {
 
                 App::ct->buttonBlockContainer->getInfoBoxButton(pos,0)->label="Selected objects:";
@@ -443,7 +443,7 @@ void CCalculationInfo::printInformation()
                     tmp=boost::lexical_cast<std::string>(App::ct->objCont->getSelSize());
                 else
                 {
-                    C3DObject* it2=App::ct->objCont->getObject(App::ct->objCont->getSelID(0));
+                    C3DObject* it2=App::ct->objCont->getObjectFromHandle(App::ct->objCont->getSelID(0));
                     C7Vector v0(it->getCumulativeTransformation());
                     C7Vector v1(it2->getCumulativeTransformation());
                     tmp="2 (frame-frame distance="+gv::getSizeStr(false,(v0.X-v1.X).getLength(),0)+")";
@@ -451,7 +451,7 @@ void CCalculationInfo::printInformation()
                 App::ct->buttonBlockContainer->getInfoBoxButton(pos++,1)->label=tmp;
 
                 App::ct->buttonBlockContainer->getInfoBoxButton(pos,0)->label="Last selected object name:";
-                tmp=it->getName();
+                tmp=it->getObjectName();
                 App::ct->buttonBlockContainer->getInfoBoxButton(pos++,1)->label=tmp;
 
                 App::ct->buttonBlockContainer->getInfoBoxButton(pos,0)->label="Last selected object type:";
@@ -478,7 +478,7 @@ void CCalculationInfo::printInformation()
             if (selSize==1)
             {
                 CRegCollection* aGroup=App::ct->collections->getCollection(App::ct->collections->selectedCollections[0]);
-                if (aGroup!=NULL)
+                if (aGroup!=nullptr)
                 {
                     App::ct->buttonBlockContainer->getInfoBoxButton(pos,0)->label="Selected collection:";
                     tmp=aGroup->getCollectionName()+" (containing ";
@@ -507,7 +507,7 @@ void CCalculationInfo::printInformation()
             if (App::mainWindow->editModeContainer->getEditModeBufferSize()!=0)
             {
                 C3DObject* it=App::mainWindow->editModeContainer->getEditModeObject();
-                if (it!=NULL)
+                if (it!=nullptr)
                 {
                     C7Vector m(it->getCumulativeTransformationPart1());
                     int lastV=App::mainWindow->editModeContainer->getLastEditModeBufferValue();
@@ -558,7 +558,7 @@ void CCalculationInfo::printInformation()
         {
             CPathCont* pc=App::mainWindow->editModeContainer->getEditModePathContainer();
             CPath* path=App::mainWindow->editModeContainer->getEditModePath();
-            if ( (pc!=NULL)&&(path!=NULL) )
+            if ( (pc!=nullptr)&&(path!=nullptr) )
             {
                 if (App::mainWindow->editModeContainer->getEditModeBufferSize()!=2)
                 {

@@ -47,7 +47,7 @@ int CRegisteredPathPlanningTasks::getTemporaryPathSearchObjectCount()
 int CRegisteredPathPlanningTasks::addTemporaryPathSearchObject(CPathPlanningTask* obj)
 {
     int id=0;
-    while (getTemporaryPathSearchObject(id)!=NULL)
+    while (getTemporaryPathSearchObject(id)!=nullptr)
         id++;
     _temporaryPathSearchObjects.push_back(obj);
     _temporaryPathSearchObjectIDs.push_back(id);
@@ -61,7 +61,7 @@ CPathPlanningTask* CRegisteredPathPlanningTasks::getTemporaryPathSearchObject(in
         if (_temporaryPathSearchObjectIDs[i]==id)
             return(_temporaryPathSearchObjects[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 void CRegisteredPathPlanningTasks::removeTemporaryPathSearchObjectButDontDestroyIt(CPathPlanningTask* obj)
@@ -122,7 +122,7 @@ CPathPlanningTask* CRegisteredPathPlanningTasks::getObject(int objID)
         if (allObjects[i]->getObjectID()==objID)
             return(allObjects[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 CPathPlanningTask* CRegisteredPathPlanningTasks::getObject(std::string objName)
 {
@@ -131,7 +131,7 @@ CPathPlanningTask* CRegisteredPathPlanningTasks::getObject(std::string objName)
         if (allObjects[i]->getObjectName().compare(objName)==0)
             return(allObjects[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 void CRegisteredPathPlanningTasks::getMinAndMaxNameSuffixes(int& minSuffix,int& maxSuffix)
@@ -205,13 +205,13 @@ void CRegisteredPathPlanningTasks::addObjectWithSuffixOffset(CPathPlanningTask* 
         theName=tt::generateNewName_dash(theName,suffixOffset);
     else
     {
-        while (getObject(theName)!=NULL)
+        while (getObject(theName)!=nullptr)
             theName=tt::generateNewName_noDash(theName);
     }
     aTask->setObjectName(theName);
 
     int objID=SIM_IDSTART_PATHPLANNINGTASK;
-    while (getObject(objID)!=NULL)
+    while (getObject(objID)!=nullptr)
         objID++;
     aTask->setObjectID(objID);
     allObjects.push_back(aTask);

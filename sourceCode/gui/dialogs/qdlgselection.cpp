@@ -109,7 +109,7 @@ void CQDlgSelection::on_simpleShapesButton_clicked()
         {
             CShape* it=App::ct->objCont->getShape(App::ct->objCont->shapeList[i]);
             if (!it->isCompound())
-                list.push_back(it->getID());
+                list.push_back(it->getObjectHandle());
         }
         processIt();
     }
@@ -124,7 +124,7 @@ void CQDlgSelection::on_groupedShapesButton_clicked()
         {
             CShape* it=App::ct->objCont->getShape(App::ct->objCont->shapeList[i]);
             if (it->isCompound())
-                list.push_back(it->getID());
+                list.push_back(it->getObjectHandle());
         }
         processIt();
     }

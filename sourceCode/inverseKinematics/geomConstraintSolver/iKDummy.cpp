@@ -25,7 +25,7 @@ int CIKDummy::computeChainSize()
 {
     chainSize=0;
     CIKJoint* it=parent;
-    while (it!=NULL)
+    while (it!=nullptr)
     {
         if (it->objectType==IK_JOINT_TYPE)
         {

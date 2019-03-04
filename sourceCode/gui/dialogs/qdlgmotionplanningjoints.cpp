@@ -97,7 +97,7 @@ void CQDlgMotionPlanningJoints::on_qqTable_itemChanged(QTableWidgetItem *item)
 {
     if (inMainRefreshRoutine)
         return;
-    if (item!=NULL)
+    if (item!=nullptr)
     {
         int jointIndex=item->row();
         if (item->column()==1)

@@ -25,7 +25,7 @@ void CInterfaceStackObject::printContent(int spaces) const
 
 CInterfaceStackObject* CInterfaceStackObject::copyYourself() const
 {
-    return(NULL);
+    return(nullptr);
 }
 
 std::string CInterfaceStackObject::getObjectData() const
@@ -40,7 +40,7 @@ unsigned int CInterfaceStackObject::createFromData(const char* data)
 
 CInterfaceStackObject* CInterfaceStackObject::createFromDataStatic(const char* data,unsigned int& retOffset)
 {
-    CInterfaceStackObject* obj=NULL;
+    CInterfaceStackObject* obj=nullptr;
     char t=data[0];
     retOffset=1;
     if (t==STACK_OBJECT_NULL)
@@ -57,7 +57,7 @@ CInterfaceStackObject* CInterfaceStackObject::createFromDataStatic(const char* d
     }
     if (t==STACK_OBJECT_STRING)
     {
-        obj=new CInterfaceStackString(NULL,0);
+        obj=new CInterfaceStackString(nullptr,0);
         retOffset+=obj->createFromData(data+retOffset);
     }
     if (t==STACK_OBJECT_TABLE)

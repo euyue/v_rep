@@ -451,20 +451,20 @@ void CDummy::setLinkedDummyID(int id,bool setDirectly)
         CDummy* linkedDummy=App::ct->objCont->getDummy(_linkedDummyID);
         if (id==-1)
         { // we unlink this dummy and its partner:
-            if (linkedDummy!=NULL)
+            if (linkedDummy!=nullptr)
                 linkedDummy->setLinkedDummyID(-1,true);
             _linkedDummyID=-1;
         }
         else if (_linkedDummyID!=id)
         { // We link this dummy to another dummy
             CDummy* newLinkedDummy=App::ct->objCont->getDummy(id);
-            if (linkedDummy!=NULL)
+            if (linkedDummy!=nullptr)
                 linkedDummy->setLinkedDummyID(-1,true); // we first detach it from its old partner
-            if (newLinkedDummy!=NULL)
+            if (newLinkedDummy!=nullptr)
             { // we detach the new dummy from its original linking:
                 newLinkedDummy->setLinkedDummyID(-1,false);
                 _linkedDummyID=id;
-                newLinkedDummy->setLinkedDummyID(getID(),true);
+                newLinkedDummy->setLinkedDummyID(getObjectHandle(),true);
 
                 if (_linkType==sim_dummy_linktype_gcs_tip)
                     newLinkedDummy->setLinkType(sim_dummy_linktype_gcs_target,true);
@@ -495,7 +495,7 @@ void CDummy::setLinkType(int lt,bool setDirectly)
     if ((_linkedDummyID!=-1)&&(!setDirectly))
     {
         CDummy* it=App::ct->objCont->getDummy(_linkedDummyID);
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             if (lt==sim_dummy_linktype_gcs_tip)
                 it->setLinkType(sim_dummy_linktype_gcs_target,true);
@@ -530,15 +530,15 @@ int CDummy::getLinkedDummyID() const
     return(_linkedDummyID);
 }
 
-bool CDummy::announceObjectWillBeErased(int objID,bool copyBuffer)
+bool CDummy::announceObjectWillBeErased(int objectHandle,bool copyBuffer)
 {   // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     // This routine can be called for objCont-objects, but also for objects
     // in the copy-buffer!! So never make use of any 
     // 'ct::objCont->getObject(id)'-call or similar
     // Return value true means 'this' has to be erased too!
-    bool retVal=announceObjectWillBeErasedMain(objID,copyBuffer);
-    if (_linkedDummyID==objID)
+    bool retVal=announceObjectWillBeErasedMain(objectHandle,copyBuffer);
+    if (_linkedDummyID==objectHandle)
         setLinkedDummyID(-1,copyBuffer);
     return(retVal);
 }

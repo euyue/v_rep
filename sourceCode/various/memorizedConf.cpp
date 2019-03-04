@@ -8,8 +8,8 @@ CMemorizedConf::CMemorizedConf(C3DObject* theObject)
 {
     uniqueID=theObject->getUniqueID();
     parentUniqueID=-1;
-    if (theObject->getParent()!=NULL)
-        parentUniqueID=theObject->getParent()->getUniqueID();
+    if (theObject->getParentObject()!=nullptr)
+        parentUniqueID=theObject->getParentObject()->getUniqueID();
     configuration=theObject->getLocalTransformationPart1();
     objectType=theObject->getObjectType();
     memorizedConfigurationValidCounter=theObject->getMemorizedConfigurationValidCounter();
@@ -37,7 +37,7 @@ CMemorizedConf::~CMemorizedConf()
 int CMemorizedConf::getParentCount()
 {
     C3DObject* it=App::ct->objCont->getObjectWithUniqueID(uniqueID);
-    if (it==NULL)
+    if (it==nullptr)
         return(0);
     return(it->getParentCount());
 }
@@ -45,12 +45,12 @@ int CMemorizedConf::getParentCount()
 void CMemorizedConf::restore()
 {
     C3DObject* it=App::ct->objCont->getObjectWithUniqueID(uniqueID);
-    if ( (it==NULL)||(it->getMemorizedConfigurationValidCounter()!=memorizedConfigurationValidCounter) ) // second part is in case a shape gets edited
+    if ( (it==nullptr)||(it->getMemorizedConfigurationValidCounter()!=memorizedConfigurationValidCounter) ) // second part is in case a shape gets edited
         return;
     it->setDynamicsFullRefreshFlag(true); // dynamically enabled objects have to be reset first!
     int puid=-1;
-    if (it->getParent()!=NULL)
-        puid=it->getParent()->getUniqueID();
+    if (it->getParentObject()!=nullptr)
+        puid=it->getParentObject()->getUniqueID();
     if (parentUniqueID==puid)
         it->setLocalTransformation(configuration);
     if (objectType==sim_object_joint_type)
@@ -68,7 +68,7 @@ void CMemorizedConf::restore()
 
 bool CMemorizedConf::doesStillExist()
 {
-    return(App::ct->objCont->getObjectWithUniqueID(uniqueID)!=NULL);
+    return(App::ct->objCont->getObjectWithUniqueID(uniqueID)!=nullptr);
 }
 
 void CMemorizedConf::serializeToMemory(std::vector<char>& data)

@@ -16,7 +16,7 @@ void displayPath(CPath* path,CViewableBase* renderingObject,int displayAttrib)
 
     // Object display:
 #ifdef SIM_WITH_GUI
-    if ( path->getShouldObjectBeDisplayed(renderingObject->getID(),displayAttrib)||( (App::mainWindow!=NULL)&&(App::mainWindow->editModeContainer->getEditModePath()==path) ) )
+    if ( path->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib)||( (App::mainWindow!=nullptr)&&(App::mainWindow->editModeContainer->getEditModePath()==path) ) )
 #else
     if (path->getShouldObjectBeDisplayed(renderingObject->getID(),displayAttrib))
 #endif
@@ -24,9 +24,9 @@ void displayPath(CPath* path,CViewableBase* renderingObject,int displayAttrib)
         if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE)==0)
         {
             if (path->getLocalObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
-                glLoadName(path->getModelSelectionID());
+                glLoadName(path->getModelSelectionHandle());
             else
-                glLoadName(path->getID());
+                glLoadName(path->getObjectHandle());
         }
         else
             glLoadName(-1);
@@ -35,20 +35,20 @@ void displayPath(CPath* path,CViewableBase* renderingObject,int displayAttrib)
             glPolygonMode (GL_FRONT_AND_BACK,GL_LINE);
 
 #ifdef SIM_WITH_GUI
-        if ( (App::mainWindow!=NULL)&&(App::mainWindow->editModeContainer->getEditModePath()==path) )
-            App::mainWindow->editModeContainer->getEditModePathContainer()->render(true,0,false,path->getID());
+        if ( (App::mainWindow!=nullptr)&&(App::mainWindow->editModeContainer->getEditModePath()==path) )
+            App::mainWindow->editModeContainer->getEditModePathContainer()->render(true,0,false,path->getObjectHandle());
         else
 #endif
         {
-            _enableAuxClippingPlanes(path->getID());
+            _enableAuxClippingPlanes(path->getObjectHandle());
             if ((displayAttrib&sim_displayattribute_forvisionsensor)==0)
             {
                 bool isUniqueSelectedPath=false;
 #ifdef SIM_WITH_GUI
-                if (App::mainWindow!=NULL)
+                if (App::mainWindow!=nullptr)
                     isUniqueSelectedPath=App::mainWindow->editModeContainer->pathPointManipulation->getUniqueSelectedPathId_nonEditMode()!=-1;
 #endif
-                path->pathContainer->render(false,displayAttrib,isUniqueSelectedPath,path->getID());
+                path->pathContainer->render(false,displayAttrib,isUniqueSelectedPath,path->getObjectHandle());
             }
 
             if (path->getShapingEnabled())

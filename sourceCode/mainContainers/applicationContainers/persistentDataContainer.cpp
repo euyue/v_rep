@@ -49,7 +49,7 @@ void CPersistentDataContainer::writeData(const char* dataName,const std::string&
 
 void CPersistentDataContainer::_writeData(const char* dataName,const std::string& value)
 {
-    if (dataName!=NULL)
+    if (dataName!=nullptr)
     {
         int index=_getDataIndex(dataName);
         if (index==-1)
@@ -75,7 +75,7 @@ void CPersistentDataContainer::_writeData(const char* dataName,const std::string
 
 bool CPersistentDataContainer::readData(const char* dataName,std::string& value)
 {
-    if ((dataName==NULL)||(strlen(dataName)==0))
+    if ((dataName==nullptr)||(strlen(dataName)==0))
         return(false);
     int index=_getDataIndex(dataName);
     if (index==-1)

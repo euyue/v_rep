@@ -52,9 +52,9 @@ char* CBroadcastData::receiveData(int receiverID,float simulationTime,int dataHe
     antennaConf1.setIdentity();
     if (_antennaHandle!=sim_handle_default)
     {
-        C3DObject* it=App::ct->objCont->getObject(_antennaHandle);
-        if (it==NULL)
-            return(NULL); // the emission antenna was destroyed!
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(_antennaHandle);
+        if (it==nullptr)
+            return(nullptr); // the emission antenna was destroyed!
         antennaConf1=it->getCumulativeTransformationPart1();
     }
 
@@ -62,83 +62,83 @@ char* CBroadcastData::receiveData(int receiverID,float simulationTime,int dataHe
     antennaPos2.clear();
     if (antennaHandle!=sim_handle_default)
     {
-        C3DObject* it=App::ct->objCont->getObject(antennaHandle);
-        if (it==NULL)
-            return(NULL); // that shouldn't happen!
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(antennaHandle);
+        if (it==nullptr)
+            return(nullptr); // that shouldn't happen!
         antennaPos2=it->getCumulativeTransformationPart1().X;
     }
 
     if ((_emitterID==receiverID)&&(_emitterID!=0)) // second part since 25/9/2012: from c/c++, emitter/receiver ID is always 0
-        return(NULL); // the emitter cannot receive its own message!
+        return(nullptr); // the emitter cannot receive its own message!
     if (simulationTime>_timeOutSimulationTime)
-        return(NULL); // data timed out!
+        return(nullptr); // data timed out!
     if ( (dataHeader!=-1)&&(dataHeader!=_dataHeader) )
-        return(NULL); // wrong data header!
+        return(nullptr); // wrong data header!
     if ( (dataName.length()!=0)&&(dataName.compare(_dataName)!=0) )
-        return(NULL); // wrong data name!
+        return(nullptr); // wrong data name!
     if (_receiverID!=sim_handle_all)
     { // message not for everyone
         if (_receiverID==sim_handle_tree)
         { // we have to check if receiverID has a parent _emitterID:
             CLuaScriptObject* rec=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(receiverID);
             CLuaScriptObject* em=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(_emitterID);
-            if ( (rec==NULL)||(em==NULL) )
-                return(NULL);
+            if ( (rec==nullptr)||(em==nullptr) )
+                return(nullptr);
             if (em->getScriptType()!=sim_scripttype_mainscript)
             {
                 if (rec->getScriptType()==sim_scripttype_mainscript)
-                    return(NULL);
-                C3DObject* recObj=App::ct->objCont->getObject(rec->getObjectIDThatScriptIsAttachedTo_child());
-                C3DObject* emObj=App::ct->objCont->getObject(em->getObjectIDThatScriptIsAttachedTo_child());
+                    return(nullptr);
+                C3DObject* recObj=App::ct->objCont->getObjectFromHandle(rec->getObjectIDThatScriptIsAttachedTo_child());
+                C3DObject* emObj=App::ct->objCont->getObjectFromHandle(em->getObjectIDThatScriptIsAttachedTo_child());
                 bool found=false;
-                while (recObj!=NULL)
+                while (recObj!=nullptr)
                 {
                     if (recObj==emObj)
                     {
                         found=true;
                         break;
                     }
-                    recObj=recObj->getParent();
+                    recObj=recObj->getParentObject();
                 }
                 if (!found)
-                    return(NULL);
+                    return(nullptr);
             }
         }
         if (_receiverID==sim_handle_chain)
         { // we have to check if _emitterID has a parent receiverID:
             CLuaScriptObject* rec=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(receiverID);
             CLuaScriptObject* em=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(_emitterID);
-            if ( (rec==NULL)||(em==NULL) )
-                return(NULL);
+            if ( (rec==nullptr)||(em==nullptr) )
+                return(nullptr);
             if (rec->getScriptType()!=sim_scripttype_mainscript)
             {
                 if (em->getScriptType()==sim_scripttype_mainscript)
-                    return(NULL);
-                C3DObject* recObj=App::ct->objCont->getObject(rec->getObjectIDThatScriptIsAttachedTo_child());
-                C3DObject* emObj=App::ct->objCont->getObject(em->getObjectIDThatScriptIsAttachedTo_child());
+                    return(nullptr);
+                C3DObject* recObj=App::ct->objCont->getObjectFromHandle(rec->getObjectIDThatScriptIsAttachedTo_child());
+                C3DObject* emObj=App::ct->objCont->getObjectFromHandle(em->getObjectIDThatScriptIsAttachedTo_child());
                 bool found=false;
-                while (emObj!=NULL)
+                while (emObj!=nullptr)
                 {
                     if (recObj==emObj)
                     {
                         found=true;
                         break;
                     }
-                    emObj=emObj->getParent();
+                    emObj=emObj->getParentObject();
                 }
                 if (!found)
-                    return(NULL);
+                    return(nullptr);
             }
         }
         if (_receiverID>=0)
         {
             if (_receiverID!=receiverID)
-                return(NULL);
+                return(nullptr);
         }
     }
         
     if ((antennaPos2-antennaConf1.X).getLength()>_actionRadius)
-        return(NULL); // outside of action radius!
+        return(nullptr); // outside of action radius!
     if (_emissionAngle1<piValue_f*0.99f)
     { // Check if inside the vertical "hearing" area:
         C3Vector relPos(antennaConf1.getInverse()*antennaPos2);
@@ -146,22 +146,22 @@ char* CBroadcastData::receiveData(int receiverID,float simulationTime,int dataHe
         relPos(2)=0.0f;
         float l=relPos.getLength();
         if (l==0.0f)
-            return(NULL); // just outside of the vertical active area (border condition)
+            return(nullptr); // just outside of the vertical active area (border condition)
         float a=fabs(atan2(h,l));
         if (a>=_emissionAngle1*0.5f)
-            return(NULL); // just outside of the vertical active area (border condition)
+            return(nullptr); // just outside of the vertical active area (border condition)
     }
     if (_emissionAngle2<piValTimes2_f*0.99f)
     { // Check if inside the horizontal "hearing" area:
         C3Vector relPos(antennaConf1.getInverse()*antennaPos2);
         if (relPos(0)==0.0f)
-            return(NULL); // just outside of the horizontal active area (border condition)
+            return(nullptr); // just outside of the horizontal active area (border condition)
         float a=fabs(atan2(relPos(1),relPos(0)));
         if (a>=_emissionAngle2*0.5f)
-            return(NULL); // just outside of the horizontal active area (border condition)
+            return(nullptr); // just outside of the horizontal active area (border condition)
     }
     if (receiverPresent(receiverID))
-        return(NULL); // data was already read by that script!
+        return(nullptr); // data was already read by that script!
     // We can receive the data, finally!
     if (removeMessageForThisReceiver)
         _receivedReceivers.push_back(receiverID); // remember that this receiverID already read the message!

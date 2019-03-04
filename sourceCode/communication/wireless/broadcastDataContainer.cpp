@@ -62,8 +62,8 @@ void CBroadcastDataContainer::broadcastData(int emitterID,int targetID,int dataH
         antennaConf.setIdentity();
         if (antennaHandle!=sim_handle_default)
         {
-            C3DObject* it=App::ct->objCont->getObject(antennaHandle);
-            if (it!=NULL)
+            C3DObject* it=App::ct->objCont->getObjectFromHandle(antennaHandle);
+            if (it!=nullptr)
                 antennaConf=it->getCumulativeTransformationPart1();
             else
                 err=true;
@@ -80,11 +80,11 @@ char* CBroadcastDataContainer::receiveData(int receiverID,float simulationTime,i
 {
     EASYLOCK(_objectMutex);
     int originalIndex=index;
-    char* retVal=NULL;
+    char* retVal=nullptr;
     for (size_t i=0;i<_allObjects.size();i++)
     {
         retVal=_allObjects[i]->receiveData(receiverID,simulationTime,dataHeader,dataName,antennaHandle,dataLength,senderID,dataHeaderR,dataNameR,originalIndex==-1);
-        if (retVal!=NULL)
+        if (retVal!=nullptr)
         {
             if (originalIndex==-1)
             {
@@ -95,8 +95,8 @@ char* CBroadcastDataContainer::receiveData(int receiverID,float simulationTime,i
                     antennaPos1.clear();
                     if (_allObjects[i]->getAntennaHandle()!=sim_handle_default)
                     {
-                        C3DObject* it=App::ct->objCont->getObject(_allObjects[i]->getAntennaHandle());
-                        if (it!=NULL)
+                        C3DObject* it=App::ct->objCont->getObjectFromHandle(_allObjects[i]->getAntennaHandle());
+                        if (it!=nullptr)
                             antennaPos1=it->getCumulativeTransformationPart1().X;
                         else
                             err=true;
@@ -105,8 +105,8 @@ char* CBroadcastDataContainer::receiveData(int receiverID,float simulationTime,i
                     antennaPos2.clear();
                     if (antennaHandle!=sim_handle_default)
                     {
-                        C3DObject* it=App::ct->objCont->getObject(antennaHandle);
-                        if (it!=NULL)
+                        C3DObject* it=App::ct->objCont->getObjectFromHandle(antennaHandle);
+                        if (it!=nullptr)
                             antennaPos2=it->getCumulativeTransformationPart1().X;
                         else
                             err=true;
@@ -122,7 +122,7 @@ char* CBroadcastDataContainer::receiveData(int receiverID,float simulationTime,i
             index--;
             if (index==-1)
                 return(retVal);
-            retVal=NULL;
+            retVal=nullptr;
         }
     }
     return(retVal);

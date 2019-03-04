@@ -7,7 +7,7 @@ CIKJoint::CIKJoint(CIKGraphJoint* joint,C7Vector& localTransformationPart1,bool 
 {
     graphJoint=joint;
     active=true;
-    topJoint=NULL;
+    topJoint=nullptr;
     objectType=IK_JOINT_TYPE;
     spherical=(joint->jointType==IK_GRAPH_SPHERICAL_JOINT_TYPE);
     revolute=(joint->jointType==IK_GRAPH_REVOLUTE_JOINT_TYPE)||spherical;
@@ -34,7 +34,7 @@ CIKJoint::CIKJoint(CIKGraphJoint* joint,C7Vector& localTransformationPart1,bool 
     }
     tempParameter=parameter;
     transformation=localTransformationPart1;
-    avatarParent=NULL;
+    avatarParent=nullptr;
     avatarKids.clear();
 
 }

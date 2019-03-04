@@ -62,7 +62,7 @@ void CPageContainer::initializeInitialValues(bool simulationIsRunning,int initia
     }
     for (int i=0;i<_numberOfPages;i++)
     {
-        if (_allPages[i]!=NULL)
+        if (_allPages[i]!=nullptr)
             _allPages[i]->initializeInitialValues(simulationIsRunning,initializeOnlyForThisNewObject);
     }
 }
@@ -80,7 +80,7 @@ void CPageContainer::simulationEnded()
     }
     for (int i=0;i<_numberOfPages;i++)
     {
-        if (_allPages[i]!=NULL)
+        if (_allPages[i]!=nullptr)
             _allPages[i]->simulationEnded();
     }
     _initialValuesInitialized=false;
@@ -91,9 +91,9 @@ void CPageContainer::removeAllPages()
 {
     for (int i=0;i<_numberOfPages;i++)
     {
-        if (_allPages[i]!=NULL)
+        if (_allPages[i]!=nullptr)
             delete _allPages[i];
-        _allPages[i]=NULL;
+        _allPages[i]=nullptr;
     }
 }
 void CPageContainer::setUpDefaultPages(bool createASingleView)
@@ -102,14 +102,14 @@ void CPageContainer::setUpDefaultPages(bool createASingleView)
     {
         _numberOfPages=MAX_NUMBER_OF_PAGES;
         for (int i=0;i<_numberOfPages;i++)
-            _allPages[i]=NULL;
+            _allPages[i]=nullptr;
     }
     for (int i=0;i<_numberOfPages;i++)
     {
-        if (_allPages[i]!=NULL)
+        if (_allPages[i]!=nullptr)
         {
             delete _allPages[i];
-            _allPages[i]=NULL;
+            _allPages[i]=nullptr;
         }
     }
     if (createASingleView)
@@ -123,7 +123,7 @@ void CPageContainer::setUpDefaultPages(bool createASingleView)
 CSPage* CPageContainer::getPage(int pageIndex) const
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
     if ( (pageIndex<0)||(pageIndex>=_numberOfPages) )
-        return(NULL); // Invalid view number
+        return(nullptr); // Invalid view number
     return(_allPages[pageIndex]);   
 }
 
@@ -131,7 +131,7 @@ void CPageContainer::announceObjectWillBeErased(int objectID)
 { // Never called from copy buffer!
     for (int i=0;i<_numberOfPages;i++)
     {
-        if (_allPages[i]!=NULL)
+        if (_allPages[i]!=nullptr)
             _allPages[i]->announceObjectWillBeErased(objectID);
     }
 }
@@ -143,12 +143,12 @@ void CPageContainer::setPageSizeAndPosition(int sizeX,int sizeY,int posX,int pos
     _pagePosition[0]=posX;
     _pagePosition[1]=posY;
     // We set the view position and size for all soft dialogs:
-    if (App::ct->buttonBlockContainer!=NULL)
+    if (App::ct->buttonBlockContainer!=nullptr)
         App::ct->buttonBlockContainer->setViewSizeAndPosition(sizeX,sizeY,posX,posY);
     // We set the view position and size for all views:
     for (int i=0;i<_numberOfPages;i++)
     {
-        if (_allPages[i]!=NULL)
+        if (_allPages[i]!=nullptr)
             _allPages[i]->setPageSizeAndPosition(sizeX,sizeY,posX,posY);
     }
 }
@@ -157,10 +157,10 @@ void CPageContainer::removePage(int pageIndex)
 {
     if ( (pageIndex<0)||(pageIndex>=_numberOfPages) )
         return;
-    if (_allPages[pageIndex]!=NULL)
+    if (_allPages[pageIndex]!=nullptr)
     {
         delete _allPages[pageIndex];
-        _allPages[pageIndex]=NULL;
+        _allPages[pageIndex]=nullptr;
     }
 }
 
@@ -170,7 +170,7 @@ void CPageContainer::serialize(CSer& ar)
     { // Storing
         for (int i=0;i<_numberOfPages;i++)
         {
-            if (_allPages[i]!=NULL)
+            if (_allPages[i]!=nullptr)
             {
                 ar.storeDataName("Vwo");
                 ar.setCountingMode();
@@ -239,7 +239,7 @@ void CPageContainer::performObjectLoadingMapping(std::vector<int>* map)
 {
     for (int i=0;i<_numberOfPages;i++)
     {
-        if (_allPages[i]!=NULL)
+        if (_allPages[i]!=nullptr)
             _allPages[i]->performObjectLoadingMapping(map);
     }
 }
@@ -248,7 +248,7 @@ bool CPageContainer::processCommand(int commandID,int viewIndex)
 { // Return value is true if the command belonged to hierarchy menu and was executed
     if ( (viewIndex<0)||(viewIndex>=_numberOfPages) )
         return(false);
-    if (_allPages[viewIndex]!=NULL)
+    if (_allPages[viewIndex]!=nullptr)
         return(false);
 
     if ( (commandID==PAGE_CONT_FUNCTIONS_CREATE_SINGLE_VIEW_TYPE_PCCMD)||(commandID==PAGE_CONT_FUNCTIONS_CREATE_FOUR_VIEW_TYPE_PCCMD)||(commandID==PAGE_CONT_FUNCTIONS_CREATE_SIX_VIEW_TYPE_PCCMD)||
@@ -258,7 +258,7 @@ bool CPageContainer::processCommand(int commandID,int viewIndex)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            CSPage* it=NULL;
+            CSPage* it=nullptr;
             if (commandID==PAGE_CONT_FUNCTIONS_CREATE_SINGLE_VIEW_TYPE_PCCMD)
                 it=new CSPage(SINGLE_VIEW);
             if (commandID==PAGE_CONT_FUNCTIONS_CREATE_FOUR_VIEW_TYPE_PCCMD)
@@ -284,7 +284,7 @@ bool CPageContainer::processCommand(int commandID,int viewIndex)
             if (commandID==PAGE_CONT_FUNCTIONS_CREATE_VERTICAL_1_PLUS_4_VIEW_TYPE_PCCMD)
                 it=new CSPage(VERTICAL_1_PLUS_4_VIEWS);
             App::addStatusbarMessage(IDSNS_CREATED_VIEWS);
-            if (it!=NULL)
+            if (it!=nullptr)
             {
                 it->setPageSizeAndPosition(_pageSize[0],_pageSize[1],_pagePosition[0],_pagePosition[1]);
                 _allPages[viewIndex]=it;
@@ -321,7 +321,7 @@ void CPageContainer::renderCurrentPage(bool hideWatermark)
     // it was not processed
     for (int  i=0;i<_numberOfPages;i++)
     {
-        if (_allPages[i]!=NULL)
+        if (_allPages[i]!=nullptr)
             _allPages[i]->clearAllMouseJustWentDownAndUpFlags();
     }
 
@@ -369,13 +369,13 @@ bool CPageContainer::getMouseRelPosObjectAndViewSize(int x,int y,int relPos[2],i
     if ( (x<0)||(x>_pageSize[0])||(y<0)||(y>_pageSize[1]) )
         return(false);
     // The position is in this window zone
-    if ((App::ct->buttonBlockContainer!=NULL)&&App::ct->buttonBlockContainer->mouseDownTest(x,y,_activePageIndex))
+    if ((App::ct->buttonBlockContainer!=nullptr)&&App::ct->buttonBlockContainer->mouseDownTest(x,y,_activePageIndex))
     { // not yet supported
         objType=-1;
         return(true);
     }
     const CSPage* it=getPage(_activePageIndex);
-    if (it!=NULL)
+    if (it!=nullptr)
     {
         if (it->getMouseRelPosObjectAndViewSize(x,y,relPos,objType,objID,vSize,viewIsPerspective))
             return(true); // we are in this view
@@ -390,24 +390,24 @@ bool CPageContainer::leftMouseButtonDown(int x,int y,int selectionStatus)
     // The mouse went down in this window zone
     for (int i=0;i<_numberOfPages;i++)
     {
-        if (_allPages[i]!=NULL)
+        if (_allPages[i]!=nullptr)
             _allPages[i]->clearCaughtElements(0xffff-sim_left_button);
     }
-    if (App::ct->buttonBlockContainer!=NULL)
+    if (App::ct->buttonBlockContainer!=nullptr)
         App::ct->buttonBlockContainer->clearCaughtElements(0xffff-sim_left_button);
 
     mouseRelativePosition[0]=x;
     mouseRelativePosition[1]=y;
     leftMouseCaughtBy=-1;
     leftMouseCaughtSoftDialog=false;
-    if ((App::ct->buttonBlockContainer!=NULL)&&App::ct->buttonBlockContainer->mouseDown(mouseRelativePosition[0],mouseRelativePosition[1],_activePageIndex,selectionStatus))
+    if ((App::ct->buttonBlockContainer!=nullptr)&&App::ct->buttonBlockContainer->mouseDown(mouseRelativePosition[0],mouseRelativePosition[1],_activePageIndex,selectionStatus))
     {
         setFocusObject(FOCUS_ON_SOFT_DIALOG);
         return(true);
     }
     setFocusObject(FOCUS_ON_PAGE);
     CSPage* it=getPage(_activePageIndex);
-    if (it!=NULL)
+    if (it!=nullptr)
     {
         if (it->leftMouseButtonDown(x,y,selectionStatus))
         { // The mouse was caught by this view:
@@ -423,7 +423,7 @@ void CPageContainer::clearAllLastMouseDownViewIndex()
     for (int i=0;i<_numberOfPages;i++)
     {
         CSPage* p=_allPages[i];
-        if (p!=NULL)
+        if (p!=nullptr)
             p->clearLastMouseDownViewIndex();
     }
 }
@@ -432,10 +432,10 @@ int CPageContainer::getCursor(int x,int y) const
 {
     if ( (x<0)||(x>_pageSize[0])||(y<0)||(y>_pageSize[1]) )
         return(-1);
-    if ((App::ct->buttonBlockContainer!=NULL)&&App::ct->buttonBlockContainer->mouseDownTest(x,y,_activePageIndex))
+    if ((App::ct->buttonBlockContainer!=nullptr)&&App::ct->buttonBlockContainer->mouseDownTest(x,y,_activePageIndex))
         return(-1);
     CSPage* it=getPage(_activePageIndex);
-    if (it==NULL)
+    if (it==nullptr)
         return(-1); // The active view doesn't exist!
     return(it->getCursor(x,y));
 }
@@ -444,14 +444,14 @@ void CPageContainer::leftMouseButtonUp(int x,int y)
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
     mouseRelativePosition[0]=x;
     mouseRelativePosition[1]=y;
-    if (App::ct->buttonBlockContainer!=NULL)
+    if (App::ct->buttonBlockContainer!=nullptr)
     {
         if (App::ct->buttonBlockContainer->getCaughtElements()&sim_left_button)
             App::ct->buttonBlockContainer->mouseUp(mouseRelativePosition[0],mouseRelativePosition[1],_activePageIndex);
     }
 
     CSPage* it=getPage(_activePageIndex);
-    if ( (it!=NULL)&&(it->getCaughtElements()&sim_left_button) )
+    if ( (it!=nullptr)&&(it->getCaughtElements()&sim_left_button) )
         it->leftMouseButtonUp(mouseRelativePosition[0],mouseRelativePosition[1]);
 }
 
@@ -464,7 +464,7 @@ void CPageContainer::mouseMove(int x,int y,bool passiveAndFocused)
     mouseRelativePosition[0]=x;
     mouseRelativePosition[1]=y;
 
-    if (App::ct->buttonBlockContainer!=NULL)
+    if (App::ct->buttonBlockContainer!=nullptr)
     {
         if (!passiveAndFocused)
         {
@@ -476,7 +476,7 @@ void CPageContainer::mouseMove(int x,int y,bool passiveAndFocused)
     }
     for (int i=0;i<_numberOfPages;i++)
     {
-        if (_allPages[i]!=NULL)
+        if (_allPages[i]!=nullptr)
         {
             if (!passiveAndFocused)
             {
@@ -498,7 +498,7 @@ int CPageContainer::modelDragMoveEvent(int x,int y,C3Vector* desiredModelPositio
     mouseRelativePosition[1]=y;
 
     CSPage* it=getPage(_activePageIndex);
-    if (it!=NULL)
+    if (it!=nullptr)
         return(it->modelDragMoveEvent(mouseRelativePosition[0],mouseRelativePosition[1],desiredModelPosition));
     return(0);
 }
@@ -507,13 +507,13 @@ void CPageContainer::mouseWheel(int deltaZ,int x,int y)
 {
     // We sent this event only to the active view if no view was caught:
     CSPage* it=getPage(_activePageIndex);
-    if (it!=NULL)
+    if (it!=nullptr)
         it->mouseWheel(deltaZ,x,y);
 }
 
 void CPageContainer::looseFocus()
 {
-    if (App::ct->buttonBlockContainer!=NULL)
+    if (App::ct->buttonBlockContainer!=nullptr)
         App::ct->buttonBlockContainer->looseFocus();
     setFocusObject(FOCUS_ON_UNKNOWN_OBJECT);
 }
@@ -528,7 +528,7 @@ void CPageContainer::setFocusObject(int obj)
     focusObject=obj;
     if (focusObject==FOCUS_ON_PAGE)
     {
-        if (App::ct->buttonBlockContainer!=NULL)
+        if (App::ct->buttonBlockContainer!=nullptr)
         {
             App::ct->buttonBlockContainer->setEditBoxEdition(-1,-1,false);
             App::ct->buttonBlockContainer->looseFocus();
@@ -538,7 +538,7 @@ void CPageContainer::setFocusObject(int obj)
 
 void CPageContainer::keyPress(int key,QWidget* mainWindow)
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
-    if ((focusObject==FOCUS_ON_SOFT_DIALOG)&&(App::ct->buttonBlockContainer!=NULL))
+    if ((focusObject==FOCUS_ON_SOFT_DIALOG)&&(App::ct->buttonBlockContainer!=nullptr))
     {
         App::ct->buttonBlockContainer->onKeyDown(key);
         return;
@@ -546,7 +546,7 @@ void CPageContainer::keyPress(int key,QWidget* mainWindow)
 
     if ( (key==CTRL_V_KEY)||(key==DELETE_KEY)||(key==BACKSPACE_KEY)||(key==CTRL_X_KEY)||(key==CTRL_C_KEY)||(key==ESC_KEY)||(key==CTRL_A_KEY)||(key==CTRL_Y_KEY)||(key==CTRL_Z_KEY) )
     {
-        if ( (App::mainWindow!=NULL)&&(!App::mainWindow->editModeContainer->keyPress(key)) )
+        if ( (App::mainWindow!=nullptr)&&(!App::mainWindow->editModeContainer->keyPress(key)) )
             CSceneObjectOperations::keyPress(key); // the key press was not for the edit mode
         return;
     }
@@ -575,7 +575,7 @@ void CPageContainer::keyPress(int key,QWidget* mainWindow)
     }
 
     int flags=0;
-    if (App::mainWindow!=NULL)
+    if (App::mainWindow!=nullptr)
     {
         if (App::mainWindow->getKeyDownState()&1)
             flags|=1;
@@ -583,13 +583,13 @@ void CPageContainer::keyPress(int key,QWidget* mainWindow)
             flags|=2;
     }
     int data[4]={key,flags,0,0};
-    void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_keypress,data,NULL,NULL);
+    void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_keypress,data,nullptr,nullptr);
     delete[] (char*)retVal;
     data[0]=key;
     data[1]=flags;
-    retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_keypress,data,NULL,NULL); // for backward compatibility
+    retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_keypress,data,nullptr,nullptr); // for backward compatibility
     delete[] (char*)retVal;
-    App::ct->outsideCommandQueue->addCommand(sim_message_keypress,key,flags,0,0,NULL,0);
+    App::ct->outsideCommandQueue->addCommand(sim_message_keypress,key,flags,0,0,nullptr,0);
 
     App::ct->setModificationFlag(1024); // key was pressed
 }
@@ -602,17 +602,17 @@ bool CPageContainer::rightMouseButtonDown(int x,int y)
     mouseRelativePosition[0]=x;
     mouseRelativePosition[1]=y;
 
-    if (App::ct->buttonBlockContainer!=NULL)
+    if (App::ct->buttonBlockContainer!=nullptr)
         App::ct->buttonBlockContainer->clearCaughtElements(0xffff-sim_right_button);
     for (int i=0;i<_numberOfPages;i++)
     {
-        if (_allPages[i]!=NULL)
+        if (_allPages[i]!=nullptr)
             _allPages[i]->clearCaughtElements(0xffff-sim_right_button);
     }
     prepareForPopupMenu=-1;
     // First we check the soft dialogs:
 
-    if (App::ct->buttonBlockContainer!=NULL)
+    if (App::ct->buttonBlockContainer!=nullptr)
     {
         // Following 2 lines should be replaced with the right button down handling routine (when it exists)! (and then return true!)
         if (App::ct->buttonBlockContainer->mouseDownTest(mouseRelativePosition[0],mouseRelativePosition[1],_activePageIndex))
@@ -621,7 +621,7 @@ bool CPageContainer::rightMouseButtonDown(int x,int y)
 
     setFocusObject(FOCUS_ON_PAGE);
     CSPage* it=getPage(_activePageIndex);
-    if (it!=NULL)
+    if (it!=nullptr)
     {
         if (it->rightMouseButtonDown(mouseRelativePosition[0],mouseRelativePosition[1]))
             return(true); // The active view caught that event!
@@ -641,12 +641,12 @@ void CPageContainer::rightMouseButtonUp(int x,int y,int absX,int absY,QWidget* m
     mouseRelativePosition[1]=y;
 
 
-    if (App::ct->buttonBlockContainer!=NULL)
+    if (App::ct->buttonBlockContainer!=nullptr)
     {
         // ROUTINE DOES NOT YET EXIST!
     }
     CSPage* it=getPage(_activePageIndex);
-    if (it!=NULL)
+    if (it!=nullptr)
     {
         if (it->getCaughtElements()&sim_right_button)
         {
@@ -690,17 +690,17 @@ bool CPageContainer::middleMouseButtonDown(int x,int y)
     mouseRelativePosition[0]=x;
     mouseRelativePosition[1]=y;
 
-    if (App::ct->buttonBlockContainer!=NULL)
+    if (App::ct->buttonBlockContainer!=nullptr)
         App::ct->buttonBlockContainer->clearCaughtElements(0xffff-sim_middle_button);
 
     for (int i=0;i<_numberOfPages;i++)
     {
-        if (_allPages[i]!=NULL)
+        if (_allPages[i]!=nullptr)
             _allPages[i]->clearCaughtElements(0xffff-sim_middle_button);
     }
 
     // First we check the soft dialogs:
-    if (App::ct->buttonBlockContainer!=NULL)
+    if (App::ct->buttonBlockContainer!=nullptr)
     {
         // Following 2 lines should be replaced with the right button down handling routine (when it exists)! (and then return true!)
         if (App::ct->buttonBlockContainer->mouseDownTest(mouseRelativePosition[0],mouseRelativePosition[1],_activePageIndex))
@@ -709,7 +709,7 @@ bool CPageContainer::middleMouseButtonDown(int x,int y)
 
     setFocusObject(FOCUS_ON_PAGE);
     CSPage* it=getPage(_activePageIndex);
-    if (it!=NULL)
+    if (it!=nullptr)
     {
         if (it->middleMouseButtonDown(mouseRelativePosition[0],mouseRelativePosition[1]))
             return(true); // The active view caught that event!
@@ -723,13 +723,13 @@ void CPageContainer::middleMouseButtonUp(int x,int y)
     mouseRelativePosition[1]=y;
 
 
-    if (App::ct->buttonBlockContainer!=NULL)
+    if (App::ct->buttonBlockContainer!=nullptr)
     {
         // ROUTINE DOES NOT YET EXIST!
     }
 
     CSPage* it=getPage(_activePageIndex);
-    if (it!=NULL)
+    if (it!=nullptr)
     {
         if (it->getCaughtElements()&sim_middle_button)
             it->middleMouseButtonUp(mouseRelativePosition[0],mouseRelativePosition[1]);
@@ -744,7 +744,7 @@ bool CPageContainer::leftMouseButtonDoubleClick(int x,int y,int selectionStatus)
     mouseRelativePosition[0]=x;
     mouseRelativePosition[1]=y;
     // Soft dialogs:
-    if (App::ct->buttonBlockContainer!=NULL)
+    if (App::ct->buttonBlockContainer!=nullptr)
     {
         if (App::ct->buttonBlockContainer->leftMouseButtonDoubleClick(x,y,_activePageIndex))
         {
@@ -755,7 +755,7 @@ bool CPageContainer::leftMouseButtonDoubleClick(int x,int y,int selectionStatus)
     setFocusObject(FOCUS_ON_PAGE);
     { // If dialog focus could be lost:
         CSPage* it=getPage(_activePageIndex);
-        if (it!=NULL)
+        if (it!=nullptr)
             return(it->leftMouseButtonDoubleClick(x,y,selectionStatus));
     }
     return(false); // Not processed
@@ -766,10 +766,10 @@ int CPageContainer::getCaughtElements() const
     int retVal=0;
     for (int i=0;i<_numberOfPages;i++)
     {
-        if (_allPages[i]!=NULL)
+        if (_allPages[i]!=nullptr)
             retVal|=_allPages[i]->getCaughtElements();
     }
-    if (App::ct->buttonBlockContainer!=NULL)
+    if (App::ct->buttonBlockContainer!=nullptr)
         retVal|=App::ct->buttonBlockContainer->getCaughtElements();
     retVal|=_caughtElements;
     return(retVal);
@@ -779,10 +779,10 @@ void CPageContainer::clearCaughtElements(int keepMask)
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
     for (int i=0;i<_numberOfPages;i++)
     {
-        if (_allPages[i]!=NULL)
+        if (_allPages[i]!=nullptr)
             _allPages[i]->clearCaughtElements(keepMask);
     }
-    if (App::ct->buttonBlockContainer!=NULL)
+    if (App::ct->buttonBlockContainer!=nullptr)
         App::ct->buttonBlockContainer->clearCaughtElements(keepMask);
     _caughtElements&=keepMask;
 }

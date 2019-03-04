@@ -19,7 +19,7 @@ void displayBanner(int objId,int options,const float* bckColor,const C7Vector& t
         }
         ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
 
-        if (bckColor!=NULL)
+        if (bckColor!=nullptr)
         {
             ogl::setMaterialColor(sim_colorcomponent_emission,SIM_MAX(bckColor[0],bckColor[9]),SIM_MAX(bckColor[1],bckColor[10]),SIM_MAX(bckColor[2],bckColor[11]));
             ogl::drawBitmapTextBackgroundIntoScene(tr.X(0),tr.X(1),tr.X(2),label);
@@ -36,7 +36,7 @@ void displayBanner(int objId,int options,const float* bckColor,const C7Vector& t
         if (options&(sim_banner_fullyfacingcamera+sim_banner_facingcamera))
             ogl::drawOutlineText(label,tr,height,&cameraCTM,(options&sim_banner_overlay)!=0,(options&sim_banner_left)!=0,(options&sim_banner_right)!=0,(options&sim_banner_backfaceculling)!=0,color.colors,bckColor,(options&sim_banner_keepsamesize)!=0,windowSize[1],verticalViewSizeOrAngle,perspective,(options&sim_banner_fullyfacingcamera)!=0);
         else
-            ogl::drawOutlineText(label,tr,height,NULL,(options&sim_banner_overlay)!=0,(options&sim_banner_left)!=0,(options&sim_banner_right)!=0,(options&sim_banner_backfaceculling)!=0,color.colors,bckColor,(options&sim_banner_keepsamesize)!=0,windowSize[1],verticalViewSizeOrAngle,perspective,false);
+            ogl::drawOutlineText(label,tr,height,nullptr,(options&sim_banner_overlay)!=0,(options&sim_banner_left)!=0,(options&sim_banner_right)!=0,(options&sim_banner_backfaceculling)!=0,color.colors,bckColor,(options&sim_banner_keepsamesize)!=0,windowSize[1],verticalViewSizeOrAngle,perspective,false);
     }
 
     glLoadName(-1);

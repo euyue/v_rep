@@ -163,7 +163,7 @@ void CPageSelector::render()
                 if (mouseOn!=l+viewSelectionSize[0]*k)
                 {
                     CSPage* p=App::ct->pageContainer->getPage(pIndex);
-                    if (p!=NULL)
+                    if (p!=nullptr)
                     {
                         int psx,psy,ppx,ppy;
                         p->getPageSizeAndPosition(psx,psy,ppx,ppy);

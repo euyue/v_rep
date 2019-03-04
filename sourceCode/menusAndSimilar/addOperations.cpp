@@ -6,7 +6,6 @@
 #include "meshRoutines.h"
 #include "sceneObjectOperations.h"
 #include "pluginContainer.h"
-#include "shapeComponent.h"
 #include "app.h"
 #include "meshManip.h"
 #include "geometric.h"
@@ -35,10 +34,10 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
         { // we are NOT in the UI thread. We execute the command now:
             App::addStatusbarMessage(IDSNS_ADDING_A_PRIMITIVE_SHAPE);
 
-            CShape* newShape=addPrimitive_withDialog(commandID,NULL);
+            CShape* newShape=addPrimitive_withDialog(commandID,nullptr);
             int shapeHandle=-1;
-            if (newShape!=NULL)
-                shapeHandle=newShape->getID();
+            if (newShape!=nullptr)
+                shapeHandle=newShape->getObjectHandle();
             if (shapeHandle!=-1)
             {
                 App::ct->objCont->deselectObjects();
@@ -60,7 +59,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
 #endif
     if (commandID==ADD_COMMANDS_MAKE_GRAPH_CURVE_STATIC_ACCMD)
     { // can be executed via the UI or NON-UI thread!
-        if (subView!=NULL)
+        if (subView!=nullptr)
         {
             if (!VThread::isCurrentThreadTheUiThread())
             { // we are NOT in the UI thread. We execute the command now:
@@ -70,7 +69,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 int val=0;
                 if (!subView->getTimeGraph())
                     val=1;
-                if ((graph!=NULL)&&(subView->getTrackedGraphCurveIndex()!=-1))
+                if ((graph!=nullptr)&&(subView->getTrackedGraphCurveIndex()!=-1))
                 {
                     App::addStatusbarMessage(IDSNS_ADDING_STATIC_DUPLICATE_OF_CURVE);
                     graph->makeCurveStatic(subView->getTrackedGraphCurveIndex(),val);
@@ -92,7 +91,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
     if (commandID==COPY_GRAPH_CURVE_TO_CLIPBOARD_CMD)
     { // can be executed via the UI or NON-UI thread!
 #ifdef SIM_WITH_GUI
-        if (subView!=NULL)
+        if (subView!=nullptr)
         {
             int lo=-1;
             lo=subView->getLinkedObjectID();
@@ -100,7 +99,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             int val=0;
             if (!subView->getTimeGraph())
                 val=1;
-            if ((graph!=NULL)&&(subView->getTrackedGraphCurveIndex()!=-1))
+            if ((graph!=nullptr)&&(subView->getTrackedGraphCurveIndex()!=-1))
             {
                 App::addStatusbarMessage(IDSNS_CURVE_DATA_COPIED_TO_CLIPBOARD);
                 graph->copyCurveToClipboard(subView->getTrackedGraphCurveIndex(),val);
@@ -135,7 +134,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             App::addStatusbarMessage(IDSNS_ADDING_A_JOINT);
-            CJoint* newObject=NULL;
+            CJoint* newObject=nullptr;
             if (commandID==ADD_COMMANDS_ADD_REVOLUTE_JOINT_ACCMD)
                 newObject=new CJoint(sim_joint_revolute_subtype);
             if (commandID==ADD_COMMANDS_ADD_PRISMATIC_JOINT_ACCMD)
@@ -144,7 +143,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 newObject=new CJoint(sim_joint_spherical_subtype);
             App::ct->objCont->addObjectToScene(newObject,false,true);
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-            App::ct->objCont->selectObject(newObject->getID());
+            App::ct->objCont->selectObject(newObject->getObjectHandle());
             App::addStatusbarMessage(IDSNS_DONE);
         }
         else
@@ -161,14 +160,14 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             int lo=-1;
-            if (subView!=NULL)
+            if (subView!=nullptr)
                 lo=subView->getLinkedObjectID();
             CCamera* camera=App::ct->objCont->getCamera(lo);
             CGraph* graph=App::ct->objCont->getGraph(lo);
-            if (graph!=NULL)
+            if (graph!=nullptr)
                 return(true);
-            CCamera* myNewCamera=NULL;
-            CLight* myNewLight=NULL;
+            CCamera* myNewCamera=nullptr;
+            CLight* myNewLight=nullptr;
             if (commandID==ADD_COMMANDS_ADD_CAMERA_ACCMD)
             {
                 App::addStatusbarMessage(IDSNS_ADDING_A_CAMERA);
@@ -191,15 +190,15 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 App::addStatusbarMessage(IDSNS_DONE);
             }
             C3DObject* addedObject=myNewCamera;
-            if (addedObject==NULL)
+            if (addedObject==nullptr)
                 addedObject=myNewLight;
             addedObject->setLocalTransformation(C3Vector(0.0f,0.0f,1.0f));
             addedObject->setLocalTransformation(C4Vector(piValue_f*0.5f,0.0f,0.0f));
-            if (camera!=NULL)
+            if (camera!=nullptr)
             {
-                if (myNewCamera!=NULL)
+                if (myNewCamera!=nullptr)
                 {
-                    App::ct->objCont->selectObject(myNewCamera->getID());
+                    App::ct->objCont->selectObject(myNewCamera->getObjectHandle());
                     C7Vector m(camera->getCumulativeTransformation());
                     myNewCamera->setLocalTransformation(m);
                     myNewCamera->scaleObject(camera->getCameraSize()/myNewCamera->getCameraSize());
@@ -213,18 +212,18 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                     myNewCamera->setLocalTransformation(m.X);
                 }
             }
-            else if (subView!=NULL)
+            else if (subView!=nullptr)
             {   // When we want to add a camera to an empty window
-                if (myNewCamera!=NULL)
+                if (myNewCamera!=nullptr)
                 {
                     C7Vector m;
                     m.X=C3Vector(-1.12f,1.9f,1.08f);
                     m.Q.setEulerAngles(C3Vector(110.933f*degToRad_f,28.703f*degToRad_f,-10.41f*degToRad_f));
                     myNewCamera->setLocalTransformation(m);
-                    subView->setLinkedObjectID(myNewCamera->getID(),false);
+                    subView->setLinkedObjectID(myNewCamera->getObjectHandle(),false);
                 }
             }
-            App::ct->objCont->selectObject(addedObject->getID());
+            App::ct->objCont->selectObject(addedObject->getObjectHandle());
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
         }
         else
@@ -243,9 +242,9 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             App::addStatusbarMessage(IDSNS_ADDING_A_MIRROR);
             CMirror* newObject=new CMirror();
             App::ct->objCont->addObjectToScene(newObject,false,true);
-            App::ct->objCont->setAbsoluteAngles(newObject->getID(),C3Vector(piValD2_f,0.0f,0.0f));
-            App::ct->objCont->setAbsolutePosition(newObject->getID(),newObject->getMirrorHeight()*0.5f,2);
-            App::ct->objCont->selectObject(newObject->getID());
+            App::ct->objCont->setAbsoluteAngles(newObject->getObjectHandle(),C3Vector(piValD2_f,0.0f,0.0f));
+            App::ct->objCont->setAbsolutePosition(newObject->getObjectHandle(),newObject->getMirrorHeight()*0.5f,2);
+            App::ct->objCont->selectObject(newObject->getObjectHandle());
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
             App::addStatusbarMessage(IDSNS_DONE);
         }
@@ -264,7 +263,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             App::addStatusbarMessage(IDSNS_ADDING_A_DUMMY);
             CDummy* newObject=new CDummy();
             App::ct->objCont->addObjectToScene(newObject,false,true);
-            App::ct->objCont->selectObject(newObject->getID());
+            App::ct->objCont->selectObject(newObject->getObjectHandle());
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
             App::addStatusbarMessage(IDSNS_DONE);
         }
@@ -283,7 +282,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             App::addStatusbarMessage(IDSNS_ADDING_AN_OCTREE);
             COctree* newObject=new COctree();
             App::ct->objCont->addObjectToScene(newObject,false,true);
-            App::ct->objCont->selectObject(newObject->getID());
+            App::ct->objCont->selectObject(newObject->getObjectHandle());
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
             App::addStatusbarMessage(IDSNS_DONE);
         }
@@ -312,10 +311,10 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 v.push_back(y);
                 v.push_back(z);
             }
-            newObject->insertPoints(&v[0],v.size()/3,true,NULL);
+            newObject->insertPoints(&v[0],v.size()/3,true,nullptr);
             //*/
             App::ct->objCont->addObjectToScene(newObject,false,true);
-            App::ct->objCont->selectObject(newObject->getID());
+            App::ct->objCont->selectObject(newObject->getObjectHandle());
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
             App::addStatusbarMessage(IDSNS_DONE);
         }
@@ -344,7 +343,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             it->setTransformation(trtmp,newObject->pathContainer->getAttributes());
             newObject->pathContainer->addSimplePathPoint(it);
             App::ct->objCont->addObjectToScene(newObject,false,true);
-            App::ct->objCont->selectObject(newObject->getID());
+            App::ct->objCont->selectObject(newObject->getObjectHandle());
             int atr=newObject->pathContainer->getAttributes();
             if (atr&sim_pathproperty_endpoints_at_zero_deprecated)
                 atr-=sim_pathproperty_endpoints_at_zero_deprecated;
@@ -368,7 +367,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             {
                 int scriptID=App::ct->luaScriptContainer->insertDefaultScript_mainAndChildScriptsOnly(sim_scripttype_childscript,commandID==ADD_COMMANDS_ADD_AND_ASSOCIATE_THREADED_CHILD_SCRIPT_ACCMD);
                 CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(scriptID);
-                if (script!=NULL)
+                if (script!=nullptr)
                     script->setObjectIDThatScriptIsAttachedTo_child(App::ct->objCont->getSelID(0));
                 POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
                 App::setFullDialogRefreshFlag();
@@ -390,7 +389,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             if (App::ct->objCont->getSelSize()==1)
             {
                 C3DObject* it=App::ct->objCont->getLastSelection_object();
-                if (it!=NULL)
+                if (it!=nullptr)
                 {
                     if (!it->getEnableCustomizationScript())
                     { // we don't yet have a customization script
@@ -445,7 +444,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
         { // we are NOT in the UI thread. We execute the command now:
             App::addStatusbarMessage(IDSNS_ADDING_A_PATH);
             CPath* newObject=new CPath();
-            CSimplePathPoint* it=NULL;
+            CSimplePathPoint* it=nullptr;
             float a=0.0f;
             float da=piValTimes2_f/16.0f;
             float r=0.25f/cos(360.0*degToRad/32.0);
@@ -463,7 +462,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             newObject->pathContainer->setAttributes(newObject->pathContainer->getAttributes()|sim_pathproperty_closed_path);
             App::ct->objCont->addObjectToScene(newObject,false,true);
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-            App::ct->objCont->selectObject(newObject->getID());
+            App::ct->objCont->selectObject(newObject->getObjectHandle());
             App::addStatusbarMessage(IDSNS_DONE);
         }
         else
@@ -485,11 +484,11 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             // Following 3 on 24/3/2017
             CLuaScriptObject* scriptObj=new CLuaScriptObject(sim_scripttype_customizationscript);
             App::ct->luaScriptContainer->insertScript(scriptObj);
-            scriptObj->setObjectIDThatScriptIsAttachedTo_customization(newObject->getID());
+            scriptObj->setObjectIDThatScriptIsAttachedTo_customization(newObject->getObjectHandle());
             scriptObj->setScriptText("require('graph_customization')");
 
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-            App::ct->objCont->selectObject(newObject->getID());
+            App::ct->objCont->selectObject(newObject->getObjectHandle());
             App::addStatusbarMessage(IDSNS_DONE);
         }
         else
@@ -510,7 +509,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             newObject->setLocalTransformation(C3Vector(0.0f,0.0f,newObject->getSize()(2)));
             newObject->setPerspectiveOperation(false);
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-            App::ct->objCont->selectObject(newObject->getID());
+            App::ct->objCont->selectObject(newObject->getObjectHandle());
             App::addStatusbarMessage(IDSNS_DONE);
         }
         else
@@ -531,7 +530,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             newObject->setLocalTransformation(C3Vector(0.0f,0.0f,newObject->getSize()(2)));
             newObject->setPerspectiveOperation(true);
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-            App::ct->objCont->selectObject(newObject->getID());
+            App::ct->objCont->selectObject(newObject->getObjectHandle());
             App::addStatusbarMessage(IDSNS_DONE);
         }
         else
@@ -550,7 +549,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             CForceSensor* newObject=new CForceSensor();
             App::ct->objCont->addObjectToScene(newObject,false,true);
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-            App::ct->objCont->selectObject(newObject->getID());
+            App::ct->objCont->selectObject(newObject->getObjectHandle());
             App::addStatusbarMessage(IDSNS_DONE);
         }
         else
@@ -584,7 +583,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 newObject->setRandomizedDetection(true);
             App::ct->objCont->addObjectToScene(newObject,false,true);
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-            App::ct->objCont->selectObject(newObject->getID());
+            App::ct->objCont->selectObject(newObject->getObjectHandle());
             App::addStatusbarMessage(IDSNS_DONE);
         }
         else
@@ -612,7 +611,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             newObject->setMillType(type);
             App::ct->objCont->addObjectToScene(newObject,false,true);
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-            App::ct->objCont->selectObject(newObject->getID());
+            App::ct->objCont->selectObject(newObject->getObjectHandle());
             App::addStatusbarMessage(IDSNS_DONE);
         }
         else
@@ -669,7 +668,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 for (int obji=0;obji<int(sel.size());obji++)
                 {
                     CShape* oldShape=App::ct->objCont->getShape(sel[obji]);
-                    if (oldShape!=NULL)
+                    if (oldShape!=nullptr)
                     {
                         int newShapeHandle=CSceneObjectOperations::generateConvexDecomposed(sel[obji],nClusters,maxConcavity,addExtraDistPoints,addFacesPoints,
                                                                                     maxConnectDist,maxTrianglesInDecimatedMesh,maxHullVertices,
@@ -692,14 +691,14 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                             std::string baseN("generated_part");
                             std::string n(baseN);
                             int suff=0;
-                            while (App::ct->objCont->getObject(n)!=NULL)
+                            while (App::ct->objCont->getObjectFromName(n.c_str())!=nullptr)
                                 n=baseN+boost::lexical_cast<std::string>(suff++);
-                            newShape->setName(n);
+                            newShape->setObjectName_objectNotYetInScene(n);
                             n=tt::getObjectAltNameFromObjectName(baseN);
                             suff=0;
-                            while (App::ct->objCont->getObjectFromAltName(n)!=NULL)
+                            while (App::ct->objCont->getObjectFromAltName(n.c_str())!=nullptr)
                                 n=baseN+boost::lexical_cast<std::string>(suff++);
-                            newShape->setAltName(n);
+                            newShape->setObjectAltName_objectNotYetInScene(n);
 
                             newSelection.push_back(newShapeHandle);
 
@@ -751,15 +750,15 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             std::vector<int> rootSel;
             for (int i=0;i<int(tmp.size());i++)
             {
-                C3DObject* it=App::ct->objCont->getObject(tmp[i]);
-                if ( (it!=NULL)&&(!it->isObjectPartOfInvisibleModel())&&(App::ct->mainSettings->getActiveLayers()&it->layer) )
+                C3DObject* it=App::ct->objCont->getObjectFromHandle(tmp[i]);
+                if ( (it!=nullptr)&&(!it->isObjectPartOfInvisibleModel())&&(App::ct->mainSettings->getActiveLayers()&it->layer) )
                     rootSel.push_back(tmp[i]);
             }
 
 
             std::vector<float> allHullVertices;
             allHullVertices.reserve(40000*3);
-            std::vector<bool> selectedDummies(App::ct->objCont->getHighestObjectID()+1,false);
+            std::vector<bool> selectedDummies(App::ct->objCont->getHighestObjectHandle()+1,false);
 
             App::uiThread->showOrHideProgressBar(true,-1,"Computing convex hull...");
             App::addStatusbarMessage(IDSNS_ADDING_CONVEX_HULL);
@@ -769,13 +768,13 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             for (int i=0;i<int(rootSel.size());i++)
             {
                 CShape* it=App::ct->objCont->getShape(rootSel[i]);
-                if (it!=NULL)
+                if (it!=nullptr)
                 {
                     C7Vector transf(it->getCumulativeTransformation());
                     std::vector<float> vert;
                     std::vector<float> vertD;
                     std::vector<int> ind;
-                    it->geomData->geomInfo->getCumulativeMeshes(vertD,&ind,NULL);
+                    it->geomData->geomInfo->getCumulativeMeshes(vertD,&ind,nullptr);
                     originalShapes.push_back(it);
                     for (int j=0;j<int(vertD.size())/3;j++)
                     {
@@ -788,16 +787,16 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 }
                 // here we take care of dummies
                 CDummy* dum=App::ct->objCont->getDummy(rootSel[i]);
-                if (dum!=NULL)
+                if (dum!=nullptr)
                 {
-                    if (!selectedDummies[dum->getID()])
+                    if (!selectedDummies[dum->getObjectHandle()])
                     {
                         dummyCount++;
                         C3Vector v(dum->getCumulativeTransformation().X);
                         allHullVertices.push_back(v(0));
                         allHullVertices.push_back(v(1));
                         allHullVertices.push_back(v(2));
-                        selectedDummies[dum->getID()]=true;
+                        selectedDummies[dum->getObjectHandle()]=true;
                     }
                 }
             }
@@ -809,7 +808,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 std::vector<float> normals;
                 if (CMeshRoutines::getConvexHull(&allHullVertices,&hull,&indices))
                 {
-                    CGeomProxy* geom=new CGeomProxy(NULL,hull,indices,NULL,NULL);
+                    CGeomProxy* geom=new CGeomProxy(nullptr,hull,indices,nullptr,nullptr);
                     CShape* it=new CShape();
                     it->setLocalTransformation(geom->getCreationTransformation());
                     geom->setCreationTransformation(C7Vector::identityTransformation);
@@ -848,7 +847,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                     else
                         geom->geomInfo->setLocalInertiaFrame(C7Vector::identityTransformation);
                     App::ct->objCont->addObjectToScene(it,false,true);
-                    App::ct->objCont->addObjectToSelection(it->getID());
+                    App::ct->objCont->addObjectToSelection(it->getObjectHandle());
                 }
                 else
                     printQHullFail=true;
@@ -891,7 +890,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             for (int i=0;i<int(tmp.size());i++)
             {
                 CShape* it=App::ct->objCont->getShape(tmp[i]);
-                if ( (it!=NULL)&&(!it->isObjectPartOfInvisibleModel())&&(App::ct->mainSettings->getActiveLayers()&it->layer) )
+                if ( (it!=nullptr)&&(!it->isObjectPartOfInvisibleModel())&&(App::ct->mainSettings->getActiveLayers()&it->layer) )
                     rootSel.push_back(tmp[i]);
             }
             float grow=0.03f;
@@ -909,13 +908,13 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 for (size_t shapeI=0;shapeI<rootSel.size();shapeI++)
                 {
                     CShape* theShape=App::ct->objCont->getShape(rootSel[shapeI]);
-                    if (theShape!=NULL)
+                    if (theShape!=nullptr)
                     {
                         C7Vector transf(theShape->getCumulativeTransformation());
                         std::vector<float> vertD;
                         std::vector<float> vert;
                         std::vector<int> ind;
-                        theShape->geomData->geomInfo->getCumulativeMeshes(vertD,&ind,NULL);
+                        theShape->geomData->geomInfo->getCumulativeMeshes(vertD,&ind,nullptr);
                         for (size_t j=0;j<ind.size()/3;j++)
                         {
                             int indd[3]={ind[3*j+0],ind[3*j+1],ind[3*j+2]};
@@ -949,7 +948,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                         std::vector<int> indices;
                         if (CMeshRoutines::getConvexHull(&vert,&hull,&indices))
                         {
-                            CGeomProxy* geom=new CGeomProxy(NULL,hull,indices,NULL,NULL);
+                            CGeomProxy* geom=new CGeomProxy(nullptr,hull,indices,nullptr,nullptr);
                             CShape* it=new CShape();
                             it->setLocalTransformation(geom->getCreationTransformation());
                             geom->setCreationTransformation(C7Vector::identityTransformation);
@@ -983,8 +982,8 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                             C7Vector relCOM(it->getCumulativeTransformation().getInverse()*absCOM);
                             geom->geomInfo->setLocalInertiaFrame(relCOM);
                             App::ct->objCont->addObjectToScene(it,false,false);
-                            newObjectHandles.push_back(it->getID());
-                            newSelection.push_back(it->getID());
+                            newObjectHandles.push_back(it->getObjectHandle());
+                            newSelection.push_back(it->getObjectHandle());
                             printQHullFail=false;
                         }
                     }
@@ -1026,9 +1025,9 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
 }
 
 CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const int subdiv[3],int faces,int sides,int discSubdiv,bool smooth,int openEnds,bool dynamic,bool pure,bool cone,float density,bool negVolume,float negVolumeScaling)
-{ // subdiv can be NULL
+{ // subdiv can be nullptr
     int sdiv[3]={0,0,0};
-    if (subdiv!=NULL)
+    if (subdiv!=nullptr)
     {
         sdiv[0]=subdiv[0];
         sdiv[1]=subdiv[1];
@@ -1070,7 +1069,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         for (int i=0;i<divX*divY*6;i++)
             tt::addToFloatArray(&normals,0.0f,0.0f,1.0f);
 
-        CGeomProxy* geom=new CGeomProxy(NULL,vertices,indices,NULL,NULL);
+        CGeomProxy* geom=new CGeomProxy(nullptr,vertices,indices,nullptr,nullptr);
         CShape* it=new CShape();
         it->setLocalTransformation(geom->getCreationTransformation());
         ((CGeometric*)geom->geomInfo)->color.setDefaultValues();
@@ -1080,8 +1079,8 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         ((CGeometric*)geom->geomInfo)->setGouraudShadingAngle(20.0f*degToRad_f);
         ((CGeometric*)geom->geomInfo)->setEdgeThresholdAngle(20.0f*degToRad_f);
         it->geomData=geom;
-        it->setName(IDSOGL_PLANE);
-        it->setAltName(tt::getObjectAltNameFromObjectName(it->getName()));
+        it->setObjectName_objectNotYetInScene(IDSOGL_PLANE);
+        it->setObjectAltName_objectNotYetInScene(tt::getObjectAltNameFromObjectName(it->getObjectName()));
         App::ct->objCont->addObjectToScene(it,false,true);
         it->setLocalTransformation(C3Vector(0.0f,0.0f,0.002f)); // we shift the plane so that it is above the floor
         it->alignBoundingBoxWithWorld();
@@ -1127,10 +1126,10 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
             auxVert.reserve(((divX+1)*(2*divY+2*divZ)+2*(divY-1)*(divZ-1))*3);
             auxInd.reserve(divX*divY*12+divX*divZ*12+divY*divZ*12);
             CMeshRoutines::createCube(auxVert,auxInd,C3Vector(xhSize*2.0f*sca,yhSize*2.0f*sca,zhSize*2.0f*sca),theDiv);
-            CMeshManip::mergeWith(&vertices,&indices,NULL,&auxVert,&auxInd,NULL);
+            CMeshManip::mergeWith(&vertices,&indices,nullptr,&auxVert,&auxInd,nullptr);
         }
 
-        CGeomProxy* geom=new CGeomProxy(NULL,vertices,indices,NULL,NULL);
+        CGeomProxy* geom=new CGeomProxy(nullptr,vertices,indices,nullptr,nullptr);
         CShape* it=new CShape();
         it->setLocalTransformation(geom->getCreationTransformation());
         ((CGeometric*)geom->geomInfo)->color.setDefaultValues();
@@ -1140,8 +1139,8 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         ((CGeometric*)geom->geomInfo)->setGouraudShadingAngle(20.0f*degToRad_f);
         ((CGeometric*)geom->geomInfo)->setEdgeThresholdAngle(20.0f*degToRad_f);
         it->geomData=geom;
-        it->setName(IDSOGL_RECTANGLE);
-        it->setAltName(tt::getObjectAltNameFromObjectName(it->getName()));
+        it->setObjectName_objectNotYetInScene(IDSOGL_RECTANGLE);
+        it->setObjectAltName_objectNotYetInScene(tt::getObjectAltNameFromObjectName(it->getObjectName()));
         App::ct->objCont->addObjectToScene(it,false,true);
         it->setLocalTransformation(C3Vector(0.0f,0.0f,zhSize)); // we shift the rectangle so that it sits on the floor
         it->alignBoundingBoxWithWorld();
@@ -1196,10 +1195,10 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
             auxVert.reserve(((faces-1)*sides+2)*3);
             auxInd.reserve((sides*2+2*(faces-2)*sides)*3);
             CMeshRoutines::createSphere(auxVert,auxInd,C3Vector(xhSize*2.0f*sca,yhSize*2.0f*sca,zhSize*2.0f*sca),sides,faces);
-            CMeshManip::mergeWith(&vertices,&indices,NULL,&auxVert,&auxInd,NULL);
+            CMeshManip::mergeWith(&vertices,&indices,nullptr,&auxVert,&auxInd,nullptr);
         }
 
-        CGeomProxy* geom=new CGeomProxy(NULL,vertices,indices,NULL,NULL);
+        CGeomProxy* geom=new CGeomProxy(nullptr,vertices,indices,nullptr,nullptr);
         CShape* it=new CShape();
         it->setLocalTransformation(geom->getCreationTransformation());
         ((CGeometric*)geom->geomInfo)->color.setDefaultValues();
@@ -1211,8 +1210,8 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
             ((CGeometric*)geom->geomInfo)->setEdgeThresholdAngle(20.0f*degToRad_f);
         }
         it->geomData=geom;
-        it->setName(IDSOGL_SPHERE);
-        it->setAltName(tt::getObjectAltNameFromObjectName(it->getName()));
+        it->setObjectName_objectNotYetInScene(IDSOGL_SPHERE);
+        it->setObjectAltName_objectNotYetInScene(tt::getObjectAltNameFromObjectName(it->getObjectName()));
         App::ct->objCont->addObjectToScene(it,false,true);
         it->setLocalTransformation(C3Vector(0.0f,0.0f,zhSize)); // we shift the sphere so that it sits on the floor
         it->alignBoundingBoxWithWorld();
@@ -1269,16 +1268,16 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
             auxVert.reserve((sides*(1+faces)+2+(discDiv-1)*sides*2)*3);
             auxInd.reserve((sides*2+sides*faces*2+(discDiv-1)*4*sides)*3);
             CMeshRoutines::createCylinder(auxVert,auxInd,C3Vector(xhSize*2.0f*sca,yhSize*2.0f*sca,zhSize*2.0f),sides,faces,discDiv,3,false);
-            CMeshManip::mergeWith(&vertices,&indices,NULL,&auxVert,&auxInd,NULL);
+            CMeshManip::mergeWith(&vertices,&indices,nullptr,&auxVert,&auxInd,nullptr);
             CMeshRoutines::createAnnulus(auxVert,auxInd,xhSize*2.0f,xhSize*2.0f*sca,-zhSize,sides,true);
-            CMeshManip::mergeWith(&vertices,&indices,NULL,&auxVert,&auxInd,NULL);
+            CMeshManip::mergeWith(&vertices,&indices,nullptr,&auxVert,&auxInd,nullptr);
             CMeshRoutines::createAnnulus(auxVert,auxInd,xhSize*2.0f,xhSize*2.0f*sca,+zhSize,sides,false);
-            CMeshManip::mergeWith(&vertices,&indices,NULL,&auxVert,&auxInd,NULL);
+            CMeshManip::mergeWith(&vertices,&indices,nullptr,&auxVert,&auxInd,nullptr);
         }
         else
             CMeshRoutines::createCylinder(vertices,indices,C3Vector(xhSize*2.0f,yhSize*2.0f,zhSize*2.0f),sides,faces,discDiv,openEnds,cone);
 
-        CGeomProxy* geom=new CGeomProxy(NULL,vertices,indices,NULL,NULL);
+        CGeomProxy* geom=new CGeomProxy(nullptr,vertices,indices,nullptr,nullptr);
         CShape* it=new CShape();
         it->setLocalTransformation(geom->getCreationTransformation());
         ((CGeometric*)geom->geomInfo)->color.setDefaultValues();
@@ -1291,8 +1290,8 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
             ((CGeometric*)geom->geomInfo)->setEdgeThresholdAngle(20.0f*degToRad_f);
         }
         it->geomData=geom;
-        it->setName(IDSOGL_CYLINDER);
-        it->setAltName(tt::getObjectAltNameFromObjectName(it->getName()));
+        it->setObjectName_objectNotYetInScene(IDSOGL_CYLINDER);
+        it->setObjectAltName_objectNotYetInScene(tt::getObjectAltNameFromObjectName(it->getObjectName()));
         App::ct->objCont->addObjectToScene(it,false,true);
         it->alignBoundingBoxWithWorld();
         it->setLocalTransformation(C3Vector(0.0f,0.0f,zhSize)); // Now we shift the cylinder so it sits on the floor
@@ -1405,7 +1404,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
             vertices[3*i+1]=p(1);
         }
 
-        CGeomProxy* geom=new CGeomProxy(NULL,vertices,indices,NULL,NULL);
+        CGeomProxy* geom=new CGeomProxy(nullptr,vertices,indices,nullptr,nullptr);
         CShape* it=new CShape();
         it->setLocalTransformation(geom->getCreationTransformation());
         ((CGeometric*)geom->geomInfo)->color.setDefaultValues();
@@ -1415,8 +1414,8 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         ((CGeometric*)geom->geomInfo)->setGouraudShadingAngle(20.0f*degToRad_f);
         ((CGeometric*)geom->geomInfo)->setEdgeThresholdAngle(20.0f*degToRad_f);
         it->geomData=geom;
-        it->setName(IDSOGL_DISC);
-        it->setAltName(tt::getObjectAltNameFromObjectName(it->getName()));
+        it->setObjectName_objectNotYetInScene(IDSOGL_DISC);
+        it->setObjectAltName_objectNotYetInScene(tt::getObjectAltNameFromObjectName(it->getObjectName()));
         App::ct->objCont->addObjectToScene(it,false,true);
         it->setLocalTransformation(C3Vector(0.0f,0.0f,0.002f)); // Now we shift the disc so it sits just above the floor
         it->alignBoundingBoxWithWorld();
@@ -1442,7 +1441,7 @@ CShape* CAddOperations::addPrimitiveShape(int type,const C3Vector& sizes,const i
         return(it);
     }
 
-    return(NULL);
+    return(nullptr);
 }
 
 #ifdef SIM_WITH_GUI
@@ -1453,8 +1452,8 @@ void CAddOperations::addMenu(VMenu* menu,CSView* subView,bool onlyCamera)
     bool canAddCustomizationScript=false;
     if (App::ct->objCont->getSelSize()==1)
     {
-        canAddChildScript=(App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(App::ct->objCont->getSelID(0))==NULL)&&App::ct->simulation->isSimulationStopped();
-        canAddCustomizationScript=(App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(App::ct->objCont->getSelID(0))==NULL)&&App::ct->simulation->isSimulationStopped();
+        canAddChildScript=(App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(App::ct->objCont->getSelID(0))==nullptr)&&App::ct->simulation->isSimulationStopped();
+        canAddCustomizationScript=(App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(App::ct->objCont->getSelID(0))==nullptr)&&App::ct->simulation->isSimulationStopped();
     }
 
     std::vector<int> rootSel;
@@ -1465,20 +1464,20 @@ void CAddOperations::addMenu(VMenu* menu,CSView* subView,bool onlyCamera)
     int shapesAndDummiesInRootSel=App::ct->objCont->getShapeNumberInSelection(&rootSel)+App::ct->objCont->getDummyNumberInSelection(&rootSel);
 
     bool linkedObjIsInexistentOrNotGraphNorRenderingSens=true;
-    if (subView!=NULL)
-        linkedObjIsInexistentOrNotGraphNorRenderingSens=((App::ct->objCont->getGraph(subView->getLinkedObjectID())==NULL)&&(App::ct->objCont->getVisionSensor(subView->getLinkedObjectID())==NULL));
+    if (subView!=nullptr)
+        linkedObjIsInexistentOrNotGraphNorRenderingSens=((App::ct->objCont->getGraph(subView->getLinkedObjectID())==nullptr)&&(App::ct->objCont->getVisionSensor(subView->getLinkedObjectID())==nullptr));
     bool itemsPresent=false;
-    if (subView!=NULL)
+    if (subView!=nullptr)
     {
         menu->appendMenuItem(true,false,ADD_COMMANDS_ADD_FLOATING_VIEW_ACCMD,IDS_FLOATING_VIEW_MENU_ITEM);
         itemsPresent=true;
         if (onlyCamera)
             menu->appendMenuItem(linkedObjIsInexistentOrNotGraphNorRenderingSens,false,ADD_COMMANDS_ADD_CAMERA_ACCMD,IDS_CAMERA_MENU_ITEM);
     }
-    C3DObject* associatedViewable=NULL;
-    if (subView!=NULL)
-        associatedViewable=App::ct->objCont->getObject(subView->getLinkedObjectID());
-    if ( (subView==NULL)||((associatedViewable!=NULL)&&(associatedViewable->getObjectType()==sim_object_camera_type) ) )
+    C3DObject* associatedViewable=nullptr;
+    if (subView!=nullptr)
+        associatedViewable=App::ct->objCont->getObjectFromHandle(subView->getLinkedObjectID());
+    if ( (subView==nullptr)||((associatedViewable!=nullptr)&&(associatedViewable->getObjectType()==sim_object_camera_type) ) )
     {
         if (!onlyCamera)
         {
@@ -1584,7 +1583,7 @@ void CAddOperations::addMenu(VMenu* menu,CSView* subView,bool onlyCamera)
         }
     }
 
-    if ((associatedViewable!=NULL)&&(associatedViewable->getObjectType()==sim_object_graph_type)&&(subView!=NULL))
+    if ((associatedViewable!=nullptr)&&(associatedViewable->getObjectType()==sim_object_graph_type)&&(subView!=nullptr))
     {
         menu->appendMenuSeparator();
         bool itemEnabled=(subView->getTrackedGraphCurveIndex()!=-1);
@@ -1594,8 +1593,8 @@ void CAddOperations::addMenu(VMenu* menu,CSView* subView,bool onlyCamera)
 }
 
 CShape* CAddOperations::addPrimitive_withDialog(int command,const C3Vector* optSizes)
-{ // if optSizes is not NULL, then sizes are locked in the dialog
-    CShape* retVal=NULL;
+{ // if optSizes is not nullptr, then sizes are locked in the dialog
+    CShape* retVal=nullptr;
     int pType=-1;
     if (command==ADD_COMMANDS_ADD_PRIMITIVE_PLANE_ACCMD)
         pType=0;

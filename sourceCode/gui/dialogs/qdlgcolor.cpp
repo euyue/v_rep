@@ -86,7 +86,7 @@ void CQDlgColor::initializationEvent()
 
 void CQDlgColor::displayDlg(int objType,int objID1,int objID2,int colComponent,QWidget* theParentWindow,bool doNotCloseMaterialDlg,bool doNotCloseLightMaterialDlg,bool appendColorComponentInName)
 {
-    if (App::mainWindow==NULL)
+    if (App::mainWindow==nullptr)
         return;
     if (!doNotCloseMaterialDlg)
         App::mainWindow->dlgCont->close(MATERIAL_DLG);
@@ -96,14 +96,14 @@ void CQDlgColor::displayDlg(int objType,int objID1,int objID2,int colComponent,Q
     if (App::mainWindow->dlgCont->openOrBringToFront(COLOR_DLG))
     {
         CQDlgColor* it=(CQDlgColor*)App::mainWindow->dlgCont->getDialog(COLOR_DLG);
-        if (it!=NULL)
+        if (it!=nullptr)
             it->initializeDlg(objType,objID1,objID2,colComponent,appendColorComponentInName);
     }
 }
 
 void CQDlgColor::displayDlgModal(int objType,int objID1,int objID2,int colComponent,QWidget* theParentWindow,bool doNotCloseMaterialDlg,bool doNotCloseLightMaterialDlg,bool appendColorComponentInName)
 {
-    if (App::mainWindow==NULL)
+    if (App::mainWindow==nullptr)
         return;
     if (!doNotCloseMaterialDlg)
         App::mainWindow->dlgCont->close(MATERIAL_DLG);
@@ -161,7 +161,7 @@ bool CQDlgColor::isLinkedDataValid()
     }
     if (!App::ct->simulation->isSimulationStopped())
         return(false);
-    return(App::getRGBPointerFromItem(_objType,_objID1,_objID2,_colComponent,NULL)!=NULL);
+    return(App::getRGBPointerFromItem(_objType,_objID1,_objID2,_colComponent,nullptr)!=nullptr);
 }
 
 void CQDlgColor::computeRGBValues()
@@ -186,8 +186,8 @@ void CQDlgColor::computeHSLValues()
 
 void CQDlgColor::_getRGBFromItem()
 {
-    const float* col=App::getRGBPointerFromItem(_objType,_objID1,_objID2,_colComponent,NULL);
-    if (col!=NULL)
+    const float* col=App::getRGBPointerFromItem(_objType,_objID1,_objID2,_colComponent,nullptr);
+    if (col!=nullptr)
     {
         redState=col[0];
         greenState=col[1];
@@ -197,8 +197,8 @@ void CQDlgColor::_getRGBFromItem()
 
 void CQDlgColor::_setRGBToItem()
 {
-    float* col=App::getRGBPointerFromItem(_objType,_objID1,_objID2,_colComponent,NULL);
-    if (col!=NULL)
+    float* col=App::getRGBPointerFromItem(_objType,_objID1,_objID2,_colComponent,nullptr);
+    if (col!=nullptr)
     {
         col[0]=redState;
         col[1]=greenState;

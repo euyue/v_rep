@@ -520,13 +520,13 @@ void CConvexVolume::scaleVolumeNonIsometrically(float x,float y,float z,float& x
 }
 
 void CConvexVolume::addAPlane(std::vector<float>* volume,std::vector<float>* normals,float nL,const C4X4Matrix& m,bool inside)
-{   // normals can be NULL.
+{   // normals can be nullptr.
     // Always z-axis:
     volume->push_back(m.M.axis[2](0));
     volume->push_back(m.M.axis[2](1));
     volume->push_back(m.M.axis[2](2));
     volume->push_back(-(m.M.axis[2]*m.X));
-    if (normals!=NULL)
+    if (normals!=nullptr)
     {
         C6Vector v(m.X,m.X+(m.M.axis[2]*nL));
         for (int i=0;i<6;i++)
@@ -1221,8 +1221,8 @@ void CConvexVolume::computeVolumes()
     normalsInside.clear();
     normalsOutside.clear();
     
-    std::vector<float>* nInside=NULL;
-    std::vector<float>* nOutside=NULL;
+    std::vector<float>* nInside=nullptr;
+    std::vector<float>* nOutside=nullptr;
 
     nonDetectingVolumeEdges.clear();
     volumeEdges.clear();

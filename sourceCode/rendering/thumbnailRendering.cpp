@@ -17,7 +17,7 @@ void displayThumbnail(CThumbnail* thumbnail,int posX,int posY,const char* name,i
     glEnd();
     ogl::enableLighting_useWithCare();
     const char* _thumbnailRGBAImage=thumbnail->getPointerToUncompressedImage();
-    if (_thumbnailRGBAImage==NULL)
+    if (_thumbnailRGBAImage==nullptr)
     {
         ogl::setTextColor(0.5f,0.0f,0.0f);
         int textWidth=ogl::getTextLengthInPixels("Thumbnail");

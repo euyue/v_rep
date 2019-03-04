@@ -8,7 +8,7 @@ C7Vector CAlgos::alignAndCenterGeometryAndGetTransformation(float* vert,int vert
     tr.setIdentity();
     if (alignWithGeomMainAxis)
     {
-        tr=getMainAxis(vert,vertLength,ind,indLength,NULL,0,true,true);
+        tr=getMainAxis(vert,vertLength,ind,indLength,nullptr,0,true,true);
         C7Vector transfInverse(tr.getInverse());
 
         for (int i=0;i<vertLength/3;i++)
@@ -19,7 +19,7 @@ C7Vector CAlgos::alignAndCenterGeometryAndGetTransformation(float* vert,int vert
             vert[3*i+1]=tmp(1);
             vert[3*i+2]=tmp(2);
         }
-        if (norm!=NULL)
+        if (norm!=nullptr)
         {
             for (int i=0;i<normLength/3;i++)
             {
@@ -64,7 +64,7 @@ C7Vector CAlgos::alignAndCenterGeometryAndGetTransformation(float* vert,int vert
 }
 
 C4X4Matrix CAlgos::getMainAxis(const std::vector<float>* vertices,const std::vector<int>* triangles,const std::vector<int>* trianglesIndices,bool useAllVerticesForce,bool veryPreciseWithTriangles)
-{   // Triangles can be NULL, in that case all vertices are used. trianglesIndices can be NULL, in that case triangles are used!
+{   // Triangles can be nullptr, in that case all vertices are used. trianglesIndices can be nullptr, in that case triangles are used!
     // if useAllVerticesForce is true, then all vertices are used anyway (forced)
     // if veryPreciseWithTriangles is true, then a more precise orientation is calculated using "triangles" (i.e. largest triangle could be one face of the bounding box)
     if (vertices->size()==0)
@@ -73,7 +73,7 @@ C4X4Matrix CAlgos::getMainAxis(const std::vector<float>* vertices,const std::vec
         m.setIdentity();
         return(m);
     }
-    if (triangles!=NULL)
+    if (triangles!=nullptr)
     {
         if (triangles->size()==0)
         {
@@ -81,7 +81,7 @@ C4X4Matrix CAlgos::getMainAxis(const std::vector<float>* vertices,const std::vec
             m.setIdentity();
             return(m);
         }
-        if (trianglesIndices!=NULL)
+        if (trianglesIndices!=nullptr)
         {
             if (trianglesIndices->size()==0)
             {
@@ -93,15 +93,15 @@ C4X4Matrix CAlgos::getMainAxis(const std::vector<float>* vertices,const std::vec
         }
         else
         {
-            return(getMainAxis(&(*vertices)[0],(int)vertices->size(),&(*triangles)[0],(int)triangles->size(),NULL,0,useAllVerticesForce,veryPreciseWithTriangles));
+            return(getMainAxis(&(*vertices)[0],(int)vertices->size(),&(*triangles)[0],(int)triangles->size(),nullptr,0,useAllVerticesForce,veryPreciseWithTriangles));
         }
     }
     else
-        return(getMainAxis(&(*vertices)[0],(int)vertices->size(),NULL,0,NULL,0,useAllVerticesForce,veryPreciseWithTriangles)); // all vertices are used
+        return(getMainAxis(&(*vertices)[0],(int)vertices->size(),nullptr,0,nullptr,0,useAllVerticesForce,veryPreciseWithTriangles)); // all vertices are used
 }
 
 C4X4Matrix CAlgos::getMainAxis(const float* vertices,int verticesLength,const int* indices,int indicesLength,const int* triIndices,int triIndicesLength,bool useAllVerticesForce,bool veryPreciseWithTriangles)
-{   // Only referenced vertices are taken into account (or all if indices is NULL)
+{   // Only referenced vertices are taken into account (or all if indices is nullptr)
     // if indices are null, then all vertices are used
     // if indices are not null and triIndices are null, then vertices referenced by indices are used
     // if triIndices are not null, then only referenced triangles are used
@@ -222,7 +222,7 @@ C4X4Matrix CAlgos::getMainAxis(const float* vertices,int verticesLength,const in
 
     // Prepare only vertices that are referenced:
     std::vector<C3Vector> vert;
-    if ((indices==NULL)||useAllVerticesForce)
+    if ((indices==nullptr)||useAllVerticesForce)
     { // we use all vertices!
         for (int i=0;i<verticesLength/3;i++)
             vert.push_back(C3Vector(vertices+3*i+0));
@@ -230,7 +230,7 @@ C4X4Matrix CAlgos::getMainAxis(const float* vertices,int verticesLength,const in
     else
     {
         std::vector<unsigned char> addedVertices(verticesLength/3,0);
-        if (triIndices==NULL)
+        if (triIndices==nullptr)
         {
             for (int i=0;i<indicesLength;i++)
                     addedVertices[indices[i]]=1;
@@ -716,11 +716,11 @@ C4X4Matrix CAlgos::getMainAxis(const float* vertices,int verticesLength,const in
     C3Vector alternateCenter;
     float alternateSize=SIM_MAX_FLOAT;
     C4Vector bestSmallestDirectionAlternative;
-    if (veryPreciseWithTriangles&(indices!=NULL))
+    if (veryPreciseWithTriangles&(indices!=nullptr))
     {
         C3X3Matrix alternativeFrame(bestSmallestDirection);
         std::vector<int> tris;
-        if (triIndices!=NULL)
+        if (triIndices!=nullptr)
         {
             tris.reserve(triIndicesLength);
             for (int i=0;i<int(triIndicesLength);i++)

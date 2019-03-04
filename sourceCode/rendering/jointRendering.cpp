@@ -20,9 +20,9 @@ void displayJoint(CJoint* joint,CViewableBase* renderingObject,int displayAttrib
         _displayBoundingBox(joint,displayAttrib,true,sizeParam);
 
     // Object display:
-    if (joint->getShouldObjectBeDisplayed(renderingObject->getID(),displayAttrib))
+    if (joint->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
     {
-        _enableAuxClippingPlanes(joint->getID());
+        _enableAuxClippingPlanes(joint->getObjectHandle());
         if (displayAttrib&sim_displayattribute_dynamiccontentonly)
         {
             if (joint->getDynamicObjectFlag_forVisualization_forDisplay(guiIsRendering)==4)
@@ -54,9 +54,9 @@ void _displayJoint(CJoint* joint,int displayAttrib,bool partOne,float sizeParam)
     if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE)==0)
     {
         if (joint->getLocalObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
-            glLoadName(joint->getModelSelectionID());
+            glLoadName(joint->getModelSelectionHandle());
         else
-            glLoadName(joint->getID());
+            glLoadName(joint->getObjectHandle());
     }
     else
         glLoadName(-1);
@@ -122,7 +122,7 @@ void _displayJoint(CJoint* joint,int displayAttrib,bool partOne,float sizeParam)
     if (joint->getJointType()==sim_joint_prismatic_subtype)
     {
         if (partOne)
-            ogl::drawBox(joint->getDiameter(),joint->getDiameter(),joint->getLength(),true,NULL);
+            ogl::drawBox(joint->getDiameter(),joint->getDiameter(),joint->getLength(),true,nullptr);
         else
         {
             if (joint->getDynamicSecondPartIsValid()&&(!App::ct->simulation->isSimulationStopped()))
@@ -135,7 +135,7 @@ void _displayJoint(CJoint* joint,int displayAttrib,bool partOne,float sizeParam)
             else
                 glTranslatef(0.0f,0.0f,joint->getPosition());
 
-            ogl::drawBox(joint->getDiameter()/2.0f,joint->getDiameter()/2.0f,joint->getLength()*1.2f,true,NULL);
+            ogl::drawBox(joint->getDiameter()/2.0f,joint->getDiameter()/2.0f,joint->getLength()*1.2f,true,nullptr);
             if (displayAttrib&sim_displayattribute_selected)
                 _drawReference(joint,sizeParam);
         }

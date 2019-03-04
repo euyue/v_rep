@@ -8,7 +8,7 @@ CIKGraphObject::CIKGraphObject(const C7Vector& cumulTransf,const C7Vector& targe
 {
     type=IK_GRAPH_OBJECT_TYPE;
     objectType=IK_GRAPH_TIP_OBJECT_TYPE;
-    linkPartner=NULL;
+    linkPartner=nullptr;
     jointTop=false;
     jointDown=false;
     cumulativeTransformation=cumulTransf;
@@ -19,7 +19,7 @@ CIKGraphObject::CIKGraphObject(const C7Vector& cumulTransf)
 {
     type=IK_GRAPH_OBJECT_TYPE;
     objectType=IK_GRAPH_PASSIVE_OBJECT_TYPE;
-    linkPartner=NULL;
+    linkPartner=nullptr;
     jointTop=false;
     jointDown=false;
     cumulativeTransformation=cumulTransf;
@@ -41,7 +41,7 @@ CIKGraphNode* CIKGraphObject::getUnexplored(int pos)
             pos--;
         }
     }
-    if (linkPartner!=NULL)
+    if (linkPartner!=nullptr)
     {
         if (linkPartner->explorationID==-1)
         {
@@ -50,7 +50,7 @@ CIKGraphNode* CIKGraphObject::getUnexplored(int pos)
             pos--;
         }
     }
-    return(NULL);
+    return(nullptr);
 }
 
 CIKGraphNode* CIKGraphObject::getNeighbour(int pos,bool noLinkNeighbour)
@@ -61,13 +61,13 @@ CIKGraphNode* CIKGraphObject::getNeighbour(int pos,bool noLinkNeighbour)
             return(neighbours[i]);
         pos--;
     }
-    if ( (linkPartner!=NULL)&&(!noLinkNeighbour) )
+    if ( (linkPartner!=nullptr)&&(!noLinkNeighbour) )
     {
         if (pos==0)
             return(linkPartner);
         pos--;
     }
-    return(NULL);
+    return(nullptr);
 }
 
 int CIKGraphObject::getNumberOfUnexplored()
@@ -78,7 +78,7 @@ int CIKGraphObject::getNumberOfUnexplored()
         if (neighbours[i]->explorationID==-1)
             retVal++;
     }
-    if (linkPartner!=NULL)
+    if (linkPartner!=nullptr)
     {
         if (linkPartner->explorationID==-1)
             retVal++;
@@ -93,19 +93,19 @@ CIKGraphNode* CIKGraphObject::getNeighbourWithExplorationID(int theID)
         if (neighbours[i]->explorationID==theID)
             return(neighbours[i]);
     }
-    if (linkPartner!=NULL)
+    if (linkPartner!=nullptr)
     {
         if (linkPartner->explorationID==theID)
             return(linkPartner);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 
 CIKGraphNode* CIKGraphObject::getExploredWithSmallestExplorationID()
 {
     int smallest=999999;
-    CIKGraphNode* retVal=NULL;
+    CIKGraphNode* retVal=nullptr;
     for (int i=0;i<int(neighbours.size());i++)
     {
         if (neighbours[i]->explorationID!=-1)
@@ -117,7 +117,7 @@ CIKGraphNode* CIKGraphObject::getExploredWithSmallestExplorationID()
             }
         }
     }
-    if (linkPartner!=NULL)
+    if (linkPartner!=nullptr)
     {
         if (linkPartner->explorationID!=-1)
         {
@@ -135,7 +135,7 @@ int CIKGraphObject::getConnectionNumber()
 {
     int retVal=0;
     retVal+=int(neighbours.size());
-    if (linkPartner!=NULL)
+    if (linkPartner!=nullptr)
         retVal++;
     return(retVal);
 }
@@ -163,7 +163,7 @@ bool CIKGraphObject::elasticLinkWithObject(CIKGraphObject* partner)
     }
     if (linkPartner==partner)
         return(true);
-    if (linkPartner!=NULL)
+    if (linkPartner!=nullptr)
         return(false);
     linkPartner=partner;
     partner->linkPartner=this;
@@ -178,7 +178,7 @@ bool CIKGraphObject::linkWithJoint(CIKGraphJoint* joint,bool top)
     {
         if (joint->topObject==this)
             return(true);
-        if (joint->topObject!=NULL)
+        if (joint->topObject!=nullptr)
             return(false);
         if (joint->downObject==this)
             return(false);
@@ -192,7 +192,7 @@ bool CIKGraphObject::linkWithJoint(CIKGraphJoint* joint,bool top)
     {
         if (joint->downObject==this)
             return(true);
-        if (joint->downObject!=NULL)
+        if (joint->downObject!=nullptr)
             return(false);
         if (joint->topObject==this)
             return(false);

@@ -39,7 +39,7 @@ void CSignalContainer::emptySceneProcedure()
 
 void CSignalContainer::setIntegerSignal(const char* signalName,int value,bool fromEmbeddedScript)
 {
-    if ((signalName==NULL)||(strlen(signalName)==0))
+    if ((signalName==nullptr)||(strlen(signalName)==0))
         return;
     int index=_getIntegerSignalIndex(signalName);
     if (index==-1)
@@ -54,7 +54,7 @@ void CSignalContainer::setIntegerSignal(const char* signalName,int value,bool fr
 
 bool CSignalContainer::getIntegerSignal(const char* signalName,int& value)
 {
-    if ((signalName==NULL)||(strlen(signalName)==0))
+    if ((signalName==nullptr)||(strlen(signalName)==0))
         return(false);
     int index=_getIntegerSignalIndex(signalName);
     if (index==-1)
@@ -73,7 +73,7 @@ bool CSignalContainer::getIntegerSignalNameAtIndex(int index,std::string& signal
 
 int CSignalContainer::clearIntegerSignal(const char* signalName)
 {
-    if ((signalName==NULL)||(strlen(signalName)==0))
+    if ((signalName==nullptr)||(strlen(signalName)==0))
         return(0);
     int index=_getIntegerSignalIndex(signalName);
     if (index!=-1)
@@ -113,7 +113,7 @@ int CSignalContainer::clearAllIntegerSignals(bool onlyThoseFromEmbeddedScripts)
 
 void CSignalContainer::setFloatSignal(const char* signalName,float value,bool fromEmbeddedScript)
 {
-    if ((signalName==NULL)||(strlen(signalName)==0))
+    if ((signalName==nullptr)||(strlen(signalName)==0))
         return;
     int index=_getFloatSignalIndex(signalName);
     if (index==-1)
@@ -128,7 +128,7 @@ void CSignalContainer::setFloatSignal(const char* signalName,float value,bool fr
 
 bool CSignalContainer::getFloatSignal(const char* signalName,float& value)
 {
-    if ((signalName==NULL)||(strlen(signalName)==0))
+    if ((signalName==nullptr)||(strlen(signalName)==0))
         return(false);
     int index=_getFloatSignalIndex(signalName);
     if (index==-1)
@@ -147,7 +147,7 @@ bool CSignalContainer::getFloatSignalNameAtIndex(int index,std::string& signalNa
 
 int CSignalContainer::clearFloatSignal(const char* signalName)
 {
-    if ((signalName==NULL)||(strlen(signalName)==0))
+    if ((signalName==nullptr)||(strlen(signalName)==0))
         return(0);
     int index=_getFloatSignalIndex(signalName);
     if (index!=-1)
@@ -187,7 +187,7 @@ int CSignalContainer::clearAllFloatSignals(bool onlyThoseFromEmbeddedScripts)
 
 void CSignalContainer::setStringSignal(const char* signalName,const std::string& value,bool fromEmbeddedScript)
 {
-    if ((signalName==NULL)||(strlen(signalName)==0))
+    if ((signalName==nullptr)||(strlen(signalName)==0))
         return;
     int index=_getStringSignalIndex(signalName);
     if (index==-1)
@@ -202,7 +202,7 @@ void CSignalContainer::setStringSignal(const char* signalName,const std::string&
 
 bool CSignalContainer::getStringSignal(const char* signalName,std::string& value)
 {
-    if ((signalName==NULL)||(strlen(signalName)==0))
+    if ((signalName==nullptr)||(strlen(signalName)==0))
         return(false);
     int index=_getStringSignalIndex(signalName);
     if (index==-1)
@@ -221,7 +221,7 @@ bool CSignalContainer::getStringSignalNameAtIndex(int index,std::string& signalN
 
 int CSignalContainer::clearStringSignal(const char* signalName)
 {
-    if ((signalName==NULL)||(strlen(signalName)==0))
+    if ((signalName==nullptr)||(strlen(signalName)==0))
         return(0);
     int index=_getStringSignalIndex(signalName);
     if (index!=-1)

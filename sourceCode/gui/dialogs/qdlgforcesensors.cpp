@@ -34,7 +34,7 @@ void CQDlgForceSensors::refresh()
     bool bigSel=(App::ct->objCont->getForceSensorNumberInSelection()>1);
     CForceSensor* it=App::ct->objCont->getLastSelection_forceSensor();
     bool breakingEnabled=false;
-    if ( (it!=NULL)&&(it->getEnableForceThreshold()||it->getEnableTorqueThreshold()) )
+    if ( (it!=nullptr)&&(it->getEnableForceThreshold()||it->getEnableTorqueThreshold()) )
         breakingEnabled=true;
 
     ui->qqSize->setEnabled(sel&&noEditModeNoSim);

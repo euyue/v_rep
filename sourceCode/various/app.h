@@ -44,7 +44,7 @@ public:
     static void setApplicationArgument(int index,std::string arg);
 
     static bool executeUiThreadCommand(SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut);
-    static void appendSimulationThreadCommand(int cmdId,int intP1=-1,int intP2=-1,float floatP1=0.0,float floatP2=0.0,const char* stringP1=NULL,const char* stringP2=NULL,int executionDelay=0);
+    static void appendSimulationThreadCommand(int cmdId,int intP1=-1,int intP2=-1,float floatP1=0.0,float floatP2=0.0,const char* stringP1=nullptr,const char* stringP2=nullptr,int executionDelay=0);
     static void appendSimulationThreadCommand(SSimulationThreadCommand cmd,int executionDelay=0);
 
     static int getEditModeType(); // helper

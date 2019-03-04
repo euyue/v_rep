@@ -483,7 +483,7 @@ float CUserSettings::getRotationStepSize()
 void CUserSettings::setUndoRedoEnabled(bool isEnabled)
 {
     _undoRedoEnabled=isEnabled;
-    if (App::ct->undoBufferContainer!=NULL)
+    if (App::ct->undoBufferContainer!=nullptr)
         App::ct->undoBufferContainer->emptySceneProcedure();
 }
 

@@ -71,7 +71,7 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
     C7Vector camTrInv(camTr.getInverse());
     int editMode=NO_EDIT_MODE;
     int displAttributes=0;
-    if (optionalView!=NULL)
+    if (optionalView!=nullptr)
     {
         if (optionalView->getVisualizeOnlyInertias())
             displAttributes=sim_displayattribute_inertiaonly;
@@ -80,7 +80,7 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
         displAttributes=sim_displayattribute_dynamiccontentonly;
 
 #ifdef SIM_WITH_GUI
-    if (App::mainWindow!=NULL)
+    if (App::mainWindow!=nullptr)
     {
         editMode=App::getEditModeType();
         if ((editMode&SHAPE_EDIT_MODE)!=0)
@@ -90,7 +90,7 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
             else
             {
                 C3DObject* parentObj=App::mainWindow->editModeContainer->getEditModeShape();
-                if (parentObj!=NULL)
+                if (parentObj!=nullptr)
                 {
                     C7Vector parentTr(parentObj->getCumulativeTransformation());
                     if (editMode==VERTEX_EDIT_MODE)
@@ -134,13 +134,13 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
         }
         if ((editMode&PATH_EDIT_MODE)!=0)
         { // just take the path points
-            if (App::mainWindow->editModeContainer->getEditModePathContainer()==NULL)
+            if (App::mainWindow->editModeContainer->getEditModePathContainer()==nullptr)
                 editMode=NO_EDIT_MODE;
             else
             {
                 int cnt=App::mainWindow->editModeContainer->getEditModePathContainer()->getSimplePathPointCount();
                 CPath* path=App::mainWindow->editModeContainer->getEditModePath();
-                if ((cnt!=0)&&(path!=NULL))
+                if ((cnt!=0)&&(path!=nullptr))
                 {
                     C7Vector parentTr(path->getCumulativeTransformation());
                     for (int i=0;i<cnt;i++)
@@ -165,18 +165,18 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
         std::vector<C3DObject*> sel;
         if (editMode==NO_EDIT_MODE)
         {
-            C3DObject* skybox=App::ct->objCont->getObject(IDSOGL_SKYBOX_DO_NOT_RENAME);
+            C3DObject* skybox=App::ct->objCont->getObjectFromName(IDSOGL_SKYBOX_DO_NOT_RENAME);
             // 1. List of all visible objects, excluding this camera, the skybox and objects flaged as "ignoreViewFitting":
             std::vector<C3DObject*> visibleObjs;
             for (int i=0;i<int(App::ct->objCont->objectList.size());i++)
             {
-                C3DObject* it=App::ct->objCont->getObject(App::ct->objCont->objectList[i]);
+                C3DObject* it=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
                 if (it!=this)
                 {
-                    bool displayMaybe=it->getShouldObjectBeDisplayed(_objectID,displAttributes);
+                    bool displayMaybe=it->getShouldObjectBeDisplayed(_objectHandle,displAttributes);
                     if (displayMaybe)
                     {
-                        if ( ((skybox==NULL)||(!it->isObjectParentedWith(skybox)))&&(!it->getIgnoredByViewFitting()) )
+                        if ( ((skybox==nullptr)||(!it->isObjectParentedWith(skybox)))&&(!it->getIgnoredByViewFitting()) )
                             visibleObjs.push_back(it);
                     }
                 }
@@ -186,13 +186,13 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
             {
                 for (int i=0;i<int(App::ct->objCont->objectList.size());i++)
                 {
-                    C3DObject* it=App::ct->objCont->getObject(App::ct->objCont->objectList[i]);
+                    C3DObject* it=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
                     if (it!=this)
                     {
-                        bool displayMaybe=it->getShouldObjectBeDisplayed(_objectID,displAttributes);
+                        bool displayMaybe=it->getShouldObjectBeDisplayed(_objectHandle,displAttributes);
                         if (displayMaybe)
                         {
-                            if ((skybox==NULL)||(!it->isObjectParentedWith(skybox)))
+                            if ((skybox==nullptr)||(!it->isObjectParentedWith(skybox)))
                                 visibleObjs.push_back(it);
                         }
                     }
@@ -207,7 +207,7 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
             }
             else
             {
-                if (selectedObjects!=NULL)
+                if (selectedObjects!=nullptr)
                     tmp.assign(selectedObjects->begin(),selectedObjects->end());
             }
             if (includeModelObjects)
@@ -215,13 +215,13 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
             std::vector<C3DObject*> selectionVisibleObjs;
             for (int i=0;i<int(tmp.size());i++)
             { // We only wanna have visible objects, otherwise we get strange behaviour with some models!! And only objects that are not ignored by the view-fitting:
-                C3DObject* it=App::ct->objCont->getObject(tmp[i]);
-                if ((it!=NULL)&&(it!=this))
+                C3DObject* it=App::ct->objCont->getObjectFromHandle(tmp[i]);
+                if ((it!=nullptr)&&(it!=this))
                 {
-                    bool displayMaybe=it->getShouldObjectBeDisplayed(_objectID,displAttributes);
+                    bool displayMaybe=it->getShouldObjectBeDisplayed(_objectHandle,displAttributes);
                     if (displayMaybe)
                     {
-                        if ( ((skybox==NULL)||(!it->isObjectParentedWith(skybox)))&&(!it->getIgnoredByViewFitting()) )
+                        if ( ((skybox==nullptr)||(!it->isObjectParentedWith(skybox)))&&(!it->getIgnoredByViewFitting()) )
                             selectionVisibleObjs.push_back(it);
                     }
                 }
@@ -234,12 +234,12 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
         }
 
 #ifdef SIM_WITH_GUI
-        if (App::mainWindow!=NULL)
+        if (App::mainWindow!=nullptr)
         {
             if ((editMode&MULTISHAPE_EDIT_MODE)!=0)
             {
                 CShape* sh=App::mainWindow->editModeContainer->getEditModeShape();
-                if (sh!=NULL)
+                if (sh!=nullptr)
                     sel.push_back(sh);
             }
         }
@@ -256,7 +256,7 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
                 done=true;
                 CPath* path=(CPath*)it;
                 int cnt=path->pathContainer->getSimplePathPointCount();
-                if ((cnt!=0)&&(path!=NULL))
+                if ((cnt!=0)&&(path!=nullptr))
                 {
                     C7Vector parentTr(path->getCumulativeTransformation());
                     for (int i=0;i<cnt;i++)
@@ -275,7 +275,7 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
                 CShape* shape=(CShape*)it;
                 C7Vector trr(camTrInv*shape->getCumulativeTransformation());
                 std::vector<float> wvert;
-                shape->geomData->geomInfo->getCumulativeMeshes(wvert,NULL,NULL);
+                shape->geomData->geomInfo->getCumulativeMeshes(wvert,nullptr,nullptr);
                 for (int j=0;j<int(wvert.size())/3;j++)
                 {
                     C3Vector vq(&wvert[3*j+0]);
@@ -332,30 +332,30 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
                     float point[3];
                     bool cyclic0,cyclic1,cyclic2;
                     float range0,range1,range2;
-                    if (part0!=NULL)    
+                    if (part0!=nullptr)    
                         CGraphingRoutines::getCyclicAndRangeValues(part0,cyclic0,range0);
-                    if (part1!=NULL)    
+                    if (part1!=nullptr)    
                         CGraphingRoutines::getCyclicAndRangeValues(part1,cyclic1,range1);
-                    if (part2!=NULL)    
+                    if (part2!=nullptr)    
                         CGraphingRoutines::getCyclicAndRangeValues(part2,cyclic2,range2);
                     while (gr->getAbsIndexOfPosition(pos++,absIndex))
                     {
                         bool dataIsValid=true;
-                        if (part0!=NULL)
+                        if (part0!=nullptr)
                         {
                             if(!gr->getData(part0,absIndex,point[0],cyclic0,range0,true))
                                 dataIsValid=false;
                         }
                         else
                             dataIsValid=false;
-                        if (part1!=NULL)
+                        if (part1!=nullptr)
                         {
                             if(!gr->getData(part1,absIndex,point[1],cyclic1,range1,true))
                                 dataIsValid=false;
                         }
                         else
                             dataIsValid=false;
-                        if (part2!=NULL)
+                        if (part2!=nullptr)
                         {
                             if(!gr->getData(part2,absIndex,point[2],cyclic2,range2,true))
                                 dataIsValid=false;
@@ -718,11 +718,11 @@ void CCamera::frameSceneOrSelectedObjects(float windowWidthByHeight,bool forPers
     setNearClippingPlane(getNearClippingPlane()+nearClippingPlaneCorrection);
     setFarClippingPlane(getFarClippingPlane()+farClippingPlaneCorrection);
     setOrthoViewSize(getOrthoViewSize()+viewSizeCorrection);
-    C3DObject* cameraParentProxy=NULL;
+    C3DObject* cameraParentProxy=nullptr;
     if (getUseParentObjectAsManipulationProxy())
-        cameraParentProxy=getParent();
+        cameraParentProxy=getParentObject();
 
-    if (cameraParentProxy!=NULL)
+    if (cameraParentProxy!=nullptr)
     { // We report the same camera opening to all cameras attached to cameraParentProxy
         if (!forPerspectiveProjection)
         {
@@ -869,13 +869,13 @@ void CCamera::handleTrackingAndHeadAlwaysUp()
     // 1. First tracking:
     // Check if the tracked object is not parented with that camera
     // (camera would follow the object which would follow the camera which...)
-    C3DObject* tr=App::ct->objCont->getObject(trackedObjectIdentifier_NeverDirectlyTouch);
-    if ((tr==NULL)||(tr==this)||tr->isObjectParentedWith(this))
+    C3DObject* tr=App::ct->objCont->getObjectFromHandle(trackedObjectIdentifier_NeverDirectlyTouch);
+    if ((tr==nullptr)||(tr==this)||tr->isObjectParentedWith(this))
     {
         trackedObjectIdentifier_NeverDirectlyTouch=-1;
-        tr=NULL;
+        tr=nullptr;
     }
-    if (tr!=NULL)
+    if (tr!=nullptr)
     {
         C7Vector tracked(tr->getCumulativeTransformation());
         C7Vector self(getCumulativeTransformation());
@@ -958,14 +958,14 @@ bool CCamera::getUseParentObjectAsManipulationProxy() const
 
 void CCamera::setTrackedObjectID(int trackedObjID)
 {
-    if (trackedObjID==_objectID)
+    if (trackedObjID==_objectHandle)
         return;
     if (trackedObjID==-1)
     {
         trackedObjectIdentifier_NeverDirectlyTouch=-1;
         return;
     }
-    if (App::ct->objCont->getObject(trackedObjID)==NULL)
+    if (App::ct->objCont->getObjectFromHandle(trackedObjID)==nullptr)
         return;
     trackedObjectIdentifier_NeverDirectlyTouch=trackedObjID;
     App::setLightDialogRefreshFlag();
@@ -1002,15 +1002,15 @@ C3DObject* CCamera::copyYourself()
     return(newCamera);
 }
 
-bool CCamera::announceObjectWillBeErased(int objID,bool copyBuffer)
+bool CCamera::announceObjectWillBeErased(int objectHandle,bool copyBuffer)
 {   // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     // This routine can be called for objCont-objects, but also for objects
     // in the copy-buffer!! So never make use of any 
     // 'ct::objCont->getObject(id)'-call or similar
     // Return value true means 'this' has to be erased too!
-    bool retVal=announceObjectWillBeErasedMain(objID,copyBuffer);
-    if (trackedObjectIdentifier_NeverDirectlyTouch==objID)
+    bool retVal=announceObjectWillBeErasedMain(objectHandle,copyBuffer);
+    if (trackedObjectIdentifier_NeverDirectlyTouch==objectHandle)
         trackedObjectIdentifier_NeverDirectlyTouch=-1;
     return(retVal);
 }
@@ -1419,12 +1419,12 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
     bool mouseJustWentUp=false;
     bool mouseMovedWhileDown=false;
     int navigationMode=sim_navigation_passive;
-    if (windowSize!=NULL)
+    if (windowSize!=nullptr)
     {
         currentWinSize[0]=windowSize[0];
         currentWinSize[1]=windowSize[1];
     }
-    if (subView!=NULL)
+    if (subView!=nullptr)
     {
         isPerspective=subView->getPerspectiveDisplay();
         renderingMode=subView->getRenderingMode();
@@ -1463,7 +1463,7 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
     bool specialSelectionAndNavigationPass=false;
     bool regularObjectsCannotBeSelected=false;
     bool processHitForMouseUpProcessing=false;
-    if (subView!=NULL)
+    if (subView!=nullptr)
     {
         if (hitForMouseUpProcessing_minus2MeansIgnore!=-2)
         {
@@ -1660,7 +1660,7 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
             { // Without lights is faster
                 App::ct->environment->activateAmbientLight(false);
                 App::ct->environment->deactivateFog();
-                _activateNonAmbientLights(-2,NULL);
+                _activateNonAmbientLights(-2,nullptr);
             }
 
             if ((pass==DEPTHPASS)||(pass==RENDERPASS))
@@ -1750,7 +1750,7 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
                     ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,ogl::colorBlack);
                     for (int i=0;i<int(App::ct->objCont->objectList.size());i++)
                     {
-                        C3DObject* it=App::ct->objCont->getObject(App::ct->objCont->objectList[i]);
+                        C3DObject* it=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
                         it->displayManipulationModeOverlayGrid(false);
                     }
                 }
@@ -1767,7 +1767,7 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
 
                 for (int i=0;i<int(App::ct->objCont->objectList.size());i++)
                 {
-                    C3DObject* it=App::ct->objCont->getObject(App::ct->objCont->objectList[i]);
+                    C3DObject* it=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
                     it->displayManipulationModeOverlayGrid(true);
                 }
             }
@@ -1891,7 +1891,7 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
             auxVals[0]=_currentViewSize[0];
             auxVals[1]=_currentViewSize[1];
             auxVals[2]=-1;
-            if (subView!=NULL)
+            if (subView!=nullptr)
                 auxVals[2]=subView->getViewIndex();
             auxVals[3]=0;
             CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_openglcameraview,auxVals,buff,retVals);
@@ -2026,7 +2026,7 @@ void CCamera::_handleMirrors(int renderingMode,bool noSelection,int pass,int nav
             glTranslatef(mtri.X(0),mtri.X(1),mtri.X(2));
             glRotatef(mtriAxis(0)*radToDeg_f,mtriAxis(1),mtriAxis(2),mtriAxis(3));
             glFrontFace (GL_CW);
-            CMirror::currentMirrorContentBeingRendered=myMirror->getID();
+            CMirror::currentMirrorContentBeingRendered=myMirror->getObjectHandle();
             _drawObjects(renderingMode,pass,currentWinSize,subView,true);
             CMirror::currentMirrorContentBeingRendered=-1;
             glFrontFace (GL_CCW);
@@ -2131,9 +2131,9 @@ void CCamera::_extRenderer_prepareView(int extRendererIndex,int resolution[2],bo
     data[16]=&fogDensity;
     data[17]=&fogEnabled;
     data[18]=&_orthoViewSize;
-    data[19]=&_objectID;
-    data[20]=NULL;
-    data[21]=NULL;
+    data[19]=&_objectHandle;
+    data[20]=nullptr;
+    data[21]=nullptr;
 
     // Following actually free since V-REP 3.3.0
     // But the older PovRay plugin version crash without this:
@@ -2178,9 +2178,9 @@ void CCamera::_extRenderer_prepareLights()
             data[8]=tr.Q.data;
             float lightSize=light->getLightSize();
             data[9]=&lightSize;
-            bool lightIsVisible=light->getShouldObjectBeDisplayed(_objectID,0);
+            bool lightIsVisible=light->getShouldObjectBeDisplayed(_objectHandle,0);
             data[11]=&lightIsVisible;
-            int lightHandle=light->getID();
+            int lightHandle=light->getObjectHandle();
             data[13]=&lightHandle;
 
             // Following actually free since V-REP 3.3.0
@@ -2200,7 +2200,7 @@ void CCamera::_extRenderer_prepareMirrors()
     for (unsigned int li=0;li<App::ct->objCont->mirrorList.size();li++)
     {
         CMirror* mirror=App::ct->objCont->getMirror(App::ct->objCont->mirrorList[li]);
-        bool visible=mirror->getShouldObjectBeDisplayed(_objectID,_attributesForRendering);
+        bool visible=mirror->getShouldObjectBeDisplayed(_objectHandle,_attributesForRendering);
         if (mirror->getIsMirror()&&visible)
         {
             bool active=mirror->getActive()&&(!App::ct->mainSettings->mirrorsDisabled);
@@ -2268,7 +2268,7 @@ void CCamera::_extRenderer_retrieveImage(char* rgbBuffer)
 {   // Fetch the finished image:
     void* data[20];
     data[0]=rgbBuffer;
-    data[1]=NULL;
+    data[1]=nullptr;
     bool readRgb=true;
     data[2]=&readRgb;
     bool readDepth=false;
@@ -2300,7 +2300,7 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
         displayAttrib|=sim_displayattribute_dynamiccontentonly;
 
     int viewIndex=-1;
-    if (subView!=NULL)
+    if (subView!=nullptr)
     {
         if ((!subView->getShowEdges())||CEnvironment::getShapeEdgesTemporarilyDisabled())
             displayAttrib|=sim_displayattribute_forbidedges;
@@ -2316,10 +2316,10 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
     bool shapeEditModeAndPicking=( shapeEditMode&&((pass==PICKPASS)||(pass==COLORCODEDPICKPASS)) );
 
     // If selection size is bigger than 10, we set up a fast index:
-    std::vector<unsigned char>* selMap=NULL; // An arry which will show which object is selected
+    std::vector<unsigned char>* selMap=nullptr; // An arry which will show which object is selected
     if (App::ct->objCont->getSelSize()>10)
     {
-        selMap=new std::vector<unsigned char>(App::ct->objCont->getHighestObjectID()+1,0);
+        selMap=new std::vector<unsigned char>(App::ct->objCont->getHighestObjectHandle()+1,0);
         for (int i=0;i<App::ct->objCont->getSelSize();i++)
             selMap->at(App::ct->objCont->getSelID(i))=1;
     }
@@ -2330,7 +2330,7 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
     std::vector<C3DObject*> toRender;
     C3DObject* viewBoxObject=_getInfoOfWhatNeedsToBeRendered(toRender);
 
-    if (viewBoxObject!=NULL)
+    if (viewBoxObject!=nullptr)
     { // we set the same position as the camera, but we keep the initial orientation
         // If the camera is in ortho view mode, we additionally shift it along the viewing axis
         // to be sure we don't cover anything visible with the far side of the box (the near side is clipped by model settings)
@@ -2393,7 +2393,7 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
             if (getInternalRendering())
             {
                 if ((displayAttrib&sim_displayattribute_noopenglcallbacks)==0)
-                    CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,0,displayAttrib,_objectID,viewIndex);
+                    CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,0,displayAttrib,_objectHandle,viewIndex);
             }
 
             if (getInternalRendering()) // following not yet implemented for ext. rendering
@@ -2402,7 +2402,7 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
             if (getInternalRendering())
             {
                 if ((displayAttrib&sim_displayattribute_noopenglcallbacks)==0)
-                    CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,1,displayAttrib,_objectID,viewIndex);
+                    CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,1,displayAttrib,_objectHandle,viewIndex);
             }
         }
 
@@ -2417,30 +2417,30 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
                 int atr=displayAttrib;
                 if (((it->getCumulativeObjectProperty()&sim_objectproperty_depthinvisible)==0)||(pass!=DEPTHPASS))
                 {
-                    if (selMap!=NULL)
+                    if (selMap!=nullptr)
                     {
-                        if (selMap->at(it->getID())!=0)
+                        if (selMap->at(it->getObjectHandle())!=0)
                             atr|=sim_displayattribute_selected;
-                        if (it->getID()==lastSel)
+                        if (it->getObjectHandle()==lastSel)
                             atr|=sim_displayattribute_mainselection;
                     }
                     else
                     {
                         for (int i=0;i<App::ct->objCont->getSelSize();i++)
                         {
-                            if (it->getID()==App::ct->objCont->getSelID(i))
+                            if (it->getObjectHandle()==App::ct->objCont->getSelID(i))
                             {
                                 atr|=sim_displayattribute_selected;
-                                if (it->getID()==lastSel)
+                                if (it->getObjectHandle()==lastSel)
                                     atr|=sim_displayattribute_mainselection;
                                 break;
                             }
                         }
                     }
                     // Draw everything except for the camera you look through (unless we look through the mirror) and the object which is being edited!
-                    if  ( (it->getID()!=getID())||mirrored )
+                    if  ( (it->getObjectHandle()!=getObjectHandle())||mirrored )
                     {
-                        if (App::ct->collections->isObjectInMarkedCollection(it->getID()))
+                        if (App::ct->collections->isObjectInMarkedCollection(it->getObjectHandle()))
                             atr|=sim_displayattribute_groupselection;
 
                         if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE)==0)
@@ -2453,17 +2453,17 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
                                     ((CShape*)it)->display_extRenderer(this,atr);
                             }
                         }
-                        else if (it->getID()!=App::mainWindow->editModeContainer->getEditModeObjectID())
+                        else if (it->getObjectHandle()!=App::mainWindow->editModeContainer->getEditModeObjectID())
                             it->display(this,atr);
                     }
                 }
             }
         }
 
-        if (selMap!=NULL)
+        if (selMap!=nullptr)
         {
             delete selMap;
-            selMap=NULL;
+            selMap=nullptr;
         }
 
         if (getInternalRendering())
@@ -2474,7 +2474,7 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
             if (getInternalRendering())
             {
                 if ((displayAttrib&sim_displayattribute_noopenglcallbacks)==0)
-                    CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,2,displayAttrib,_objectID,viewIndex);
+                    CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,2,displayAttrib,_objectHandle,viewIndex);
             }
 
             if (getInternalRendering()) // following not yet implemented for ext. rendering
@@ -2483,7 +2483,7 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
             if (getInternalRendering())
             {
                 if ((displayAttrib&sim_displayattribute_noopenglcallbacks)==0)
-                    CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,3,displayAttrib,_objectID,viewIndex);
+                    CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,3,displayAttrib,_objectHandle,viewIndex);
             }
 
             if (getInternalRendering()) // following not yet implemented for ext. rendering
@@ -2492,7 +2492,7 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
             if (getInternalRendering())
             {
                 if ((displayAttrib&sim_displayattribute_noopenglcallbacks)==0)
-                    CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,4,displayAttrib,_objectID,viewIndex);
+                    CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,4,displayAttrib,_objectHandle,viewIndex);
             }
 
             if (getInternalRendering())
@@ -2500,7 +2500,7 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
                 for (int i=0;i<int(App::ct->objCont->graphList.size());i++)
                 {
                     CGraph* it=App::ct->objCont->getGraph(App::ct->objCont->graphList[i]);
-                    if (it!=NULL)
+                    if (it!=nullptr)
                     {
                         it->setJustDrawCurves(true);
                         it->display(this,displayAttrib);
@@ -2519,7 +2519,7 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
             if (App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE)
             {
                 C3DObject* it=App::mainWindow->editModeContainer->getEditModeObject();
-                if (it!=NULL)
+                if (it!=nullptr)
                     it->display(this,displayAttrib);
             }
         }
@@ -2538,19 +2538,19 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
             if (!shapeEditModeAndPicking)
             {
                 if ((displayAttrib&sim_displayattribute_noopenglcallbacks)==0)
-                    CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,5,displayAttrib,_objectID,viewIndex);
+                    CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(sim_message_eventcallback_opengl,5,displayAttrib,_objectHandle,viewIndex);
             }
         }
     }
     else
     { // Multishape edit mode:
         CShape* it=App::mainWindow->editModeContainer->getEditModeShape();
-        if (it!=NULL)
+        if (it!=nullptr)
             it->display(this,displayAttrib);
     }
 
     SModelThumbnailInfo* info=App::mainWindow->openglWidget->getModelDragAndDropInfo();
-    if ((pass==RENDERPASS)&&(info!=NULL))
+    if ((pass==RENDERPASS)&&(info!=nullptr))
     {
         float ss=info->modelNonDefaultTranslationStepSize;
         if (ss==0.0)
@@ -2564,7 +2564,7 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
         glTranslatef(x+info->modelTr.X(0),y+info->modelTr.X(1),info->modelTr.X(2));
         C4Vector axis=info->modelTr.Q.getAngleAndAxis();
         glRotatef(axis(0)*radToDeg_f,axis(1),axis(2),axis(3));
-        ogl::drawBox(info->modelBoundingBoxSize(0),info->modelBoundingBoxSize(1),info->modelBoundingBoxSize(2),true,NULL);
+        ogl::drawBox(info->modelBoundingBoxSize(0),info->modelBoundingBoxSize(1),info->modelBoundingBoxSize(2),true,nullptr);
         glPopMatrix();
         ogl::setMaterialColor(ogl::colorBlack,ogl::colorBlack,pink);
         glPushMatrix();
@@ -2581,7 +2581,7 @@ void CCamera::_drawObjects(int renderingMode,int pass,int currentWinSize[2],CSVi
         ogl::buffer.clear();
         ogl::addBuffer3DPoints(x,y,0.0);
         ogl::addBuffer3DPoints(x,y,info->modelTr.X(2));
-        ogl::drawRandom3dLines(&ogl::buffer[0],int(ogl::buffer.size()/3),false,NULL);
+        ogl::drawRandom3dLines(&ogl::buffer[0],int(ogl::buffer.size()/3),false,nullptr);
         glDisable(GL_LINE_STIPPLE);
         glLineWidth(1.0f);
     }
@@ -2592,10 +2592,10 @@ C3DObject* CCamera::_getInfoOfWhatNeedsToBeRendered(std::vector<C3DObject*>& toR
     std::vector<int> transparentObjects;
     std::vector<float> transparentObjectDist;
     C7Vector camTrInv(getCumulativeTransformationPart1().getInverse());
-    C3DObject* viewBoxObject=NULL;
+    C3DObject* viewBoxObject=nullptr;
     for (int i=0;i<int(App::ct->objCont->objectList.size());i++)
     {
-        C3DObject* it=App::ct->objCont->getObject(App::ct->objCont->objectList[i]);
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
         if (it->getObjectType()==sim_object_shape_type)
         {
             CShape* sh=(CShape*)it;
@@ -2603,7 +2603,7 @@ C3DObject* CCamera::_getInfoOfWhatNeedsToBeRendered(std::vector<C3DObject*>& toR
             {
                 C7Vector obj(it->getCumulativeTransformationPart1());
                 transparentObjectDist.push_back(-(camTrInv*obj).X(2)-it->getTransparentObjectDistanceOffset());
-                transparentObjects.push_back(it->getID());
+                transparentObjects.push_back(it->getObjectHandle());
             }
             else
                 toRender.push_back(it);
@@ -2617,7 +2617,7 @@ C3DObject* CCamera::_getInfoOfWhatNeedsToBeRendered(std::vector<C3DObject*>& toR
                 {
                     C7Vector obj(it->getCumulativeTransformationPart1());
                     transparentObjectDist.push_back(-(camTrInv*obj).X(2)-it->getTransparentObjectDistanceOffset());
-                    transparentObjects.push_back(it->getID());
+                    transparentObjects.push_back(it->getObjectHandle());
                 }
                 else
                     toRender.push_back(it);
@@ -2625,13 +2625,13 @@ C3DObject* CCamera::_getInfoOfWhatNeedsToBeRendered(std::vector<C3DObject*>& toR
             else
                 toRender.push_back(it);
         }
-        if (it->getName()==IDSOGL_SKYBOX_DO_NOT_RENAME)
+        if (it->getObjectName()==IDSOGL_SKYBOX_DO_NOT_RENAME)
             viewBoxObject=it;
     }
 
     tt::orderAscending(transparentObjectDist,transparentObjects);
     for (int i=0;i<int(transparentObjects.size());i++)
-        toRender.push_back(App::ct->objCont->getObject(transparentObjects[i]));
+        toRender.push_back(App::ct->objCont->getObjectFromHandle(transparentObjects[i]));
 
     return(viewBoxObject);
 }
@@ -2639,7 +2639,7 @@ C3DObject* CCamera::_getInfoOfWhatNeedsToBeRendered(std::vector<C3DObject*>& toR
 void CCamera::performDepthPerception(CSView* subView,bool isPerspective)
 {
     FUNCTION_DEBUG;
-    if (subView==NULL)
+    if (subView==nullptr)
         return;
     int mouseMode=App::getMouseMode();
     int windowSize[2];
@@ -2735,7 +2735,7 @@ void CCamera::_drawOverlay(bool passiveView,bool drawText,bool displ_ref,int win
     FUNCTION_DEBUG;
     int navigationMode=sim_navigation_passive;
     int selectionMode=NOSELECTION;
-    if (subView!=NULL)
+    if (subView!=nullptr)
     {
         navigationMode=App::getMouseMode()&0x00ff;
         selectionMode=subView->getSelectionStatus();
@@ -2750,7 +2750,7 @@ void CCamera::_drawOverlay(bool passiveView,bool drawText,bool displ_ref,int win
     glDisable(GL_DEPTH_TEST);
 
     // Draw the selection square
-    if ( (selectionMode==SHIFTSELECTION)&&(subView!=NULL)&&subView->isMouseDown() )
+    if ( (selectionMode==SHIFTSELECTION)&&(subView!=nullptr)&&subView->isMouseDown() )
     {
         int mouseDownRelPos[2];
         int mouseRelPos[2];
@@ -2804,7 +2804,7 @@ void CCamera::_drawOverlay(bool passiveView,bool drawText,bool displ_ref,int win
         glRotatef(euler(2)*radToDeg_f,0.0,0.0,1.0);
 
         glLineWidth(App::sc);
-        ogl::drawReference(refSize,true,true,true,NULL);
+        ogl::drawReference(refSize,true,true,true,nullptr);
         glLineWidth(1.0f);
 
         glPopMatrix();
@@ -2835,8 +2835,8 @@ int CCamera::getSingleHit(int hits,unsigned int selectBuff[],bool ignoreDepthBuf
                 hitThatIgnoresTheSelectableFlag=nearestObj;
                 if ((nearestObj<=SIM_IDEND_3DOBJECT)&&(App::getEditModeType()==NO_EDIT_MODE))
                 { // since 3/6/2013 we check for the selectable flag here instead of in the object display routine
-                    C3DObject* theObj=App::ct->objCont->getObject(nearestObj);
-                    if ((theObj!=NULL)&&((theObj->getCumulativeObjectProperty()&sim_objectproperty_selectable)==0))
+                    C3DObject* theObj=App::ct->objCont->getObjectFromHandle(nearestObj);
+                    if ((theObj!=nullptr)&&((theObj->getCumulativeObjectProperty()&sim_objectproperty_selectable)==0))
                         nearestObj=(unsigned int)-1;
                 }
             }
@@ -2852,8 +2852,8 @@ int CCamera::getSingleHit(int hits,unsigned int selectBuff[],bool ignoreDepthBuf
                         hitThatIgnoresTheSelectableFlag=nearestObj;
                         if ((nearestObj<=SIM_IDEND_3DOBJECT)&&(App::getEditModeType()==NO_EDIT_MODE))
                         { // since 3/6/2013 we check for the selectable flag here instead of in the object display routine
-                            C3DObject* theObj=App::ct->objCont->getObject(nearestObj);
-                            if ((theObj!=NULL)&&((theObj->getCumulativeObjectProperty()&sim_objectproperty_selectable)==0))
+                            C3DObject* theObj=App::ct->objCont->getObjectFromHandle(nearestObj);
+                            if ((theObj!=nullptr)&&((theObj->getCumulativeObjectProperty()&sim_objectproperty_selectable)==0))
                                 nearestObj=(unsigned int)-1;
                         }
                     }
@@ -2867,8 +2867,8 @@ int CCamera::getSingleHit(int hits,unsigned int selectBuff[],bool ignoreDepthBuf
                         hitThatIgnoresTheSelectableFlag=nearestObj;
                         if ((nearestObj<=SIM_IDEND_3DOBJECT)&&(App::getEditModeType()==NO_EDIT_MODE))
                         { // since 3/6/2013 we check for the selectable flag here instead of in the object display routine
-                            C3DObject* theObj=App::ct->objCont->getObject(nearestObj);
-                            if ((theObj!=NULL)&&((theObj->getCumulativeObjectProperty()&sim_objectproperty_selectable)==0))
+                            C3DObject* theObj=App::ct->objCont->getObjectFromHandle(nearestObj);
+                            if ((theObj!=nullptr)&&((theObj->getCumulativeObjectProperty()&sim_objectproperty_selectable)==0))
                                 nearestObj=(unsigned int)-1;
                         }
                     }
@@ -2899,8 +2899,8 @@ int CCamera::getSeveralHits(int hits,unsigned int selectBuff[],std::vector<int>&
             {
                 if ((theHit<=SIM_IDEND_3DOBJECT)&&(App::getEditModeType()==NO_EDIT_MODE))
                 { // since 3/6/2013 we check for the selectable flag here instead of in the object display routine
-                    C3DObject* theObj=App::ct->objCont->getObject(theHit);
-                    if ((theObj!=NULL)&&((theObj->getCumulativeObjectProperty()&sim_objectproperty_selectable)==0))
+                    C3DObject* theObj=App::ct->objCont->getObjectFromHandle(theHit);
+                    if ((theObj!=nullptr)&&((theObj->getCumulativeObjectProperty()&sim_objectproperty_selectable)==0))
                         theHit=(unsigned int)-1;
                 }
                 if (int(theHit)!=-1)
@@ -2949,7 +2949,7 @@ void CCamera::handleMouseUpHit(int hitId)
 int CCamera::handleHits(int hits,unsigned int selectBuff[])
 { // -2 means: handle no mouse up hits. Otherwise, handle mouse up hits!
     FUNCTION_DEBUG;
-    if (App::mainWindow==NULL)
+    if (App::mainWindow==nullptr)
         return(-2);
     if (App::mainWindow->getMouseButtonState()&4) // added on 2011/01/12 because this routine is now also called when not in click-select mode, etc. We need to make sure we don't have a "virtual" left mouse button clicked triggered by the right mouse button
         return(-2);
@@ -3009,10 +3009,10 @@ int CCamera::handleHits(int hits,unsigned int selectBuff[])
 
             // Now generate a plugin callback:
             int data[4]={hitThatIgnoresTheSelectableFlag,0,0,0};
-            void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_pickselectdown,data,NULL,NULL);
+            void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_pickselectdown,data,nullptr,nullptr);
             delete[] (char*)retVal;
             // Now generate a script message:
-            App::ct->outsideCommandQueue->addCommand(sim_message_pick_select_down,hitThatIgnoresTheSelectableFlag,0,0,0,NULL,0);
+            App::ct->outsideCommandQueue->addCommand(sim_message_pick_select_down,hitThatIgnoresTheSelectableFlag,0,0,0,nullptr,0);
 
             return(hitId);
         }
@@ -3028,7 +3028,7 @@ void CCamera::_handleBannerClick(int bannerID)
     if (App::getEditModeType()!=NO_EDIT_MODE)
         return;
     CBannerObject* it=App::ct->bannerCont->getObject(bannerID);
-    if ( (it!=NULL)&&it->isVisible() )
+    if ( (it!=nullptr)&&it->isVisible() )
     {
         if (it->getOptions()&sim_banner_clickselectsparent)
         {
@@ -3038,12 +3038,12 @@ void CCamera::_handleBannerClick(int bannerID)
         if (it->getOptions()&sim_banner_clicktriggersevent)
         {
             int auxVals[4]={bannerID,0,0,0};
-            void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_bannerclicked,auxVals,NULL,NULL);
+            void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_bannerclicked,auxVals,nullptr,nullptr);
             delete[] (char*)returnVal;
             auxVals[0]=bannerID;
-            returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_bannerclicked,auxVals,NULL,NULL); // for backward compatibility
+            returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_bannerclicked,auxVals,nullptr,nullptr); // for backward compatibility
             delete[] (char*)returnVal;
-            App::ct->outsideCommandQueue->addCommand(sim_message_bannerclicked,bannerID,0,0,0,NULL,0);
+            App::ct->outsideCommandQueue->addCommand(sim_message_bannerclicked,bannerID,0,0,0,nullptr,0);
         }
     }
 }

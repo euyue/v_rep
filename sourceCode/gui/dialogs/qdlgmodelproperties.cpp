@@ -51,7 +51,7 @@ void CQDlgModelProperties::refresh()
 void CQDlgModelProperties::on_qqSelectThumbnail_clicked()
 { // We don't set an undo point here, it is set when we close the dialog
     bool keepCurrentThumbnail=false;
-    int modelBase=modelBaseObject->getID();
+    int modelBase=modelBaseObject->getObjectHandle();
     while (true)
     {
         if (App::ct->environment->modelThumbnail_notSerializedHere.hasImage())
@@ -153,7 +153,7 @@ void CQDlgModelProperties::on_qqClose_clicked(QAbstractButton *button)
     tt::removeSpacesAndEmptyLinesAtBeginningAndEnd(acknowledgment);
     SSimulationThreadCommand cmd;
     cmd.cmdId=SET_OVERRIDEPROPANDACKNOWLEDGMENT_MODELGUITRIGGEREDCMD;
-    cmd.intParams.push_back(modelBaseObject->getID());
+    cmd.intParams.push_back(modelBaseObject->getObjectHandle());
     cmd.intParams.push_back(modelBaseObject->getLocalModelProperty());
     cmd.stringParams.push_back(acknowledgment.c_str());
     App::appendSimulationThreadCommand(cmd);

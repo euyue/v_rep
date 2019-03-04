@@ -5,8 +5,8 @@
 
 CIKGraphJoint::CIKGraphJoint(bool isRevolute,float theParameter,float theMinVal,float theRange,float theScrewPitch,bool isCyclic,float theWeight)
 {
-    topObject=NULL;
-    downObject=NULL;
+    topObject=nullptr;
+    downObject=nullptr;
     type=IK_GRAPH_JOINT_TYPE;
     if (isRevolute)
         jointType=IK_GRAPH_REVOLUTE_JOINT_TYPE;
@@ -18,13 +18,13 @@ CIKGraphJoint::CIKGraphJoint(bool isRevolute,float theParameter,float theMinVal,
     cyclic=isCyclic;
     weight=theWeight;
     screwPitch=theScrewPitch;
-    followedJoint=NULL;
+    followedJoint=nullptr;
     disabled=false;
 }
 CIKGraphJoint::CIKGraphJoint(C4Vector& theSphericalTr,float theRange,float theWeight)
 {
-    topObject=NULL;
-    downObject=NULL;
+    topObject=nullptr;
+    downObject=nullptr;
     type=IK_GRAPH_JOINT_TYPE;
     jointType=IK_GRAPH_SPHERICAL_JOINT_TYPE;
     screwPitch=0.0f;
@@ -34,7 +34,7 @@ CIKGraphJoint::CIKGraphJoint(C4Vector& theSphericalTr,float theRange,float theWe
     cyclic=false;
     weight=theWeight;
     sphericalTransformation=theSphericalTr;
-    followedJoint=NULL;
+    followedJoint=nullptr;
     disabled=false;
 }
 
@@ -79,7 +79,7 @@ CIKGraphNode* CIKGraphJoint::getUnexplored(int pos)
             return(topObject);
         pos--;
     }
-    return(NULL);
+    return(nullptr);
 }
 
 CIKGraphNode* CIKGraphJoint::getNeighbour(int pos,bool noLinkNeighbour)
@@ -88,7 +88,7 @@ CIKGraphNode* CIKGraphJoint::getNeighbour(int pos,bool noLinkNeighbour)
         return(downObject);
     if (pos==1)
         return(topObject);
-    return(NULL);
+    return(nullptr);
 }
 
 int CIKGraphJoint::getNumberOfUnexplored()
@@ -107,14 +107,14 @@ CIKGraphNode* CIKGraphJoint::getNeighbourWithExplorationID(int theID)
         return(downObject);
     if (topObject->explorationID==theID)
         return(topObject);
-    return(NULL);
+    return(nullptr);
 }
 
 
 CIKGraphNode* CIKGraphJoint::getExploredWithSmallestExplorationID()
 {
     int smallest=999999;
-    CIKGraphObject* retVal=NULL;
+    CIKGraphObject* retVal=nullptr;
     if (downObject->explorationID!=-1)
     {
         if (downObject->explorationID<smallest)
@@ -141,7 +141,7 @@ int CIKGraphJoint::getConnectionNumber()
 
 void CIKGraphJoint::constrainJointToOtherJoint(CIKGraphJoint* it,float constantVal,float coefficient)
 {
-    if (it!=NULL)
+    if (it!=nullptr)
     {
         if ( (it->jointType!=IK_GRAPH_SPHERICAL_JOINT_TYPE)&&(jointType!=IK_GRAPH_SPHERICAL_JOINT_TYPE) )
         {
@@ -151,5 +151,5 @@ void CIKGraphJoint::constrainJointToOtherJoint(CIKGraphJoint* it,float constantV
         }
     }
     else
-        followedJoint=NULL;
+        followedJoint=nullptr;
 }

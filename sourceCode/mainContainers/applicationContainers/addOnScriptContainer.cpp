@@ -51,14 +51,14 @@ CLuaScriptObject* CAddOnScriptContainer::getAddOnScriptFromID(int scriptID) cons
         if (allAddOnScripts[i]->getScriptID()==scriptID)
             return(allAddOnScripts[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 int CAddOnScriptContainer::insertScript(CLuaScriptObject* script)
 {
     // We make sure the id is unique:
     int newID=SIM_IDSTART_ADDONSCRIPT;
-    while (getAddOnScriptFromID(newID)!=NULL)
+    while (getAddOnScriptFromID(newID)!=nullptr)
         newID++;
     script->setScriptID(newID);
     allAddOnScripts.push_back(script);
@@ -73,7 +73,7 @@ int CAddOnScriptContainer::insertAddOnScripts()
     finder.searchFilesWithExtension(App::directories->executableDirectory,ADDON_EXTENTION);
     int cnt=0;
     SFileOrFolder* foundItem=finder.getFoundItem(cnt);
-    while (foundItem!=NULL)
+    while (foundItem!=nullptr)
     {
         if ( (foundItem->name.find(ADDON_SCRIPT_PREFIX_AUTOSTART)==0)||(foundItem->name.find(ADDON_SCRIPT_PREFIX_NOAUTOSTART)==0) )
         {
@@ -182,7 +182,7 @@ int CAddOnScriptContainer::prepareAddOnFunctionNames()
     finder.searchFilesWithExtension(App::directories->executableDirectory,ADDON_EXTENTION);
     int cnt=0;
     SFileOrFolder* foundItem=finder.getFoundItem(cnt);
-    while (foundItem!=NULL)
+    while (foundItem!=nullptr)
     {
         if (foundItem->name.find(ADDON_FUNCTION_PREFIX)==0)
         {
@@ -208,7 +208,7 @@ bool CAddOnScriptContainer::handleAddOnScriptExecution_beforeMainScript()
         if (it->getScriptType()==sim_scripttype_addonscript)
         {
             CInterfaceStack outStack;
-            it->runAddOn(sim_syscb_beforemainscript,NULL,&outStack);
+            it->runAddOn(sim_syscb_beforemainscript,nullptr,&outStack);
             bool doNotRunMainScript;
             if (outStack.getStackMapBoolValue("doNotRunMainScript",doNotRunMainScript))
             {
@@ -300,7 +300,7 @@ bool CAddOnScriptContainer::processCommand(int commandID)
                         defScript->setScriptText(script);
                         defScript->setAddOnName(allAddOnFunctionNames[index].c_str());
                         defScript->setThreadedExecution(false);
-                        defScript->runAddOn(sim_syscb_init,NULL,NULL);
+                        defScript->runAddOn(sim_syscb_init,nullptr,nullptr);
                         delete[] script;
                         archive.close();
                         file.close();
@@ -331,7 +331,7 @@ bool CAddOnScriptContainer::processCommand(int commandID)
         { // we are NOT in the UI thread. We execute the command now:
             int index=commandID-SCRIPT_CONT_COMMANDS_ADDON_SCRIPT_MENU_ITEM_START_SCCMD;
             int cnt=0;
-            CLuaScriptObject* it=NULL;
+            CLuaScriptObject* it=nullptr;
             for (size_t i=0;i<allAddOnScripts.size();i++)
             {
                 it=allAddOnScripts[i];
@@ -339,27 +339,27 @@ bool CAddOnScriptContainer::processCommand(int commandID)
                 {
                     if (index==cnt)
                         break;
-                    it=NULL;
+                    it=nullptr;
                     cnt++;
                 }
             }
-            if (it!=NULL)
+            if (it!=nullptr)
             {
                 std::string txt;
                 int st=it->getAddOnExecutionState();
                 if (st==sim_syscb_aos_suspend)
                 {
-                    it->runAddOn(sim_syscb_aos_resume,NULL,NULL);
+                    it->runAddOn(sim_syscb_aos_resume,nullptr,nullptr);
                     txt=IDSNS_RESUMED_ADDON_SCRIPT;
                 }
                 if (st==sim_syscb_aos_run)
                 {
-                    it->runAddOn(sim_syscb_aos_suspend,NULL,NULL);
+                    it->runAddOn(sim_syscb_aos_suspend,nullptr,nullptr);
                     txt=IDSNS_PAUSED_ADDON_SCRIPT;
                 }
                 if (st==sim_syscb_init)
                 {
-                    it->runAddOn(sim_syscb_init,NULL,NULL);
+                    it->runAddOn(sim_syscb_init,nullptr,nullptr);
                     txt=IDSNS_STARTED_ADDON_SCRIPT;
                 }
                 txt+=" ";

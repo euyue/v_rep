@@ -89,13 +89,13 @@ bool CUndoBuffer::finalize(const std::vector<char>& previousFullBuffer)
 }
 
 void CUndoBuffer::getRestored(const std::vector<char>* previousFullBuffer,std::vector<char>& restoredBuffer)
-{ // previousFullBuffer can be NULL. In that case _sameCountFromBeginning and _sameCountFromEnd should be 0
+{ // previousFullBuffer can be nullptr. In that case _sameCountFromBeginning and _sameCountFromEnd should be 0
     FUNCTION_DEBUG;
     restoredBuffer.clear();
-    if (previousFullBuffer!=NULL)
+    if (previousFullBuffer!=nullptr)
         restoredBuffer.insert(restoredBuffer.end(),previousFullBuffer->begin(),previousFullBuffer->begin()+_sameCountFromBeginning);
     restoredBuffer.insert(restoredBuffer.end(),buffer.begin(),buffer.end());
-    if (previousFullBuffer!=NULL)
+    if (previousFullBuffer!=nullptr)
         restoredBuffer.insert(restoredBuffer.end(),previousFullBuffer->end()-_sameCountFromEnd,previousFullBuffer->end());
 }
 

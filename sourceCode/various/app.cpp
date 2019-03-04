@@ -28,13 +28,13 @@
 
 void (*_workThreadLoopCallback)();
 
-CUiThread* App::uiThread=NULL;
-CSimThread* App::simThread=NULL;
-CUserSettings* App::userSettings=NULL;
-CDirectoryPaths* App::directories=NULL;
+CUiThread* App::uiThread=nullptr;
+CSimThread* App::simThread=nullptr;
+CUserSettings* App::userSettings=nullptr;
+CDirectoryPaths* App::directories=nullptr;
 int App::operationalUIParts=0; // sim_gui_menubar,sim_gui_popupmenus,sim_gui_toolbar1,sim_gui_toolbar2, etc.
 std::string App::_applicationName="V-REP (Customized)";
-CMainContainer* App::ct=NULL;
+CMainContainer* App::ct=nullptr;
 bool App::_exitRequest=false;
 bool App::_browserEnabled=true;
 
@@ -44,13 +44,13 @@ volatile int App::_quitLevel=0;
 
 int App::sc=1;
 #ifndef SIM_WITHOUT_QT_AT_ALL
-    CVrepQApp* App::qtApp=NULL;
+    CVrepQApp* App::qtApp=nullptr;
     int App::_qApp_argc=1;
     char App::_qApp_arg0[]={"V-REP"};
     char* App::_qApp_argv[1]={_qApp_arg0};
 #endif
 #ifdef SIM_WITH_GUI
-    CMainWindow* App::mainWindow=NULL;
+    CMainWindow* App::mainWindow=nullptr;
 #endif
 
 
@@ -72,26 +72,26 @@ SIMPLE_VTHREAD_RETURN_TYPE _workThread(SIMPLE_VTHREAD_ARGUMENT_TYPE lpData)
     {
         // Send the "instancePass" message to all plugins:
         int auxData[4]={App::ct->getModificationFlags(true),0,0,0};
-        void* replyBuffer=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instancepass,auxData,NULL,NULL);
-        if (replyBuffer!=NULL)
+        void* replyBuffer=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instancepass,auxData,nullptr,nullptr);
+        if (replyBuffer!=nullptr)
             simReleaseBuffer_internal((simChar*)replyBuffer); // this should not happen! (or the replying module is not properly doing its job!)
 
         // Handle customization script execution:
         if ( App::ct->simulation->isSimulationStopped()&&(App::getEditModeType()==NO_EDIT_MODE) )
         {
-            App::ct->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_nonsimulation,NULL,NULL,NULL);
+            App::ct->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_nonsimulation,nullptr,nullptr,nullptr);
             App::ct->luaScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
-            App::ct->addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_nonsimulation,NULL,NULL);
+            App::ct->addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_nonsimulation,nullptr,nullptr);
         }
         if (App::ct->simulation->isSimulationPaused())
         {
-            App::ct->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_suspended,NULL,NULL,NULL);
+            App::ct->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_suspended,nullptr,nullptr,nullptr);
             App::ct->luaScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
-            App::ct->addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_suspended,NULL,NULL);
+            App::ct->addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_suspended,nullptr,nullptr);
         }
 
         // Handle the main loop (one pass):
-        if (_workThreadLoopCallback!=NULL)
+        if (_workThreadLoopCallback!=nullptr)
             _workThreadLoopCallback();
 
         App::ct->luaScriptContainer->removeDestroyedScripts(sim_scripttype_childscript);
@@ -99,7 +99,7 @@ SIMPLE_VTHREAD_RETURN_TYPE _workThread(SIMPLE_VTHREAD_ARGUMENT_TYPE lpData)
 
         // Keep for backward compatibility:
         if (!App::ct->simulation->isSimulationRunning()) // when simulation is running, we handle the add-on scripts after the main script was called
-            App::ct->addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_aos_run,NULL,NULL);
+            App::ct->addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_aos_run,nullptr,nullptr);
 
         #ifdef SIM_WITH_GUI
                 App::ct->simulation->showAndHandleEmergencyStopButton(false,""); // 10/10/2015
@@ -112,7 +112,7 @@ SIMPLE_VTHREAD_RETURN_TYPE _workThread(SIMPLE_VTHREAD_ARGUMENT_TYPE lpData)
     App::ct->sandboxScript->runSandboxScript(sim_syscb_cleanup);
 
     delete App::ct->sandboxScript;
-    App::ct->sandboxScript=NULL;
+    App::ct->sandboxScript=nullptr;
     App::setQuitLevel(1);
 
     #ifdef SIM_WITHOUT_QT_AT_ALL
@@ -155,11 +155,11 @@ void App::appendSimulationThreadCommand(int cmdId,int intP1,int intP2,float floa
     cmd.intParams.push_back(intP2);
     cmd.floatParams.push_back(floatP1);
     cmd.floatParams.push_back(floatP2);
-    if (stringP1==NULL)
+    if (stringP1==nullptr)
         cmd.stringParams.push_back("");
     else
         cmd.stringParams.push_back(stringP1);
-    if (stringP2==NULL)
+    if (stringP2==nullptr)
         cmd.stringParams.push_back("");
     else
         cmd.stringParams.push_back(stringP2);
@@ -170,7 +170,7 @@ void App::appendSimulationThreadCommand(SSimulationThreadCommand cmd,int executi
 {
     static std::vector<SSimulationThreadCommand> delayed_cmd;
     static std::vector<int> delayed_delay;
-    if (simThread!=NULL)
+    if (simThread!=nullptr)
     {
         if (delayed_cmd.size()!=0)
         {
@@ -193,7 +193,7 @@ void App::setBrowserEnabled(bool e)
     _browserEnabled=e;
     setToolbarRefreshFlag();
 #ifdef SIM_WITH_GUI
-    if (mainWindow!=NULL)
+    if (mainWindow!=nullptr)
         mainWindow->setBrowserVisible(_browserEnabled);
 #endif
 }
@@ -207,7 +207,7 @@ App::App(bool headless)
 {
     FUNCTION_DEBUG;
 
-    uiThread=NULL;
+    uiThread=nullptr;
     _initSuccessful=false;
     _browserEnabled=true;
 
@@ -348,9 +348,9 @@ App::~App()
     }
 
     delete directories;
-    directories=NULL;
+    directories=nullptr;
     delete userSettings;
-    userSettings=NULL;
+    userSettings=nullptr;
     unloadExtLuaLibrary();
 
 #ifdef SIM_WITH_GUI
@@ -358,7 +358,7 @@ App::~App()
 #endif
 
 #ifndef SIM_WITHOUT_QT_AT_ALL
-    if (qtApp!=NULL)
+    if (qtApp!=nullptr)
     {
         #ifdef SIM_WITH_GUI
             handleVerSpecDestructor1();
@@ -367,7 +367,7 @@ App::~App()
             Q_CLEANUP_RESOURCE(targaFiles);
         #endif // SIM_WITH_GUI
         delete qtApp;
-        qtApp=NULL;
+        qtApp=nullptr;
     }
 #endif // SIM_WITHOUT_QT_AT_ALL
     _applicationArguments.clear();
@@ -409,7 +409,7 @@ void App::beep(int frequ,int duration)
         #ifdef WIN_VREP
             Beep(frequ,duration);
         #else
-            if (qtApp!=NULL)
+            if (qtApp!=nullptr)
                 qtApp->beep();
         #endif
         VThread::sleep(500);
@@ -439,13 +439,13 @@ void App::deleteMainContainer()
     FUNCTION_DEBUG;
     ct->deinitialize();
     delete ct;
-    ct=NULL;
+    ct=nullptr;
 }
 
 void App::_runInitializationCallback(void(*initCallBack)())
 {
     FUNCTION_DEBUG;
-    if (initCallBack!=NULL)
+    if (initCallBack!=nullptr)
         initCallBack(); // this should load all plugins
 
     App::ct->luaCustomFuncAndVarContainer->outputWarningWithFunctionNamesWithoutPlugin(true);
@@ -466,7 +466,7 @@ void App::_runInitializationCallback(void(*initCallBack)())
 void App::_runDeinitializationCallback(void(*deinitCallBack)())
 {
     FUNCTION_DEBUG;
-    if (deinitCallBack!=NULL)
+    if (deinitCallBack!=nullptr)
         deinitCallBack(); // this will unload all plugins!!
 }
 
@@ -476,7 +476,7 @@ void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(
     _exitRequest=false;
     CApiErrors::addNewThreadForErrorReporting(0);
 #ifdef SIM_WITH_GUI
-    if (mainWindow!=NULL)
+    if (mainWindow!=nullptr)
         mainWindow->setFocus(Qt::MouseFocusReason); // needed because at first Qt behaves strangely (really??)
     uiThread->setFileDialogsNative(userSettings->fileDialogs);
 #endif
@@ -497,7 +497,7 @@ void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(
     VThread::launchSimpleThread(_workThread);
 #endif
 
-    while (simThread==NULL)
+    while (simThread==nullptr)
         VThread::sleep(1);
 
 #ifdef SIM_WITH_GUI
@@ -586,7 +586,7 @@ int App::getEditModeType()
 { // helper
     int retVal=NO_EDIT_MODE;
 #ifdef SIM_WITH_GUI
-    if (mainWindow!=NULL)
+    if (mainWindow!=nullptr)
         retVal=mainWindow->editModeContainer->getEditModeType();
 #endif
     return(retVal);
@@ -595,7 +595,7 @@ int App::getEditModeType()
 void App::setRebuildHierarchyFlag()
 { // helper
 #ifdef SIM_WITH_GUI
-    if (mainWindow!=NULL)
+    if (mainWindow!=nullptr)
         mainWindow->oglSurface->hierarchy->setRebuildHierarchyFlag();
 #endif
 }
@@ -603,7 +603,7 @@ void App::setRebuildHierarchyFlag()
 void App::setResetHierarchyViewFlag()
 { // helper
 #ifdef SIM_WITH_GUI
-    if (mainWindow!=NULL)
+    if (mainWindow!=nullptr)
         mainWindow->oglSurface->hierarchy->setResetViewFlag();
 #endif
 }
@@ -611,7 +611,7 @@ void App::setResetHierarchyViewFlag()
 void App::setRefreshHierarchyViewFlag()
 { // helper
 #ifdef SIM_WITH_GUI
-    if (mainWindow!=NULL)
+    if (mainWindow!=nullptr)
         mainWindow->oglSurface->hierarchy->setRefreshViewFlag();
 #endif
 }
@@ -619,7 +619,7 @@ void App::setRefreshHierarchyViewFlag()
 void App::setLightDialogRefreshFlag()
 { // helper
 #ifdef SIM_WITH_GUI
-    if (mainWindow!=NULL)
+    if (mainWindow!=nullptr)
         mainWindow->setLightDialogRefreshFlag();
 #endif
 }
@@ -627,7 +627,7 @@ void App::setLightDialogRefreshFlag()
 void App::setFullDialogRefreshFlag()
 { // helper
 #ifdef SIM_WITH_GUI
-    if (mainWindow!=NULL)
+    if (mainWindow!=nullptr)
         mainWindow->setFullDialogRefreshFlag();
 #endif
 }
@@ -635,7 +635,7 @@ void App::setFullDialogRefreshFlag()
 void App::setDialogRefreshDontPublishFlag()
 { // helper
 #ifdef SIM_WITH_GUI
-    if (mainWindow!=NULL)
+    if (mainWindow!=nullptr)
         mainWindow->setDialogRefreshDontPublishFlag();
 #endif
 }
@@ -643,7 +643,7 @@ void App::setDialogRefreshDontPublishFlag()
 void App::setToolbarRefreshFlag()
 { // helper
 #ifdef SIM_WITH_GUI
-    if (mainWindow!=NULL)
+    if (mainWindow!=nullptr)
         mainWindow->setToolbarRefreshFlag();
 #endif
 }
@@ -652,7 +652,7 @@ int App::getMouseMode()
 { // helper
     int retVal=0;
 #ifdef SIM_WITH_GUI
-    if (mainWindow!=NULL)
+    if (mainWindow!=nullptr)
         retVal=mainWindow->getMouseMode();
 #endif
     return(retVal);
@@ -661,7 +661,7 @@ int App::getMouseMode()
 void App::setMouseMode(int mm)
 { // helper
 #ifdef SIM_WITH_GUI
-    if (mainWindow!=NULL)
+    if (mainWindow!=nullptr)
         mainWindow->setMouseMode(mm);
 #endif
 }
@@ -669,7 +669,7 @@ void App::setMouseMode(int mm)
 void App::setDefaultMouseMode()
 { // helper
 #ifdef SIM_WITH_GUI
-    if (mainWindow!=NULL)
+    if (mainWindow!=nullptr)
         mainWindow->setDefaultMouseMode();
 #endif
 }
@@ -678,7 +678,7 @@ bool App::isFullScreen()
 { // helper
     bool retVal=false;
 #ifdef SIM_WITH_GUI
-    if (mainWindow!=NULL)
+    if (mainWindow!=nullptr)
         retVal=mainWindow->isFullScreen();
 #endif
     return(retVal);
@@ -687,7 +687,7 @@ bool App::isFullScreen()
 void App::setFullScreen(bool f)
 { // helper
 #ifdef SIM_WITH_GUI
-    if (mainWindow!=NULL)
+    if (mainWindow!=nullptr)
         mainWindow->setFullScreen(f);
 #endif
 }
@@ -700,7 +700,7 @@ void App::addStatusbarMessage(const std::string& txt,bool scriptErrorMsg/*=false
         cmdIn.cmdId=ADD_STATUSBAR_MESSAGE_UITHREADCMD;
         cmdIn.stringParams.push_back(txt);
         cmdIn.boolParams.push_back(scriptErrorMsg);
-        uiThread->executeCommandViaUiThread(&cmdIn,NULL);
+        uiThread->executeCommandViaUiThread(&cmdIn,nullptr);
     }
     else
     {
@@ -714,9 +714,9 @@ void App::addStatusbarMessage(const std::string& txt,bool scriptErrorMsg/*=false
                 str.assign(txt.begin(),txt.end()-5);
             }
 
-            if (mainWindow!=NULL)
+            if (mainWindow!=nullptr)
             {
-                if ((operationalUIParts&sim_gui_statusbar)&&(mainWindow->statusBar!=NULL) )
+                if ((operationalUIParts&sim_gui_statusbar)&&(mainWindow->statusBar!=nullptr) )
                 {
                     if (html)
                     {
@@ -730,7 +730,7 @@ void App::addStatusbarMessage(const std::string& txt,bool scriptErrorMsg/*=false
                     mainWindow->statusBar->ensureCursorVisible();
                 }
             }
-            if ( ((mainWindow==NULL)&&userSettings->redirectStatusbarMsgToConsoleInHeadlessMode)||CMiscBase::handleVerSpec_statusbarMsgToConsole() )
+            if ( ((mainWindow==nullptr)&&userSettings->redirectStatusbarMsgToConsoleInHeadlessMode)||CMiscBase::handleVerSpec_statusbarMsgToConsole() )
             {
                 if (html)
                 {
@@ -758,9 +758,9 @@ void App::clearStatusbar()
     else
     {
         #ifdef SIM_WITH_GUI
-            if (mainWindow!=NULL)
+            if (mainWindow!=nullptr)
             {
-                if ((operationalUIParts&sim_gui_statusbar)&&(mainWindow->statusBar!=NULL) )
+                if ((operationalUIParts&sim_gui_statusbar)&&(mainWindow->statusBar!=nullptr) )
                     mainWindow->statusBar->clear();
             }
         #endif
@@ -768,10 +768,10 @@ void App::clearStatusbar()
 }
 
 float* App::getRGBPointerFromItem(int objType,int objID1,int objID2,int colComponent,std::string* auxDlgTitle)
-{ // auxDlgTitle can be NULL
+{ // auxDlgTitle can be nullptr
     std::string __auxDlgTitle;
     std::string* _auxDlgTitle=&__auxDlgTitle;
-    if (auxDlgTitle!=NULL)
+    if (auxDlgTitle!=nullptr)
         _auxDlgTitle=auxDlgTitle;
 
     if (objType==COLOR_ID_AMBIENT_LIGHT)
@@ -798,31 +798,31 @@ float* App::getRGBPointerFromItem(int objType,int objID1,int objID2,int colCompo
     {
         _auxDlgTitle->assign("Mirror");
         CMirror* it=App::ct->objCont->getMirror(objID1);
-        if ((it!=NULL)&&it->getIsMirror())
+        if ((it!=nullptr)&&it->getIsMirror())
             return(it->mirrorColor);
     }
     if (objType==COLOR_ID_OCTREE)
     {
         _auxDlgTitle->assign("Octree");
         COctree* it=App::ct->objCont->getOctree(objID1);
-        if (it!=NULL)
+        if (it!=nullptr)
             return(it->getColor()->colors);
     }
     if (objType==COLOR_ID_POINTCLOUD)
     {
         _auxDlgTitle->assign("Point cloud");
         CPointCloud* it=App::ct->objCont->getPointCloud(objID1);
-        if (it!=NULL)
+        if (it!=nullptr)
             return(it->getColor()->colors);
     }
     if (objType==COLOR_ID_GRAPH_2DCURVE)
     {
         _auxDlgTitle->assign("Graph - 2D curve");
         CGraph* it=ct->objCont->getGraph(objID1);
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             CGraphDataComb* grDataComb=it->getGraphData2D(objID2);
-            if (grDataComb!=NULL)
+            if (grDataComb!=nullptr)
                 return(grDataComb->curveColor.colors);
         }
     }
@@ -830,24 +830,24 @@ float* App::getRGBPointerFromItem(int objType,int objID1,int objID2,int colCompo
     {
         _auxDlgTitle->assign("Graph - background");
         CGraph* it=ct->objCont->getGraph(objID1);
-        if (it!=NULL)
+        if (it!=nullptr)
             return(it->backgroundColor);
     }
     if (objType==COLOR_ID_GRAPH_GRID)
     {
         _auxDlgTitle->assign("Graph - grid");
         CGraph* it=ct->objCont->getGraph(objID1);
-        if (it!=NULL)
+        if (it!=nullptr)
             return(it->textColor);
     }
     if (objType==COLOR_ID_GRAPH_TIMECURVE)
     {
         _auxDlgTitle->assign("Graph - data stream");
         CGraph* it=ct->objCont->getGraph(objID1);
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             CGraphData* grData=it->getGraphData(objID2);
-            if (grData!=NULL)
+            if (grData!=nullptr)
                 return(grData->ambientColor);
         }
     }
@@ -860,10 +860,10 @@ float* App::getRGBPointerFromItem(int objType,int objID1,int objID2,int colCompo
         if (objType==COLOR_ID_OPENGLBUTTON_TEXT)
             _auxDlgTitle->assign("Button - text");
         CButtonBlock* block=App::ct->buttonBlockContainer->getBlockWithID(objID1);
-        if (block!=NULL)
+        if (block!=nullptr)
         {
             CSoftButton* itButton=block->getButtonWithID(objID2);
-            if (itButton!=NULL)
+            if (itButton!=nullptr)
             {
                 if (objType==COLOR_ID_OPENGLBUTTON_UP)
                     return(itButton->backgroundColor);
@@ -878,7 +878,7 @@ float* App::getRGBPointerFromItem(int objType,int objID1,int objID2,int colCompo
 
     int allowedParts=0;
     CVisualParam* vp=getVisualParamPointerFromItem(objType,objID1,objID2,_auxDlgTitle,&allowedParts);
-    if (vp!=NULL)
+    if (vp!=nullptr)
     {
         if ((colComponent==sim_colorcomponent_ambient_diffuse)&&(allowedParts&1))
             return((vp->colors+0));
@@ -892,18 +892,18 @@ float* App::getRGBPointerFromItem(int objType,int objID1,int objID2,int colCompo
             return((vp->colors+12));
     }
 
-    return(NULL);
+    return(nullptr);
 }
 
 CVisualParam* App::getVisualParamPointerFromItem(int objType,int objID1,int objID2,std::string* auxDlgTitle,int* allowedParts)
-{ // auxDlgTitle and allowedParts can be NULL. Bit-coded: 1=ambient/diffuse, 2=diffuse(light only), 4=spec, 8=emiss., 16=aux channels, 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
+{ // auxDlgTitle and allowedParts can be nullptr. Bit-coded: 1=ambient/diffuse, 2=diffuse(light only), 4=spec, 8=emiss., 16=aux channels, 32=pulsation, 64=shininess, 128=opacity, 256=colorName, 512=ext. string
     std::string __auxDlgTitle;
     int __allowedParts;
     std::string* _auxDlgTitle=&__auxDlgTitle;
     int* _allowedParts=&__allowedParts;
-    if (auxDlgTitle!=NULL)
+    if (auxDlgTitle!=nullptr)
         _auxDlgTitle=auxDlgTitle;
-    if (allowedParts!=NULL)
+    if (allowedParts!=nullptr)
         _allowedParts=allowedParts;
 
     if (objType==COLOR_ID_CAMERA_A)
@@ -911,7 +911,7 @@ CVisualParam* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
         _auxDlgTitle->assign("Camera - part A");
         _allowedParts[0]=1+4+8+16+32+64;
         CCamera* it=ct->objCont->getCamera(objID1);
-        if (it!=NULL)
+        if (it!=nullptr)
             return(it->getColor(false));
     }
     if (objType==COLOR_ID_CAMERA_B)
@@ -919,7 +919,7 @@ CVisualParam* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
         _auxDlgTitle->assign("Camera - part B");
         _allowedParts[0]=1+4+8+16+32+64;
         CCamera* it=ct->objCont->getCamera(objID1);
-        if (it!=NULL)
+        if (it!=nullptr)
             return(it->getColor(true));
     }
     if (objType==COLOR_ID_FORCESENSOR_A)
@@ -927,7 +927,7 @@ CVisualParam* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
         _auxDlgTitle->assign("Force sensor - part A");
         _allowedParts[0]=1+4+8+16+32+64;
         CForceSensor* it=ct->objCont->getForceSensor(objID1);
-        if (it!=NULL)
+        if (it!=nullptr)
             return(it->getColor(false));
     }
     if (objType==COLOR_ID_FORCESENSOR_B)
@@ -935,7 +935,7 @@ CVisualParam* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
         _auxDlgTitle->assign("Force sensor - part B");
         _allowedParts[0]=1+4+8+16+32+64;
         CForceSensor* it=ct->objCont->getForceSensor(objID1);
-        if (it!=NULL)
+        if (it!=nullptr)
             return(it->getColor(true));
     }
     if (objType==COLOR_ID_JOINT_A)
@@ -943,7 +943,7 @@ CVisualParam* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
         _auxDlgTitle->assign("Joint - part A");
         _allowedParts[0]=1+4+8+16+32+64;
         CJoint* it=ct->objCont->getJoint(objID1);
-        if (it!=NULL)
+        if (it!=nullptr)
             return(it->getColor(false));
     }
     if (objType==COLOR_ID_JOINT_B)
@@ -951,7 +951,7 @@ CVisualParam* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
         _auxDlgTitle->assign("Joint - part B");
         _allowedParts[0]=1+4+8+16+32+64;
         CJoint* it=ct->objCont->getJoint(objID1);
-        if (it!=NULL)
+        if (it!=nullptr)
             return(it->getColor(true));
     }
     if (objType==COLOR_ID_PATH)
@@ -959,7 +959,7 @@ CVisualParam* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
         _auxDlgTitle->assign("Path");
         _allowedParts[0]=1+4+8+16+32+64;
         CPath* it=ct->objCont->getPath(objID1);
-        if ( (it!=NULL)&&(it->pathContainer!=NULL) )
+        if ( (it!=nullptr)&&(it->pathContainer!=nullptr) )
             return(&it->pathContainer->_lineColor);
     }
     if (objType==COLOR_ID_PATH_SHAPING)
@@ -967,7 +967,7 @@ CVisualParam* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
         _auxDlgTitle->assign("Path shaping");
         _allowedParts[0]=1+4+8+16+32+64;
         CPath* it=ct->objCont->getPath(objID1);
-        if (it!=NULL)
+        if (it!=nullptr)
             return(it->getShapingColor());
     }
     if (objType==COLOR_ID_GRAPH_3DCURVE)
@@ -975,10 +975,10 @@ CVisualParam* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
         _auxDlgTitle->assign("Graph - 3D curve");
         _allowedParts[0]=1+8;
         CGraph* it=ct->objCont->getGraph(objID1);
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             CGraphDataComb* grDataComb=it->getGraphData3D(objID2);
-            if (grDataComb!=NULL)
+            if (grDataComb!=nullptr)
                 return(&grDataComb->curveColor);
         }
     }
@@ -993,7 +993,7 @@ CVisualParam* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
         _auxDlgTitle->assign("Collision contour");
         _allowedParts[0]=1+4+8+16+32+64;
         CRegCollision* it=App::ct->collisions->getObject(objID1);
-        if (it!=NULL)
+        if (it!=nullptr)
             return(&it->contourColor);
     }
     if (objType==COLOR_ID_DISTANCESEGMENT)
@@ -1001,7 +1001,7 @@ CVisualParam* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
         _auxDlgTitle->assign("Distance segment");
         _allowedParts[0]=1+4+8+16+32+64;
         CRegDist* it=App::ct->distances->getObject(objID1);
-        if (it!=NULL)
+        if (it!=nullptr)
             return(&it->segmentColor);
     }
     if (objType==COLOR_ID_CLIPPINGPLANE)
@@ -1009,7 +1009,7 @@ CVisualParam* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
         _auxDlgTitle->assign("Clipping plane");
         _allowedParts[0]=1+4+8+16+32+64+128;
         CMirror* it=App::ct->objCont->getMirror(objID1);
-        if ((it!=NULL)&&(!it->getIsMirror()))
+        if ((it!=nullptr)&&(!it->getIsMirror()))
             return(it->getClipPlaneColor());
     }
     if (objType==COLOR_ID_LIGHT_CASING)
@@ -1017,7 +1017,7 @@ CVisualParam* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
         _auxDlgTitle->assign("Light - casing");
         _allowedParts[0]=1+4+8+16+64;
         CLight* it=ct->objCont->getLight(objID1);
-        if (it!=NULL)
+        if (it!=nullptr)
             return(it->getColor(false));
     }
     if (objType==COLOR_ID_LIGHT_LIGHT)
@@ -1025,7 +1025,7 @@ CVisualParam* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
         _auxDlgTitle->assign("Light");
         _allowedParts[0]=2+4;
         CLight* it=ct->objCont->getLight(objID1);
-        if (it!=NULL)
+        if (it!=nullptr)
             return(it->getColor(true));
     }
     if (objType==COLOR_ID_DUMMY)
@@ -1033,7 +1033,7 @@ CVisualParam* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
         _auxDlgTitle->assign("Dummy");
         _allowedParts[0]=1+4+8+16+32+64;
         CDummy* it=ct->objCont->getDummy(objID1);
-        if (it!=NULL)
+        if (it!=nullptr)
             return(it->getColor());
     }
     if (objType==COLOR_ID_VISIONSENSOR_PASSIVE)
@@ -1041,7 +1041,7 @@ CVisualParam* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
         _auxDlgTitle->assign("Vision sensor - passive");
         _allowedParts[0]=1+4+8+16+32;
         CVisionSensor* it=ct->objCont->getVisionSensor(objID1);
-        if (it!=NULL)
+        if (it!=nullptr)
             return(it->getColor(false));
     }
     if (objType==COLOR_ID_VISIONSENSOR_ACTIVE)
@@ -1049,7 +1049,7 @@ CVisualParam* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
         _auxDlgTitle->assign("Vision sensor - active");
         _allowedParts[0]=1+4+8+16+32;
         CVisionSensor* it=ct->objCont->getVisionSensor(objID1);
-        if (it!=NULL)
+        if (it!=nullptr)
             return(it->getColor(true));
     }
     if (objType==COLOR_ID_PROXSENSOR_PASSIVE)
@@ -1057,7 +1057,7 @@ CVisualParam* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
         _auxDlgTitle->assign("Proximity sensor - passive");
         _allowedParts[0]=1+4+8+16+32;
         CProxSensor* it=ct->objCont->getProximitySensor(objID1);
-        if (it!=NULL)
+        if (it!=nullptr)
             return(it->getColor(0));
     }
     if (objType==COLOR_ID_PROXSENSOR_ACTIVE)
@@ -1065,7 +1065,7 @@ CVisualParam* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
         _auxDlgTitle->assign("Proximity sensor - active");
         _allowedParts[0]=1+4+8+16+32;
         CProxSensor* it=ct->objCont->getProximitySensor(objID1);
-        if (it!=NULL)
+        if (it!=nullptr)
             return(it->getColor(1));
     }
     if (objType==COLOR_ID_PROXSENSOR_RAY)
@@ -1073,7 +1073,7 @@ CVisualParam* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
         _auxDlgTitle->assign("Proximity sensor - ray");
         _allowedParts[0]=1+4+8+16+32;
         CProxSensor* it=ct->objCont->getProximitySensor(objID1);
-        if (it!=NULL)
+        if (it!=nullptr)
             return(it->getColor(2));
     }
     if (objType==COLOR_ID_PROXSENSOR_MINDIST)
@@ -1081,7 +1081,7 @@ CVisualParam* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
         _auxDlgTitle->assign("Proximity sensor - min. dist.");
         _allowedParts[0]=1+4+8+16+32;
         CProxSensor* it=ct->objCont->getProximitySensor(objID1);
-        if (it!=NULL)
+        if (it!=nullptr)
             return(it->getColor(3));
     }
     if (objType==COLOR_ID_MILL_PASSIVE)
@@ -1089,7 +1089,7 @@ CVisualParam* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
         _auxDlgTitle->assign("Mill - passive");
         _allowedParts[0]=1+4+8+16+32;
         CMill* it=ct->objCont->getMill(objID1);
-        if (it!=NULL)
+        if (it!=nullptr)
             return(it->getColor(false));
     }
     if (objType==COLOR_ID_MILL_ACTIVE)
@@ -1097,7 +1097,7 @@ CVisualParam* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
         _auxDlgTitle->assign("Mill - active");
         _allowedParts[0]=1+4+8+16+32;
         CMill* it=ct->objCont->getMill(objID1);
-        if (it!=NULL)
+        if (it!=nullptr)
             return(it->getColor(true));
     }
     if (objType==COLOR_ID_SHAPE)
@@ -1105,7 +1105,7 @@ CVisualParam* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
         _auxDlgTitle->assign("Shape");
         _allowedParts[0]=1+4+8+16+32+64+128+256+512;
         CShape* it=ct->objCont->getShape(objID1);
-        if ((it!=NULL)&&(!it->isCompound()))
+        if ((it!=nullptr)&&(!it->isCompound()))
             return(&((CGeometric*)it->geomData->geomInfo)->color);
     }
     if (objType==COLOR_ID_SHAPE_GEOMETRY)
@@ -1116,7 +1116,7 @@ CVisualParam* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
             _auxDlgTitle->assign("Shape component");
             _allowedParts[0]=1+4+8+16+32+64+128+256+512;
             CShape* it=ct->objCont->getShape(objID1);
-            if ((it!=NULL)&&it->isCompound())
+            if ((it!=nullptr)&&it->isCompound())
             {
                 std::vector<CGeometric*> allGeometrics;
                 it->geomData->geomInfo->getAllShapeComponentsCumulative(allGeometrics);
@@ -1128,35 +1128,35 @@ CVisualParam* App::getVisualParamPointerFromItem(int objType,int objID1,int objI
     }
 
     _allowedParts[0]=0;
-    return(NULL);
+    return(nullptr);
 }
 
 CTextureProperty* App::getTexturePropertyPointerFromItem(int objType,int objID1,int objID2,std::string* auxDlgTitle,bool* is3D,bool* valid,CGeometric** geom)
-{ // auxDlgTitle, is3D, isValid and geom can be NULL.
+{ // auxDlgTitle, is3D, isValid and geom can be nullptr.
     std::string __auxDlgTitle;
     bool __is3D=false;
     bool __isValid=false;
-    CGeometric* __geom=NULL;
+    CGeometric* __geom=nullptr;
     std::string* _auxDlgTitle=&__auxDlgTitle;
     bool* _is3D=&__is3D;
     bool* _isValid=&__isValid;
     CGeometric** _geom=&__geom;
-    if (auxDlgTitle!=NULL)
+    if (auxDlgTitle!=nullptr)
         _auxDlgTitle=auxDlgTitle;
-    if (is3D!=NULL)
+    if (is3D!=nullptr)
         _is3D=is3D;
-    if (valid!=NULL)
+    if (valid!=nullptr)
         _isValid=valid;
-    if (geom!=NULL)
+    if (geom!=nullptr)
         _geom=geom;
     _isValid[0]=false;
-    _geom[0]=NULL;
+    _geom[0]=nullptr;
     if (objType==TEXTURE_ID_SIMPLE_SHAPE)
     {
         _auxDlgTitle->assign("Shape");
         _is3D[0]=true;
         CShape* it=ct->objCont->getShape(objID1);
-        if ( (it!=NULL)&&(!it->isCompound()) )
+        if ( (it!=nullptr)&&(!it->isCompound()) )
         {
             _isValid[0]=true;
             _geom[0]=((CGeometric*)it->geomData->geomInfo);
@@ -1168,7 +1168,7 @@ CTextureProperty* App::getTexturePropertyPointerFromItem(int objType,int objID1,
         _auxDlgTitle->assign("Shape component");
         _is3D[0]=true;
         CShape* it=ct->objCont->getShape(objID1);
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             std::vector<CGeometric*> allGeometrics;
             it->geomData->geomInfo->getAllShapeComponentsCumulative(allGeometrics);
@@ -1185,7 +1185,7 @@ CTextureProperty* App::getTexturePropertyPointerFromItem(int objType,int objID1,
         _auxDlgTitle->assign("OpenGl custom UI background");
         _is3D[0]=false;
         CButtonBlock* it=ct->buttonBlockContainer->getBlockWithID(objID1);
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             _isValid[0]=true;
             return(it->getTextureProperty());
@@ -1196,10 +1196,10 @@ CTextureProperty* App::getTexturePropertyPointerFromItem(int objType,int objID1,
         _auxDlgTitle->assign("OpenGl custom UI button");
         _is3D[0]=false;
         CButtonBlock* it=ct->buttonBlockContainer->getBlockWithID(objID1);
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             CSoftButton* butt=it->getButtonWithID(objID2);
-            if (butt!=NULL)
+            if (butt!=nullptr)
             {
                 _isValid[0]=true;
                 return(butt->getTextureProperty());
@@ -1207,7 +1207,7 @@ CTextureProperty* App::getTexturePropertyPointerFromItem(int objType,int objID1,
         }
     }
 
-    return(NULL);
+    return(nullptr);
 }
 
 
@@ -1257,7 +1257,7 @@ void App::deleteMainWindow()
 {
     FUNCTION_DEBUG;
     delete mainWindow;
-    mainWindow=NULL;
+    mainWindow=nullptr;
 }
 
 void App::setShowConsole(bool s)

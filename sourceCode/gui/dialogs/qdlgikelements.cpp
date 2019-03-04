@@ -25,7 +25,7 @@ CQDlgIkElements::CQDlgIkElements(QWidget *parent) :
     QShortcut* shortcut2 = new QShortcut(QKeySequence(Qt::Key_Backspace), this);
     connect(shortcut2,SIGNAL(activated()), this, SLOT(onDeletePressed()));
     _ikGroupHandle=-1;
-    if (App::mainWindow!=NULL)
+    if (App::mainWindow!=nullptr)
         App::mainWindow->dlgCont->close(IKELEMENT_DLG);
 }
 
@@ -45,14 +45,14 @@ void CQDlgIkElements::updateObjectsInList()
     noListSelectionAllowed=true;
     ui->qqList->clear();
     CikGroup* ikGroup=App::ct->ikGroups->getIkGroup(_ikGroupHandle);
-    if (ikGroup!=NULL)
+    if (ikGroup!=nullptr)
     {
         for (size_t i=0;i<ikGroup->ikElements.size();i++)
         {
             int tooltipID=ikGroup->ikElements[i]->getTooltip();
             int elementID=ikGroup->ikElements[i]->getObjectID();
             CDummy* theTooltip=App::ct->objCont->getDummy(tooltipID);
-            QListWidgetItem* itm=new QListWidgetItem(theTooltip->getName().c_str());
+            QListWidgetItem* itm=new QListWidgetItem(theTooltip->getObjectName().c_str());
             itm->setData(Qt::UserRole,QVariant(elementID));
             itm->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
             ui->qqList->addItem(itm);
@@ -75,7 +75,7 @@ void CQDlgIkElements::selectObjectInList(int objectID)
     for (int i=0;i<ui->qqList->count();i++)
     {
         QListWidgetItem* it=ui->qqList->item(i);
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             if (it->data(Qt::UserRole).toInt()==objectID)
             {
@@ -98,7 +98,7 @@ void CQDlgIkElements::_initialize(int ikGroupHandle)
 {
     _ikGroupHandle=ikGroupHandle;
     CikGroup* ikGroup=App::ct->ikGroups->getIkGroup(_ikGroupHandle);
-    if (ikGroup!=NULL)
+    if (ikGroup!=nullptr)
     {
         std::string titleText("IK Group (");
         titleText+=ikGroup->getObjectName();
@@ -115,20 +115,20 @@ bool CQDlgIkElements::isLinkedDataValid()
         return(false);
     if (App::getEditModeType()!=NO_EDIT_MODE)
         return(false);
-    if (App::ct->ikGroups->getIkGroup(_ikGroupHandle)!=NULL)
+    if (App::ct->ikGroups->getIkGroup(_ikGroupHandle)!=nullptr)
         return(!_invalid);
     return(false);
 }
 
 void CQDlgIkElements::display(int ikGroupHandle,QWidget* theParentWindow)
 {
-    if (App::mainWindow==NULL)
+    if (App::mainWindow==nullptr)
         return;
     App::mainWindow->dlgCont->close(IKELEMENT_DLG);
     if (App::mainWindow->dlgCont->openOrBringToFront(IKELEMENT_DLG))
     {
         CQDlgIkElements* dlg=(CQDlgIkElements*)App::mainWindow->dlgCont->getDialog(IKELEMENT_DLG);
-        if (dlg!=NULL)
+        if (dlg!=nullptr)
             dlg->_initialize(ikGroupHandle);
     }
 }
@@ -140,7 +140,7 @@ bool CQDlgIkElements::doesInstanceSwitchRequireDestruction()
 
 void CQDlgIkElements::dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut)
 {
-    if ( (cmdIn!=NULL)&&(cmdIn->intParams[0]==_dlgType) )
+    if ( (cmdIn!=nullptr)&&(cmdIn->intParams[0]==_dlgType) )
     {
         if (cmdIn->intParams[1]==0)
         {
@@ -167,26 +167,26 @@ void CQDlgIkElements::refresh()
         selectObjectInList(elementID);
     }
 
-    ui->qqActive->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqBaseCombo->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqX->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqY->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqZ->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqAlphaBeta->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqGamma->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqRelativeCombo->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqPrecisionLinear->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqPrecisionAngular->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqWeightLinear->setEnabled((it!=NULL)&&noEditModeNoSim);
-    ui->qqWeightAngular->setEnabled((it!=NULL)&&noEditModeNoSim);
+    ui->qqActive->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqBaseCombo->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqX->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqY->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqZ->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqAlphaBeta->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqGamma->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqRelativeCombo->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqPrecisionLinear->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqPrecisionAngular->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqWeightLinear->setEnabled((it!=nullptr)&&noEditModeNoSim);
+    ui->qqWeightAngular->setEnabled((it!=nullptr)&&noEditModeNoSim);
 
-    ui->qqActive->setChecked((it!=NULL)&&it->getActive());
+    ui->qqActive->setChecked((it!=nullptr)&&it->getActive());
     ui->qqBaseCombo->clear();
-    ui->qqX->setChecked((it!=NULL)&&(it->getConstraints()&sim_ik_x_constraint));
-    ui->qqY->setChecked((it!=NULL)&&(it->getConstraints()&sim_ik_y_constraint));
-    ui->qqZ->setChecked((it!=NULL)&&(it->getConstraints()&sim_ik_z_constraint));
-    ui->qqAlphaBeta->setChecked((it!=NULL)&&(it->getConstraints()&sim_ik_alpha_beta_constraint));
-    ui->qqGamma->setChecked((it!=NULL)&&(it->getConstraints()&sim_ik_gamma_constraint));
+    ui->qqX->setChecked((it!=nullptr)&&(it->getConstraints()&sim_ik_x_constraint));
+    ui->qqY->setChecked((it!=nullptr)&&(it->getConstraints()&sim_ik_y_constraint));
+    ui->qqZ->setChecked((it!=nullptr)&&(it->getConstraints()&sim_ik_z_constraint));
+    ui->qqAlphaBeta->setChecked((it!=nullptr)&&(it->getConstraints()&sim_ik_alpha_beta_constraint));
+    ui->qqGamma->setChecked((it!=nullptr)&&(it->getConstraints()&sim_ik_gamma_constraint));
     ui->qqRelativeCombo->clear();
 
     std::vector<std::string> names;
@@ -196,29 +196,29 @@ void CQDlgIkElements::refresh()
     for (size_t i=0;i<App::ct->objCont->dummyList.size();i++)
     {
         CDummy* it2=App::ct->objCont->getDummy(App::ct->objCont->dummyList[i]);
-        names.push_back(it2->getName());
-        ids.push_back(it2->getID());
+        names.push_back(it2->getObjectName());
+        ids.push_back(it2->getObjectHandle());
     }
     tt::orderStrings(names,ids);
     for (size_t i=0;i<names.size();i++)
         ui->qqTipCombo->addItem(names[i].c_str(),QVariant(ids[i]));
 
-    if (it!=NULL)
+    if (it!=nullptr)
     {
         CDummy* tip=App::ct->objCont->getDummy(it->getTooltip());
-        if (tip==NULL)
+        if (tip==nullptr)
             ui->qqTargetString->setText("");
         else
         {
             CDummy* target=App::ct->objCont->getDummy(tip->getLinkedDummyID());
-            if (target==NULL)
+            if (target==nullptr)
                 ui->qqTargetString->setText(strTranslate(IDS_WARNING_TIP_DUMMY_NOT_LINKED));
             else
             {
                 if (tip->getLinkType()!=sim_dummy_linktype_ik_tip_target)
                     ui->qqTargetString->setText(strTranslate(IDS_WARNING_WRONG_DUMMY_LINK_TYPE));
                 else
-                    ui->qqTargetString->setText(target->getName().c_str());
+                    ui->qqTargetString->setText(target->getObjectName().c_str());
             }
         }
 
@@ -228,11 +228,11 @@ void CQDlgIkElements::refresh()
         ids.clear();
         for (size_t i=0;i<App::ct->objCont->objectList.size();i++)
         {
-            C3DObject* it2=App::ct->objCont->getObject(App::ct->objCont->objectList[i]);
+            C3DObject* it2=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
             if (tooltip->isObjectParentedWith(it2))
             {
-                names.push_back(it2->getName());
-                ids.push_back(it2->getID());
+                names.push_back(it2->getObjectName());
+                ids.push_back(it2->getObjectHandle());
             }
         }
         tt::orderStrings(names,ids);
@@ -252,11 +252,11 @@ void CQDlgIkElements::refresh()
         ui->qqRelativeCombo->addItem(strTranslate(IDSN_SAME_AS_BASE),QVariant(-1));
         for (size_t i=0;i<App::ct->objCont->objectList.size();i++)
         {
-            C3DObject* it2=App::ct->objCont->getObject(App::ct->objCont->objectList[i]);
+            C3DObject* it2=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
             if ( (it2->getObjectType()==sim_object_dummy_type)&&(it2!=tooltip) )
             {
-                names.push_back(it2->getName());
-                ids.push_back(it2->getID());
+                names.push_back(it2->getObjectName());
+                ids.push_back(it2->getObjectHandle());
             }
         }
         tt::orderStrings(names,ids);

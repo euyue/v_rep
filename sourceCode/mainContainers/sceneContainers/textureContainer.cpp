@@ -42,7 +42,7 @@ CTextureObject* CTextureContainer::getObject(int objectID)
         if (_allTextureObjects[i]->getObjectID()==objectID)
             return(_allTextureObjects[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 CTextureObject* CTextureContainer::getObject(const char* objectName)
@@ -52,13 +52,13 @@ CTextureObject* CTextureContainer::getObject(const char* objectName)
         if (_allTextureObjects[i]->getObjectName()==objectName)
             return(_allTextureObjects[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 CTextureObject* CTextureContainer::getObjectAtIndex(int index)
 {
     if ( (index<0)||(index>=int(_allTextureObjects.size())) )
-        return(NULL);
+        return(nullptr);
     return(_allTextureObjects[index]);
 }
 
@@ -128,7 +128,7 @@ int CTextureContainer::addObject(CTextureObject* anObject,bool objectIsACopy)
 int CTextureContainer::addObjectWithSuffixOffset(CTextureObject* anObject,bool objectIsACopy,int suffixOffset)
 { // If object already exists (well, similar object), it is destroyed in here!
     CTextureObject* theOldData=_getEquivalentTextureObject(anObject);
-    if (theOldData!=NULL)
+    if (theOldData!=nullptr)
     { // we already have a similar object!!
         // We transfer the dependencies (since 10/2/2012 (was forgotten before)):
         anObject->transferDependenciesToThere(theOldData);
@@ -138,11 +138,11 @@ int CTextureContainer::addObjectWithSuffixOffset(CTextureObject* anObject,bool o
     }
 
     int newID=SIM_IDSTART_TEXTURE;
-    while (getObject(newID)!=NULL)
+    while (getObject(newID)!=nullptr)
         newID++;
     anObject->setObjectID(newID);
     std::string newName(anObject->getObjectName());
-    while (getObject(newName.c_str())!=NULL)
+    while (getObject(newName.c_str())!=nullptr)
     {
         // TEXTURE OBJECTS SHOULDn'T HAVE A DASHED NAME!!
         newName=tt::generateNewName_noDash(newName);
@@ -159,7 +159,7 @@ CTextureObject* CTextureContainer::_getEquivalentTextureObject(CTextureObject *t
         if (_allTextureObjects[i]->isSame(theData))
             return(_allTextureObjects[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 void CTextureContainer::removeObject(int objectID)
@@ -242,5 +242,5 @@ CTextureObject* CTextureContainer::loadTextureObject(CSer& ar,std::string theNam
         myNewObject->serialize(ar);
         return(myNewObject);
     }
-    return(NULL);
+    return(nullptr);
 }

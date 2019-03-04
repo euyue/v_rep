@@ -185,7 +185,7 @@ void CQDlgAviRecorder::on_selectLocation_clicked()
                 App::mainWindow->simulationRecorder->setFilenameAndPath(filenameAndPath.c_str());
             }
 */
-            std::string initPath=App::mainWindow->simulationRecorder->getPath(NULL);
+            std::string initPath=App::mainWindow->simulationRecorder->getPath(nullptr);
             std::string folder=App::uiThread->getOpenOrSaveFileName_api(sim_filedlg_type_folder,strTranslate(IDSN_AVI_FILE_LOCATION),initPath.c_str(),"","","");
             if (folder.length()!=0)
                 App::mainWindow->simulationRecorder->setPath(folder.c_str());

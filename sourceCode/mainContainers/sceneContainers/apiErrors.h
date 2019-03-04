@@ -148,6 +148,9 @@
 #define SIM_ERROR_FUNCTIONALITY_NOT_APPLICABLE_WITH_CURRENT_SCRIPT_STATE "Functionality not applicable with current script state."
 #define SIM_ERROR_CB_NOT_APPLICABLE_WITH_CURRENT_SCRIPT "Callback not applicable with current script."
 #define SIM_ERROR_MUST_BE_CALLED_FROM_ADDON_OR_SANDBOX_SCRIPT "Must be called from an add-on, or from the sandbox script."
+#define SIM_ERROR_BAD_TEXTURE_COORD_SIZE "Bad texture coordinates size."
+#define SIM_ERROR_CANNOT_BE_COMPOUND_SHAPE "Shape cannot be a compound shape."
+#define SIM_ERROR_ASSIMP_PLUGIN_NOT_FOUND "Assimp plugin was not found."
 // Class is fully static
 class CApiErrors
 {

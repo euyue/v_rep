@@ -263,7 +263,7 @@ VREP_DLLEXPORT simInt simAuxiliaryConsoleShow(simInt consoleHandle,simBool showS
 VREP_DLLEXPORT simInt simAuxiliaryConsolePrint(simInt consoleHandle,const simChar* text);
 VREP_DLLEXPORT simInt simImportShape(simInt fileformat,const simChar* pathAndFilename,simInt options,simFloat identicalVerticeTolerance,simFloat scalingFactor);
 VREP_DLLEXPORT simInt simImportMesh(simInt fileformat,const simChar* pathAndFilename,simInt options,simFloat identicalVerticeTolerance,simFloat scalingFactor,simFloat*** vertices,simInt** verticesSizes,simInt*** indices,simInt** indicesSizes,simFloat*** reserved,simChar*** names);
-VREP_DLLEXPORT simInt simExportMesh(simInt fileformat,const simChar* pathAndFilename,simInt options,simFloat scalingFactor,simInt elementCount,simFloat** vertices,const simInt* verticesSizes,simInt** indices,const simInt* indicesSizes,simFloat** reserved,simChar** names);
+VREP_DLLEXPORT simInt simExportMesh(simInt fileformat,const simChar* pathAndFilename,simInt options,simFloat scalingFactor,simInt elementCount,const simFloat** vertices,const simInt* verticesSizes,const simInt** indices,const simInt* indicesSizes,simFloat** reserved,const simChar** names);
 VREP_DLLEXPORT simInt simCreateMeshShape(simInt options,simFloat shadingAngle,const simFloat* vertices,simInt verticesSize,const simInt* indices,simInt indicesSize,simFloat* reserved);
 VREP_DLLEXPORT simInt simCreatePureShape(simInt primitiveType,simInt options,const simFloat* sizes,simFloat mass,const simInt* precision);
 VREP_DLLEXPORT simInt simCreateHeightfieldShape(simInt options,simFloat shadingAngle,simInt xPointCount,simInt yPointCount,simFloat xSize,const simFloat* heights);
@@ -440,6 +440,7 @@ VREP_DLLEXPORT simInt simGetModuleInfo(const simChar* moduleName,simInt infoType
 VREP_DLLEXPORT simInt simIsDeprecated(const simChar* funcOrConst);
 VREP_DLLEXPORT simChar* simGetPersistentDataTags(simInt* tagCount);
 VREP_DLLEXPORT simInt simEventNotification(const simChar* event);
+VREP_DLLEXPORT simInt simApplyTexture(simInt shapeHandle,const simFloat* textureCoordinates,simInt textCoordSize,const simUChar* texture,const simInt* textureResolution,simInt options);
 
 
 

@@ -499,14 +499,14 @@ C3DObject* CForceSensor::copyYourself()
     return(newForceSensor);
 }
 
-bool CForceSensor::announceObjectWillBeErased(int objID,bool copyBuffer)
+bool CForceSensor::announceObjectWillBeErased(int objectHandle, bool copyBuffer)
 {   // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     // This routine can be called for objCont-objects, but also for objects
     // in the copy-buffer!! So never make use of any 
     // 'ct::objCont->getObject(id)'-call or similar
     // Return value true means 'this' has to be erased too!
-    bool retVal=announceObjectWillBeErasedMain(objID,copyBuffer);
+    bool retVal=announceObjectWillBeErasedMain(objectHandle,copyBuffer);
     return(retVal);
 }
 

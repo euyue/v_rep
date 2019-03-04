@@ -7,7 +7,7 @@
 
 CThumbnail::CThumbnail()
 {
-    _thumbnailRGBAImage=NULL;
+    _thumbnailRGBAImage=nullptr;
     _compressData=false;
 }
 
@@ -81,7 +81,7 @@ void CThumbnail::uncompressThumbnail(const char* compressedRGBImage,char* uncomp
 
 bool CThumbnail::getCompressedImage(char* compressedRGBImage)
 {
-    if (_thumbnailRGBAImage==NULL)
+    if (_thumbnailRGBAImage==nullptr)
         return(false);
     compressThumbnail(_thumbnailRGBAImage,compressedRGBImage);
     return(true);
@@ -146,7 +146,7 @@ void CThumbnail::setUncompressedThumbnailImageFromFloat(const float* uncompresse
 
 void CThumbnail::setRandomImage()
 {
-    if (_thumbnailRGBAImage==NULL)
+    if (_thumbnailRGBAImage==nullptr)
         _thumbnailRGBAImage=new char[128*128*4];
 }
 
@@ -160,13 +160,13 @@ void CThumbnail::setCompressedThumbnailImage(const char* compressedRGBImage)
 void CThumbnail::clearThumbnailImage()
 {
     delete[] _thumbnailRGBAImage;
-    _thumbnailRGBAImage=NULL;
+    _thumbnailRGBAImage=nullptr;
     _compressData=false;
 }
 
 bool CThumbnail::copyUncompressedImageToBuffer(char* buffer)
 {
-    if (_thumbnailRGBAImage==NULL)
+    if (_thumbnailRGBAImage==nullptr)
         return(false);
     for (int i=0;i<128*128*4;i++)
         buffer[i]=_thumbnailRGBAImage[i];
@@ -175,13 +175,13 @@ bool CThumbnail::copyUncompressedImageToBuffer(char* buffer)
 
 bool CThumbnail::hasImage()
 {
-    return(_thumbnailRGBAImage!=NULL);
+    return(_thumbnailRGBAImage!=nullptr);
 }
 
 CThumbnail* CThumbnail::copyYourself()
 {
     CThumbnail* newT=new CThumbnail();
-    if (_thumbnailRGBAImage!=NULL)
+    if (_thumbnailRGBAImage!=nullptr)
         newT->setUncompressedThumbnailImage(_thumbnailRGBAImage,true,false);
     newT->_compressData=_compressData;
     return(newT);
@@ -189,14 +189,14 @@ CThumbnail* CThumbnail::copyYourself()
 
 void CThumbnail::copyFrom(CThumbnail* it)
 {
-    if (it->_thumbnailRGBAImage==NULL)
+    if (it->_thumbnailRGBAImage==nullptr)
     {
         delete[] _thumbnailRGBAImage;
-        _thumbnailRGBAImage=NULL;
+        _thumbnailRGBAImage=nullptr;
     }
     else
     {
-        if (_thumbnailRGBAImage==NULL)
+        if (_thumbnailRGBAImage==nullptr)
             _thumbnailRGBAImage=new char[128*128*4];
         setUncompressedThumbnailImage(it->_thumbnailRGBAImage,true,false);
     }
@@ -249,7 +249,7 @@ void CThumbnail::serialize(CSer& ar,bool forceCompressedSaving/*=false*/)
     if (ar.isStoring())
     { // Storing
         ar.storeDataName("Tm2");
-        if (_thumbnailRGBAImage==NULL)
+        if (_thumbnailRGBAImage==nullptr)
             ar << (unsigned char)(0);
         else
         {
@@ -330,7 +330,7 @@ void CThumbnail::serialize(CSer& ar,bool forceCompressedSaving/*=false*/)
                     char dum;
                     if (imagePresent!=0)
                     {
-                        if (_thumbnailRGBAImage==NULL)
+                        if (_thumbnailRGBAImage==nullptr)
                             _thumbnailRGBAImage=new char[128*128*4];
                         unsigned char compressed;
                         ar >> compressed;

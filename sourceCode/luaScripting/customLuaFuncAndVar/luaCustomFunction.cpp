@@ -6,16 +6,16 @@ CLuaCustomFunction::CLuaCustomFunction(const char* theFullFunctionName,const cha
 { // the old way, called through simRegisterCustomLuaFunction
     useStackToExchangeData=false;
     _functionIsDefinedInScript=false;
-    if (theFullFunctionName!=NULL)
+    if (theFullFunctionName!=nullptr)
     {
         functionName=_getFunctionNameFromFull(theFullFunctionName);
         pluginName=_getPluginNameFromFull(theFullFunctionName);
     }
-    if (theCallTips!=NULL)
+    if (theCallTips!=nullptr)
         callTips=theCallTips;
     for (size_t i=0;i<theInputArgTypes.size();i++)
         inputArgTypes.push_back(theInputArgTypes[i]);
-    callBackFunction_new=NULL;
+    callBackFunction_new=nullptr;
     callBackFunction_old=callBack;
 }
 
@@ -23,12 +23,12 @@ CLuaCustomFunction::CLuaCustomFunction(const char* theFullFunctionName,const cha
 { // the new way, called through simRegisterScriptCallbackFunction
     useStackToExchangeData=true;
     _functionIsDefinedInScript=false;
-    if (theFullFunctionName!=NULL)
+    if (theFullFunctionName!=nullptr)
     {
         functionName=_getFunctionNameFromFull(theFullFunctionName);
         pluginName=_getPluginNameFromFull(theFullFunctionName);
     }
-    if (theCallTips!=NULL)
+    if (theCallTips!=nullptr)
     {
         std::string ct(theCallTips);
         if (ct.find("####")==0)
@@ -38,7 +38,7 @@ CLuaCustomFunction::CLuaCustomFunction(const char* theFullFunctionName,const cha
         }
         callTips=ct;
     }
-    callBackFunction_old=NULL;
+    callBackFunction_old=nullptr;
     callBackFunction_new=callBack;
 }
 
@@ -48,7 +48,7 @@ CLuaCustomFunction::~CLuaCustomFunction()
 
 bool CLuaCustomFunction::hasCallback() const
 {
-    return( (callBackFunction_old!=NULL)||(callBackFunction_new!=NULL) );
+    return( (callBackFunction_old!=nullptr)||(callBackFunction_new!=nullptr) );
 }
 
 bool CLuaCustomFunction::hasCalltipsAndSyntaxHighlighing() const

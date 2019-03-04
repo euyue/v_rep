@@ -27,7 +27,7 @@ class CScintillaUserModalDlg : public QDialog
     Q_OBJECT
 
 public:
-    CScintillaUserModalDlg(const std::string& xmlInfo,QWidget* pParent = NULL, Qt::WindowFlags f= 0);
+    CScintillaUserModalDlg(const std::string& xmlInfo,QWidget* pParent = nullptr, Qt::WindowFlags f= 0);
     virtual ~CScintillaUserModalDlg();
 
     bool initialize(const char* text);

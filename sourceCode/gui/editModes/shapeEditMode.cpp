@@ -27,15 +27,15 @@ CShapeEditMode::CShapeEditMode(CShape* shape,int editModeType,CObjCont* objCont,
 
     _shape->geomData->geomInfo->getCumulativeMeshes(_editionVertices,&_editionIndices,&_editionNormals);
     _editionTextureProperty=((CGeometric*)_shape->geomData->geomInfo)->getTextureProperty();
-    if (_editionTextureProperty!=NULL)
+    if (_editionTextureProperty!=nullptr)
     {
         if (!((CGeometric*)_shape->geomData->geomInfo)->getNonCalculatedTextureCoordinates(_editionTextureCoords))
-            _editionTextureProperty=NULL; // texture coordinates are calculated, so we don't care
+            _editionTextureProperty=nullptr; // texture coordinates are calculated, so we don't care
     }
-    if (_editionTextureProperty!=NULL)
+    if (_editionTextureProperty!=nullptr)
     {
         CTextureObject* to=_textureCont->getObject(_editionTextureProperty->getTextureObjectID());
-        if (to!=NULL)
+        if (to!=nullptr)
         {
             to->getTextureBuffer(_editionTexture);
             to->lightenUp();
@@ -63,24 +63,24 @@ bool CShapeEditMode::endEditMode(bool cancelChanges)
         CGeomProxy* g=_shape->geomData;
         CGeometric* gc=(CGeometric*)g->geomInfo;
         gc->setPurePrimitiveType(sim_pure_primitive_none,1.0f,1.0f,1.0f); // disable the pure characteristic
-        CMeshManip::checkVerticesIndicesNormalsTexCoords(_editionVertices,_editionIndices,NULL,&_editionTextureCoords,_identicalVerticesCheck,_identicalVerticesTolerance,_identicalTrianglesCheck);
+        CMeshManip::checkVerticesIndicesNormalsTexCoords(_editionVertices,_editionIndices,nullptr,&_editionTextureCoords,_identicalVerticesCheck,_identicalVerticesTolerance,_identicalTrianglesCheck);
 
         if (_editionVertices.size()!=0)
         { // The shape is not empty
-            gc->setMesh(_editionVertices,_editionIndices,NULL,C7Vector::identityTransformation); // will do the convectivity test
+            gc->setMesh(_editionVertices,_editionIndices,nullptr,C7Vector::identityTransformation); // will do the convectivity test
             gc->actualizeGouraudShadingAndVisibleEdges();
             g->removeCollisionInformation();
             // handle textures:
             CTextureProperty* tp=gc->getTextureProperty();
-            if (tp!=NULL)
+            if (tp!=nullptr)
             {
                 if (tp->getFixedCoordinates())
                 {
                     if (_editionTextureCoords.size()/2!=_editionIndices.size())
                     { // should normally never happen
-                        _textureCont->announceGeneralObjectWillBeErased(_shape->getID(),-1);
+                        _textureCont->announceGeneralObjectWillBeErased(_shape->getObjectHandle(),-1);
                         delete tp;
-                        gc->setTextureProperty(NULL);
+                        gc->setTextureProperty(nullptr);
                     }
                     else
                         tp->setFixedCoordinates(&_editionTextureCoords);
@@ -97,10 +97,10 @@ bool CShapeEditMode::endEditMode(bool cancelChanges)
         }
     }
 
-    if (_editionTextureProperty!=NULL)
+    if (_editionTextureProperty!=nullptr)
     { // reset to original texture
         CTextureObject* to=_textureCont->getObject(_editionTextureProperty->getTextureObjectID());
-        if (to!=NULL)
+        if (to!=nullptr)
             to->setTextureBuffer(_editionTexture);
     }
     return(retVal);
@@ -276,12 +276,12 @@ void CShapeEditMode::displayVertices(int displayAttrib) // all edit mode routine
         glPolygonMode (GL_FRONT_AND_BACK,GL_FILL);
         glLoadName(-1);
 
-        if (_editionTextureProperty!=NULL)
+        if (_editionTextureProperty!=nullptr)
             _start3DTextureDisplay(_editionTextureProperty);
 
         // Draw the filled triangles
         glBegin(GL_TRIANGLES);
-        if (_editionTextureProperty!=NULL)
+        if (_editionTextureProperty!=nullptr)
         {
             for (int i=0;i<int(_editionIndices.size());i++)
             {
@@ -300,7 +300,7 @@ void CShapeEditMode::displayVertices(int displayAttrib) // all edit mode routine
         }
         glEnd();
 
-        if (_editionTextureProperty!=NULL)
+        if (_editionTextureProperty!=nullptr)
             _end3DTextureDisplay(_editionTextureProperty);
 
         glPolygonMode (GL_FRONT_AND_BACK,GL_FILL);
@@ -336,7 +336,7 @@ void CShapeEditMode::displayVertices(int displayAttrib) // all edit mode routine
             drawn[i]=true;
             if (j==int(editModeBuffer.size())-1)
                 ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorWhite); // First selection
-            ogl::drawSingle3dPoint(&_editionVertices[3*i],NULL); // needs to be called individually for each point because glLoadName doesn't work between glBegin and glEnd
+            ogl::drawSingle3dPoint(&_editionVertices[3*i],nullptr); // needs to be called individually for each point because glLoadName doesn't work between glBegin and glEnd
         }
         // Now we draw all unselected vertices
         ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorRed);
@@ -345,7 +345,7 @@ void CShapeEditMode::displayVertices(int displayAttrib) // all edit mode routine
             if (!drawn[i])
             {
                 glLoadName(i);
-                ogl::drawSingle3dPoint(&_editionVertices[3*i],NULL); // needs to be called individually for each point because glLoadName doesn't work between glBegin and glEnd
+                ogl::drawSingle3dPoint(&_editionVertices[3*i],nullptr); // needs to be called individually for each point because glLoadName doesn't work between glBegin and glEnd
             }
         }
         glDisable(GL_POLYGON_OFFSET_POINT);
@@ -383,7 +383,7 @@ void CShapeEditMode::displayVertices(int displayAttrib) // all edit mode routine
         {
             j=i+1;
             glColor3ub(j&255,(j>>8)&255,(j>>16)&255);
-            ogl::drawSingle3dPoint(&_editionVertices[3*i],NULL);
+            ogl::drawSingle3dPoint(&_editionVertices[3*i],nullptr);
         }
 
         glDisable(GL_POLYGON_OFFSET_POINT);
@@ -404,7 +404,7 @@ void CShapeEditMode::displayFaceOrientation(int displayAttrib) // all edit mode 
         glPolygonOffset(0.5f,0.0f); // Second argument set to 0.0 on 2009.01.05 (otherwise strange effects on some graphic cards)
         glEnable(GL_POLYGON_OFFSET_FILL);
 
-        if (_editionTextureProperty!=NULL)
+        if (_editionTextureProperty!=nullptr)
             _start3DTextureDisplay(_editionTextureProperty);
 
         // Now we display the inside faces...
@@ -424,7 +424,7 @@ void CShapeEditMode::displayFaceOrientation(int displayAttrib) // all edit mode 
                 ogl::setMaterialColor(0.8f,0.5f,0.5f,0.25f,0.25f,0.25f,0.0f,0.0f,0.0f);
 
             glBegin(GL_TRIANGLES);
-            if (_editionTextureProperty!=NULL)
+            if (_editionTextureProperty!=nullptr)
             {
                 glNormal3fv(&_editionNormals[9*i+0]);
                 glTexCoord2fv(&_editionTextureCoords[6*i+0]);
@@ -467,7 +467,7 @@ void CShapeEditMode::displayFaceOrientation(int displayAttrib) // all edit mode 
                 ogl::setMaterialColor(0.5f,0.5f,0.8f,0.25f,0.25f,0.25f,0.0f,0.0f,0.0f);
 
             glBegin(GL_TRIANGLES);
-            if (_editionTextureProperty!=NULL)
+            if (_editionTextureProperty!=nullptr)
             {
                 glNormal3fv(&_editionNormals[9*i+0]);
                 glTexCoord2fv(&_editionTextureCoords[6*i+0]);
@@ -495,7 +495,7 @@ void CShapeEditMode::displayFaceOrientation(int displayAttrib) // all edit mode 
             glEnd();
         }
 
-        if (_editionTextureProperty!=NULL)
+        if (_editionTextureProperty!=nullptr)
             _end3DTextureDisplay(_editionTextureProperty);
 
         // We display all edges in black:
@@ -551,12 +551,12 @@ void CShapeEditMode::displayEdgeEditMode(int displayAttrib) // all edit mode rou
         glPolygonMode (GL_FRONT_AND_BACK,GL_FILL);
         glLoadName(-1);
 
-        if (_editionTextureProperty!=NULL)
+        if (_editionTextureProperty!=nullptr)
             _start3DTextureDisplay(_editionTextureProperty);
 
         // Draw the filled triangles
         glBegin(GL_TRIANGLES);
-        if (_editionTextureProperty!=NULL)
+        if (_editionTextureProperty!=nullptr)
         {
             for (int i=0;i<int(_editionIndices.size());i++)
             {
@@ -575,7 +575,7 @@ void CShapeEditMode::displayEdgeEditMode(int displayAttrib) // all edit mode rou
         }
         glEnd();
 
-        if (_editionTextureProperty!=NULL)
+        if (_editionTextureProperty!=nullptr)
             _end3DTextureDisplay(_editionTextureProperty);
 
         glPolygonMode (GL_FRONT_AND_BACK,GL_FILL);
@@ -609,7 +609,7 @@ void CShapeEditMode::displayEdgeEditMode(int displayAttrib) // all edit mode rou
             int ind[2]={_edgeCont.allEdges[2*editModeBuffer[i]+0],_edgeCont.allEdges[2*editModeBuffer[i]+1]};
             usedEdges[editModeBuffer[i]]=true;
             glLoadName(editModeBuffer[i]);
-            ogl::drawSingle3dLine(&_editionVertices[3*ind[0]+0],&_editionVertices[3*ind[1]+0],NULL);
+            ogl::drawSingle3dLine(&_editionVertices[3*ind[0]+0],&_editionVertices[3*ind[1]+0],nullptr);
         }
 
         if (displayAttrib&sim_displayattribute_pickpass)
@@ -625,7 +625,7 @@ void CShapeEditMode::displayEdgeEditMode(int displayAttrib) // all edit mode rou
             {
                 int ind[2]={_edgeCont.allEdges[2*i+0],_edgeCont.allEdges[2*i+1]};
                 glLoadName(i);
-                ogl::drawSingle3dLine(&_editionVertices[3*ind[0]+0],&_editionVertices[3*ind[1]+0],NULL);
+                ogl::drawSingle3dLine(&_editionVertices[3*ind[0]+0],&_editionVertices[3*ind[1]+0],nullptr);
             }
         }
 
@@ -665,7 +665,7 @@ void CShapeEditMode::displayEdgeEditMode(int displayAttrib) // all edit mode rou
             int ind[2]={_edgeCont.allEdges[2*i+0],_edgeCont.allEdges[2*i+1]};
             j=i+1;
             glColor3ub(j&255,(j>>8)&255,(j>>16)&255);
-            ogl::drawSingle3dLine(&_editionVertices[3*ind[0]+0],&_editionVertices[3*ind[1]+0],NULL);
+            ogl::drawSingle3dLine(&_editionVertices[3*ind[0]+0],&_editionVertices[3*ind[1]+0],nullptr);
         }
 
         glLineWidth(1.0f);
@@ -879,9 +879,9 @@ void CShapeEditMode::getNextEdges(int rearVertex,int frontVertex,std::vector<int
 
 void CShapeEditMode::selectionFromTriangleToVertexEditMode(std::vector<int>* newVertexSel)
 {
-    // newVertexSel is NULL by default. In that case, the change is made in the editModeBuffer
+    // newVertexSel is nullptr by default. In that case, the change is made in the editModeBuffer
     bool inPlace=false;
-    if (newVertexSel==NULL)
+    if (newVertexSel==nullptr)
     {
         newVertexSel=new std::vector<int>;
         inPlace=true;
@@ -914,9 +914,9 @@ void CShapeEditMode::selectionFromTriangleToVertexEditMode(std::vector<int>* new
 
 void CShapeEditMode::selectionFromTriangleToEdgeEditMode(std::vector<int>* newEdgeSel)
 {
-    // newVertexSel is NULL by default. In that case, the change is made in the editModeBuffer
+    // newVertexSel is nullptr by default. In that case, the change is made in the editModeBuffer
     bool inPlace=false;
-    if (newEdgeSel==NULL)
+    if (newEdgeSel==nullptr)
     {
         newEdgeSel=new std::vector<int>;
         inPlace=true;
@@ -947,9 +947,9 @@ void CShapeEditMode::selectionFromTriangleToEdgeEditMode(std::vector<int>* newEd
 
 void CShapeEditMode::selectionFromEdgeToVertexEditMode(std::vector<int>* newVertexSel)
 {
-    // newVertexSel is NULL by default. In that case, the change is made in the editModeBuffer
+    // newVertexSel is nullptr by default. In that case, the change is made in the editModeBuffer
     bool inPlace=false;
-    if (newVertexSel==NULL)
+    if (newVertexSel==nullptr)
     {
         newVertexSel=new std::vector<int>;
         inPlace=true;
@@ -981,11 +981,11 @@ void CShapeEditMode::selectionFromEdgeToVertexEditMode(std::vector<int>* newVert
 
 void CShapeEditMode::selectionFromVertexToTriangleEditMode(std::vector<int>* newTriangleSel)
 {
-    // newTriangleSel is NULL by default. In that case, the change is made in the editModeBuffer
+    // newTriangleSel is nullptr by default. In that case, the change is made in the editModeBuffer
     std::vector<bool> used(_editionVertices.size(),false);
     for (int i=0;i<int(editModeBuffer.size());i++)
         used[editModeBuffer[i]]=true;
-    if (newTriangleSel==NULL)
+    if (newTriangleSel==nullptr)
     {
         editModeBuffer.reserve(3*editModeBuffer.size()); // Max size
         editModeBuffer.clear();
@@ -1001,7 +1001,7 @@ void CShapeEditMode::selectionFromVertexToTriangleEditMode(std::vector<int>* new
             used[_editionIndices[3*i+1]]&&
             used[_editionIndices[3*i+2]] )
         {
-            if (newTriangleSel==NULL)
+            if (newTriangleSel==nullptr)
                 editModeBuffer.push_back(i);
             else
                 newTriangleSel->push_back(i);
@@ -1011,11 +1011,11 @@ void CShapeEditMode::selectionFromVertexToTriangleEditMode(std::vector<int>* new
 
 void CShapeEditMode::selectionFromVertexToEdgeEditMode(std::vector<int>* newEdgeSel)
 {
-    // newEdgeSel is NULL by default. In that case, the change is made in the editModeBuffer
+    // newEdgeSel is nullptr by default. In that case, the change is made in the editModeBuffer
     std::vector<bool> used(_editionVertices.size(),false);
     for (int i=0;i<int(editModeBuffer.size());i++)
         used[editModeBuffer[i]]=true;
-    if (newEdgeSel==NULL)
+    if (newEdgeSel==nullptr)
     {
         editModeBuffer.reserve(3*editModeBuffer.size()); // Max size
         editModeBuffer.clear();
@@ -1030,7 +1030,7 @@ void CShapeEditMode::selectionFromVertexToEdgeEditMode(std::vector<int>* newEdge
         if (used[_edgeCont.allEdges[2*i+0]]&&
             used[_edgeCont.allEdges[2*i+1]] )
         {
-            if (newEdgeSel==NULL)
+            if (newEdgeSel==nullptr)
                 editModeBuffer.push_back(i);
             else
                 newEdgeSel->push_back(i);
@@ -1040,11 +1040,11 @@ void CShapeEditMode::selectionFromVertexToEdgeEditMode(std::vector<int>* newEdge
 
 void CShapeEditMode::selectionFromEdgeToTriangleEditMode(std::vector<int>* newTriangleSel)
 {
-    // newTriangleSel is NULL by default. In that case, the change is made in the editModeBuffer
+    // newTriangleSel is nullptr by default. In that case, the change is made in the editModeBuffer
     std::vector<bool> used(_edgeCont.allEdges.size(),false);
     for (int i=0;i<int(editModeBuffer.size());i++)
         used[editModeBuffer[i]]=true;
-    if (newTriangleSel==NULL)
+    if (newTriangleSel==nullptr)
         editModeBuffer.clear();
     else
         newTriangleSel->clear();
@@ -1054,7 +1054,7 @@ void CShapeEditMode::selectionFromEdgeToTriangleEditMode(std::vector<int>* newTr
             used[_editionIndicesToEdgesIndex[3*i+1]]&&
             used[_editionIndicesToEdgesIndex[3*i+2]] )
         {
-            if (newTriangleSel==NULL)
+            if (newTriangleSel==nullptr)
                 editModeBuffer.push_back(i);
             else
                 newTriangleSel->push_back(i);
@@ -1362,7 +1362,7 @@ void CShapeEditMode::deleteSelection(std::vector<int>* selection)
 }
 
 void CShapeEditMode::copySelectedFaces(std::vector<int>* sel,std::vector<float>* vert,std::vector<int>* ind,std::vector<float>* norm,std::vector<float>* tex)
-{  // norm or tex can be NULL
+{  // norm or tex can be nullptr
     if (_editModeType&TRIANGLE_EDIT_MODE)
     {
         std::vector<int> vertInd;
@@ -1392,12 +1392,12 @@ void CShapeEditMode::copySelectedFaces(std::vector<int>* sel,std::vector<float>*
         vert->clear();
         ind->reserve(3*sel->size());
         ind->clear();
-        if (norm!=NULL)
+        if (norm!=nullptr)
         {
             norm->reserve(9*sel->size());
             norm->clear();
         }
-        if (tex!=NULL)
+        if (tex!=nullptr)
         {
             tex->reserve(6*sel->size());
             tex->clear();
@@ -1425,13 +1425,13 @@ void CShapeEditMode::copySelectedFaces(std::vector<int>* sel,std::vector<float>*
                     }
                 }
                 ind->push_back(newIndex);
-                if (norm!=NULL)
+                if (norm!=nullptr)
                 {
                     norm->push_back(_editionNormals[9*sel->at(i)+3*j+0]);
                     norm->push_back(_editionNormals[9*sel->at(i)+3*j+1]);
                     norm->push_back(_editionNormals[9*sel->at(i)+3*j+2]);
                 }
-                if (tex!=NULL)
+                if (tex!=nullptr)
                 {
                     tex->push_back(_editionTextureCoords[6*sel->at(i)+2*j+0]);
                     tex->push_back(_editionTextureCoords[6*sel->at(i)+2*j+1]);
@@ -1719,7 +1719,7 @@ void CShapeEditMode::makeShape()
         SSimulationThreadCommand cmd;
         cmd.cmdId=SHAPEEDIT_MAKESHAPE_GUITRIGGEREDCMD;
         int toid=-1;
-        if (_editionTextureProperty!=NULL)
+        if (_editionTextureProperty!=nullptr)
             toid=_editionTextureProperty->getTextureObjectID();
         cmd.intParams.push_back(toid);
         cmd.intVectorParams.push_back(nIndices);
@@ -1738,7 +1738,7 @@ void CShapeEditMode::makePrimitive(int what)
     std::vector<float> nVertices;
     std::vector<int> nIndices;
     std::vector<float> nNormals;
-    copySelectedFaces(&sel,&nVertices,&nIndices,&nNormals,NULL);
+    copySelectedFaces(&sel,&nVertices,&nIndices,&nNormals,nullptr);
     if (nVertices.size()!=0)
     {   // Now we have to transform all vertices with the cumulative transform
         // matrix of the shape beeing edited:
@@ -1855,7 +1855,7 @@ void CShapeEditMode::makePath()
         verticeInd[1]=_edgeCont.allEdges[2*sel[0]+1];
         C3Vector v0(&_editionVertices[3*verticeInd[0]+0]);
         C3Vector v1(&_editionVertices[3*verticeInd[1]+0]);
-        CSimplePathPoint* it=NULL;
+        CSimplePathPoint* it=nullptr;
         C7Vector sctm(shape->getCumulativeTransformation());
         C3Vector lastAddedPoint;
         if (sel.size()==1)
@@ -1995,8 +1995,8 @@ void CShapeEditMode::makePath()
         }
         newObject->pathContainer->enableActualization(true);
         newObject->pathContainer->actualizePath();
-        newObject->setName("ExtractedPath");
-        newObject->setAltName(tt::getObjectAltNameFromObjectName(newObject->getName()));
+        newObject->setObjectName_objectNotYetInScene("ExtractedPath");
+        newObject->setObjectAltName_objectNotYetInScene(tt::getObjectAltNameFromObjectName(newObject->getObjectName()));
         SSimulationThreadCommand cmd;
         cmd.cmdId=ADD_OBJECTTOSCENE_GUITRIGGEREDCMD;
         cmd.intParams.push_back(sim_object_path_type);

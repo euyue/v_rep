@@ -12,7 +12,7 @@ enum {AUX_VIEW_SHIFTING=0,AUX_VIEW_TOP_BORDER,AUX_VIEW_BOTTOM_BORDER,AUX_VIEW_RI
 
 void displayContainerPage(CSPage* page,const int* position,const int* size)
 {
-    if (page!=NULL)
+    if (page!=nullptr)
         page->render();
     else
     { // We draw a dark grey view:
@@ -70,7 +70,7 @@ void displayContainerPageOverlay(const int* position,const int* size,int activeP
     }
 
     // Now we draw soft dialogs:
-    if (App::ct->buttonBlockContainer!=NULL)
+    if (App::ct->buttonBlockContainer!=nullptr)
         App::ct->buttonBlockContainer->displayAllBlocks(activePageIndex,focusObject);
 
     App::ct->calcInfo->printInformation();
@@ -191,18 +191,18 @@ void displayPage(CSPage* page,int auxViewResizingAction,int viewIndexOfResizingA
 
         float txtCol[3]={0.2f,0.2f,0.2f};
         float* bkgrndCol=ogl::TITLE_BAR_COLOR;
-        C3DObject* itObj=App::ct->objCont->getObject(page->getView(i)->getLinkedObjectID());
+        C3DObject* itObj=App::ct->objCont->getObjectFromHandle(page->getView(i)->getLinkedObjectID());
         std::string name("  Floating view (empty)");
         std::string altName(page->getView(i)->getAlternativeViewName());
         if (altName=="")
         {
-            if (itObj!=NULL)
-                name="  "+itObj->getName();
+            if (itObj!=nullptr)
+                name="  "+itObj->getObjectName();
         }
         else
             name="  "+altName;
         int buttonAttrib=sim_buttonproperty_label|sim_buttonproperty_enabled|sim_buttonproperty_verticallycentered;
-        ogl::drawButton(pos,size,txtCol,bkgrndCol,bkgrndCol,name,buttonAttrib,false,0,0.0f,false,0,NULL,NULL,NULL,NULL,NULL);
+        ogl::drawButton(pos,size,txtCol,bkgrndCol,bkgrndCol,name,buttonAttrib,false,0,0.0f,false,0,nullptr,nullptr,nullptr,nullptr,nullptr);
 
         pos.x=_pageSize[0]-avp[0]-auxViewsBtSize*App::sc/2;
         size.x=auxViewsBtSize*App::sc;
@@ -211,7 +211,7 @@ void displayPage(CSPage* page,int auxViewResizingAction,int viewIndexOfResizingA
         if ( (auxViewResizingAction==AUX_VIEW_CLOSING_BUTTON)&&(viewIndexOfResizingAction==i) )
             buttonAttrib|=sim_buttonproperty_isdown;
         if (page->getView(i)->getCanBeClosed())
-            ogl::drawButton(pos,size,txtCol,bkgrndCol2,bkgrndCol2,"&&Check",buttonAttrib,false,0,0.0f,false,0,NULL,NULL,NULL,NULL,NULL);
+            ogl::drawButton(pos,size,txtCol,bkgrndCol2,bkgrndCol2,"&&Check",buttonAttrib,false,0,0.0f,false,0,nullptr,nullptr,nullptr,nullptr,nullptr);
 
         glLineWidth(3.0f);
         ogl::setMaterialColor(sim_colorcomponent_emission,ogl::colorLightGrey);

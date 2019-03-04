@@ -16,7 +16,7 @@ unsigned char* CImageLoaderSaver::load(const char* filename,int* resX,int* resY,
 { // scaleTo is 0 by default (no scaling). ScaleTo should be a power of 2!
 #ifdef SIM_WITH_GUI
     std::string ext(CTTUtil::getLowerCaseString(VVarious::splitPath_fileExtension(filename).c_str()));
-    unsigned char* data=NULL;
+    unsigned char* data=nullptr;
     if ((ext.compare("tga")==0)||(ext.compare("gif")==0))
     {
         data=stbi_load(filename,resX,resY,colorComponents,desiredColorComponents);
@@ -55,7 +55,7 @@ unsigned char* CImageLoaderSaver::load(const char* filename,int* resX,int* resY,
             }
         }
     }
-    if ((scaleTo!=0)&&(data!=NULL))
+    if ((scaleTo!=0)&&(data!=nullptr))
     {
         unsigned char* img=data;
         int s[2];
@@ -94,7 +94,7 @@ unsigned char* CImageLoaderSaver::load(const char* filename,int* resX,int* resY,
     }
     return(data);
 #else
-    return(NULL);
+    return(nullptr);
 #endif
 }
 
@@ -104,7 +104,7 @@ unsigned char* CImageLoaderSaver::loadQTgaImageData(const char* fileAndPath,int&
     unsigned char* data=CTGAFormat::getQ_ImageData(fileAndPath,resX,resY,rgba,invisibleColor,bitsPerPixel);
     return(data);
 #else
-    return(NULL);
+    return(nullptr);
 #endif
 }
 
@@ -160,7 +160,7 @@ unsigned char* CImageLoaderSaver::getScaledImage(const unsigned char* originalIm
     delete[] im;
     return(nim);
 #else
-    return(NULL);
+    return(nullptr);
 #endif
 }
 
@@ -261,14 +261,14 @@ unsigned char* CImageLoaderSaver::getScaledImage(const unsigned char* originalIm
     delete[] im;
     return(nim);
 #else
-    return(NULL);
+    return(nullptr);
 #endif
 }
 
 bool CImageLoaderSaver::save(const unsigned char* data,const int resolution[2],int options,const char* filename,int quality,std::string* buffer)
 {
 #ifdef SIM_WITH_GUI
-    unsigned char *buff=NULL;
+    unsigned char *buff=nullptr;
     QImage::Format format=QImage::Format_ARGB32;
     buff=new unsigned char[4*resolution[0]*resolution[1]];
     int bytesPerPixel=4;
@@ -296,7 +296,7 @@ bool CImageLoaderSaver::save(const unsigned char* data,const int resolution[2],i
     bool retVal=false;
     {
         QImage image(buff,resolution[0],resolution[1],resolution[0]*bytesPerPixel,format);
-        if (buffer==NULL)
+        if (buffer==nullptr)
             retVal=image.save(filename,0,quality);
         else
         {
@@ -314,17 +314,17 @@ bool CImageLoaderSaver::save(const unsigned char* data,const int resolution[2],i
     delete[] buff;
     return(retVal);
 #else
-    return(NULL);
+    return(nullptr);
 #endif
 }
 
 unsigned char* CImageLoaderSaver::load(int resolution[2],int options,const char* filename,void* reserved)
 {
-    unsigned char* retVal=NULL;
+    unsigned char* retVal=nullptr;
 #ifdef SIM_WITH_GUI
     QImage image;
     bool loadRes=false;
-    if (reserved!=NULL)
+    if (reserved!=nullptr)
         loadRes=image.loadFromData((const unsigned char*)filename,((int*)reserved)[0]);
     else
         loadRes=image.load(filename,0);

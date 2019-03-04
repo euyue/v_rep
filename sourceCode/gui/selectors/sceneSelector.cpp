@@ -175,7 +175,7 @@ void CSceneSelector::render()
                         unsigned char* data=App::mainWindow->getSceneThumbnail(pIndex,res);
                         std::vector<unsigned char> dummyData;
                         float tlth[4]={0.0,0.0,1.0,1.0};
-                        if (data==NULL)
+                        if (data==nullptr)
                         {
                             dummyData.resize(64*64*3,60);
                             data=&dummyData[0];

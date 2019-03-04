@@ -229,9 +229,9 @@ void _drawPoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matri
         if (ogl::buffer.size()!=0)
         {
             if (glCols.size()==0)
-                ogl::drawRandom3dPointsEx(&ogl::buffer[0],(int)ogl::buffer.size()/3,NULL,NULL,&glSizes[0],_objectType&(sim_drawing_emissioncolor|sim_drawing_auxchannelcolor2),normalVectorForLinesAndPoints);
+                ogl::drawRandom3dPointsEx(&ogl::buffer[0],(int)ogl::buffer.size()/3,nullptr,nullptr,&glSizes[0],_objectType&(sim_drawing_emissioncolor|sim_drawing_auxchannelcolor2),normalVectorForLinesAndPoints);
             else
-                ogl::drawRandom3dPointsEx(&ogl::buffer[0],(int)ogl::buffer.size()/3,NULL,&glCols[0],&glSizes[0],_objectType&(sim_drawing_emissioncolor|sim_drawing_auxchannelcolor2),normalVectorForLinesAndPoints);
+                ogl::drawRandom3dPointsEx(&ogl::buffer[0],(int)ogl::buffer.size()/3,nullptr,&glCols[0],&glSizes[0],_objectType&(sim_drawing_emissioncolor|sim_drawing_auxchannelcolor2),normalVectorForLinesAndPoints);
         }
         ogl::buffer.clear();
         glPointSize(1.0f);
@@ -282,9 +282,9 @@ void _drawPoints(CDrawingObject* drawingObject,int displayAttrib,const C4X4Matri
         if (ogl::buffer.size()!=0)
         {
             if (glCols.size()==0)
-                ogl::drawRandom3dPointsEx(&ogl::buffer[0],(int)ogl::buffer.size()/3,NULL,NULL,NULL,_objectType&(sim_drawing_emissioncolor|sim_drawing_auxchannelcolor2),normalVectorForLinesAndPoints);
+                ogl::drawRandom3dPointsEx(&ogl::buffer[0],(int)ogl::buffer.size()/3,nullptr,nullptr,nullptr,_objectType&(sim_drawing_emissioncolor|sim_drawing_auxchannelcolor2),normalVectorForLinesAndPoints);
             else
-                ogl::drawRandom3dPointsEx(&ogl::buffer[0],(int)ogl::buffer.size()/3,NULL,&glCols[0],NULL,_objectType&(sim_drawing_emissioncolor|sim_drawing_auxchannelcolor2),normalVectorForLinesAndPoints);
+                ogl::drawRandom3dPointsEx(&ogl::buffer[0],(int)ogl::buffer.size()/3,nullptr,&glCols[0],nullptr,_objectType&(sim_drawing_emissioncolor|sim_drawing_auxchannelcolor2),normalVectorForLinesAndPoints);
         }
         ogl::buffer.clear();
         glPointSize(1.0f);
@@ -864,8 +864,8 @@ void _drawTriangles(CDrawingObject* drawingObject,int displayAttrib)
         }
         if (_objectType&(sim_drawing_itemcolors|sim_drawing_vertexcolors))
             off+=3;
-        float* vertex2Col=NULL;
-        float* vertex3Col=NULL;
+        float* vertex2Col=nullptr;
+        float* vertex3Col=nullptr;
         if (_objectType&sim_drawing_vertexcolors)
         {
             vertex2Col=&_data[drawingObject->floatsPerItem*p+9+off];

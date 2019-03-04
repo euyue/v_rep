@@ -101,8 +101,8 @@ CDrawingObject::CDrawingObject(int theObjectType,float size,float duplicateToler
         _sceneObjectID=-1;
     else
     {
-        C3DObject* it=App::ct->objCont->getObject(sceneObjID);
-        if (it!=NULL)
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(sceneObjID);
+        if (it!=nullptr)
             _sceneObjectID=sceneObjID;
     }
 }
@@ -186,7 +186,7 @@ void CDrawingObject::adjustForScaling(float xScale,float yScale,float zScale)
 bool CDrawingObject::addItem(const float* itemData)
 {
     EASYLOCK(_objectMutex);
-    if (itemData==NULL)
+    if (itemData==nullptr)
     {
         _data.clear();
         _startItem=0;
@@ -209,8 +209,8 @@ bool CDrawingObject::addItem(const float* itemData)
     trInv.setIdentity();
     if (_sceneObjectID>=0)
     {
-        C3DObject* it=App::ct->objCont->getObject(_sceneObjectID);
-        if (it==NULL)
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(_sceneObjectID);
+        if (it==nullptr)
             _sceneObjectID=-2; // should normally never happen!
         else
             trInv=it->getCumulativeTransformationPart1().getInverse();
@@ -319,8 +319,8 @@ void CDrawingObject::getExportableMesh(std::vector<float>& vertices,std::vector<
     tr.setIdentity();
     if (_sceneObjectID>=0)
     {
-        C3DObject* it=App::ct->objCont->getObject(_sceneObjectID);
-        if (it!=NULL)
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(_sceneObjectID);
+        if (it!=nullptr)
             tr=it->getCumulativeTransformationPart1();
     }
     int tmp=_objectType&0x001f;
@@ -392,7 +392,7 @@ void CDrawingObject::_exportTriOrQuad(C7Vector& tr,C3Vector* v0,C3Vector* v1,C3V
     v0[0]*=tr;
     v1[0]*=tr;
     v2[0]*=tr;
-    if (v3!=NULL)
+    if (v3!=nullptr)
         v3[0]*=tr;
 }
 
@@ -432,8 +432,8 @@ void CDrawingObject::draw(bool overlay,bool transparentObject,int displayAttrib,
 
     if (_sceneObjectID>=0)
     {
-        C3DObject* it=App::ct->objCont->getObject(_sceneObjectID);
-        if (it==NULL)
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(_sceneObjectID);
+        if (it==nullptr)
             _sceneObjectID=-2; // should normally never happen
         else
         {

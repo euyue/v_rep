@@ -50,7 +50,7 @@ void CTextureObject::setObjectID(int newID)
     _objectID=newID;
 }
 
-int CTextureObject::getObjectID()
+int CTextureObject::getObjectID() const
 {
     return(_objectID);
 }
@@ -60,18 +60,18 @@ void CTextureObject::setObjectName(const char* newName)
     _objectName=newName;
 }
 
-std::string CTextureObject::getObjectName()
+std::string CTextureObject::getObjectName() const
 {
     return(_objectName);
 }
 
-void CTextureObject::getTextureSize(int& sizeX,int& sizeY)
+void CTextureObject::getTextureSize(int& sizeX,int& sizeY) const
 {
     sizeX=_textureSize[0];
     sizeY=_textureSize[1];
 }
 
-void CTextureObject::setImage(bool rgba,bool horizFlip,bool vertFlip,unsigned char* data)
+void CTextureObject::setImage(bool rgba,bool horizFlip,bool vertFlip,const unsigned char* data)
 {
     int dirX=1;
     int dirY=1;
@@ -174,7 +174,7 @@ void CTextureObject::clearAllDependencies()
     _dependentSubObjects.clear();
 }
 
-bool CTextureObject::isSame(CTextureObject* obj)
+bool CTextureObject::isSame(const CTextureObject* obj) const
 {
     if ( (obj->_textureSize[0]==_textureSize[0])&&(obj->_textureSize[1]==_textureSize[1]) )
     {
@@ -197,12 +197,12 @@ void CTextureObject::setTextureBuffer(const std::vector<unsigned char>& tb)
     _currentTextureContentUniqueId=_textureContentUniqueId++;
 }
 
-void CTextureObject::getTextureBuffer(std::vector<unsigned char>& tb)
+void CTextureObject::getTextureBuffer(std::vector<unsigned char>& tb) const
 {
     tb.assign(_textureBuffer.begin(),_textureBuffer.end());
 }
 
-unsigned char* CTextureObject::getTextureBufferPointer()
+const unsigned char* CTextureObject::getTextureBufferPointer() const
 {
     return(&_textureBuffer[0]);
 }
@@ -275,7 +275,7 @@ void CTextureObject::setRandomContent()
     _currentTextureContentUniqueId=_textureContentUniqueId++;
 }
 
-unsigned int CTextureObject::getCurrentTextureContentUniqueId()
+unsigned int CTextureObject::getCurrentTextureContentUniqueId() const
 {
     return(_currentTextureContentUniqueId);
 }
@@ -285,12 +285,12 @@ void CTextureObject::setOglTextureName(unsigned int n)
     _oglTextureName=n;
 }
 
-unsigned int CTextureObject::getOglTextureName()
+unsigned int CTextureObject::getOglTextureName() const
 {
     return(_oglTextureName);
 }
 
-bool CTextureObject::getChangedFlag()
+bool CTextureObject::getChangedFlag() const
 {
     return(_changedFlag);
 }
@@ -300,7 +300,7 @@ void CTextureObject::setChangedFlag(bool c)
     _changedFlag=c;
 }
 
-CTextureObject* CTextureObject::copyYourself()
+CTextureObject* CTextureObject::copyYourself() const
 {
     CTextureObject* newObj=new CTextureObject();
     newObj->_objectID=_objectID;
@@ -320,10 +320,10 @@ CTextureObject* CTextureObject::copyYourself()
     return(newObj);
 }
 
-char* CTextureObject::readPortionOfTexture(int posX,int posY,int sizeX,int sizeY)
+char* CTextureObject::readPortionOfTexture(int posX,int posY,int sizeX,int sizeY) const
 {
     if ( (posX<0)||(posY<0)||(sizeX<1)||(sizeY<1)||(posX+sizeX>_textureSize[0])||(posY+sizeY>_textureSize[1]) )
-        return(NULL);
+        return(nullptr);
     char* buff;
     buff=new char[sizeX*sizeY*3];
     int p=0;

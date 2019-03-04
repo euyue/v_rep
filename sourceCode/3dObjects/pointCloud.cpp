@@ -27,7 +27,7 @@ CPointCloud::CPointCloud()
     _localObjectSpecialProperty=sim_objectspecialproperty_collidable|sim_objectspecialproperty_measurable|sim_objectspecialproperty_detectable_all|sim_objectspecialproperty_renderable;
     _objectName=IDSOGL_POINTCLOUD;
     _objectAltName=tt::getObjectAltNameFromObjectName(_objectName);
-    _pointCloudInfo=NULL;
+    _pointCloudInfo=nullptr;
     _showOctreeStructure=false;
     _useRandomColors=false;
     _colorIsEmissive=false;
@@ -129,7 +129,7 @@ void CPointCloud::_readPositionsAndColorsAndSetDimensions()
     {
         _points.clear();
         _colors.clear();
-        if (_pointCloudInfo!=NULL)
+        if (_pointCloudInfo!=nullptr)
         {
             _nonEmptyCells=CPluginContainer::mesh_getPointCloudNonEmptyCellCount(_pointCloudInfo);
 
@@ -199,7 +199,7 @@ int CPointCloud::removePoints(const float* pts,int ptsCnt,bool ptsAreRelativeToP
 {
     FUNCTION_DEBUG;
     int pointCntRemoved=0;
-    if (_pointCloudInfo!=NULL)
+    if (_pointCloudInfo!=nullptr)
     {
         const float* _pts=pts;
         std::vector<float> __pts;
@@ -219,7 +219,7 @@ int CPointCloud::removePoints(const float* pts,int ptsCnt,bool ptsAreRelativeToP
         if (CPluginContainer::mesh_removePointCloudPoints(_pointCloudInfo,_pts,ptsCnt,distanceTolerance,pointCntRemoved))
         {
             CPluginContainer::mesh_destroyPointCloud(_pointCloudInfo);
-            _pointCloudInfo=NULL;
+            _pointCloudInfo=nullptr;
         }
         _readPositionsAndColorsAndSetDimensions();
     }
@@ -229,7 +229,7 @@ int CPointCloud::removePoints(const float* pts,int ptsCnt,bool ptsAreRelativeToP
 void CPointCloud::subtractOctree(const COctree* octree)
 {
     FUNCTION_DEBUG;
-    if (octree->getOctreeInfo()!=NULL)
+    if (octree->getOctreeInfo()!=nullptr)
         subtractOctree(octree->getOctreeInfo(),((COctree*)octree)->getCumulativeTransformation().getMatrix());
 }
 
@@ -242,7 +242,7 @@ void CPointCloud::subtractDummy(const CDummy* dummy,float distanceTolerance)
 void CPointCloud::subtractPointCloud(const CPointCloud* pointCloud,float distanceTolerance)
 {
     FUNCTION_DEBUG;
-    if (pointCloud->getPointCloudInfo()!=NULL)
+    if (pointCloud->getPointCloudInfo()!=nullptr)
     {
         const std::vector<float>* _pts=pointCloud->getPoints();
         C7Vector tr(pointCloud->getCumulativeTransformation());
@@ -263,14 +263,14 @@ void CPointCloud::subtractPointCloud(const CPointCloud* pointCloud,float distanc
 void CPointCloud::subtractOctree(const void* octree2Info,const C4X4Matrix& octree2CTM)
 {
     FUNCTION_DEBUG;
-    if (_pointCloudInfo!=NULL)
+    if (_pointCloudInfo!=nullptr)
     {
         C4X4Matrix pointCloudM(getCumulativeTransformation().getMatrix());
         int ptCntRemoved;
         if (CPluginContainer::mesh_removePointCloudPointsFromOctree(_pointCloudInfo,pointCloudM,octree2Info,octree2CTM,ptCntRemoved))
         {
             CPluginContainer::mesh_destroyPointCloud(_pointCloudInfo);
-            _pointCloudInfo=NULL;
+            _pointCloudInfo=nullptr;
         }
         _readPositionsAndColorsAndSetDimensions();
     }
@@ -280,8 +280,8 @@ void CPointCloud::subtractObjects(const std::vector<int>& sel)
 {
     for (size_t i=0;i<sel.size();i++)
     {
-        C3DObject* it=App::ct->objCont->getObject(sel[i]);
-        if ((it!=NULL)&&(it!=this))
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(sel[i]);
+        if ((it!=nullptr)&&(it!=this))
             subtractObject(it,_removalDistanceTolerance);
     }
 }
@@ -299,7 +299,7 @@ void CPointCloud::subtractObject(const C3DObject* obj,float distanceTolerance)
 int CPointCloud::intersectPoints(const float* pts,int ptsCnt,bool ptsAreRelativeToPointCloud,float distanceTolerance)
 {
     FUNCTION_DEBUG;
-    if (_pointCloudInfo!=NULL)
+    if (_pointCloudInfo!=nullptr)
     {
         const float* _pts=pts;
         std::vector<float> __pts;
@@ -319,7 +319,7 @@ int CPointCloud::intersectPoints(const float* pts,int ptsCnt,bool ptsAreRelative
         if (CPluginContainer::mesh_intersectPointCloudPoints(_pointCloudInfo,_pts,ptsCnt,distanceTolerance))
         {
             CPluginContainer::mesh_destroyPointCloud(_pointCloudInfo);
-            _pointCloudInfo=NULL;
+            _pointCloudInfo=nullptr;
         }
         _readPositionsAndColorsAndSetDimensions();
     }
@@ -350,7 +350,7 @@ void CPointCloud::insertPoints(const float* pts,int ptsCnt,bool ptsAreRelativeTo
     if (_doNotUseOctreeStructure)
     {
         _points.insert(_points.end(),_pts,_pts+ptsCnt*3);
-        if (optionalColors3==NULL)
+        if (optionalColors3==nullptr)
         {
             for (int i=0;i<ptsCnt;i++)
             {
@@ -386,9 +386,9 @@ void CPointCloud::insertPoints(const float* pts,int ptsCnt,bool ptsAreRelativeTo
     }
     else
     {
-        if (_pointCloudInfo==NULL)
+        if (_pointCloudInfo==nullptr)
         {
-            if (optionalColors3==NULL)
+            if (optionalColors3==nullptr)
                 _pointCloudInfo=CPluginContainer::mesh_createPointCloud(_pts,ptsCnt,_cellSize,_maxPointCountPerCell,color.colors,_insertionDistanceTolerance);
             else
             {
@@ -403,7 +403,7 @@ void CPointCloud::insertPoints(const float* pts,int ptsCnt,bool ptsAreRelativeTo
         }
         else
         {
-            if (optionalColors3==NULL)
+            if (optionalColors3==nullptr)
                 CPluginContainer::mesh_insertPointsIntoPointCloud(_pointCloudInfo,_pts,ptsCnt,color.colors,_insertionDistanceTolerance);
             else
             {
@@ -432,13 +432,13 @@ void CPointCloud::insertShape(const CShape* shape)
     std::vector<float> cols;
     CPluginContainer::mesh_getOctreeVoxels(octree,pts,cols);
     CPluginContainer::mesh_destroyOctree(octree);
-    insertPoints(&pts[0],(int)pts.size()/3,true,NULL,false);
+    insertPoints(&pts[0],(int)pts.size()/3,true,nullptr,false);
 }
 
 void CPointCloud::insertOctree(const COctree* octree)
 {
     FUNCTION_DEBUG;
-    if (octree->getOctreeInfo()!=NULL)
+    if (octree->getOctreeInfo()!=nullptr)
     {
         const std::vector<float>* _pts=octree->getCubePositions();
         C7Vector tr(octree->getCumulativeTransformation());
@@ -451,14 +451,14 @@ void CPointCloud::insertOctree(const COctree* octree)
             pts.push_back(v(1));
             pts.push_back(v(2));
         }
-        insertPoints(&pts[0],(int)pts.size()/3,false,NULL,false);
+        insertPoints(&pts[0],(int)pts.size()/3,false,nullptr,false);
     }
 }
 
 void CPointCloud::insertDummy(const CDummy* dummy)
 {
     FUNCTION_DEBUG;
-    insertPoints(dummy->getCumulativeTransformation().X.data,1,false,NULL,false);
+    insertPoints(dummy->getCumulativeTransformation().X.data,1,false,nullptr,false);
 }
 
 void CPointCloud::insertPointCloud(const CPointCloud* pointCloud)
@@ -488,8 +488,8 @@ void CPointCloud::insertObjects(const std::vector<int>& sel)
 {
     for (size_t i=0;i<sel.size();i++)
     {
-        C3DObject* it=App::ct->objCont->getObject(sel[i]);
-        if ((it!=NULL)&&(it!=this))
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(sel[i]);
+        if ((it!=nullptr)&&(it!=this))
             insertObject(it);
     }
 }
@@ -513,10 +513,10 @@ void CPointCloud::clear()
     _colors.clear();
     _displayPoints.clear();
     _displayColors.clear();
-    if (_pointCloudInfo!=NULL)
+    if (_pointCloudInfo!=nullptr)
     {
         CPluginContainer::mesh_destroyPointCloud(_pointCloudInfo);
-        _pointCloudInfo=NULL;
+        _pointCloudInfo=nullptr;
     }
     _minDim.set(-0.1f,-0.1f,-0.1f);
     _maxDim.set(+0.1f,+0.1f,+0.1f);
@@ -607,7 +607,7 @@ void CPointCloud::scaleObject(float scalingFactor)
         _points[i]*=scalingFactor;
     for (size_t i=0;i<_displayPoints.size();i++)
         _displayPoints[i]*=scalingFactor;
-    if (_pointCloudInfo!=NULL)
+    if (_pointCloudInfo!=nullptr)
         CPluginContainer::mesh_scalePointCloud(_pointCloudInfo,scalingFactor);
 }
 
@@ -630,7 +630,7 @@ C3DObject* CPointCloud::copyYourself()
     newPointcloud->_maxPointCountPerCell=_maxPointCountPerCell;
     color.copyYourselfInto(&newPointcloud->color);
 
-    if (_pointCloudInfo!=NULL)
+    if (_pointCloudInfo!=nullptr)
         newPointcloud->_pointCloudInfo=CPluginContainer::mesh_copyPointCloud(_pointCloudInfo);
     newPointcloud->_points.assign(_points.begin(),_points.end());
     newPointcloud->_colors.assign(_colors.begin(),_colors.end());
@@ -979,7 +979,7 @@ void CPointCloud::serialize(CSer& ar)
         }
         else
         {
-            if (_pointCloudInfo!=NULL)
+            if (_pointCloudInfo!=nullptr)
             {
                 ar.storeDataName("Mmd");
                 ar << _minDim(0) << _minDim(1) << _minDim(2);
@@ -1134,14 +1134,14 @@ void CPointCloud::performObjectLoadingMapping(std::vector<int>* map,bool loading
     performObjectLoadingMappingMain(map,loadingAmodel);
 }
 
-bool CPointCloud::announceObjectWillBeErased(int objID,bool copyBuffer)
+bool CPointCloud::announceObjectWillBeErased(int objectHandle,bool copyBuffer)
 {   // copyBuffer is false by default (if true, we are 'talking' to objects
     // in the copyBuffer)
     // This routine can be called for objCont-objects, but also for objects
     // in the copy-buffer!! So never make use of any 
-    // 'ct::objCont->getObject(id)'-call or similar
+    // 'ct::objCont->getObject(objectHandle)'-call or similar
     // Return value true means 'this' has to be erased too!
-    bool retVal=announceObjectWillBeErasedMain(objID,copyBuffer);
+    bool retVal=announceObjectWillBeErasedMain(objectHandle,copyBuffer);
     return(retVal);
 }
 

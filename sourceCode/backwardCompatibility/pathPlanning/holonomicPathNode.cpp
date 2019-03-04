@@ -7,18 +7,18 @@ CHolonomicPathNode::CHolonomicPathNode(const C4Vector& rotAxisRot,const C4Vector
 {
     _rotAxisRot=rotAxisRot;
     _rotAxisRotInv=rotAxisRotInv;
-    parent=NULL;
+    parent=nullptr;
     _nodeType=-1;
-    values=NULL;
+    values=nullptr;
 }
 
 CHolonomicPathNode::CHolonomicPathNode(int theType,const C7Vector& conf,const C4Vector& rotAxisRot,const C4Vector& rotAxisRotInv)
 {
     _rotAxisRot=rotAxisRot;
     _rotAxisRotInv=rotAxisRotInv;
-    parent=NULL;
+    parent=nullptr;
     _nodeType=theType;
-    values=NULL;
+    values=nullptr;
     int s=getSize();
     values=new float[s];
     setAllValues(conf.X,conf.Q);
@@ -28,9 +28,9 @@ CHolonomicPathNode::CHolonomicPathNode(int theType,float searchMin[4],float sear
 {
     _rotAxisRot=rotAxisRot;
     _rotAxisRotInv=rotAxisRotInv;
-    parent=NULL;
+    parent=nullptr;
     _nodeType=theType;
-    values=NULL;
+    values=nullptr;
     if (theType==sim_holonomicpathplanning_xy)
     {
         values=new float[2];

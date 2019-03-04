@@ -22,7 +22,7 @@ CStatDistObj::~CStatDistObj()
 bool CStatDistObj::measure(float& dist,int theCaching[2])
 { // Return value true means distance (and dist also) where modified. It means that
     // the measured distance is smaller than the original 'distance' variable
-    // caching can be NULL.
+    // caching can be nullptr.
     // We we start by exploring the smallest shape:
     float distances[7];
     distances[6]=dist;

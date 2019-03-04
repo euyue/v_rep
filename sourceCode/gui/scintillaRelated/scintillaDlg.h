@@ -15,7 +15,7 @@ class CScintillaDlg : public QDialog
     Q_OBJECT
 
 public:
-    CScintillaDlg(int scriptType,bool scriptIsThreaded,QWidget* pParent = NULL, Qt::WindowFlags f= 0);
+    CScintillaDlg(int scriptType,bool scriptIsThreaded,QWidget* pParent = nullptr, Qt::WindowFlags f= 0);
     virtual ~CScintillaDlg();
 
     void closeEvent(QCloseEvent *event);

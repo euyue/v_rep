@@ -70,7 +70,7 @@ void VThread::launchThread(VTHREAD_START_ADDRESS startAddress,bool followMainThr
     if ( (_mainThreadAffinityMask!=0)&&followMainThreadAffinity )
         aff=_mainThreadAffinityMask;
     pthread_t th;
-    pthread_create(&th,NULL,startAddress,NULL);
+    pthread_create(&th,nullptr,startAddress,nullptr);
 #endif
 }
 

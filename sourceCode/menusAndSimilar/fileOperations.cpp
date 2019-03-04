@@ -1,13 +1,9 @@
-
 #include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "v_rep_internal.h"
 #include "fileOperations.h"
 #include "simulation.h"
 #include "tt.h"
-#include "dxfFile.h"
-#include "objFile.h"
-#include "stlFile.h"
 #include "xmlSer.h"
 #include "persistentDataContainer.h"
 #include "sceneObjectOperations.h"
@@ -48,7 +44,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
         SSimulationThreadCommand cmd2;
         cmd2.cmdId=FILE_OPERATION_NEW_SCENE_PHASE2_FOCMD;
 #ifdef SIM_WITH_GUI
-        if ( (App::mainWindow!=NULL)&&(!App::userSettings->doNotShowSceneSelectionThumbnails) )
+        if ( (App::mainWindow!=nullptr)&&(!App::userSettings->doNotShowSceneSelectionThumbnails) )
             App::mainWindow->prepareSceneThumbnail(cmd2);
         else
 #endif
@@ -90,7 +86,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
     {
         SSimulationThreadCommand cmd2;
         cmd2.cmdId=FILE_OPERATION_OPEN_SCENE_PHASE2_FOCMD;
-        if ( (App::mainWindow!=NULL)&&(!App::userSettings->doNotShowSceneSelectionThumbnails) )
+        if ( (App::mainWindow!=nullptr)&&(!App::userSettings->doNotShowSceneSelectionThumbnails) )
             App::mainWindow->prepareSceneThumbnail(cmd2);
         else
             App::appendSimulationThreadCommand(cmd2);
@@ -116,7 +112,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     }
                     else
                     {
-                        if (App::mainWindow!=NULL)
+                        if (App::mainWindow!=nullptr)
                             App::mainWindow->scintillaEditorContainer->closeAllEditors();
                         App::ct->simulation->stopSimulation();
                         App::ct->emptyScene(true);
@@ -142,7 +138,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
     {
         SSimulationThreadCommand cmd2;
         cmd2.cmdId=cmd.cmdId-FILE_OPERATION_OPEN_RECENT_SCENE0_FOCMD+FILE_OPERATION_OPEN_RECENT_SCENE0_PHASE2_FOCMD;
-        if ( (App::mainWindow!=NULL)&&(!App::userSettings->doNotShowSceneSelectionThumbnails) )
+        if ( (App::mainWindow!=nullptr)&&(!App::userSettings->doNotShowSceneSelectionThumbnails) )
             App::mainWindow->prepareSceneThumbnail(cmd2);
         else
             App::appendSimulationThreadCommand(cmd2);
@@ -180,7 +176,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     }
                     else
                     {
-                        if (App::mainWindow!=NULL)
+                        if (App::mainWindow!=nullptr)
                             App::mainWindow->scintillaEditorContainer->closeAllEditors();
                         App::ct->simulation->stopSimulation();
                         App::ct->emptyScene(true);
@@ -211,7 +207,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
         { // we are NOT in the UI thread. We execute the command now:
             std::string filenameAndPath=CFileOperationsBase::handleVerSpec_loadModel2();
             if (filenameAndPath.length()!=0)
-                loadModel(filenameAndPath.c_str(),true,true,true,NULL,true,NULL,false,false); // Undo things is in here.
+                loadModel(filenameAndPath.c_str(),true,true,true,nullptr,true,nullptr,false,false); // Undo things is in here.
             else
                 App::addStatusbarMessage(IDSNS_ABORTED);
         }
@@ -226,7 +222,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             std::string tst(App::directories->uiDirectory);
             std::string filenameAndPath=App::uiThread->getOpenFileName(App::mainWindow,0,strTranslate(IDSN_LOADING_UI),tst,"",false,"V-REP Custom UI Files","ttb");
             if (filenameAndPath.length()!=0)
-                loadUserInterfaces(filenameAndPath.c_str(),true,true,true,NULL,true); // Undo thing done here too
+                loadUserInterfaces(filenameAndPath.c_str(),true,true,true,nullptr,true); // Undo thing done here too
             else
                 App::addStatusbarMessage(IDSNS_ABORTED);
         }
@@ -398,7 +394,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                 App::addStatusbarMessage(IDSNS_SAVING_CUSTOM_USER_INTERFACES);
                 std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,strTranslate(IDSNS_SAVING_CUSTOM_USER_INTERFACES),"","",false,"V-REP OpenGl-based Custom UI Files","ttb");
                 if (filenameAndPath.length()!=0)
-                    saveUserInterfaces(filenameAndPath.c_str(),true,true,true,NULL);
+                    saveUserInterfaces(filenameAndPath.c_str(),true,true,true,nullptr);
                 else
                     App::addStatusbarMessage(IDSNS_ABORTED);
             }
@@ -413,41 +409,29 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            App::addStatusbarMessage(IDS_IMPORTING_MESH___);
-            App::ct->objCont->deselectObjects();
-            std::string tst(App::directories->cadFormatDirectory);
-
-            float scalingFactor=1.0f;
-            bool showDlg=true;
-
-            std::vector<std::string> filenamesAndPaths;
-            App::uiThread->getOpenFileNames(filenamesAndPaths,App::mainWindow,0,IDS_IMPORTING_MESH___,tst,"",false,"Mesh files","obj","dxf","stl");
-            bool prevImp=false;
-            for (int i=0;i<int(filenamesAndPaths.size());i++)
+            if (CPluginContainer::isAssimpPluginAvailable())
             {
-                std::string filenameAndPath=filenamesAndPaths[i];
-                App::addStatusbarMessage((std::string("--> ")+filenameAndPath).c_str());
-                if (VFile::doesFileExist(filenameAndPath))
+                App::addStatusbarMessage(IDS_IMPORTING_MESH___);
+                App::ct->objCont->deselectObjects();
+                std::string tst(App::directories->cadFormatDirectory);
+
+                std::vector<std::string> filenamesAndPaths;
+                App::uiThread->getOpenFileNames(filenamesAndPaths,App::mainWindow,0,IDS_IMPORTING_MESH___,tst,"",false,"Mesh files","obj","dxf","ply","stl","dae","stp");
+                std::string files;
+                for (size_t i=0;i<filenamesAndPaths.size();i++)
                 {
-                    std::string ext(CTTUtil::getLowerCaseString(VVarious::splitPath_fileExtension(filenameAndPath).c_str()));
-                    int fileFormat=FILE_FORMAT_OBJ;
-                    if (ext.compare("dxf")==0)
-                        fileFormat=FILE_FORMAT_DXF;
-                    if (ext.compare("3ds")==0)
-                        fileFormat=FILE_FORMAT_3DS;
-                    if (ext.compare("stl")==0)
-                        fileFormat=FILE_FORMAT_ANY_STL;
-                    if (commonImportRoutine(fileFormat,filenameAndPath,showDlg,true,scalingFactor,-1,prevImp))
-                        App::addStatusbarMessage(IDSNS_DONE);
-                    else
-                        App::addStatusbarMessage(IDSNS_AN_ERROR_OCCURRED_DURING_THE_IMPORT_OPERATION);
-                    showDlg=false;
-                    prevImp=true;
+                    if (i!=0)
+                        files+=";";
+                    files+=filenamesAndPaths[i];
                 }
-                else
-                    App::addStatusbarMessage(IDSNS_ABORTED_FILE_DOES_NOT_EXIST);
+                CInterfaceStack stack;
+                stack.pushStringOntoStack(files.c_str(),0);
+                App::ct->sandboxScript->callScriptFunctionEx("simAssimp.importShapesDlg",&stack);
+                App::addStatusbarMessage(IDSNS_DONE);
+                POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
             }
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
+            else
+                App::uiThread->messageBox_critical(App::mainWindow,strTranslate(IDSN_EXPORT),"Assimp plugin was not found, cannot import",VMESSAGEBOX_OKELI);
         }
         else
             App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
@@ -516,49 +500,44 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            std::vector<int> sel;
-            for (int i=0;i<App::ct->objCont->getSelSize();i++)
-                sel.push_back(App::ct->objCont->getSelID(i));
-            if (!App::ct->environment->getSceneLocked())
+            if (CPluginContainer::isAssimpPluginAvailable())
             {
-                App::addStatusbarMessage(IDSNS_EXPORTING_SHAPES);
-                CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
-                if (0==App::ct->objCont->getShapeNumberInSelection(&sel))
-                    return(true); // Selection contains nothing that can be exported!
-                std::string tst(App::directories->cadFormatDirectory);
-                std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,strTranslate(IDSNS_EXPORTING_SHAPES),tst,"",false,"Mesh files","obj","dxf","stl");
-                if (filenameAndPath.length()!=0)
+                std::vector<int> sel;
+                for (int i=0;i<App::ct->objCont->getSelSize();i++)
+                    sel.push_back(App::ct->objCont->getSelID(i));
+                if (!App::ct->environment->getSceneLocked())
                 {
-                    App::directories->cadFormatDirectory=App::directories->getPathFromFull(filenameAndPath);
+                    App::addStatusbarMessage(IDSNS_EXPORTING_SHAPES);
+                    CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
+                    if (0==App::ct->objCont->getShapeNumberInSelection(&sel))
+                        return(true); // Selection contains nothing that can be exported!
+                    std::string tst(App::directories->cadFormatDirectory);
+                    std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,strTranslate(IDSNS_EXPORTING_SHAPES),tst,"",false,"Mesh files","obj","ply","stl","dae","stp");
+                    if (filenameAndPath.length()!=0)
+                    {
+                        App::directories->cadFormatDirectory=App::directories->getPathFromFull(filenameAndPath);
 
-                    std::string ext(CTTUtil::getLowerCaseString(VVarious::splitPath_fileExtension(filenameAndPath).c_str()));
-                    bool error=true;
-                    if (ext.compare("obj")==0)
-                    {
-                        CObjFile exporter;
-                        error=!exporter.exportFunc(filenameAndPath,false,&sel);
-                    }
-                    if (ext.compare("dxf")==0)
-                    {
-                        CDxfFile dxf;
-                        error=!dxf.exportFunc(filenameAndPath,true,&sel);
-                    }
-                    if (ext.compare("stl")==0)
-                    {
-                        CStlFile exporter(true);
-                        error=!exporter.exportFunc(filenameAndPath,false,&sel);
-                    }
-                    App::ct->objCont->deselectObjects();
-                    if (error)
-                        App::addStatusbarMessage(IDSNS_AN_ERROR_OCCURRED_DURING_THE_EXPORT_OPERATION);
-                    else
+                        CInterfaceStack stack;
+                        stack.pushStringOntoStack(filenameAndPath.c_str(),0);
+                        stack.pushTableOntoStack();
+                        for (size_t i=0;i<sel.size();i++)
+                        {
+                            stack.pushNumberOntoStack(double(i+1)); // key or index
+                            stack.pushNumberOntoStack(sel[i]);
+                            stack.insertDataIntoStackTable();
+                        }
+                        App::ct->sandboxScript->callScriptFunctionEx("simAssimp.exportShapesDlg",&stack);
+                        App::ct->objCont->deselectObjects();
                         App::addStatusbarMessage(IDSNS_DONE);
+                    }
+                    else
+                        App::addStatusbarMessage(IDSNS_ABORTED);
                 }
                 else
-                    App::addStatusbarMessage(IDSNS_ABORTED);
+                    App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_EXPORT),strTranslate(IDS_SCENE_IS_LOCKED_WARNING),VMESSAGEBOX_OKELI);
             }
             else
-                App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_EXPORT),strTranslate(IDS_SCENE_IS_LOCKED_WARNING),VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_critical(App::mainWindow,strTranslate(IDSN_EXPORT),"Assimp plugin was not found, cannot export",VMESSAGEBOX_OKELI);
         }
         else
             App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
@@ -585,7 +564,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     for (int i=0;i<int(sel.size());i++)
                     {
                         CGraph* it=App::ct->objCont->getGraph(sel[i]);
-                        if (it!=NULL)
+                        if (it!=nullptr)
                             it->exportGraphData(ar);
                     }
                     ar.close();
@@ -626,7 +605,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,titleString,App::directories->executableDirectory,"",false,"CSV Files","csv");
                     if (filenameAndPath.length()!=0)
                     {
-                        _pathExportPoints(filenameAndPath,it->getID(),cmd.cmdId==FILE_OPERATION_EXPORT_PATH_BEZIER_POINTS_FOCMD,true);
+                        _pathExportPoints(filenameAndPath,it->getObjectHandle(),cmd.cmdId==FILE_OPERATION_EXPORT_PATH_BEZIER_POINTS_FOCMD,true);
                         App::addStatusbarMessage(IDSNS_DONE);
                     }
                     else
@@ -652,7 +631,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                 App::addStatusbarMessage(IDSNS_EXPORTING_DYNAMIC_CONTENT);
                 if (CPluginContainer::dyn_isDynamicContentAvailable()!=0)
                 {
-                    int eng=App::ct->dynamicsContainer->getDynamicEngineType(NULL);
+                    int eng=App::ct->dynamicsContainer->getDynamicEngineType(nullptr);
                     if (eng==sim_physics_ode)
                     {
                         std::string tst(App::directories->otherFilesDirectory);
@@ -727,7 +706,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             int ci=-1;
             int si=-1;
             int ei=-1;
-            if (App::mainWindow!=NULL)
+            if (App::mainWindow!=nullptr)
                 App::mainWindow->simulationRecorder->stopRecording(false);
 
             ci=App::ct->getInstanceIndexOfASceneNotYetSaved(App::ct->environment->getSceneLocked());
@@ -745,8 +724,8 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             {
                 if (VMESSAGEBOX_REPLY_OK==App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_EXIT),strTranslate(IDS_INSTANCE_STILL_IN_EDIT_MODE_MESSAGE),VMESSAGEBOX_OK_CANCEL))
                 {
-                    if (App::mainWindow!=NULL)
-                        App::mainWindow->editModeContainer->processCommand(ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD,NULL);
+                    if (App::mainWindow!=nullptr)
+                        App::mainWindow->editModeContainer->processCommand(ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD,nullptr);
                     ei=-1;
                 }
                 else
@@ -755,7 +734,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             if ((si==App::ct->getCurrentInstanceIndex())&&(!displayed))
             {
                 if (VMESSAGEBOX_REPLY_OK==App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_EXIT),strTranslate(IDS_SIMULATION_STILL_RUNNING_MESSAGE),VMESSAGEBOX_OK_CANCEL))
-                    App::ct->simulatorMessageQueue->addCommand(sim_message_simulation_stop_request,0,0,0,0,NULL,0);
+                    App::ct->simulatorMessageQueue->addCommand(sim_message_simulation_stop_request,0,0,0,0,nullptr,0);
                 displayed=true;
             }
             if ((ci==App::ct->getCurrentInstanceIndex())&&(!displayed))
@@ -815,7 +794,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
     {
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
-            CFileOperations::loadModel(cmd.stringParams[0].c_str(),true,cmd.boolParams[0],false,NULL,cmd.boolParams[1],NULL,false,false);
+            CFileOperations::loadModel(cmd.stringParams[0].c_str(),true,cmd.boolParams[0],false,nullptr,cmd.boolParams[1],nullptr,false,false);
         }
         else
             App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread:
@@ -839,7 +818,7 @@ void CFileOperations::createNewScene(bool displayMessages,bool forceForNewInstan
     else
     {
 #ifdef SIM_WITH_GUI
-        if (App::mainWindow!=NULL)
+        if (App::mainWindow!=nullptr)
             App::mainWindow->scintillaEditorContainer->closeAllEditors();
 #endif
         App::ct->simulation->stopSimulation();
@@ -882,13 +861,13 @@ void CFileOperations::closeScene(bool displayMessages,bool displayDialogs)
     {
 #ifdef SIM_WITH_GUI
         App::setDefaultMouseMode();
-        if (App::mainWindow!=NULL)
+        if (App::mainWindow!=nullptr)
             App::mainWindow->scintillaEditorContainer->closeAllEditors();
 #endif
         App::ct->simulation->stopSimulation();
 #ifdef SIM_WITH_GUI
-        if (App::mainWindow!=NULL)
-            App::mainWindow->editModeContainer->processCommand(ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD,NULL);
+        if (App::mainWindow!=nullptr)
+            App::mainWindow->editModeContainer->processCommand(ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD,nullptr);
 #endif
         if (displayDialogs)
             App::uiThread->showOrHideProgressBar(true,-1,"Closing scene...");
@@ -915,656 +894,6 @@ void CFileOperations::closeScene(bool displayMessages,bool displayDialogs)
     }
     App::setRebuildHierarchyFlag();
 }
-
-bool CFileOperations::commonImportRoutine(int importType,const std::string& pathName,bool showDlg,bool showProgress,float& sf,int options,bool useOrientSizeFromPreviousImport)
-{ // Should only be called by the main simulation thread!
-    // options==-1 --> default
-    // bit0 set --> keep identical vertices
-    // bit1 set --> keep identival triangles
-    // bit2 set --> not used
-    // bit3 set --> not used
-    // bit4 set --> not used
-    // bit5 set --> not used
-    FUNCTION_DEBUG;
-
-    bool keepIdenticalVertices=0;
-    bool keepIdenticalTriangles=0;
-    if (options==-1)
-    {
-        keepIdenticalVertices=App::userSettings->identicalVerticesCheck;
-        keepIdenticalTriangles=App::userSettings->identicalTrianglesCheck;
-    }
-    else
-    {
-        keepIdenticalVertices=((options&1)!=0);
-        keepIdenticalTriangles=((options&2)!=0);
-    }
-
-    CImportExport* importer=NULL;
-    App::directories->cadFormatDirectory=App::directories->getPathFromFull(pathName);
-    if (importType==FILE_FORMAT_DXF)
-        importer=new CDxfFile();
-    if (importType==FILE_FORMAT_OBJ)
-        importer=new CObjFile();
-    if ((importType==FILE_FORMAT_ASCII_STL)||(importType==FILE_FORMAT_BINARY_STL)||(importType==FILE_FORMAT_ANY_STL))
-        importer=new CStlFile(importType);
-
-    if (showProgress)
-        App::uiThread->showOrHideProgressBar(true,0.05f,"Reading file...");
-
-    std::vector<std::vector<float>*> aVertices;
-    std::vector<std::vector<int>*> aIndices;
-    std::vector<std::vector<float>*> aTextureCoordinates;
-    std::vector<std::vector<float>*> aNormals;
-    std::vector<SObjMaterial*> aMaterials;
-    std::vector<std::string> groupNames;
-    bool error=!importer->importFunc(pathName);
-
-    if (showProgress)
-        App::uiThread->showOrHideProgressBar(true,0.2f,"Verifying meshes...");
-
-    for (int i=0;i<importer->getGroupCount();i++)
-    {
-        if ((importer->getVertexCount(i)>=3)&&(importer->getTriangleCount(i)>=1))
-        { 
-            std::vector<float>* vert=new std::vector<float>;
-            std::vector<int>* ind=new std::vector<int>;
-            std::vector<float>* tex=NULL;
-            std::vector<float>* norm=NULL;
-            SObjMaterial* mat=NULL;
-            for (int j=0;j<importer->getVertexCount(i);j++)
-            {
-                float vertex[3];
-                importer->getVertex(i,j,vertex);
-                vert->push_back(vertex[0]);
-                vert->push_back(vertex[1]);
-                vert->push_back(vertex[2]);
-            }
-            for (int j=0;j<importer->getTriangleCount(i);j++)
-            {
-                int triangle[3];
-                importer->getTriangle(i,j,triangle);
-                ind->push_back(triangle[0]);
-                ind->push_back(triangle[1]);
-                ind->push_back(triangle[2]);
-            }
-            if (importer->getTextureCoordinateCount(i)==importer->getTriangleCount(i)*3)
-            {
-                tex=new std::vector<float>;
-                for (int j=0;j<importer->getTextureCoordinateCount(i);j++)
-                {
-                    float coord[2];
-                    importer->getTextureCoordinate(i,j,coord);
-                    tex->push_back(coord[0]);
-                    tex->push_back(coord[1]);
-                }
-            }
-            if (importer->getNormalsCount(i)==importer->getTriangleCount(i)*3)
-            {
-                norm=new std::vector<float>;
-                for (int j=0;j<importer->getNormalsCount(i);j++)
-                {
-                    float n[3];
-                    importer->getNormal(i,j,n);
-                    norm->push_back(n[0]);
-                    norm->push_back(n[1]);
-                    norm->push_back(n[2]);
-                }
-            }
-            mat=importer->getAndClearMaterial(i);
-
-            CMeshManip::checkVerticesIndicesNormalsTexCoords(*vert,*ind,norm,tex,keepIdenticalVertices,App::userSettings->identicalVerticesTolerance/sf,keepIdenticalTriangles);
-            if ((norm!=NULL)&&(norm->size()==0))
-            {
-                delete norm;
-                norm=NULL;
-            }
-            if ((tex!=NULL)&&(tex->size()==0))
-            {
-                delete tex;
-                tex=NULL;
-            }
-
-            if ((vert->size()>=9)&&(ind->size()>=3))
-            {
-                aVertices.push_back(vert);
-                aIndices.push_back(ind);
-                aNormals.push_back(norm);
-                aTextureCoordinates.push_back(tex);
-                std::string tmpStr(importer->getName(i));
-                tt::removeIllegalCharacters(tmpStr,false);
-                groupNames.push_back(tmpStr);
-                aMaterials.push_back(mat);
-            }
-            else
-            {
-                delete vert;
-                delete ind;
-                delete norm;
-                delete tex;
-                delete norm;
-                delete mat;
-            }
-        }
-    }
-    delete importer;
-
-    if (showProgress)
-        App::uiThread->showOrHideProgressBar(true,0.4f,"Building shape(s)...");
-
-    static float prevTotalScale=1.0f;
-    static bool prevZIsUp=true;
-    static int prevScaleTextureTo=-1;
-    float performedScaling=1.0f;
-    bool zIsUp=true;
-    int invScaling=1;
-
-    if (!useOrientSizeFromPreviousImport)
-    {
-        C3Vector minV,maxV;
-        C3Vector minVRot,maxVRot;
-        float underZCounter=0;
-        float underZCounter2=0;
-        C4X4Matrix tr;
-        tr.setIdentity();
-        tr.M.buildXRotation(piValD2_f);
-        for (int i=0;i<int(aVertices.size());i++)
-        {
-            for (int j=0;j<int(aVertices[i]->size())/3;j++)
-            {
-                C3Vector v(&aVertices[i]->at(3*j));
-                if ((i==0)&&(j==0))
-                {
-                    minV=v;
-                    maxV=v;
-                    v*=tr;
-                    minVRot=v;
-                    maxVRot=v;
-                }
-                else
-                {
-                    minV.keepMin(v);
-                    maxV.keepMax(v);
-                    float vz=v(2);
-                    v*=tr;
-                    minVRot.keepMin(v);
-                    maxVRot.keepMax(v);
-                    if (v(2)<vz)
-                        underZCounter2++;
-                    else
-                        underZCounter++;
-                }
-            }
-        }
-
-        if (underZCounter>underZCounter2)
-        { // the imported scene was probably using a coord. system with Y up!
-            minV=minVRot;
-            maxV=maxVRot;
-            zIsUp=false;
-        }
-        else
-            tr.setIdentity();
-
-        C3Vector dim(maxV-minV);
-        float maxDim=SIM_MAX(SIM_MAX(dim(0),dim(1)),dim(2));
-        for (int i=0;i<3;i++)
-        {
-            if (maxDim>2.0f)
-            {
-                maxDim*=0.1f;
-                performedScaling/=10.0f;
-                invScaling*=10;
-            }
-        }
-        if (invScaling==10)
-        { // no one uses a unit of 10cm
-            invScaling=1;
-            performedScaling=1.0f;
-        }
-
-        if (!showDlg)
-        {
-            performedScaling=sf;
-            tr.setIdentity();
-        }
-
-        for (int i=0;i<int(aVertices.size());i++)
-        {
-            for (int j=0;j<int(aVertices[i]->size())/3;j++)
-            {
-                C3Vector v(&aVertices[i]->at(3*j));
-                v*=performedScaling;
-                v*=tr;
-                aVertices[i]->at(3*j+0)=v(0);
-                aVertices[i]->at(3*j+1)=v(1);
-                aVertices[i]->at(3*j+2)=v(2);
-            }
-        }
-    }
-
-
-    std::vector<int> newSelection;
-    App::ct->objCont->enableObjectActualization(false);
-    bool groupImport=false;
-    bool groupedOrMergedImport=false;
-    if (aVertices.size()>2000)
-    { // We have too many lose elements... we merge them
-        groupedOrMergedImport=true;
-        printf("Import operation with more than 2000 separate items (%i).\n",int(aVertices.size()));
-
-#ifdef SIM_WITH_GUI
-        if (showDlg)
-        {
-            if (showProgress)
-                App::uiThread->showOrHideProgressBar(false);
-            App::uiThread->messageBox_information(App::mainWindow,strTranslate(IDSN_IMPORT),strTranslate(IDS_TOO_MANY_MESH_ELEMENTS_DURING_IMPORT),VMESSAGEBOX_OKELI);
-            if (showProgress)
-                App::uiThread->showOrHideProgressBar(true);
-        }
-#endif
-
-        for (int i=0;i<int(aVertices.size());i++)
-        {
-            if (aMaterials[i]!=NULL)
-                groupImport=true;
-        }
-        if (groupImport)
-            printf("Shapes will be grouped.\n");
-        else
-        {
-            printf("Shapes will be merged.\n");
-            for (int i=1;i<int(aVertices.size());i++)
-            {
-                int indOffset=(int)aVertices[0]->size()/3;
-                aVertices[0]->insert(aVertices[0]->end(),aVertices[i]->begin(),aVertices[i]->end());
-                for (int j=0;j<int(aIndices[i]->size());j++)
-                    aIndices[0]->push_back(aIndices[i]->at(j)+indOffset);
-                delete aVertices[i];
-                delete aIndices[i];
-                delete aNormals[i];
-                delete aTextureCoordinates[i];
-                delete aMaterials[i];
-            }
-            aVertices.resize(1);
-            aIndices.resize(1);
-            aNormals.resize(1);
-            groupNames.resize(1);
-            // we have to kill the texures:
-            aTextureCoordinates.resize(1);
-            delete aTextureCoordinates[0];
-            aTextureCoordinates[0]=NULL;
-            aMaterials.resize(1);
-            delete aMaterials[0];
-            aMaterials[0]=NULL;
-
-            // Important to check the meshe here again (we might have merged individual triangles of a complexe shape here)
-            CMeshManip::checkVerticesIndicesNormalsTexCoords(aVertices[0][0],aIndices[0][0],aNormals[0],aTextureCoordinates[0],keepIdenticalVertices,App::userSettings->identicalVerticesTolerance,keepIdenticalTriangles);
-            if ((aNormals[0]!=NULL)&&(aNormals[0]->size()==0))
-            {
-                delete aNormals[0];
-                aNormals[0]=NULL;
-            }
-            if ((aTextureCoordinates[0]!=NULL)&&(aTextureCoordinates[0]->size()==0))
-            {
-                delete aTextureCoordinates[0];
-                aTextureCoordinates[0]=NULL;
-            }
-        }
-
-        if (showProgress)
-            App::uiThread->showOrHideProgressBar(true,0.8f);
-    }
-
-    int scaleTexturesTo=-1;
-
-    std::vector<std::string> _allTextureNames;
-    std::vector<unsigned char*> _allTextureData;
-    std::vector<int> _allTextureProp;
-
-    float bprog=0.4f;
-    float rprog=0.6f;
-    if (groupedOrMergedImport)
-    {
-        bprog=0.8f;
-        rprog=0.2f;
-    }
-    std::vector<int> newObjectHandles;
-    for (int i=0;i<int(aVertices.size());i++)
-    {
-        if (showProgress)
-            App::uiThread->showOrHideProgressBar(true,bprog+rprog*(float(i)/float(aVertices.size())));
-
-        printf("Generating a shape (%i)... ",i);
-        CGeomProxy* geom;
-        geom=new CGeomProxy(NULL,*aVertices[i],*aIndices[i],aNormals[i],aTextureCoordinates[i]);
-        CShape* shape=new CShape();
-        shape->setLocalTransformation(geom->getCreationTransformation());
-        geom->setCreationTransformation(C7Vector::identityTransformation);
-        shape->geomData=geom;
-        App::ct->objCont->addObjectToScene(shape,false,false);
-        newObjectHandles.push_back(shape->getID());
-        // Handle colors and textures:
-        if (aMaterials[i]!=NULL)
-        {
-            for (int j=0;j<3;j++)
-            { // in V-REP, ambient and diffuse use the same color and are the same!
-                ((CGeometric*)geom->geomInfo)->color.colors[j]=SIM_MAX(aMaterials[i]->ambient[j],aMaterials[i]->diffuse[j]);
-                ((CGeometric*)geom->geomInfo)->color.colors[3+j]=SIM_MAX(aMaterials[i]->ambient[j],aMaterials[i]->diffuse[j]);
-                ((CGeometric*)geom->geomInfo)->color.colors[6+j]=aMaterials[i]->specular[j];
-                ((CGeometric*)geom->geomInfo)->color.colors[9+j]=aMaterials[i]->emission[j];
-            }
-            if (aMaterials[i]->transparency>0.01f)
-            {
-                ((CGeometric*)geom->geomInfo)->color.translucid=true;
-                shape->actualizeContainsTransparentComponent();
-                ((CGeometric*)geom->geomInfo)->color.transparencyFactor=1.0f-aMaterials[i]->transparency;
-            }
-            // ((CGeometric*)geom->geomInfo)->color.shininess=int(aMaterials[i]->shininess*128.1f);
-
-            if ((aMaterials[i]->textureFile.length()!=0)&&(aTextureCoordinates[i]!=NULL))
-            { // Texture:
-                bool textureLoadFail=true;
-
-                if (VVarious::isAbsolutePath(aMaterials[i]->textureFile))
-                    aMaterials[i]->textureFile=VVarious::splitPath_fileBaseAndExtension(aMaterials[i]->textureFile);
-                std::string tmp=VVarious::splitPath_path(pathName)+VREP_SLASH+aMaterials[i]->textureFile;
-                if (VFile::doesFileExist(tmp))
-                {
-                    if (scaleTexturesTo==-1)
-                    {
-                        if (!useOrientSizeFromPreviousImport)
-                        {
-#ifdef SIM_WITH_GUI
-                            if (showDlg)
-                            {
-                                int pageIndex=App::ct->pageContainer->getActivePageIndex();
-                                CSPage* page=App::ct->pageContainer->getPage(pageIndex);
-                                if (page!=NULL)
-                                {
-                                    int ind=page->getLastMouseDownViewIndex();
-                                    if (ind==-1)
-                                        ind=0;
-                                    CSView* view=page->getView(ind);
-                                    if (view!=NULL)
-                                    {
-                                        CCamera* cam=App::ct->objCont->getCamera(view->getLinkedObjectID());
-                                        if ( (cam!=NULL) )
-                                        {
-                                            int viewSize[2];
-                                            view->getViewSize(viewSize);
-
-                                            cam->frameSceneOrSelectedObjects(float(viewSize[0])/float(viewSize[1]),view->getPerspectiveDisplay(),NULL,true,true,1.0f,NULL);
-                                            cam->setFogTimer(4.0f);
-                                        }
-                                    }
-                                }
-
-                                // Display the texture scaling dialog:
-                                if (showProgress)
-                                    App::uiThread->showOrHideProgressBar(false);
-                                SUIThreadCommand cmdIn2;
-                                SUIThreadCommand cmdOut2;
-                                cmdIn2.cmdId=TEXTURE_SCALING_OPTION_DLG_UITHREADCMD;
-                                App::uiThread->executeCommandViaUiThread(&cmdIn2,&cmdOut2);
-                                scaleTexturesTo=0;
-                                if ( (cmdOut2.boolParams.size()>0)&&(cmdOut2.boolParams[0]) )
-                                    scaleTexturesTo=cmdOut2.intParams[0];
-                                if (showProgress)
-                                    App::uiThread->showOrHideProgressBar(true);
-                            }
-                            else
-#endif
-                                scaleTexturesTo=0;//256;
-                        }
-                        else
-                            scaleTexturesTo=prevScaleTextureTo;
-                    }
-                    prevScaleTextureTo=scaleTexturesTo;
-
-                    int resX,resY,n;
-
-                    int theIndex=-1;
-                    for (int j=0;j<int(_allTextureNames.size());j++)
-                    {
-                        if (_allTextureNames[j].compare(tmp)==0)
-                        {
-                            theIndex=j;
-                            break;
-                        }
-                    }
-                    unsigned char* data=NULL;
-                    if (theIndex!=-1)
-                    { // that texture was already loaded
-                        data=_allTextureData[theIndex];
-                        resX=_allTextureProp[3*theIndex+0];
-                        resY=_allTextureProp[3*theIndex+1];
-                        n=_allTextureProp[3*theIndex+2];
-                    }
-                    else
-                    { // that texture was not yet loaded
-                        data=CImageLoaderSaver::load(tmp.c_str(),&resX,&resY,&n,0,scaleTexturesTo);
-                        if (n<3)
-                        {
-                            delete[] data;
-                            data=NULL;
-                        }
-                        if (data!=NULL)
-                        {
-                            _allTextureNames.push_back(tmp);
-                            _allTextureData.push_back(data);
-                            _allTextureProp.push_back(resX);
-                            _allTextureProp.push_back(resY);
-                            _allTextureProp.push_back(n);
-                        }
-                    }
-                    bool rgba=(n==4);
-                    if (data!=NULL)
-                    {
-                        textureLoadFail=false;
-                        CTextureObject* textureObj=new CTextureObject(resX,resY);
-                        textureObj->setImage(rgba,false,false,data); // keep false,false
-                        textureObj->setObjectName(App::directories->getNameFromFull(aMaterials[i]->textureFile).c_str());
-                        // data is destroyed later (when _allTextureProp is destroyed)!
-                        textureObj->addDependentObject(shape->getID(),((CGeometric*)shape->geomData->geomInfo)->getUniqueID());
-                        int textureID=App::ct->textureCont->addObject(textureObj,false); // might erase the textureObj and return a similar object already present!!
-                        CTextureProperty* tp=new CTextureProperty(textureID);
-                        ((CGeometric*)shape->geomData->geomInfo)->setTextureProperty(tp);
-
-                        std::vector<float> wvert;
-                        std::vector<int> wind;
-                        ((CGeometric*)shape->geomData->geomInfo)->getCumulativeMeshes(wvert,&wind,NULL);
-                        if (((CGeometric*)shape->geomData->geomInfo)->textureCoords_notCopiedNorSerialized.size()/2==wind.size())
-                        { // we have texture coordinate data attached to the shape's geometry (was added during shape import)
-                            tp->setFixedCoordinates(&((CGeometric*)shape->geomData->geomInfo)->textureCoords_notCopiedNorSerialized);
-                            ((CGeometric*)shape->geomData->geomInfo)->textureCoords_notCopiedNorSerialized.clear();
-                        }
-                    }
-                }
-                if (textureLoadFail)
-                {
-                    std::string txtTmp(IDS_ERROR);
-                    txtTmp+=": ";
-                    txtTmp+=IDS_A_TEXTURE_FILE_COULD_NOT_BE_LOADED;
-                    txtTmp+=": ";
-                    txtTmp+=tmp;
-                    App::addStatusbarMessage(txtTmp.c_str());
-                }
-            }
-        }
-
-
-        shape->setVisibleEdges(aTextureCoordinates[i]==NULL); // Visible edges only if no texture coords (otherwise it looks like a bug sometimes)
-        if (aNormals[i]==NULL)
-            ((CGeometric*)shape->geomData->geomInfo)->setGouraudShadingAngle(30.0f*degToRad_f);
-        ((CGeometric*)shape->geomData->geomInfo)->setEdgeThresholdAngle(30.0f*degToRad_f);
-        shape->geomData->geomInfo->setLocalInertiaFrame(C7Vector::identityTransformation); // 11/2/2013
-        newSelection.push_back(shape->getID());
-
-        std::string tempName("imported_part_0");
-        if (groupNames[i]!="")
-            tempName=groupNames[i];
-
-        std::string tempName2=App::ct->objCont->getSimilarNameWithHighestSuffix(tempName,false);
-        if (tempName2.length()!=0)
-            tempName=tempName2;
-
-        while (App::ct->objCont->getObject(tempName)!=NULL)
-            tempName=tt::generateNewName_noDash(tempName);
-        shape->setName(tempName);
-
-        tempName=tt::getObjectAltNameFromObjectName("imported");
-        while (App::ct->objCont->getObjectFromAltName(tempName)!=NULL)
-            tempName=tt::generateNewName_noDash(tempName);
-        shape->setAltName(tempName);
-
-        delete aVertices[i];
-        delete aIndices[i];
-        delete aNormals[i];
-        delete aTextureCoordinates[i];
-        delete aMaterials[i];
-        printf("done.\n");
-    }
-
-    for (int i=0;i<int(_allTextureData.size());i++)
-        delete[] _allTextureData[i];
-
-    if (showProgress)
-        App::uiThread->showOrHideProgressBar(false);
-
-    App::ct->objCont->enableObjectActualization(true);
-    App::ct->objCont->actualizeObjectInformation();
-    groupNames.clear();
-    aVertices.clear();
-    aIndices.clear();
-    aNormals.clear();
-    aTextureCoordinates.clear();
-
-    std::vector<int> newObjects;
-    if (groupImport)
-        newObjects.push_back(CSceneObjectOperations::groupSelection(&newSelection,false));
-    else
-        newObjects.assign(newSelection.begin(),newSelection.end());
-
-    for (int i=0;i<int(newObjects.size());i++)
-        App::ct->objCont->addObjectToSelection(newObjects[i]);
-
-
-    if (!useOrientSizeFromPreviousImport)
-    {
-        if (showDlg)
-        { // display the scaling/roation dialog:
-            SUIThreadCommand cmdIn;
-            SUIThreadCommand cmdOut;
-            cmdIn.cmdId=IMPORT_OPTION_DLG_UITHREADCMD;
-            cmdIn.intParams.push_back(0); // sizeIndex
-            if (invScaling==100)
-                cmdIn.intParams[0]=4;
-            if (invScaling==1000)
-                cmdIn.intParams[0]=5;
-            cmdIn.boolParams.push_back(zIsUp);
-            App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-            if (cmdOut.boolParams.size()>0)
-            {
-                performedScaling*=cmdOut.floatParams[0];
-                zIsUp=cmdOut.boolParams[0];
-            }
-        }
-        prevTotalScale=performedScaling;
-        prevZIsUp=zIsUp;
-    }
-    else
-    {
-        simScaleObjects_internal(&newObjects[0],int(newObjects.size()),prevTotalScale,true);
-        std::vector<int> sel;
-        App::ct->objCont->getSelectedObjects(sel);
-        C4X4Matrix _r;
-        _r.setIdentity();
-        _r.M.buildXRotation(piValD2_f);
-        C7Vector rot(_r);
-        for (int i=0;i<int(newObjects.size());i++)
-        {
-            C3DObject* it=App::ct->objCont->getObject(newObjects[i]);
-            it->setSizeFactor(1.0f);
-            if (!prevZIsUp)
-            {
-                C7Vector tr(it->getLocalTransformation());
-                it->setLocalTransformation(rot*tr);
-            }
-        }
-    }
-
-    if (newObjectHandles.size()>0)
-    {
-        CInterfaceStack stack;
-        stack.pushTableOntoStack();
-        stack.pushStringOntoStack("objectHandles",0);
-        stack.pushIntArrayTableOntoStack(&newObjectHandles[0],(int)newObjectHandles.size());
-        stack.insertDataIntoStackTable();
-        App::ct->luaScriptContainer->callAddOnMainChildCustomizationWithData(sim_syscb_aftercreate,&stack);
-    }
-
-    return(!error);
-}
-
-bool CFileOperations::apiImportRoutine(int importType,const std::string& pathName,int options,float identicalVerticesTolerance,float sizeFactor,std::vector<std::vector<float>*>& listOfVertices,std::vector<std::vector<int>*>& listOfIndices,std::vector<std::string>& groupNames)
-{ // options: bit 0: keep identical vertices, bit 1: keep identical triangles, bit 2: no winding check
-    CImportExport* importer=NULL;
-    if (importType==FILE_FORMAT_DXF)
-        importer=new CDxfFile();
-    if (importType==FILE_FORMAT_OBJ)
-        importer=new CObjFile();
-    if ((importType==FILE_FORMAT_ASCII_STL)||(importType==FILE_FORMAT_BINARY_STL)||(importType==FILE_FORMAT_ANY_STL))
-        importer=new CStlFile(importType);
-    importer->importFunc(pathName);
-
-    for (int i=0;i<importer->getGroupCount();i++)
-    {
-        if ((importer->getVertexCount(i)>=3)&&(importer->getTriangleCount(i)>=1))
-        { 
-            std::vector<float>* vert=new std::vector<float>;
-            std::vector<int>* ind=new std::vector<int>;
-            for (int j=0;j<importer->getVertexCount(i);j++)
-            {
-                float vertex[3];
-                importer->getVertex(i,j,vertex);
-                vert->push_back(vertex[0]);
-                vert->push_back(vertex[1]);
-                vert->push_back(vertex[2]);
-            }
-            for (int j=0;j<importer->getTriangleCount(i);j++)
-            {
-                int triangle[3];
-                importer->getTriangle(i,j,triangle);
-                ind->push_back(triangle[0]);
-                ind->push_back(triangle[1]);
-                ind->push_back(triangle[2]);
-            }
-            CMeshManip::checkVerticesIndicesNormalsTexCoords(*vert,*ind,NULL,NULL,(options&1)==0,identicalVerticesTolerance,(options&2)==0);
-            if ((vert->size()>=9)&&(ind->size()>=3))
-            {
-                listOfVertices.push_back(vert);
-                listOfIndices.push_back(ind);
-                // Here we don't need to remove illegal chars! (API importer)
-                groupNames.push_back(importer->getName(i));
-            }
-            else
-            {
-                delete vert;
-                delete ind;
-            }
-        }
-    }
-    delete importer;
-
-
-    for (int i=0;i<int(listOfVertices.size());i++)
-        CMeshManip::centerAndScale(listOfVertices[i],0.0f,0.0f,0.0f,sizeFactor);
-
-    return(listOfVertices.size()!=0);
-}
-
-
 
 bool CFileOperations::_pathImportRoutine(const std::string& pathName,bool displayDialogs)
 { // Should only be called by the NON-UI thread
@@ -1680,11 +1009,11 @@ bool CFileOperations::_pathImportRoutine(const std::string& pathName,bool displa
                 }
                 newObject->pathContainer->enableActualization(true);
                 newObject->pathContainer->actualizePath();
-                newObject->setName(IDSOGL_IMPORTEDPATH);
-                newObject->setAltName(tt::getObjectAltNameFromObjectName(newObject->getName()));
+                newObject->setObjectName_objectNotYetInScene(IDSOGL_IMPORTEDPATH);
+                newObject->setObjectAltName_objectNotYetInScene(tt::getObjectAltNameFromObjectName(newObject->getObjectName()));
 
                 App::ct->objCont->addObjectToScene(newObject,false,true);
-                App::ct->objCont->selectObject(newObject->getID());
+                App::ct->objCont->selectObject(newObject->getObjectHandle());
             }
             archive.close();
             file.close();
@@ -1704,7 +1033,7 @@ bool CFileOperations::_pathImportRoutine(const std::string& pathName,bool displa
 bool CFileOperations::_pathExportPoints(const std::string& pathName,int pathID,bool bezierPoints,bool displayDialogs)
 {
     CPath* pathObject=App::ct->objCont->getPath(pathID);
-    if (pathObject==NULL)
+    if (pathObject==nullptr)
         return(false);
     bool retVal=false;
     if (displayDialogs)
@@ -1802,7 +1131,7 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages
     int result=-3;
     CFileOperationsBase::handleVerSpec_loadScene1();
 #ifdef SIM_WITH_GUI
-    if (App::mainWindow!=NULL)
+    if (App::mainWindow!=nullptr)
         App::mainWindow->scintillaEditorContainer->closeAllEditors();
 #endif
     App::ct->objCont->deselectObjects();
@@ -1831,7 +1160,7 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages
         std::string infoPrintOut(tt::decorateString("",IDSNS_LOADING_SCENE," ("));
         infoPrintOut+=std::string(pathAndFilename)+"). ";
 #ifdef SIM_WITH_GUI
-        if ((result==-3)&&(App::mainWindow!=NULL))
+        if ((result==-3)&&(App::mainWindow!=nullptr))
         {
             if (displayMessages)
                 App::addStatusbarMessage(IDS_NOT_VALID_V_REP_FILE);
@@ -1842,7 +1171,7 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages
                 App::uiThread->showOrHideProgressBar(true);
             }
         }
-        if ((result!=-3)&&displayMessages&&(App::mainWindow!=NULL))
+        if ((result!=-3)&&displayMessages&&(App::mainWindow!=nullptr))
         {
             infoPrintOut+=" ";
             infoPrintOut+=IDSNS_SERIALIZATION_VERSION_IS;
@@ -1853,7 +1182,7 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages
             if (infoPrintOut!="")
                 App::addStatusbarMessage(infoPrintOut.c_str());
         }
-        if ((result==-2)&&(App::mainWindow!=NULL))
+        if ((result==-2)&&(App::mainWindow!=nullptr))
         {
             if (displayMessages)
                 App::addStatusbarMessage(IDS_SERIALIZATION_VERSION_NOT_SUPPORTED_ANYMORE);
@@ -1864,7 +1193,7 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages
                 App::uiThread->showOrHideProgressBar(true);
             }
         }
-        if ((result==-1)&&(App::mainWindow!=NULL))
+        if ((result==-1)&&(App::mainWindow!=nullptr))
         {
             if (displayMessages)
                 App::addStatusbarMessage(IDS_SERIALIZATION_VERSION_TOO_RECENT);
@@ -1875,7 +1204,7 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages
                 App::uiThread->showOrHideProgressBar(true);
             }
         }
-        if ((result==0)&&(App::mainWindow!=NULL))
+        if ((result==0)&&(App::mainWindow!=nullptr))
         {
             if (displayMessages)
                 App::addStatusbarMessage(IDS_COMPRESSION_SCHEME_NOT_SUPPORTED);
@@ -1892,16 +1221,16 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages
             App::ct->objCont->loadScene(serObj,false);
             serObj.readClose();
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=NULL)
+            if (App::mainWindow!=nullptr)
                 App::mainWindow->refreshDimensions(); // this is important so that the new pages and views are set to the correct dimensions
             if (displayMessages)
                 App::addStatusbarMessage(IDSNS_SCENE_OPENED);
-            if ((vrepVersionThatWroteThis>VREP_PROGRAM_VERSION_NB)&&displayDialogs&&(App::mainWindow!=NULL))
+            if ((vrepVersionThatWroteThis>VREP_PROGRAM_VERSION_NB)&&displayDialogs&&(App::mainWindow!=nullptr))
                 App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_SCENE),strTranslate(IDS_SAVED_WITH_MORE_RECENT_VERSION_WARNING),VMESSAGEBOX_OKELI);
             std::string acknowledgement(App::ct->environment->getAcknowledgement());
             std::string tmp(acknowledgement);
             tt::removeSpacesAtBeginningAndEnd(tmp);
-            if (displayDialogs&&(App::mainWindow!=NULL))
+            if (displayDialogs&&(App::mainWindow!=nullptr))
             {
                 if (tmp.length()!=0)
                 {
@@ -1939,24 +1268,24 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages
 }
 
 bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages,bool displayDialogs,bool setCurrentDir,std::string* acknowledgmentPointerInReturn,bool doUndoThingInHere,std::vector<char>* loadBuffer,bool onlyThumbnail,bool forceModelAsCopy)
-{ // if acknowledgment is NULL, then acknowledgments are directly displayed here!
+{ // if acknowledgment is nullptr, then acknowledgments are directly displayed here!
     FUNCTION_DEBUG;
     if (App::isFullScreen()||App::userSettings->doNotShowAcknowledgmentMessages)
         displayDialogs=false;
     int result=-3;
     CFileOperationsBase::handleVerSpec_loadModel1();
-    if ((pathAndFilename==NULL)||VFile::doesFileExist(pathAndFilename))
+    if ((pathAndFilename==nullptr)||VFile::doesFileExist(pathAndFilename))
     {
         std::string theAcknowledgement;
         App::ct->objCont->deselectObjects();
 
-        if (setCurrentDir&&(pathAndFilename!=NULL))
+        if (setCurrentDir&&(pathAndFilename!=nullptr))
             App::directories->modelDirectory=App::directories->getPathFromFull(pathAndFilename);
 
         if (displayDialogs)
             App::uiThread->showOrHideProgressBar(true,-1,"Loading model...");
 
-        if (pathAndFilename!=NULL)
+        if (pathAndFilename!=nullptr)
         { // loading from file...
             VFile file(pathAndFilename,VFile::READ|VFile::SHARE_DENY_NONE);
             VArchive archive(&file,VArchive::LOAD);
@@ -1970,7 +1299,7 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
             std::string infoPrintOut(tt::decorateString("",IDSNS_LOADING_MODEL," ("));
             infoPrintOut+=std::string(pathAndFilename)+"). ";
     #ifdef SIM_WITH_GUI
-            if ((result==-3)&&(App::mainWindow!=NULL))
+            if ((result==-3)&&(App::mainWindow!=nullptr))
             {
                 if (displayMessages)
                     App::addStatusbarMessage(IDS_NOT_VALID_V_REP_FILE);
@@ -1981,7 +1310,7 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
                     App::uiThread->showOrHideProgressBar(true);
                 }
             }
-            if (((result!=-3)&&displayMessages)&&(App::mainWindow!=NULL))
+            if (((result!=-3)&&displayMessages)&&(App::mainWindow!=nullptr))
             {
                 infoPrintOut+=" ";
                 infoPrintOut+=IDSNS_SERIALIZATION_VERSION_IS;
@@ -1992,7 +1321,7 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
                 if (infoPrintOut!="")
                     App::addStatusbarMessage(infoPrintOut.c_str());
             }
-            if ((result==-2)&&(App::mainWindow!=NULL))
+            if ((result==-2)&&(App::mainWindow!=nullptr))
             {
                 if (displayMessages)
                     App::addStatusbarMessage(IDS_SERIALIZATION_VERSION_NOT_SUPPORTED_ANYMORE);
@@ -2003,7 +1332,7 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
                     App::uiThread->showOrHideProgressBar(true);
                 }
             }
-            if ((result==-1)&&(App::mainWindow!=NULL))
+            if ((result==-1)&&(App::mainWindow!=nullptr))
             {
                 if (displayMessages)
                     App::addStatusbarMessage(IDS_SERIALIZATION_VERSION_TOO_RECENT);
@@ -2014,7 +1343,7 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
                     App::uiThread->showOrHideProgressBar(true);
                 }
             }
-            if ((result==0)&&(App::mainWindow!=NULL))
+            if ((result==0)&&(App::mainWindow!=nullptr))
             {
                 if (displayMessages)
                     App::addStatusbarMessage(IDS_COMPRESSION_SCHEME_NOT_SUPPORTED);
@@ -2028,12 +1357,12 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
     #endif
             if (result==1)
             {
-                App::ct->objCont->loadModel(serObj,onlyThumbnail,forceModelAsCopy,NULL,NULL,NULL);
+                App::ct->objCont->loadModel(serObj,onlyThumbnail,forceModelAsCopy,nullptr,nullptr,nullptr);
                 serObj.readClose();
                 if (displayMessages&&(!onlyThumbnail))
                     App::addStatusbarMessage(IDSNS_MODEL_LOADED);
     #ifdef SIM_WITH_GUI
-                if ((vrepVersionThatWroteThis>VREP_PROGRAM_VERSION_NB)&&displayDialogs&&(App::mainWindow!=NULL)&&(!onlyThumbnail))
+                if ((vrepVersionThatWroteThis>VREP_PROGRAM_VERSION_NB)&&displayDialogs&&(App::mainWindow!=nullptr)&&(!onlyThumbnail))
                 {
                     App::uiThread->showOrHideProgressBar(false);
                     App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_MODEL),strTranslate(IDS_MODEL_SAVED_WITH_MORE_RECENT_VERSION_WARNING),VMESSAGEBOX_OKELI);
@@ -2049,7 +1378,7 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
                     App::ct->objCont->getSelectedObjects(loadedObjects);
                     for (int obba=0;obba<int(loadedObjects.size());obba++)
                     {
-                        if (loadedObjects[obba]->getParent()==NULL)
+                        if (loadedObjects[obba]->getParentObject()==nullptr)
                         {
                             acknowledgement=loadedObjects[obba]->getModelAcknowledgement();
                             tmp=acknowledgement;
@@ -2060,7 +1389,7 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
 
                     if (tmp.length()!=0)
                     {
-                        if (acknowledgmentPointerInReturn==NULL)
+                        if (acknowledgmentPointerInReturn==nullptr)
                         {
 
                             if (displayMessages)
@@ -2089,7 +1418,7 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
             result=serObj.readOpen(serializationVersion,vrepVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber);
             if (result==1)
             {
-                App::ct->objCont->loadModel(serObj,onlyThumbnail,forceModelAsCopy,NULL,NULL,NULL);
+                App::ct->objCont->loadModel(serObj,onlyThumbnail,forceModelAsCopy,nullptr,nullptr,nullptr);
                 serObj.readClose();
             }
         }
@@ -2104,7 +1433,7 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
         }
 #ifdef SIM_WITH_GUI
-        if ((theAcknowledgement.length()!=0)&&displayDialogs&&(App::mainWindow!=NULL))
+        if ((theAcknowledgement.length()!=0)&&displayDialogs&&(App::mainWindow!=nullptr))
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId=POSTPONE_PROCESSING_THIS_LOOP_CMD;
@@ -2129,7 +1458,7 @@ bool CFileOperations::saveUserInterfaces(const char* pathAndFilename,bool displa
     if (App::isFullScreen())
         displayDialogs=false;
     bool retVal=false; // means error
-    if ((App::ct->buttonBlockContainer!=NULL)&&(App::ct->buttonBlockContainer->getUnassociatedNonSystemBlockCount()!=0))
+    if ((App::ct->buttonBlockContainer!=nullptr)&&(App::ct->buttonBlockContainer->getUnassociatedNonSystemBlockCount()!=0))
     { // ok, we have something to save!
         if (displayDialogs)
             App::uiThread->showOrHideProgressBar(true,-1,"Saving custom UI(s)...");
@@ -2157,7 +1486,7 @@ bool CFileOperations::saveUserInterfaces(const char* pathAndFilename,bool displa
             if ((App::ct->buttonBlockContainer->allBlocks[i]->getAttributes()&sim_ui_property_systemblock)==0)
             {
                 bool takeIt=false;
-                if (uiHandlesOrNullForAll==NULL)
+                if (uiHandlesOrNullForAll==nullptr)
                     takeIt=true;
                 if (!takeIt)
                 {
@@ -2203,7 +1532,7 @@ bool CFileOperations::saveUserInterfaces(const char* pathAndFilename,bool displa
                     allTextureProperties.push_back(tpc[i]);
                     int objid=tpc[i]->getTextureObjectID();
                     CTextureObject* to=App::ct->textureCont->getObject(objid);
-                    if (to!=NULL)
+                    if (to!=nullptr)
                     {
                         ar.storeDataName(SER_TEXTURE);
                         ar.setCountingMode();
@@ -2233,7 +1562,7 @@ bool CFileOperations::saveUserInterfaces(const char* pathAndFilename,bool displa
 bool CFileOperations::loadUserInterfaces(const char* pathAndFilename,bool displayMessages,bool displayDialogs,bool setCurrentDir,std::vector<int>* uiHandles,bool doUndoThingInHere)
 {
     bool retVal=false;
-    if (uiHandles!=NULL)
+    if (uiHandles!=nullptr)
         uiHandles->clear();
     if (VFile::doesFileExist(pathAndFilename))
     {
@@ -2255,7 +1584,7 @@ bool CFileOperations::loadUserInterfaces(const char* pathAndFilename,bool displa
         infoPrintOut+=std::string(pathAndFilename)+"). ";
 
 #ifdef SIM_WITH_GUI
-        if ((result==-3)&&(App::mainWindow!=NULL))
+        if ((result==-3)&&(App::mainWindow!=nullptr))
         {
             if (displayMessages)
                 App::addStatusbarMessage(IDS_NOT_VALID_V_REP_FILE);
@@ -2266,7 +1595,7 @@ bool CFileOperations::loadUserInterfaces(const char* pathAndFilename,bool displa
                 App::uiThread->showOrHideProgressBar(true);
             }
         }
-        if ((result!=-3)&&displayMessages&&(App::mainWindow!=NULL))
+        if ((result!=-3)&&displayMessages&&(App::mainWindow!=nullptr))
         {
             infoPrintOut+=" ";
             infoPrintOut+=IDSNS_SERIALIZATION_VERSION_IS;
@@ -2277,7 +1606,7 @@ bool CFileOperations::loadUserInterfaces(const char* pathAndFilename,bool displa
             if (infoPrintOut!="")
                 App::addStatusbarMessage(infoPrintOut.c_str());
         }
-        if ((result==-2)&&(App::mainWindow!=NULL))
+        if ((result==-2)&&(App::mainWindow!=nullptr))
         {
             if (displayMessages)
                 App::addStatusbarMessage(IDS_SERIALIZATION_VERSION_NOT_SUPPORTED_ANYMORE);
@@ -2288,7 +1617,7 @@ bool CFileOperations::loadUserInterfaces(const char* pathAndFilename,bool displa
                 App::uiThread->showOrHideProgressBar(true);
             }
         }
-        if ((result==-1)&&(App::mainWindow!=NULL))
+        if ((result==-1)&&(App::mainWindow!=nullptr))
         {
             if (displayMessages)
                 App::addStatusbarMessage(IDS_SERIALIZATION_VERSION_TOO_RECENT);
@@ -2299,7 +1628,7 @@ bool CFileOperations::loadUserInterfaces(const char* pathAndFilename,bool displa
                 App::uiThread->showOrHideProgressBar(true);
             }
         }
-        if ((result==0)&&(App::mainWindow!=NULL))
+        if ((result==0)&&(App::mainWindow!=nullptr))
         {
             if (displayMessages)
                 App::addStatusbarMessage(IDS_COMPRESSION_SCHEME_NOT_SUPPORTED);
@@ -2348,7 +1677,7 @@ bool CFileOperations::loadUserInterfaces(const char* pathAndFilename,bool displa
             bool addUis=true;
 
 #ifdef SIM_WITH_GUI
-            if ((App::mainWindow!=NULL))
+            if ((App::mainWindow!=nullptr))
             {
                 if (displayMessages)
                     App::addStatusbarMessage(IDSNS_UI_LOADED);
@@ -2370,7 +1699,7 @@ bool CFileOperations::loadUserInterfaces(const char* pathAndFilename,bool displa
                     buttonBlockMapping.push_back(loadedButtonBlockList[i]->getBlockID()); // Old ID
                     App::ct->buttonBlockContainer->insertBlock(loadedButtonBlockList[i],false);
                     buttonBlockMapping.push_back(loadedButtonBlockList[i]->getBlockID()); // New ID
-                    if (uiHandles!=NULL)
+                    if (uiHandles!=nullptr)
                         uiHandles->push_back(loadedButtonBlockList[i]->getBlockID());
                 }
                 App::ct->objCont->prepareFastLoadingMapping(buttonBlockMapping);
@@ -2396,7 +1725,7 @@ bool CFileOperations::loadUserInterfaces(const char* pathAndFilename,bool displa
                 for (int i=0;i<int(App::ct->objCont->shapeList.size());i++)
                 {
                     CShape* it=App::ct->objCont->getShape(App::ct->objCont->shapeList[i]);
-                    it->geomData->setTextureDependencies(it->getID());
+                    it->geomData->setTextureDependencies(it->getObjectHandle());
                 }
 
                 retVal=true;
@@ -2456,11 +1785,11 @@ bool CFileOperations::saveScene(const char* pathAndFilename,bool displayMessages
         }
 #endif
 
-        void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scenesave,NULL,NULL,NULL);
+        void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scenesave,nullptr,nullptr,nullptr);
         delete[] (char*)returnVal;
 
         VFile myFile(pathAndFilename,VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE,true);
-        if (myFile.getFile()!=NULL)
+        if (myFile.getFile()!=nullptr)
         {
             if (displayDialogs)
                 App::uiThread->showOrHideProgressBar(true,-1,"Saving scene...");
@@ -2503,7 +1832,7 @@ bool CFileOperations::saveScene(const char* pathAndFilename,bool displayMessages
         else
         {
             #ifdef SIM_WITH_GUI
-                if ((App::mainWindow!=NULL)&&displayDialogs)
+                if ((App::mainWindow!=nullptr)&&displayDialogs)
                 { // to avoid an error when saving a file that was opened while still attached to an email for instance
                     App::uiThread->messageBox_critical(App::mainWindow,strTranslate(IDSN_FILE_ACCESS),strTranslate(IDSN_ACCESS_TO_FILE_WAS_DENIED),VMESSAGEBOX_OKELI);
                 }
@@ -2513,9 +1842,9 @@ bool CFileOperations::saveScene(const char* pathAndFilename,bool displayMessages
     return(false);
 }
 
-bool CFileOperations::saveModel(int modelBaseDummyID,const char* pathAndFilename,bool displayMessages,bool displayDialogs,bool setCurrentDir,std::vector<char>* saveBuffer/*=NULL*/)
+bool CFileOperations::saveModel(int modelBaseDummyID,const char* pathAndFilename,bool displayMessages,bool displayDialogs,bool setCurrentDir,std::vector<char>* saveBuffer/*=nullptr*/)
 {
-    if ( CFileOperationsBase::handleVerSpec_canSaveModel()||(saveBuffer!=NULL) )
+    if ( CFileOperationsBase::handleVerSpec_canSaveModel()||(saveBuffer!=nullptr) )
     {
         App::ct->luaScriptContainer->sceneOrModelAboutToBeSaved(modelBaseDummyID);
         if (App::isFullScreen())
@@ -2523,7 +1852,7 @@ bool CFileOperations::saveModel(int modelBaseDummyID,const char* pathAndFilename
         std::vector<int> sel;
         sel.push_back(modelBaseDummyID);
 
-        C3DObject* modelBaseObject=App::ct->objCont->getObject(modelBaseDummyID);
+        C3DObject* modelBaseObject=App::ct->objCont->getObjectFromHandle(modelBaseDummyID);
         C3Vector minV,maxV;
         bool b=true;
         C7Vector modelTr(modelBaseObject->getCumulativeTransformationPart1());
@@ -2551,11 +1880,11 @@ bool CFileOperations::saveModel(int modelBaseDummyID,const char* pathAndFilename
         if (sel.size()>0)
         {
             CSceneObjectOperations::addRootObjectChildrenToSelection(sel);
-            void* plugRetVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_modelsave,NULL,NULL,NULL);
+            void* plugRetVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_modelsave,nullptr,nullptr,nullptr);
             delete[] (char*)plugRetVal;
 
             std::string infoPrintOut(IDSNS_SAVING_MODEL);
-            if (pathAndFilename!=NULL)
+            if (pathAndFilename!=nullptr)
             {
                 if (setCurrentDir)
                     App::directories->modelDirectory=App::directories->getPathFromFull(pathAndFilename);
@@ -2563,7 +1892,7 @@ bool CFileOperations::saveModel(int modelBaseDummyID,const char* pathAndFilename
                 infoPrintOut+=std::string(pathAndFilename)+"). ";
             }
 
-            if (pathAndFilename!=NULL)
+            if (pathAndFilename!=nullptr)
             { // saving to file...
                 VFile myFile(pathAndFilename,VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE);
                 VArchive archive(&myFile,VArchive::STORE);
@@ -2656,7 +1985,7 @@ bool CFileOperations::heightfieldImportRoutine(const std::string& pathName)
             { // from image file
                 int resX,resY,n;
                 unsigned char* data=CImageLoaderSaver::load(pathName.c_str(),&resX,&resY,&n,3);
-                if (data!=NULL)
+                if (data!=nullptr)
                 {
                     if ( (resX>1)&&(resY>1) )
                     {
@@ -2805,13 +2134,13 @@ int CFileOperations::apiAddHeightfieldToScene(int xSize,float pointSpacing,const
     ((CGeometric*)shape->geomData->geomInfo)->color.colors[7]=0.25f;
     ((CGeometric*)shape->geomData->geomInfo)->color.colors[8]=0.25f;
     std::string tempName(IDSOGL_HEIGHTFIELD);
-    while (App::ct->objCont->getObject(tempName)!=NULL)
+    while (App::ct->objCont->getObjectFromName(tempName.c_str())!=nullptr)
         tempName=tt::generateNewName_noDash(tempName);
-    shape->setName(tempName);
+    App::ct->objCont->renameObject(shape->getObjectHandle(),tempName.c_str());
     tempName=tt::getObjectAltNameFromObjectName(IDSOGL_HEIGHTFIELD);
-    while (App::ct->objCont->getObjectFromAltName(tempName)!=NULL)
+    while (App::ct->objCont->getObjectFromAltName(tempName.c_str())!=nullptr)
         tempName=tt::generateNewName_noDash(tempName);
-    shape->setAltName(tempName);
+    App::ct->objCont->altRenameObject(shape->getObjectHandle(),tempName.c_str());
 
     shape->alignBoundingBoxWithWorld();
 
@@ -2820,7 +2149,7 @@ int CFileOperations::apiAddHeightfieldToScene(int xSize,float pointSpacing,const
     shape->setRespondable((options&8)==0);
     shape->setShapeIsDynamicallyStatic(true);
 
-    return(shape->getID());
+    return(shape->getObjectHandle());
 }
 
 void CFileOperations::addToRecentlyOpenedScenes(std::string filenameAndPath)

@@ -46,8 +46,8 @@ void CQDlgPathPlanningAddNew::refresh()
     for (size_t i=0;i<App::ct->objCont->dummyList.size();i++)
     {
         CDummy* it2=App::ct->objCont->getDummy(App::ct->objCont->dummyList[i]);
-        names.push_back(it2->getName());
-        ids.push_back(it2->getID());
+        names.push_back(it2->getObjectName());
+        ids.push_back(it2->getObjectHandle());
     }
     tt::orderStrings(names,ids);
     for (size_t i=0;i<names.size();i++)

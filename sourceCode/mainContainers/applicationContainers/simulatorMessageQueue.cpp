@@ -33,7 +33,7 @@ void CSimulatorMessageQueue::addCommand(int commandID,int auxVal1,int auxVal2,in
 char* CSimulatorMessageQueue::extractOneCommand(int& commandID,int auxVals[4],int& dataSize)
 {
     _mutex.lock();
-    char* retVal=NULL;
+    char* retVal=nullptr;
     commandID=-1;
     if (_messages.size()!=0)
     {

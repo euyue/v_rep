@@ -68,7 +68,7 @@ CScintillaUserNonModalDlg::CScintillaUserNonModalDlg(const std::string& xmlInfo,
     {
         tinyxml2::XMLElement* rootElement=xmldoc.FirstChildElement();
         const char* str=rootElement->Attribute("title");
-        if (str!=NULL)
+        if (str!=nullptr)
             setWindowTitle(str);
         str=rootElement->Attribute("textColor");
         _getColorFromString(str,_textColor);
@@ -96,10 +96,10 @@ CScintillaUserNonModalDlg::CScintillaUserNonModalDlg(const std::string& xmlInfo,
         _getColorFromString(str,_word4Color);
 
         str=rootElement->Attribute("tabWidth");
-        if (str!=NULL)
+        if (str!=nullptr)
             tt::stringToInt(str,tabWidth);
         str=rootElement->Attribute("size");
-        if (str!=NULL)
+        if (str!=nullptr)
         {
             std::string line(str);
             std::string w;
@@ -111,7 +111,7 @@ CScintillaUserNonModalDlg::CScintillaUserNonModalDlg(const std::string& xmlInfo,
             }
         }
         str=rootElement->Attribute("position");
-        if (str!=NULL)
+        if (str!=nullptr)
         {
             std::string line(str);
             std::string w;
@@ -127,19 +127,19 @@ CScintillaUserNonModalDlg::CScintillaUserNonModalDlg(const std::string& xmlInfo,
         rootElement->QueryBoolAttribute("isLua",&_isLua);
         rootElement->QueryBoolAttribute("useVrepKeywords",&_useVrepKeywords);
 //      str=rootElement->Attribute("lexer");
-//      if (str!=NULL)
+//      if (str!=nullptr)
 //          lexerStr=str;
 
         tinyxml2::XMLElement* keyw1Element=rootElement->FirstChildElement("keywords1");
-        if (keyw1Element!=NULL)
+        if (keyw1Element!=nullptr)
         {
             str=keyw1Element->Attribute("color");
             _getColorFromString(str,_keywords1Color);
             tinyxml2::XMLElement* w=keyw1Element->FirstChildElement("item");
-            while (w!=NULL)
+            while (w!=nullptr)
             {
                 str=w->Attribute("word");
-                if (str!=NULL)
+                if (str!=nullptr)
                 {
                     if (_allKeywords1.size()>0)
                         _allKeywords1+=" ";
@@ -149,7 +149,7 @@ CScintillaUserNonModalDlg::CScintillaUserNonModalDlg(const std::string& xmlInfo,
                     b.autocomplete=true;
                     w->QueryBoolAttribute("autocomplete",&b.autocomplete);
                     str=w->Attribute("calltip");
-                    if (str!=NULL)
+                    if (str!=nullptr)
                         b.callTip=str;
                     _keywords1.push_back(b);
                 }
@@ -197,15 +197,15 @@ CScintillaUserNonModalDlg::CScintillaUserNonModalDlg(const std::string& xmlInfo,
         }
 
         tinyxml2::XMLElement* keyw2Element=rootElement->FirstChildElement("keywords2");
-        if (keyw2Element!=NULL)
+        if (keyw2Element!=nullptr)
         {
             str=keyw2Element->Attribute("color");
             _getColorFromString(str,_keywords2Color);
             tinyxml2::XMLElement* w=keyw2Element->FirstChildElement("item");
-            while (w!=NULL)
+            while (w!=nullptr)
             {
                 str=w->Attribute("word");
-                if (str!=NULL)
+                if (str!=nullptr)
                 {
                     if (_allKeywords2.size()>0)
                         _allKeywords2+=" ";
@@ -215,7 +215,7 @@ CScintillaUserNonModalDlg::CScintillaUserNonModalDlg(const std::string& xmlInfo,
                     b.autocomplete=true;
                     w->QueryBoolAttribute("autocomplete",&b.autocomplete);
                     str=w->Attribute("calltip");
-                    if (str!=NULL)
+                    if (str!=nullptr)
                         b.callTip=str;
                     _keywords2.push_back(b);
 
@@ -275,7 +275,7 @@ CScintillaUserNonModalDlg::CScintillaUserNonModalDlg(const std::string& xmlInfo,
 
 // use following if using a QMainWindow!!!   setCentralWidget(_scintillaObject);
 
-    QsciLexer* lexer=NULL;
+    QsciLexer* lexer=nullptr;
     if (lexerStr.compare("lua")==0)
         lexer=new QsciLexerLua;
     /*
@@ -290,7 +290,7 @@ CScintillaUserNonModalDlg::CScintillaUserNonModalDlg(const std::string& xmlInfo,
     if (lexerStr.compare("octave")==0)
         lexer=new QsciLexerOctave;
     */
-    if (lexer!=NULL)
+    if (lexer!=nullptr)
         _scintillaObject->setLexer(lexer);
 
     _scintillaObject->SendScintilla(QsciScintillaBase::SCI_SETSTYLEBITS,(int)5);
@@ -325,7 +325,7 @@ CScintillaUserNonModalDlg::~CScintillaUserNonModalDlg()
 void CScintillaUserNonModalDlg::closeEvent(QCloseEvent *event)
 {
     event->ignore();
-    forceClose(NULL,NULL,NULL);
+    forceClose(nullptr,nullptr,nullptr);
 }
 
 void CScintillaUserNonModalDlg::forceClose(std::string* txt,int pos[2],int size[2])
@@ -340,17 +340,17 @@ void CScintillaUserNonModalDlg::forceClose(std::string* txt,int pos[2],int size[
     _posAtClosing[0]=geom.x();
     _posAtClosing[1]=geom.y();
     _open=false;
-    if (txt!=NULL)
+    if (txt!=nullptr)
     {
         txt[0]=_textAtClosing;
         _callbackFunc.clear();
     }
-    if (pos!=NULL)
+    if (pos!=nullptr)
     {
         pos[0]=_posAtClosing[0];
         pos[1]=_posAtClosing[1];
     }
-    if (size!=NULL)
+    if (size!=nullptr)
     {
         size[0]=_sizeAtClosing[0];
         size[1]=_sizeAtClosing[1];
@@ -395,7 +395,7 @@ bool CScintillaUserNonModalDlg::isAssociatedWithSimScript() const
 void CScintillaUserNonModalDlg::handleCallback()
 {
     int stack=simCreateStack_internal();
-    simPushStringOntoStack_internal(stack,_textAtClosing.c_str(),_textAtClosing.size());
+    simPushStringOntoStack_internal(stack,_textAtClosing.c_str(),int(_textAtClosing.size()));
     simPushInt32TableOntoStack_internal(stack,_posAtClosing,2);
     simPushInt32TableOntoStack_internal(stack,_sizeAtClosing,2);
     simCallScriptFunctionEx_internal(_scriptId,_callbackFunc.c_str(),stack);
@@ -638,7 +638,7 @@ void CScintillaUserNonModalDlg::_onFind()
 
 void CScintillaUserNonModalDlg::_getColorFromString(const char* txt,unsigned int& col) const
 {
-    if (txt!=NULL)
+    if (txt!=nullptr)
     {
         std::string str(txt);
         int r,g,b;

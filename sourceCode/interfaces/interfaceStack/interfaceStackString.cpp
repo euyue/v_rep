@@ -6,7 +6,7 @@ CInterfaceStackString::CInterfaceStackString(const char* str,int l)
     _objectType=STACK_OBJECT_STRING;
     if (l==0)
     {
-        if (str!=NULL)
+        if (str!=nullptr)
             _value.assign(str);
     }
     else
@@ -19,7 +19,7 @@ CInterfaceStackString::~CInterfaceStackString()
 
 const char* CInterfaceStackString::getValue(int* l) const
 {
-    if (l!=NULL)
+    if (l!=nullptr)
         l[0]=(int)_value.size();
     return(_value.c_str());
 }

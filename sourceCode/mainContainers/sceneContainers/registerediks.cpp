@@ -43,7 +43,7 @@ void CRegisterediks::addIkGroupWithSuffixOffset(CikGroup* anIkGroup,bool objectI
 { // Be careful! We don't check if the group is valid!!
     // We look for a free id:
     int newID=SIM_IDSTART_IKGROUP;
-    while (getIkGroup(newID)!=NULL)
+    while (getIkGroup(newID)!=nullptr)
         newID++;
     anIkGroup->setObjectID(newID);
     // We make a unique name:
@@ -52,7 +52,7 @@ void CRegisterediks::addIkGroupWithSuffixOffset(CikGroup* anIkGroup,bool objectI
         theName=tt::generateNewName_dash(theName,suffixOffset);
     else
     {
-        while (getIkGroup(theName)!=NULL)
+        while (getIkGroup(theName)!=nullptr)
             theName=tt::generateNewName_noDash(theName);
     }
     anIkGroup->setObjectName(theName);
@@ -139,7 +139,7 @@ CikGroup* CRegisterediks::getIkGroup(int groupID)
         if (ikGroups[i]->getObjectID()==groupID)
             return(ikGroups[i]);
      }
-     return(NULL);
+     return(nullptr);
 }
 
 CikGroup* CRegisterediks::getIkGroup(std::string groupName)
@@ -149,7 +149,7 @@ CikGroup* CRegisterediks::getIkGroup(std::string groupName)
         if (ikGroups[i]->getObjectName().compare(groupName)==0)
             return(ikGroups[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 void CRegisterediks::removeIkGroup(int ikGroupID)

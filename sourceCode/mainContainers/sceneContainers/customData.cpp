@@ -93,7 +93,7 @@ CCustomData* CCustomData::copyYourself()
 void CCustomData::setData(int header,const char* data,int datLen)
 {
     removeData(header);
-    if ((data==NULL)||(datLen==0)) // Following 2 lines since 2010/03/04
+    if ((data==nullptr)||(datLen==0)) // Following 2 lines since 2010/03/04
         return;
     char* newData=new char[datLen];
     for (int i=0;i<datLen;i++)

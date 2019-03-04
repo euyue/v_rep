@@ -18,14 +18,14 @@ void displayPointCloud(CPointCloud* pointCloud,CViewableBase* renderingObject,in
     C3Vector normalVectorForLinesAndPoints(pointCloud->getCumulativeTransformation().Q.getInverse()*C3Vector::unitZVector);
 
     // Object display:
-    if (pointCloud->getShouldObjectBeDisplayed(renderingObject->getID(),displayAttrib))
+    if (pointCloud->getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
     {
         if ((App::getEditModeType()&SHAPE_OR_PATH_EDIT_MODE)==0)
         {
             if (pointCloud->getLocalObjectProperty()&sim_objectproperty_selectmodelbaseinstead)
-                glLoadName(pointCloud->getModelSelectionID());
+                glLoadName(pointCloud->getModelSelectionHandle());
             else
-                glLoadName(pointCloud->getID());
+                glLoadName(pointCloud->getObjectHandle());
         }
         else
             glLoadName(-1);
@@ -35,7 +35,7 @@ void displayPointCloud(CPointCloud* pointCloud,CViewableBase* renderingObject,in
         if ( (displayAttrib&sim_displayattribute_forcewireframe)==0)
             glEnable(GL_CULL_FACE);
 
-        _enableAuxClippingPlanes(pointCloud->getID());
+        _enableAuxClippingPlanes(pointCloud->getObjectHandle());
 //      if ((displayAttrib&sim_displayattribute_selected)!=0)
 //          ogl::drawReference(size*1.2f,true,true,false,normalVectorForLinesAndPoints.data);
 //      ogl::setMaterialColor(0.0f,0.0f,0.0f,0.5f,0.5f,0.5f,0.0f,0.0f,0.0f);
@@ -46,10 +46,10 @@ void displayPointCloud(CPointCloud* pointCloud,CViewableBase* renderingObject,in
         std::vector<float>& _points=pointCloud->getPoints()[0];
         if (_points.size()>0)
         {
-            bool setOtherColor=(App::ct->collisions->getCollisionColor(pointCloud->getID())!=0);
+            bool setOtherColor=(App::ct->collisions->getCollisionColor(pointCloud->getObjectHandle())!=0);
             for (size_t i=0;i<App::ct->collections->allCollections.size();i++)
             {
-                if (App::ct->collections->allCollections[i]->isObjectInCollection(pointCloud->getID()))
+                if (App::ct->collections->allCollections[i]->isObjectInCollection(pointCloud->getObjectHandle()))
                     setOtherColor|=(App::ct->collisions->getCollisionColor(App::ct->collections->allCollections[i]->getCollectionID())!=0);
             }
 
@@ -61,7 +61,7 @@ void displayPointCloud(CPointCloud* pointCloud,CViewableBase* renderingObject,in
             else
                 App::ct->mainSettings->collisionColor.makeCurrentColor(false);
 
-            if (pointCloud->getShowOctree()&&(pointCloud->getPointCloudInfo()!=NULL)&&((displayAttrib&sim_displayattribute_forvisionsensor)==0))
+            if (pointCloud->getShowOctree()&&(pointCloud->getPointCloudInfo()!=nullptr)&&((displayAttrib&sim_displayattribute_forvisionsensor)==0))
             {
                 std::vector<float> corners;
                 CPluginContainer::mesh_getPointCloudDebugCorners(pointCloud->getPointCloudInfo(),corners);

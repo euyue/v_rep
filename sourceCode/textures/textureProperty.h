@@ -39,7 +39,7 @@ public:
     void setRepeatV(bool r);
     bool getRepeatV();
 
-    void setFixedCoordinates(std::vector<float>* coords); // NULL to remove them and have calculated coords
+    void setFixedCoordinates(std::vector<float>* coords); // nullptr to remove them and have calculated coords
     bool getFixedCoordinates();
 
     void setTextureMapMode(int mode);

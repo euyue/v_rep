@@ -42,7 +42,7 @@ void CQDlgMotionPlanning::cancelEvent()
 
 void CQDlgMotionPlanning::dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut)
 {
-    if ( (cmdIn!=NULL)&&(cmdIn->intParams[0]==_dlgType) )
+    if ( (cmdIn!=nullptr)&&(cmdIn->intParams[0]==_dlgType) )
     {
         if (cmdIn->intParams[1]==0)
             selectObjectInList(cmdIn->intParams[2]);
@@ -68,17 +68,17 @@ void CQDlgMotionPlanning::refresh()
 
     ui->qqAddNew->setEnabled(noEditModeNoSim);
 
-    ui->qqIkGroupCombo->setEnabled(noEditModeNoSim&&(task!=NULL));
-    ui->qqEntity1Combo->setEnabled(noEditModeNoSim&&(task!=NULL));
-    ui->qqEntity2Combo->setEnabled(noEditModeNoSim&&(task!=NULL)&&(task->getRobotSelfCollEntity1()!=-1));
-    ui->qqSelfColl->setEnabled(noEditModeNoSim&&(task!=NULL)&&(task->getRobotSelfCollEntity1()!=-1));
-    ui->qqSelfDist->setEnabled(noEditModeNoSim&&(task!=NULL)&&(task->getRobotSelfCollEntity1()!=-1));
-    ui->qqSelfDistDist->setEnabled(noEditModeNoSim&&(task!=NULL)&&(task->getSelfCollDistanceThreshold()!=0.0f)&&(task->getRobotSelfCollEntity1()!=-1));
-    ui->qqRobotCombo->setEnabled(noEditModeNoSim&&(task!=NULL));
-    ui->qqObstacleCombo->setEnabled(noEditModeNoSim&&(task!=NULL)&&(task->getRobotEntity()!=-1));
-    ui->qqColl->setEnabled(noEditModeNoSim&&(task!=NULL)&&(task->getRobotEntity()!=-1));
-    ui->qqDist->setEnabled(noEditModeNoSim&&(task!=NULL)&&(task->getRobotEntity()!=-1));
-    ui->qqDistDist->setEnabled(noEditModeNoSim&&(task!=NULL)&&(task->getDistanceThreshold()!=0.0f)&&(task->getRobotEntity()!=-1));
+    ui->qqIkGroupCombo->setEnabled(noEditModeNoSim&&(task!=nullptr));
+    ui->qqEntity1Combo->setEnabled(noEditModeNoSim&&(task!=nullptr));
+    ui->qqEntity2Combo->setEnabled(noEditModeNoSim&&(task!=nullptr)&&(task->getRobotSelfCollEntity1()!=-1));
+    ui->qqSelfColl->setEnabled(noEditModeNoSim&&(task!=nullptr)&&(task->getRobotSelfCollEntity1()!=-1));
+    ui->qqSelfDist->setEnabled(noEditModeNoSim&&(task!=nullptr)&&(task->getRobotSelfCollEntity1()!=-1));
+    ui->qqSelfDistDist->setEnabled(noEditModeNoSim&&(task!=nullptr)&&(task->getSelfCollDistanceThreshold()!=0.0f)&&(task->getRobotSelfCollEntity1()!=-1));
+    ui->qqRobotCombo->setEnabled(noEditModeNoSim&&(task!=nullptr));
+    ui->qqObstacleCombo->setEnabled(noEditModeNoSim&&(task!=nullptr)&&(task->getRobotEntity()!=-1));
+    ui->qqColl->setEnabled(noEditModeNoSim&&(task!=nullptr)&&(task->getRobotEntity()!=-1));
+    ui->qqDist->setEnabled(noEditModeNoSim&&(task!=nullptr)&&(task->getRobotEntity()!=-1));
+    ui->qqDistDist->setEnabled(noEditModeNoSim&&(task!=nullptr)&&(task->getDistanceThreshold()!=0.0f)&&(task->getRobotEntity()!=-1));
 
     ui->qqIkGroupCombo->clear();
     ui->qqEntity1Combo->clear();
@@ -86,12 +86,12 @@ void CQDlgMotionPlanning::refresh()
     ui->qqRobotCombo->clear();
     ui->qqObstacleCombo->clear();
 
-    ui->qqEditJointProp->setEnabled(noEditModeNoSim&&(task!=NULL));
-    ui->qqEditWorkspaceMetric->setEnabled(noEditModeNoSim&&(task!=NULL));
-    ui->qqComputeNodes->setEnabled(noEditModeNoSim&&(task!=NULL));
-    ui->showPhase1Nodes->setEnabled(noEditModeNoSim&&(task!=NULL));
+    ui->qqEditJointProp->setEnabled(noEditModeNoSim&&(task!=nullptr));
+    ui->qqEditWorkspaceMetric->setEnabled(noEditModeNoSim&&(task!=nullptr));
+    ui->qqComputeNodes->setEnabled(noEditModeNoSim&&(task!=nullptr));
+    ui->showPhase1Nodes->setEnabled(noEditModeNoSim&&(task!=nullptr));
 
-    if (task!=NULL)
+    if (task!=nullptr)
     {
         // IK group:
         fillComboWithIkGroups(ui->qqIkGroupCombo);
@@ -113,34 +113,34 @@ void CQDlgMotionPlanning::refresh()
             }
 
             C3DObject* obj=task->getBaseObject();
-            if (obj==NULL)
+            if (obj==nullptr)
             {
                 ui->qqBase->setText("world");
                 if (warningText.length()==0)
                     warningText="Warning: base should not be 'world'";
             }
             else
-                ui->qqBase->setText(obj->getName().c_str());
+                ui->qqBase->setText(obj->getObjectName().c_str());
 
             obj=task->getTipObject();
-            if (obj==NULL)
+            if (obj==nullptr)
             {
                 ui->qqTip->setText("-");
                 if (warningText.length()==0)
                     warningText="Warning: tip is not defined";
             }
             else
-                ui->qqTip->setText(obj->getName().c_str());
+                ui->qqTip->setText(obj->getObjectName().c_str());
 
             obj=task->getTargetObject();
-            if (obj==NULL)
+            if (obj==nullptr)
             {
                 ui->qqTarget->setText("-");
                 if (warningText.length()==0)
                     warningText="Warning: target is not defined";
             }
             else
-                ui->qqTarget->setText(obj->getName().c_str());
+                ui->qqTarget->setText(obj->getObjectName().c_str());
 
             if (warningText.length()==0)
             {
@@ -280,12 +280,12 @@ void CQDlgMotionPlanning::fillComboWithCollisionOrDistanceEntities(QComboBox* co
     for (int i=0;i<int(App::ct->objCont->shapeList.size());i++)
     {
         CShape* it=App::ct->objCont->getShape(App::ct->objCont->shapeList[i]);
-        if (it->getID()!=idToExclude)
+        if (it->getObjectHandle()!=idToExclude)
         {
             std::string name(tt::decorateString("[",strTranslate(IDSN_SHAPE),"] "));
-            name+=it->getName();
+            name+=it->getObjectName();
             names.push_back(name);
-            ids.push_back(it->getID());
+            ids.push_back(it->getObjectHandle());
         }
     }
     tt::orderStrings(names,ids);
@@ -301,12 +301,12 @@ void CQDlgMotionPlanning::fillComboWithCollisionOrDistanceEntities(QComboBox* co
         for (int i=0;i<int(App::ct->objCont->dummyList.size());i++)
         {
             CDummy* it=App::ct->objCont->getDummy(App::ct->objCont->dummyList[i]);
-            if (it->getID()!=idToExclude)
+            if (it->getObjectHandle()!=idToExclude)
             {
                 std::string name(tt::decorateString("[",strTranslate(IDSN_DUMMY),"] "));
-                name+=it->getName();
+                name+=it->getObjectName();
                 names.push_back(name);
-                ids.push_back(it->getID());
+                ids.push_back(it->getObjectHandle());
             }
         }
         tt::orderStrings(names,ids);
@@ -384,7 +384,7 @@ void CQDlgMotionPlanning::selectObjectInList(int objectID)
     for (int i=0;i<ui->qqList->count();i++)
     {
         QListWidgetItem* it=ui->qqList->item(i);
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             if (it->data(Qt::UserRole).toInt()==objectID)
             {
@@ -414,7 +414,7 @@ void CQDlgMotionPlanning::on_qqList_itemChanged(QListWidgetItem *item)
 {
     IF_UI_EVENT_CAN_READ_DATA
     {
-        if (item!=NULL)
+        if (item!=nullptr)
         {
             App::appendSimulationThreadCommand(RENAME_OBJECT_MOTIONPLANNINGGUITRIGGEREDCMD,item->data(Qt::UserRole).toInt(),-1,0.0,0.0,item->text().toStdString().c_str());
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -431,7 +431,7 @@ void CQDlgMotionPlanning::on_qqList_itemSelectionChanged()
         {
             int objID=getSelectedObjectID();
             CMotionPlanningTask* it=App::ct->motionPlanning->getObject(objID);
-            if (it!=NULL)
+            if (it!=nullptr)
                 ((CEditBoxDelegate*)ui->qqList->itemDelegate())->initialText=it->getObjectName();
             else
                 ((CEditBoxDelegate*)ui->qqList->itemDelegate())->initialText="";
@@ -453,7 +453,7 @@ void CQDlgMotionPlanning::on_qqAddNew_clicked()
         for (size_t i=0;i<cmd.intParams.size();i++)
         {
             CJoint* joint=App::ct->objCont->getJoint(cmd.intParams[i]);
-            if (joint!=NULL)
+            if (joint!=nullptr)
             {
                 if (joint->getJointType()==sim_joint_spherical_subtype)
                     ok=false;
@@ -478,7 +478,7 @@ void CQDlgMotionPlanning::on_qqEditJointProp_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CMotionPlanningTask* task=App::ct->motionPlanning->getObject(getSelectedObjectID());
-        if (task!=NULL)
+        if (task!=nullptr)
         {
             CQDlgMotionPlanningJoints theDialog(this);
             delKeyShortcut->setEnabled(false);
@@ -488,7 +488,7 @@ void CQDlgMotionPlanning::on_qqEditJointProp_clicked()
             for (size_t i=0;i<handles.size();i++)
             {
                 CJoint* jn=App::ct->objCont->getJoint(handles[i]);
-                theDialog.jointNames.push_back(jn->getName());
+                theDialog.jointNames.push_back(jn->getObjectName());
                 float n=task->getRobotMetric(handles[i]);
                 theDialog.jointMetricWeight.push_back(n);
                 int m=task->getJointStepCount(handles[i]);
@@ -704,7 +704,7 @@ void CQDlgMotionPlanning::on_qqEditWorkspaceMetric_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CMotionPlanningTask* task=App::ct->motionPlanning->getObject(getSelectedObjectID());
-        if (task!=NULL)
+        if (task!=nullptr)
         {
             CQDlgWorkSpaceMetric theDialog(this);
             delKeyShortcut->setEnabled(false);

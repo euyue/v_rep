@@ -14,7 +14,7 @@
 #define STOP_REQUEST_DELAY_IN_MS 1000
 
 VTHREAD_ID_TYPE CThreadPool::_threadToIntercept=0;
-VTHREAD_START_ADDRESS CThreadPool::_threadInterceptCallback=NULL;
+VTHREAD_START_ADDRESS CThreadPool::_threadInterceptCallback=nullptr;
 int CThreadPool::_threadInterceptIndex=0;
 int CThreadPool::_processorCoreAffinity=0;
 int CThreadPool::_lockStage=0;
@@ -25,12 +25,12 @@ std::vector<int> CThreadPool::_threadStartTime;
 bool CThreadPool::_simulationStopRequest=false;
 int CThreadPool::_simulationStopRequestTime;
 bool CThreadPool::_simulationEmergencyStopRequest=false;
-VTHREAD_START_ADDRESS CThreadPool::_threadStartAdd=NULL;
+VTHREAD_START_ADDRESS CThreadPool::_threadStartAdd=nullptr;
 VMutex CThreadPool::_threadPoolMutex;
 
 bool CThreadPool::_showThreadSwitches=false;
 
-void* CThreadPool::_tmpData=NULL;
+void* CThreadPool::_tmpData=nullptr;
 int CThreadPool::_tmpRetData=0;
 int CThreadPool::_inInterceptRoutine=0;
 
@@ -41,7 +41,7 @@ VTHREAD_ID_TYPE CThreadPool::createNewThread(VTHREAD_START_ADDRESS threadStartAd
 
     if (_allThreadData.size()==0)
     { // We first need to add the main thread! executiontime: -1 --> not yet executed
-        CVThreadData* dat=new CVThreadData(NULL,VThread::getCurrentThreadId());
+        CVThreadData* dat=new CVThreadData(nullptr,VThread::getCurrentThreadId());
         _allThreadData.push_back(dat);
 
         _threadQueue.push_back(VThread::getCurrentThreadId());
@@ -63,7 +63,7 @@ VTHREAD_ID_TYPE CThreadPool::createNewThread(VTHREAD_START_ADDRESS threadStartAd
 //      printf("Launching thread (from threadID: %lu)\n",(unsigned long)VThread::getCurrentThreadId());
     }
     VThread::launchThread(_intermediateThreadStartPoint,true);
-    while (_threadStartAdd!=NULL)
+    while (_threadStartAdd!=nullptr)
         VThread::sleep(1); // We wait until the thread could set its thread ID ************* TODO: don't use sleep!!!
     VTHREAD_ID_TYPE newID=(VTHREAD_ID_TYPE)_allThreadData[_allThreadData.size()-1]->threadID;
     if (_showThreadSwitches)
@@ -227,7 +227,7 @@ void CThreadPool::switchToThread(VTHREAD_ID_TYPE threadID)
             VTHREAD_ID_TYPE oldFiberID=_threadQueue[fql-1];
             if ((fql>1)&&VThread::areThreadIDsSame(threadID,_threadQueue[fql-2]))
             { // we switch back to a previous (calling) fiber
-                CVThreadData* it=NULL;
+                CVThreadData* it=nullptr;
                 for (int j=0;j<int(_allThreadData.size());j++)
                 {
                     if (VThread::areThreadIDsSame(_allThreadData[j]->threadID,oldFiberID))
@@ -238,9 +238,9 @@ void CThreadPool::switchToThread(VTHREAD_ID_TYPE threadID)
                 }
                 // Before we proceed, there is a special case to handle here:
                 // When a thread was marked for termination, its fiberOrThreadID is 0xfffffff, and in
-                // consequence, it would be NULL here.
+                // consequence, it would be nullptr here.
 
-                if ( (it==NULL)||(!it->threadSwitchShouldTriggerNoOtherThread) )
+                if ( (it==nullptr)||(!it->threadSwitchShouldTriggerNoOtherThread) )
                 { // Regular situation
                     _threadQueue.pop_back();
                     int totalTimeInMs=VDateTime::getTimeDiffInMs(_threadStartTime[fql-1]);
@@ -262,7 +262,7 @@ void CThreadPool::switchToThread(VTHREAD_ID_TYPE threadID)
                 { // Happens when a thread that used to be free running (or that still is) comes through here
                     _threadQueue.pop_back();
                     _threadStartTime.pop_back();
-                    if ( (it!=NULL)&&(!it->threadShouldRunFreely)&&_showThreadSwitches)
+                    if ( (it!=nullptr)&&(!it->threadShouldRunFreely)&&_showThreadSwitches)
                     {
                         std::string tmp("==< Switching backward from previously free-running thread with ID: ");
                         tmp+=boost::lexical_cast<std::string>((unsigned long)oldFiberID);
@@ -273,7 +273,7 @@ void CThreadPool::switchToThread(VTHREAD_ID_TYPE threadID)
                 }
 
                 _unlock(3); // make sure to unlock here
-                if (it!=NULL)
+                if (it!=nullptr)
                 {
                     it->threadSwitchShouldTriggerNoOtherThread=false; // We have to reset this one
                     // Now we wait here until this thread gets flagged as threadWantsResumeFromYield:
@@ -294,8 +294,8 @@ void CThreadPool::switchToThread(VTHREAD_ID_TYPE threadID)
                             if (VThread::areThreadIDsSame(_threadToIntercept,VThread::getCurrentThreadId()))
                             {
                                 _threadToIntercept=0;
-                                _threadInterceptCallback(NULL);
-                                _threadInterceptCallback=NULL;
+                                _threadInterceptCallback(nullptr);
+                                _threadInterceptCallback=nullptr;
                                 _threadInterceptIndex--;
                             }
                         }
@@ -333,7 +333,7 @@ void CThreadPool::switchToThread(VTHREAD_ID_TYPE threadID)
                 }
                 _allThreadData[i]->threadWantsResumeFromYield=true; // We mark the next thread for resuming
                 // We do not need to idle this thread since it is already flagged as such
-                CVThreadData* it=NULL;
+                CVThreadData* it=nullptr;
                 for (int j=0;j<int(_allThreadData.size());j++)
                 {
                     if (VThread::areThreadIDsSame(_allThreadData[j]->threadID,oldFiberID))
@@ -515,9 +515,9 @@ VTHREAD_RETURN_TYPE CThreadPool::_intermediateThreadStartPoint(VTHREAD_ARGUMENT_
 {
     srand(VDateTime::getTimeInMs()+ (((unsigned long)(VThread::getCurrentThreadId()))&0xffffffff) ); // Important: each thread starts with a same seed!!!
     VTHREAD_START_ADDRESS startAdd=_threadStartAdd;
-    CVThreadData* it=new CVThreadData(NULL,VThread::getCurrentThreadId());
+    CVThreadData* it=new CVThreadData(nullptr,VThread::getCurrentThreadId());
     _allThreadData.push_back(it);
-    _threadStartAdd=NULL; // To indicate we could set the thread iD (in case of threads)
+    _threadStartAdd=nullptr; // To indicate we could set the thread iD (in case of threads)
     it->threadWantsResumeFromYield=false;
     while (!it->threadWantsResumeFromYield)
         VThread::switchThread();
@@ -619,7 +619,7 @@ CVThreadData* CThreadPool::getCurrentThreadData()
 
 CVThreadData* CThreadPool::getThreadData(VTHREAD_ID_TYPE threadId)
 {
-    CVThreadData* retVal=NULL;
+    CVThreadData* retVal=nullptr;
     _lock(9);
     for (int i=0;i<int(_allThreadData.size());i++)
     {
@@ -792,8 +792,8 @@ bool CThreadPool::setThreadFreeMode(bool freeMode)
         if ( (fql>=2)&&VThread::areThreadIDsSame(_threadQueue[fql-1],thisThreadID) )
         {
             VTHREAD_ID_TYPE nextThreadID=_threadQueue[fql-2];
-            CVThreadData* thisThreadData=NULL;      
-            CVThreadData* nextThreadData=NULL;
+            CVThreadData* thisThreadData=nullptr;      
+            CVThreadData* nextThreadData=nullptr;
             for (int i=0;i<int(_allThreadData.size());i++)
             {
 
@@ -834,7 +834,7 @@ bool CThreadPool::setThreadFreeMode(bool freeMode)
         int fql=int(_threadQueue.size());
         if ( (fql>=1)&&(!VThread::areThreadIDsSame(_threadQueue[fql-1],thisThreadID)) )
         {
-            CVThreadData* thisThreadData=NULL;      
+            CVThreadData* thisThreadData=nullptr;      
             for (int i=1;i<int(_allThreadData.size());i++)
             {
                 if (VThread::areThreadIDsSame(_allThreadData[i]->threadID,thisThreadID))
@@ -983,7 +983,7 @@ bool CThreadPool::_interceptThread(VTHREAD_ID_TYPE theThreadToIntercept,VTHREAD_
         _threadToIntercept=theThreadToIntercept;
 
         while (v<=_threadInterceptIndex)
-//        while (_threadInterceptCallback!=NULL)
+//        while (_threadInterceptCallback!=nullptr)
             VThread::switchThread();
         //_threadToIntercept is also set to zero by the thread itself
     }

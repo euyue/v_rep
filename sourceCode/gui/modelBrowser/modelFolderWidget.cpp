@@ -35,7 +35,7 @@ CModelFolderWidget::CModelFolderWidget(CModelListWidget* modelListWidget,const c
         std::vector<int> indd;
         int index=0;
         SFileOrFolder* foundFolder=finder.getFoundItem(index++);
-        while (foundFolder!=NULL)
+        while (foundFolder!=nullptr)
         {
             if ( (foundFolder->name!=".")&&(foundFolder->name!="..") )
             {
@@ -59,11 +59,11 @@ CModelFolderWidget::CModelFolderWidget(CModelListWidget* modelListWidget,const c
         */
         for (size_t i=0;i<_subFolders.size();i++)
         {
-            QTreeWidgetItem* itemToSelect=NULL;
+            QTreeWidgetItem* itemToSelect=nullptr;
             QTreeWidgetItem* itm=_buildChild(&itemToSelect,subNames[i].c_str(),_subFolders[i].c_str(),nameOfSelectedFolder);
 //            topLevelItem->addChild(itm);
             insertTopLevelItem((int)i,itm);
-            if (itemToSelect!=NULL)
+            if (itemToSelect!=nullptr)
             {
                 itm->setExpanded(true);
                 itemToSelect->setSelected(true);
@@ -88,7 +88,7 @@ CModelFolderWidget::~CModelFolderWidget()
 
 QTreeWidgetItem* CModelFolderWidget::_buildChild(QTreeWidgetItem** itemToSelect,const char* folderName,const char* folderPath,const char* nameOfSelectedFolder) const
 {
-    QTreeWidgetItem* item=NULL;
+    QTreeWidgetItem* item=nullptr;
     if (VFile::doesFolderExist(folderPath))
     {
         item=new QTreeWidgetItem((QTreeWidget*)0,QStringList(QString(folderName)));
@@ -101,7 +101,7 @@ QTreeWidgetItem* CModelFolderWidget::_buildChild(QTreeWidgetItem** itemToSelect,
         std::vector<int> indd;
         int index=0;
         SFileOrFolder* foundFolder=finder.getFoundItem(index++);
-        while (foundFolder!=NULL)
+        while (foundFolder!=nullptr)
         {
             if ( (foundFolder->name!=".")&&(foundFolder->name!="..") )
             {
@@ -117,10 +117,10 @@ QTreeWidgetItem* CModelFolderWidget::_buildChild(QTreeWidgetItem** itemToSelect,
             _subFolders.push_back(subFolders[indd[i]]);
         for (size_t i=0;i<_subFolders.size();i++)
         {
-            QTreeWidgetItem* itemToSelect2=NULL;
+            QTreeWidgetItem* itemToSelect2=nullptr;
             QTreeWidgetItem* itm=_buildChild(&itemToSelect2,subNames[i].c_str(),_subFolders[i].c_str(),nameOfSelectedFolder);
             item->insertChild((int)i,itm);
-            if (itemToSelect2!=NULL)
+            if (itemToSelect2!=nullptr)
             {
                 itemToSelect[0]=itemToSelect2;
                 itm->setExpanded(true);
@@ -167,7 +167,7 @@ void CModelFolderWidget::selectFolder(const char* folderPath)
                 item->setExpanded(true);
                 item=item->parent();
                 first=false;
-                if (item==NULL)
+                if (item==nullptr)
                     break;
             }
         }

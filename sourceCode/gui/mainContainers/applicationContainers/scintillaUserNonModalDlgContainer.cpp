@@ -42,7 +42,7 @@ CScintillaUserNonModalDlg* CScintillaUserNonModalDlgContainer::getDlg(int handle
         if (_allDlgs[i]->getHandle()==handle)
             return(_allDlgs[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 void CScintillaUserNonModalDlgContainer::handleDlgRemoval()
@@ -56,7 +56,7 @@ void CScintillaUserNonModalDlgContainer::handleDlgRemoval()
             if (!remove)
             {
                 CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(dlg->getScriptId());
-                if ( (it==NULL)||(!it->hasLuaState()) )
+                if ( (it==nullptr)||(!it->hasLuaState()) )
                     remove=true; // script was removed or has no state
                 else
                 {
@@ -86,7 +86,7 @@ void CScintillaUserNonModalDlgContainer::handleCallbacks()
 
 void CScintillaUserNonModalDlgContainer::showOrHideAll(bool showState)
 {
-    if (App::ct->environment!=NULL)
+    if (App::ct->environment!=nullptr)
     {
         int sceneId=App::ct->environment->getSceneUniqueID();
         for (size_t i=0;i<_allDlgs.size();i++)

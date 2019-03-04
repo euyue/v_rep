@@ -33,7 +33,7 @@ void CPathPlanning::getSearchTreeData(std::vector<float>& data,bool fromStart)
 }
 
 bool CPathPlanning::doCollide(float* dist)
-{ // dist can be NULL
+{ // dist can be nullptr
     return(false);
 }
 

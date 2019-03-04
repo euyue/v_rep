@@ -55,7 +55,7 @@ CSimAndUiThreadSync::~CSimAndUiThreadSync()
             { // following to avoid visual artifacts:
                 for (int i=0;i<int(App::ct->objCont->objectList.size());i++)
                 {
-                    C3DObject* it=App::ct->objCont->getObject(App::ct->objCont->objectList[i]);
+                    C3DObject* it=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
                     it->bufferMainDisplayStateVariables();
                 }
             }

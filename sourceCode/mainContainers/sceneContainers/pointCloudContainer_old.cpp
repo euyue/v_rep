@@ -38,7 +38,7 @@ CPtCloud_old* CPointCloudContainer_old::getObject(int objectID)
         if (_allObjects[i]->getObjectID()==objectID)
             return(_allObjects[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 int CPointCloudContainer_old::addObject(CPtCloud_old* it)
@@ -46,7 +46,7 @@ int CPointCloudContainer_old::addObject(CPtCloud_old* it)
     EASYLOCK(_objectMutex);
     int newID=0;
     newID++;
-    while (getObject(newID)!=NULL)
+    while (getObject(newID)!=nullptr)
         newID++;
     it->setObjectID(newID);
     _allObjects.push_back(it);

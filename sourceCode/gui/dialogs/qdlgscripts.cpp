@@ -35,7 +35,7 @@ CQDlgScripts::~CQDlgScripts()
 
 void CQDlgScripts::dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut)
 {
-    if ( (cmdIn!=NULL)&&(cmdIn->intParams[0]==_dlgType) )
+    if ( (cmdIn!=nullptr)&&(cmdIn->intParams[0]==_dlgType) )
     {
         if (cmdIn->intParams[1]==0)
             selectObjectInList(cmdIn->intParams[2]);
@@ -71,14 +71,14 @@ void CQDlgScripts::refresh()
     ui->qqAssociatedObjectCombo->clear();
 
     CLuaScriptObject* theScript=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getSelectedObjectID());
-    ui->qqExecutionOrder->setEnabled((theScript!=NULL)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_jointctrlcallback)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
-    ui->qqTreeTraversalDirection->setEnabled((theScript!=NULL)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_jointctrlcallback)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
-    ui->qqDebugMode->setEnabled((theScript!=NULL)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript)||(theScript->getScriptType()==sim_scripttype_mainscript) ));
-    ui->qqAssociatedObjectCombo->setEnabled((theScript!=NULL)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_jointctrlcallback)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
-    ui->qqDisabled->setEnabled((theScript!=NULL)&&noEditMode&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
-    ui->qqExecuteOnce->setEnabled((theScript!=NULL)&&noEditModeAndNoSim&&(theScript->getScriptType()==sim_scripttype_childscript)&&theScript->getThreadedExecution());
+    ui->qqExecutionOrder->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_jointctrlcallback)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
+    ui->qqTreeTraversalDirection->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_jointctrlcallback)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
+    ui->qqDebugMode->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript)||(theScript->getScriptType()==sim_scripttype_mainscript) ));
+    ui->qqAssociatedObjectCombo->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_jointctrlcallback)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
+    ui->qqDisabled->setEnabled((theScript!=nullptr)&&noEditMode&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
+    ui->qqExecuteOnce->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&(theScript->getScriptType()==sim_scripttype_childscript)&&theScript->getThreadedExecution());
 
-    if (theScript!=NULL)
+    if (theScript!=nullptr)
     {
         if ( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_jointctrlcallback)||(theScript->getScriptType()==sim_scripttype_customizationscript) )
         {
@@ -105,20 +105,20 @@ void CQDlgScripts::refresh()
             std::vector<int> ids;
             for (int i=0;i<int(App::ct->objCont->objectList.size());i++)
             {
-                C3DObject* it=App::ct->objCont->getObject(App::ct->objCont->objectList[i]);
-                CLuaScriptObject* so=NULL;
+                C3DObject* it=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
+                CLuaScriptObject* so=nullptr;
                 if (theScript->getScriptType()==sim_scripttype_childscript)
-                    so=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(it->getID());
+                    so=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(it->getObjectHandle());
                 if (theScript->getScriptType()==sim_scripttype_jointctrlcallback)
-                    so=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(it->getID());
+                    so=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(it->getObjectHandle());
                 if (theScript->getScriptType()==sim_scripttype_customizationscript)
-                    so=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(it->getID());
-                if ( (so==NULL)||(so==theScript) )
+                    so=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(it->getObjectHandle());
+                if ( (so==nullptr)||(so==theScript) )
                 {
                     if (theScript->getScriptType()!=sim_scripttype_jointctrlcallback)
                     {
-                        names.push_back(it->getName());
-                        ids.push_back(it->getID());
+                        names.push_back(it->getObjectName());
+                        ids.push_back(it->getObjectHandle());
                     }
                     else
                     { // joint control callbacks. The object needs to be a joint (non-spherical):
@@ -127,8 +127,8 @@ void CQDlgScripts::refresh()
                             CJoint* itj=(CJoint*)it;
                             if ( (itj->getJointType()==sim_joint_revolute_subtype)||(itj->getJointType()==sim_joint_prismatic_subtype) )
                             {
-                                names.push_back(it->getName());
-                                ids.push_back(it->getID());
+                                names.push_back(it->getObjectName());
+                                ids.push_back(it->getObjectHandle());
                             }
                         }
                     }
@@ -185,7 +185,7 @@ void CQDlgScripts::updateObjectsInList()
     if (scriptViewMode==0)
     { // Main and child scripts
         CLuaScriptObject* it=App::ct->luaScriptContainer->getMainScript();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             std::string tmp=it->getDescriptiveName();
             int id=it->getScriptID();
@@ -236,11 +236,11 @@ void CQDlgScripts::updateObjectsInList()
 
     if (scriptViewMode==3)
     { // Callback scripts. DEPRECATED
-        CLuaScriptObject* it=NULL;
+        CLuaScriptObject* it=nullptr;
         if (App::userSettings->enableOldCustomContactHandlingEdition)
         {
             it=App::ct->luaScriptContainer->getCustomContactHandlingScript_callback_OLD();
-            if (it!=NULL)
+            if (it!=nullptr)
             {
                 std::string tmp=it->getDescriptiveName();
                 int id=it->getScriptID();
@@ -254,7 +254,7 @@ void CQDlgScripts::updateObjectsInList()
         if (App::userSettings->enableOldGeneralCallbackScriptEdition)
         {
             it=App::ct->luaScriptContainer->getGeneralCallbackHandlingScript_callback_OLD();
-            if (it!=NULL)
+            if (it!=nullptr)
             {
                 std::string tmp=it->getDescriptiveName();
                 int id=it->getScriptID();
@@ -302,7 +302,7 @@ void CQDlgScripts::selectObjectInList(int objectID)
     for (int i=0;i<ui->qqScriptList->count();i++)
     {
         QListWidgetItem* it=ui->qqScriptList->item(i);
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             if (it->data(Qt::UserRole).toInt()==objectID)
             {
@@ -342,7 +342,7 @@ void CQDlgScripts::on_qqAddNewScript_clicked()
             {
                 scriptViewMode=0;
                 CLuaScriptObject* it=App::ct->luaScriptContainer->getMainScript();
-                if (it!=NULL)
+                if (it!=nullptr)
                 {
                     if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDS_MAIN_SCRIPT),strTranslate(IDS_INFO_NO_MORE_THAN_ONE_MAIN_SCRIPT),VMESSAGEBOX_YES_NO))
                     {
@@ -380,7 +380,7 @@ void CQDlgScripts::on_qqAddNewScript_clicked()
                     if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,strTranslate("Custom collision/contact response"),strTranslate(IDS_INFO_NO_MORE_THAN_ONE_CONTACT_CALLBACK_SCRIPT),VMESSAGEBOX_YES_NO))
                     { // let's first remove the existing callback:
                         CLuaScriptObject* it=App::ct->luaScriptContainer->getCustomContactHandlingScript_callback_OLD();
-                        if (it!=NULL)
+                        if (it!=nullptr)
                             App::appendSimulationThreadCommand(DELETE_SCRIPT_SCRIPTGUITRIGGEREDCMD,it->getScriptID());
                         goOn=true;
                     }
@@ -402,7 +402,7 @@ void CQDlgScripts::on_qqAddNewScript_clicked()
                     if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,strTranslate("General callback script"),strTranslate(IDS_INFO_NO_MORE_THAN_ONE_GENERAL_CALLBACK_SCRIPT),VMESSAGEBOX_YES_NO))
                     { // let's first remove the existing callback:
                         CLuaScriptObject* it=App::ct->luaScriptContainer->getGeneralCallbackHandlingScript_callback_OLD();
-                        if (it!=NULL)
+                        if (it!=nullptr)
                             App::appendSimulationThreadCommand(DELETE_SCRIPT_SCRIPTGUITRIGGEREDCMD,it->getScriptID());
                         goOn=true;
                     }
@@ -438,10 +438,10 @@ void CQDlgScripts::on_qqScriptList_itemDoubleClicked(QListWidgetItem *item)
 {
     IF_UI_EVENT_CAN_WRITE_DATA
     {
-        if ( (item!=NULL)&&App::ct->simulation->isSimulationStopped() )
+        if ( (item!=nullptr)&&App::ct->simulation->isSimulationStopped() )
         {
             CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(item->data(Qt::UserRole).toInt());
-            if (it!=NULL)
+            if (it!=nullptr)
             {
                 if (App::userSettings->useOldCodeEditor)
                 {
@@ -450,10 +450,10 @@ void CQDlgScripts::on_qqScriptList_itemDoubleClicked(QListWidgetItem *item)
                     if (it->getScriptType()==sim_scripttype_customizationscript)
                     { // needs to be modal
                         // Process the command via the simulation thread (delayed):
-                        C3DObject* theObj=App::ct->objCont->getObject(it->getObjectIDThatScriptIsAttachedTo_customization());
+                        C3DObject* theObj=App::ct->objCont->getObjectFromHandle(it->getObjectIDThatScriptIsAttachedTo_customization());
                         SSimulationThreadCommand cmd;
                         cmd.cmdId=OPEN_MODAL_CUSTOMIZATION_SCRIPT_EDITOR_CMD;
-                        cmd.intParams.push_back(theObj->getID());
+                        cmd.intParams.push_back(theObj->getObjectHandle());
                         App::appendSimulationThreadCommand(cmd);
                     }
                     if (it->getScriptType()==sim_scripttype_addonscript)

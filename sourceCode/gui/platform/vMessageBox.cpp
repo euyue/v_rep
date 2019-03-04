@@ -11,37 +11,37 @@ enum {
 };
 
 unsigned short VMessageBox::informationSystemModal(QWidget* parent,const std::string& title,const std::string& message,unsigned short flags)
-{ // Don't forget: parent can be NULL at application start-up!
+{ // Don't forget: parent can be nullptr at application start-up!
     flags|=VMESSAGEBOX_INFO_TYPE;
     return(_displayBox(parent,title,message,flags));
 }
 
 unsigned short VMessageBox::information(QWidget* parent,const std::string& title,const std::string& message,unsigned short flags)
-{ // Don't forget: parent can be NULL at application start-up!
+{ // Don't forget: parent can be nullptr at application start-up!
     flags|=VMESSAGEBOX_APP_MODAL|VMESSAGEBOX_INFO_TYPE;
     return(_displayBox(parent,title,message,flags));
 }
 
 unsigned short VMessageBox::question(QWidget* parent,const std::string& title,const std::string& message,unsigned short flags)
-{ // Don't forget: parent can be NULL at application start-up!
+{ // Don't forget: parent can be nullptr at application start-up!
     flags|=VMESSAGEBOX_APP_MODAL|VMESSAGEBOX_QUESTION_TYPE;
     return(_displayBox(parent,title,message,flags));
 }
 
 unsigned short VMessageBox::warning(QWidget* parent,const std::string& title,const std::string& message,unsigned short flags)
-{ // Don't forget: parent can be NULL at application start-up!
+{ // Don't forget: parent can be nullptr at application start-up!
     flags|=VMESSAGEBOX_APP_MODAL|VMESSAGEBOX_WARNING_TYPE;
     return(_displayBox(parent,title,message,flags));
 }
 
 unsigned short VMessageBox::critical(QWidget* parent,const std::string& title,const std::string& message,unsigned short flags)
-{ // Don't forget: parent can be NULL at application start-up!
+{ // Don't forget: parent can be nullptr at application start-up!
     flags|=VMESSAGEBOX_APP_MODAL|VMESSAGEBOX_CRITICAL_TYPE;
     return(_displayBox(parent,title,message,flags));
 }
 
 unsigned short VMessageBox::_displayBox(QWidget* parent,const std::string& title,const std::string& message,unsigned short flags)
-{ // Don't forget: parent can be NULL at application start-up!
+{ // Don't forget: parent can be nullptr at application start-up!
     unsigned short lower=(flags&7);
     unsigned short upper=flags-lower;
 

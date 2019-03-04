@@ -31,7 +31,7 @@ void CQDlgUi::cancelEvent()
 {
     // we override this cancel event. The container window should close, not this one!!
     // We close it by ending the button edit mode:
-    App::mainWindow->editModeContainer->processCommand(ANY_EDIT_MODE_FINISH_AND_APPLY_CHANGES_EMCMD,NULL);
+    App::mainWindow->editModeContainer->processCommand(ANY_EDIT_MODE_FINISH_AND_APPLY_CHANGES_EMCMD,nullptr);
 }
 
 void CQDlgUi::refresh()
@@ -41,38 +41,38 @@ void CQDlgUi::refresh()
     int uiID=App::ct->buttonBlockContainer->getBlockInEdition();
     CButtonBlock* it=App::ct->buttonBlockContainer->getBlockWithID(uiID);
 
-    ui->qqCellCountH->setEnabled(it!=NULL);
-    ui->qqCellCountV->setEnabled(it!=NULL);
-    ui->qqCellSizeH->setEnabled(it!=NULL);
-    ui->qqCellSizeV->setEnabled(it!=NULL);
-    ui->qqUiPosH->setEnabled(it!=NULL);
-    ui->qqUiPosV->setEnabled(it!=NULL);
-    ui->qqUiBorderL->setEnabled(it!=NULL);
-    ui->qqUiBorderT->setEnabled(it!=NULL);
-    ui->qqVisible->setEnabled(it!=NULL);
-    ui->qqMoveable->setEnabled(it!=NULL);
-    ui->qqVisibleDuringSimulation->setEnabled(it!=NULL);
-    ui->qqVisibleWhenObjectSelected->setEnabled(it!=NULL);
-    ui->qqFixedWidthFont->setEnabled(it!=NULL);
-    ui->qqSelectObject->setEnabled(it!=NULL);
-    ui->qqPageCombo->setEnabled(it!=NULL);
-    ui->qqAssociatedObject->setEnabled(it!=NULL);
-    ui->qqSetTexture->setEnabled(it!=NULL);
-    ui->qqAdjustRolledUpSizes->setEnabled(it!=NULL);
+    ui->qqCellCountH->setEnabled(it!=nullptr);
+    ui->qqCellCountV->setEnabled(it!=nullptr);
+    ui->qqCellSizeH->setEnabled(it!=nullptr);
+    ui->qqCellSizeV->setEnabled(it!=nullptr);
+    ui->qqUiPosH->setEnabled(it!=nullptr);
+    ui->qqUiPosV->setEnabled(it!=nullptr);
+    ui->qqUiBorderL->setEnabled(it!=nullptr);
+    ui->qqUiBorderT->setEnabled(it!=nullptr);
+    ui->qqVisible->setEnabled(it!=nullptr);
+    ui->qqMoveable->setEnabled(it!=nullptr);
+    ui->qqVisibleDuringSimulation->setEnabled(it!=nullptr);
+    ui->qqVisibleWhenObjectSelected->setEnabled(it!=nullptr);
+    ui->qqFixedWidthFont->setEnabled(it!=nullptr);
+    ui->qqSelectObject->setEnabled(it!=nullptr);
+    ui->qqPageCombo->setEnabled(it!=nullptr);
+    ui->qqAssociatedObject->setEnabled(it!=nullptr);
+    ui->qqSetTexture->setEnabled(it!=nullptr);
+    ui->qqAdjustRolledUpSizes->setEnabled(it!=nullptr);
 
-    ui->qqUiBorderL->setChecked((it!=NULL)&&(it->getAttributes()&sim_ui_property_relativetoleftborder));
-    ui->qqUiBorderT->setChecked((it!=NULL)&&(it->getAttributes()&sim_ui_property_relativetotopborder));
-    ui->qqVisible->setChecked((it!=NULL)&&(it->getAttributes()&sim_ui_property_visible));
-    ui->qqMoveable->setChecked((it!=NULL)&&(it->getAttributes()&sim_ui_property_moveable));
-    ui->qqVisibleDuringSimulation->setChecked((it!=NULL)&&(it->getAttributes()&sim_ui_property_visibleduringsimulationonly));
-    ui->qqVisibleWhenObjectSelected->setChecked((it!=NULL)&&(it->getAttributes()&sim_ui_property_visiblewhenobjectselected));
-    ui->qqFixedWidthFont->setChecked((it!=NULL)&&(it->getAttributes()&sim_ui_property_fixedwidthfont));
-    ui->qqSelectObject->setChecked((it!=NULL)&&(it->getAttributes()&sim_ui_property_selectassociatedobject));
+    ui->qqUiBorderL->setChecked((it!=nullptr)&&(it->getAttributes()&sim_ui_property_relativetoleftborder));
+    ui->qqUiBorderT->setChecked((it!=nullptr)&&(it->getAttributes()&sim_ui_property_relativetotopborder));
+    ui->qqVisible->setChecked((it!=nullptr)&&(it->getAttributes()&sim_ui_property_visible));
+    ui->qqMoveable->setChecked((it!=nullptr)&&(it->getAttributes()&sim_ui_property_moveable));
+    ui->qqVisibleDuringSimulation->setChecked((it!=nullptr)&&(it->getAttributes()&sim_ui_property_visibleduringsimulationonly));
+    ui->qqVisibleWhenObjectSelected->setChecked((it!=nullptr)&&(it->getAttributes()&sim_ui_property_visiblewhenobjectselected));
+    ui->qqFixedWidthFont->setChecked((it!=nullptr)&&(it->getAttributes()&sim_ui_property_fixedwidthfont));
+    ui->qqSelectObject->setChecked((it!=nullptr)&&(it->getAttributes()&sim_ui_property_selectassociatedobject));
 
     ui->qqPageCombo->clear();
     ui->qqAssociatedObject->clear();
 
-    if (it!=NULL)
+    if (it!=nullptr)
     {
         VPoint blockSize;
         it->getBlockSize(blockSize);
@@ -107,9 +107,9 @@ void CQDlgUi::refresh()
         ui->qqAssociatedObject->addItem(strTranslate(IDSN_NONE),QVariant(-1));
         for (size_t i=0;i<App::ct->objCont->objectList.size();i++)
         {
-            C3DObject* it2=App::ct->objCont->getObject(App::ct->objCont->objectList[i]);
-            names.push_back(it2->getName());
-            ids.push_back(it2->getID());
+            C3DObject* it2=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
+            names.push_back(it2->getObjectName());
+            ids.push_back(it2->getObjectHandle());
         }
         tt::orderStrings(names,ids);
         for (size_t i=0;i<names.size();i++)
@@ -294,7 +294,7 @@ void CQDlgUi::on_qqUiBorderL_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CButtonBlock* itBlock=App::ct->buttonBlockContainer->getBlockWithID(App::ct->buttonBlockContainer->getBlockInEdition());
-        if (itBlock!=NULL)
+        if (itBlock!=nullptr)
         {
             App::appendSimulationThreadCommand(SET_ATTRIBUTES_OPENGLUIBLOCKGUITRIGGEREDCMD,App::ct->buttonBlockContainer->getBlockInEdition(),itBlock->getAttributes()^sim_ui_property_relativetoleftborder);
             //App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -308,7 +308,7 @@ void CQDlgUi::on_qqUiBorderT_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CButtonBlock* itBlock=App::ct->buttonBlockContainer->getBlockWithID(App::ct->buttonBlockContainer->getBlockInEdition());
-        if (itBlock!=NULL)
+        if (itBlock!=nullptr)
         {
             App::appendSimulationThreadCommand(SET_ATTRIBUTES_OPENGLUIBLOCKGUITRIGGEREDCMD,App::ct->buttonBlockContainer->getBlockInEdition(),itBlock->getAttributes()^sim_ui_property_relativetotopborder);
             //App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -322,7 +322,7 @@ void CQDlgUi::on_qqVisible_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CButtonBlock* itBlock=App::ct->buttonBlockContainer->getBlockWithID(App::ct->buttonBlockContainer->getBlockInEdition());
-        if (itBlock!=NULL)
+        if (itBlock!=nullptr)
         {
             App::appendSimulationThreadCommand(SET_ATTRIBUTES_OPENGLUIBLOCKGUITRIGGEREDCMD,App::ct->buttonBlockContainer->getBlockInEdition(),itBlock->getAttributes()^sim_ui_property_visible);
             //App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -336,7 +336,7 @@ void CQDlgUi::on_qqMoveable_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CButtonBlock* itBlock=App::ct->buttonBlockContainer->getBlockWithID(App::ct->buttonBlockContainer->getBlockInEdition());
-        if (itBlock!=NULL)
+        if (itBlock!=nullptr)
         {
             App::appendSimulationThreadCommand(SET_ATTRIBUTES_OPENGLUIBLOCKGUITRIGGEREDCMD,App::ct->buttonBlockContainer->getBlockInEdition(),itBlock->getAttributes()^sim_ui_property_moveable);
             //App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -350,7 +350,7 @@ void CQDlgUi::on_qqVisibleDuringSimulation_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CButtonBlock* itBlock=App::ct->buttonBlockContainer->getBlockWithID(App::ct->buttonBlockContainer->getBlockInEdition());
-        if (itBlock!=NULL)
+        if (itBlock!=nullptr)
         {
             App::appendSimulationThreadCommand(SET_ATTRIBUTES_OPENGLUIBLOCKGUITRIGGEREDCMD,App::ct->buttonBlockContainer->getBlockInEdition(),itBlock->getAttributes()^sim_ui_property_visibleduringsimulationonly);
             //App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -364,7 +364,7 @@ void CQDlgUi::on_qqFixedWidthFont_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CButtonBlock* itBlock=App::ct->buttonBlockContainer->getBlockWithID(App::ct->buttonBlockContainer->getBlockInEdition());
-        if (itBlock!=NULL)
+        if (itBlock!=nullptr)
         {
             App::appendSimulationThreadCommand(SET_ATTRIBUTES_OPENGLUIBLOCKGUITRIGGEREDCMD,App::ct->buttonBlockContainer->getBlockInEdition(),itBlock->getAttributes()^sim_ui_property_fixedwidthfont);
             //App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -378,7 +378,7 @@ void CQDlgUi::on_qqVisibleWhenObjectSelected_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CButtonBlock* itBlock=App::ct->buttonBlockContainer->getBlockWithID(App::ct->buttonBlockContainer->getBlockInEdition());
-        if (itBlock!=NULL)
+        if (itBlock!=nullptr)
         {
             App::appendSimulationThreadCommand(SET_ATTRIBUTES_OPENGLUIBLOCKGUITRIGGEREDCMD,App::ct->buttonBlockContainer->getBlockInEdition(),itBlock->getAttributes()^sim_ui_property_visiblewhenobjectselected);
             //App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -392,7 +392,7 @@ void CQDlgUi::on_qqSelectObject_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CButtonBlock* itBlock=App::ct->buttonBlockContainer->getBlockWithID(App::ct->buttonBlockContainer->getBlockInEdition());
-        if (itBlock!=NULL)
+        if (itBlock!=nullptr)
         {
             App::appendSimulationThreadCommand(SET_ATTRIBUTES_OPENGLUIBLOCKGUITRIGGEREDCMD,App::ct->buttonBlockContainer->getBlockInEdition(),itBlock->getAttributes()^sim_ui_property_selectassociatedobject);
             //App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);

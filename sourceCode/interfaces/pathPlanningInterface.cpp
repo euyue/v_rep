@@ -52,62 +52,62 @@ bool CPathPlanningInterface::initializeFunctionsIfNeeded()
         return(false);
     alreadyTried=true;
     CPlugin* plugin=CPluginContainer::getPluginFromName("PathPlanning");
-    if (plugin==NULL)
+    if (plugin==nullptr)
         return(false); // plugin not there!
     // Get the version first:
     int auxVals[4]={0,0,0,0};
     int retVals[4];
-    plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,NULL,retVals);
+    plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,nullptr,retVals);
 //  int version=retVals[0];
     // Now get all the function pointers:
     int v=1;
     auxVals[0]=v++;
-    _createNonHolonomicPathPlanningObject=(ptr_createNonHolonomicPathPlanningObject)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,NULL,NULL);
+    _createNonHolonomicPathPlanningObject=(ptr_createNonHolonomicPathPlanningObject)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,nullptr,nullptr);
     auxVals[0]=v++;
-    _createHolonomicPathPlanningObject=(ptr_createHolonomicPathPlanningObject)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,NULL,NULL);
+    _createHolonomicPathPlanningObject=(ptr_createHolonomicPathPlanningObject)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,nullptr,nullptr);
     auxVals[0]=v++;
-    _destroyPathPlanningObject=(ptr_destroyPathPlanningObject)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,NULL,NULL);
+    _destroyPathPlanningObject=(ptr_destroyPathPlanningObject)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,nullptr,nullptr);
     auxVals[0]=v++;
-    _searchPath=(ptr_searchPath)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,NULL,NULL);
+    _searchPath=(ptr_searchPath)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,nullptr,nullptr);
     auxVals[0]=v++;
-    _getPathNodeCount=(ptr_getPathNodeCount)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,NULL,NULL);
+    _getPathNodeCount=(ptr_getPathNodeCount)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,nullptr,nullptr);
     auxVals[0]=v++;
-    _setPartialPath=(ptr_setPartialPath)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,NULL,NULL);
+    _setPartialPath=(ptr_setPartialPath)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,nullptr,nullptr);
     auxVals[0]=v++;
-    _smoothFoundPath=(ptr_smoothFoundPath)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,NULL,NULL);
+    _smoothFoundPath=(ptr_smoothFoundPath)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,nullptr,nullptr);
     auxVals[0]=v++;
-    _getFoundPath=(ptr_getFoundPath)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,NULL,NULL);
+    _getFoundPath=(ptr_getFoundPath)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,nullptr,nullptr);
     auxVals[0]=v++;
-    _getSearchTree=(ptr_getSearchTree)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,NULL,NULL);
+    _getSearchTree=(ptr_getSearchTree)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,nullptr,nullptr);
     auxVals[0]=v++;
-    _releaseBuffer=(ptr_releaseBuffer)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,NULL,NULL);
+    _releaseBuffer=(ptr_releaseBuffer)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,nullptr,nullptr);
     auxVals[0]=v++;
 
-    _createMpObject=(ptr_createMpObject)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,NULL,NULL);
+    _createMpObject=(ptr_createMpObject)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,nullptr,nullptr);
     auxVals[0]=v++;
-    _destroyMpObject=(ptr_destroyMpObject)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,NULL,NULL);
+    _destroyMpObject=(ptr_destroyMpObject)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,nullptr,nullptr);
     auxVals[0]=v++;
-    _setMpObjectData=(ptr_setMpObjectData)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,NULL,NULL);
+    _setMpObjectData=(ptr_setMpObjectData)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,nullptr,nullptr);
     auxVals[0]=v++;
-    _calculateMpNodesPhase1=(ptr_calculateMpNodesPhase1)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,NULL,NULL);
+    _calculateMpNodesPhase1=(ptr_calculateMpNodesPhase1)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,nullptr,nullptr);
     auxVals[0]=v++;
-    _getMpPhase1NodesRenderData=(ptr_getMpPhase1NodesRenderData)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,NULL,NULL);
+    _getMpPhase1NodesRenderData=(ptr_getMpPhase1NodesRenderData)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,nullptr,nullptr);
     auxVals[0]=v++;
-    _getMpPhase2NodesRenderData=(ptr_getMpPhase2NodesRenderData)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,NULL,NULL);
+    _getMpPhase2NodesRenderData=(ptr_getMpPhase2NodesRenderData)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,nullptr,nullptr);
     auxVals[0]=v++;
-    _getMpSerializationData=(ptr_getMpSerializationData)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,NULL,NULL);
+    _getMpSerializationData=(ptr_getMpSerializationData)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,nullptr,nullptr);
     auxVals[0]=v++;
-    _getMpPhase1NodeCnt=(ptr_getMpPhase1NodeCnt)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,NULL,NULL);
+    _getMpPhase1NodeCnt=(ptr_getMpPhase1NodeCnt)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,nullptr,nullptr);
     auxVals[0]=v++;
-    _getMpRobotConfigFromTipPose=(ptr_getMpRobotConfigFromTipPose)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,NULL,NULL);
+    _getMpRobotConfigFromTipPose=(ptr_getMpRobotConfigFromTipPose)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,nullptr,nullptr);
     auxVals[0]=v++;
-    _mpFindPath=(ptr_mpFindPath)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,NULL,NULL);
+    _mpFindPath=(ptr_mpFindPath)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,nullptr,nullptr);
     auxVals[0]=v++;
-    _mpFindIkPath=(ptr_mpFindIkPath)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,NULL,NULL);
+    _mpFindIkPath=(ptr_mpFindIkPath)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,nullptr,nullptr);
     auxVals[0]=v++;
-    _mpSimplifyPath=(ptr_mpSimplifyPath)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,NULL,NULL);
+    _mpSimplifyPath=(ptr_mpSimplifyPath)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,nullptr,nullptr);
     auxVals[0]=v++;
-    _mpGetConfigTransition=(ptr_mpGetConfigTransition)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,NULL,NULL);
+    _mpGetConfigTransition=(ptr_mpGetConfigTransition)plugin->sendEventCallbackMessage(sim_message_eventcallback_pathplanningplugin,auxVals,nullptr,nullptr);
     auxVals[0]=v++;
     // IF YOU ADD A FUNCTION HERE, DO NOT FORGET TO ADD A CORRESPONDING ENTRY IN v_repExtPathPlanning.cpp !!!
 
@@ -219,7 +219,7 @@ float* CPathPlanningInterface::getFoundPath(CDummyPathPlanning* obj,int* nodeCou
 {
     if (!initializeFunctionsIfNeeded())
     { // we use the internal functions
-        float* retVal=NULL;
+        float* retVal=nullptr;
         std::vector<float> data;
         ((CPathPlanning*)obj)->getPathData(data);
         nodeCount[0]=(int)data.size()/7;
@@ -239,7 +239,7 @@ float* CPathPlanningInterface::getSearchTree(CDummyPathPlanning* obj,int* segmen
 {
     if (!initializeFunctionsIfNeeded())
     { // we use the internal functions
-        float* retVal=NULL;
+        float* retVal=nullptr;
         std::vector<float> data;
         ((CPathPlanning*)obj)->getSearchTreeData(data,fromStart!=0);
         segmentCount[0]=(int)data.size()/6;

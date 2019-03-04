@@ -167,7 +167,6 @@ INCLUDEPATH += $$PWD/"sourceCode/mainContainers/applicationContainers"
 INCLUDEPATH += $$PWD/"sourceCode/luaScripting"
 INCLUDEPATH += $$PWD/"sourceCode/luaScripting/customLuaFuncAndVar"
 INCLUDEPATH += $$PWD/"sourceCode/pagesAndViews"
-INCLUDEPATH += $$PWD/"sourceCode/importExport"
 INCLUDEPATH += $$PWD/"sourceCode/textures"
 INCLUDEPATH += $$PWD/"sourceCode/serialization"
 INCLUDEPATH += $$PWD/"sourceCode/strings"
@@ -181,7 +180,6 @@ INCLUDEPATH += $$PWD/"sourceCode/libsAndPlugins"
 INCLUDEPATH += $$PWD/"sourceCode/visual"
 INCLUDEPATH += $$PWD/"sourceCode/utils"
 INCLUDEPATH += $$PWD/"sourceCode/sharedBufferFunctions"
-INCLUDEPATH += $$PWD/"sourceCode/backwardCompatibility"
 INCLUDEPATH += $$PWD/"sourceCode/backwardCompatibility/pathPlanning"
 INCLUDEPATH += $$PWD/"sourceCode/backwardCompatibility/motionPlanning"
 INCLUDEPATH += $$PWD/"sourceCode/customUserInterfaces"
@@ -294,7 +292,6 @@ WITH_GUI {
     $$PWD/ui/qdlgcalcdialogcontainer.ui \
     $$PWD/ui/qdlgheightfielddimension.ui \
     $$PWD/ui/qdlgstopscripts.ui \
-    $$PWD/ui/qdlgimportoptions.ui \
     $$PWD/ui/qdlgtextureloadoptions.ui \
     $$PWD/ui/qdlgprogress.ui \
     $$PWD/ui/qdlgjoints.ui \
@@ -432,9 +429,7 @@ HEADERS += $$PWD/sourceCode/3dObjects/shapeObjectRelated/geometric.h \
     $$PWD/sourceCode/3dObjects/shapeObjectRelated/geomProxy.h \
     $$PWD/sourceCode/3dObjects/shapeObjectRelated/volInt.h \
 
-HEADERS += $$PWD/sourceCode/backwardCompatibility/geomObject.h \
-    $$PWD/sourceCode/backwardCompatibility/shapeComponent.h \
-    $$PWD/sourceCode/backwardCompatibility/pathPlanning/pathPlanning.h \
+HEADERS += $$PWD/sourceCode/backwardCompatibility/pathPlanning/pathPlanning.h \
     $$PWD/sourceCode/backwardCompatibility/pathPlanning/holonomicPathPlanning.h \
     $$PWD/sourceCode/backwardCompatibility/pathPlanning/holonomicPathNode.h \
     $$PWD/sourceCode/backwardCompatibility/pathPlanning/nonHolonomicPathPlanning.h \
@@ -507,11 +502,6 @@ HEADERS += $$PWD/sourceCode/luaScripting/customLuaFuncAndVar/luaCustomFuncAndVar
 HEADERS += $$PWD/sourceCode/pagesAndViews/pageContainer.h \
     $$PWD/sourceCode/pagesAndViews/sPage.h \
     $$PWD/sourceCode/pagesAndViews/sView.h \
-
-HEADERS += $$PWD/sourceCode/importExport/importExport.h \
-    $$PWD/sourceCode/importExport/stlFile.h \
-    $$PWD/sourceCode/importExport/objFile.h \
-    $$PWD/sourceCode/importExport/dxfFile.h \
 
 HEADERS += $$PWD/sourceCode/textures/textureObject.h \
     $$PWD/sourceCode/textures/imgLoaderSaver.h \
@@ -729,7 +719,6 @@ WITH_GUI {
         $$PWD/sourceCode/gui/dialogs/qdlgcalcdialogcontainer.h \
         $$PWD/sourceCode/gui/dialogs/qdlgheightfielddimension.h \
         $$PWD/sourceCode/gui/dialogs/qdlgstopscripts.h \
-        $$PWD/sourceCode/gui/dialogs/qdlgimportoptions.h \
         $$PWD/sourceCode/gui/dialogs/qdlgtextureloadoptions.h \
         $$PWD/sourceCode/gui/dialogs/qdlgprogress.h \
         $$PWD/sourceCode/gui/dialogs/qdlgjoints.h \
@@ -940,9 +929,7 @@ SOURCES += $$PWD/sourceCode/3dObjects/shapeObjectRelated/geometric.cpp \
     $$PWD/sourceCode/3dObjects/shapeObjectRelated/volInt.cpp \
 
 
-SOURCES += $$PWD/sourceCode/backwardCompatibility/geomObject.cpp \
-    $$PWD/sourceCode/backwardCompatibility/shapeComponent.cpp \
-    $$PWD/sourceCode/backwardCompatibility/pathPlanning/pathPlanning.cpp \
+SOURCES += $$PWD/sourceCode/backwardCompatibility/pathPlanning/pathPlanning.cpp \
     $$PWD/sourceCode/backwardCompatibility/pathPlanning/holonomicPathPlanning.cpp \
     $$PWD/sourceCode/backwardCompatibility/pathPlanning/holonomicPathNode.cpp \
     $$PWD/sourceCode/backwardCompatibility/pathPlanning/nonHolonomicPathPlanning.cpp \
@@ -1015,11 +1002,6 @@ SOURCES += $$PWD/sourceCode/luaScripting/customLuaFuncAndVar/luaCustomFuncAndVar
 SOURCES += $$PWD/sourceCode/pagesAndViews/pageContainer.cpp \
     $$PWD/sourceCode/pagesAndViews/sPage.cpp \
     $$PWD/sourceCode/pagesAndViews/sView.cpp \
-
-SOURCES += $$PWD/sourceCode/importExport/importExport.cpp \
-    $$PWD/sourceCode/importExport/objFile.cpp \
-    $$PWD/sourceCode/importExport/dxfFile.cpp \
-    $$PWD/sourceCode/importExport/stlFile.cpp \
 
 SOURCES += $$PWD/sourceCode/textures/textureObject.cpp \
     $$PWD/sourceCode/textures/imgLoaderSaver.cpp \
@@ -1229,7 +1211,6 @@ WITH_GUI {
         $$PWD/sourceCode/gui/dialogs/qdlgcalcdialogcontainer.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgheightfielddimension.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgstopscripts.cpp \
-        $$PWD/sourceCode/gui/dialogs/qdlgimportoptions.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgtextureloadoptions.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgprogress.cpp \
         $$PWD/sourceCode/gui/dialogs/qdlgjoints.cpp \

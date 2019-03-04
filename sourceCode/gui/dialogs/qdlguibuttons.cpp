@@ -37,8 +37,8 @@ void CQDlgUiButtons::refresh()
 
     int uiID=App::ct->buttonBlockContainer->getBlockInEdition();
     CButtonBlock* it=App::ct->buttonBlockContainer->getBlockWithID(uiID);
-    CSoftButton* itButton=NULL;
-    if (it==NULL)
+    CSoftButton* itButton=nullptr;
+    if (it==nullptr)
         return; // shouldn't happen
     int buttonSelectedNb=0;
     int emptyButtonSelectedNb=0;
@@ -52,7 +52,7 @@ void CQDlgUiButtons::refresh()
         {
             pos=App::ct->buttonBlockContainer->selectedButtons[i];
             CSoftButton* anyButton=it->getButtonAtPos(pos%size.x,pos/size.x);
-            if (anyButton!=NULL)
+            if (anyButton!=nullptr)
                 buttonSelectedNb++;
             else
                 emptyButtonSelectedNb++;
@@ -66,7 +66,7 @@ void CQDlgUiButtons::refresh()
     bool lastSelIsButton=false;
     bool lastSelStaysDown=false;
     int bt=0;
-    if (itButton!=NULL)
+    if (itButton!=nullptr)
     {
         lastSelIsButton=itButton->getButtonType()==sim_buttonproperty_button;
         bt=itButton->getButtonType();
@@ -75,51 +75,51 @@ void CQDlgUiButtons::refresh()
         lastSelStaysDown=(itButton->getAttributes()&sim_buttonproperty_staydown)!=0;
 
 
-    ui->qqButtonHandle->setEnabled(itButton!=NULL);
+    ui->qqButtonHandle->setEnabled(itButton!=nullptr);
 
-    ui->qqTypeCombo->setEnabled(itButton!=NULL);
-    ui->qqEnabled->setEnabled((itButton!=NULL)&&(bt!=sim_buttonproperty_label));
-    ui->qqStayDown->setEnabled((itButton!=NULL)&&lastSelIsButton);
-    ui->qqRollUp->setEnabled((itButton!=NULL)&&lastSelIsButton&&lastSelStaysDown);
-    ui->qqCenteredH->setEnabled((itButton!=NULL)&&(bt!=sim_buttonproperty_slider));
-    ui->qqUpDownEvent->setEnabled((itButton!=NULL)&&lastSelIsButton&&(!lastSelStaysDown));
-    ui->qqCloseAction->setEnabled((itButton!=NULL)&&lastSelIsButton);
-    ui->qqCenteredV->setEnabled((itButton!=NULL)&&(itButton->getButtonType()!=sim_buttonproperty_slider));
-    ui->qqBorderless->setEnabled(itButton!=NULL);
-    ui->qqIgnoreMouse->setEnabled(itButton!=NULL);
-    ui->qqApplyType->setEnabled((itButton!=NULL)&&(buttonSelectedNb>1));
+    ui->qqTypeCombo->setEnabled(itButton!=nullptr);
+    ui->qqEnabled->setEnabled((itButton!=nullptr)&&(bt!=sim_buttonproperty_label));
+    ui->qqStayDown->setEnabled((itButton!=nullptr)&&lastSelIsButton);
+    ui->qqRollUp->setEnabled((itButton!=nullptr)&&lastSelIsButton&&lastSelStaysDown);
+    ui->qqCenteredH->setEnabled((itButton!=nullptr)&&(bt!=sim_buttonproperty_slider));
+    ui->qqUpDownEvent->setEnabled((itButton!=nullptr)&&lastSelIsButton&&(!lastSelStaysDown));
+    ui->qqCloseAction->setEnabled((itButton!=nullptr)&&lastSelIsButton);
+    ui->qqCenteredV->setEnabled((itButton!=nullptr)&&(itButton->getButtonType()!=sim_buttonproperty_slider));
+    ui->qqBorderless->setEnabled(itButton!=nullptr);
+    ui->qqIgnoreMouse->setEnabled(itButton!=nullptr);
+    ui->qqApplyType->setEnabled((itButton!=nullptr)&&(buttonSelectedNb>1));
 
-    ui->qqLabelUp->setEnabled((itButton!=NULL)&&(bt!=sim_buttonproperty_slider));
-    ui->qqLabelDown->setEnabled((itButton!=NULL)&&lastSelIsButton&&lastSelStaysDown);
-    ui->qqApplyLabel->setEnabled((itButton!=NULL)&&(buttonSelectedNb>1));
+    ui->qqLabelUp->setEnabled((itButton!=nullptr)&&(bt!=sim_buttonproperty_slider));
+    ui->qqLabelDown->setEnabled((itButton!=nullptr)&&lastSelIsButton&&lastSelStaysDown);
+    ui->qqApplyLabel->setEnabled((itButton!=nullptr)&&(buttonSelectedNb>1));
 
-    ui->qqColorUp->setEnabled(itButton!=NULL);
-    ui->qqColorDown->setEnabled((itButton!=NULL)&&lastSelIsButton);
-    ui->qqColorLabel->setEnabled((itButton!=NULL)&&(bt!=sim_buttonproperty_slider));
-    ui->qqApplyColor->setEnabled((itButton!=NULL)&&(buttonSelectedNb>1));
+    ui->qqColorUp->setEnabled(itButton!=nullptr);
+    ui->qqColorDown->setEnabled((itButton!=nullptr)&&lastSelIsButton);
+    ui->qqColorLabel->setEnabled((itButton!=nullptr)&&(bt!=sim_buttonproperty_slider));
+    ui->qqApplyColor->setEnabled((itButton!=nullptr)&&(buttonSelectedNb>1));
 
-    ui->qqTransparent->setEnabled(itButton!=NULL);
-    ui->qqNoBackground->setEnabled(itButton!=NULL);
-    ui->qqSetTexture->setEnabled((itButton!=NULL)&&(bt!=sim_buttonproperty_editbox));
-    ui->qqApplyOtherProperties->setEnabled((itButton!=NULL)&&(buttonSelectedNb>1));
+    ui->qqTransparent->setEnabled(itButton!=nullptr);
+    ui->qqNoBackground->setEnabled(itButton!=nullptr);
+    ui->qqSetTexture->setEnabled((itButton!=nullptr)&&(bt!=sim_buttonproperty_editbox));
+    ui->qqApplyOtherProperties->setEnabled((itButton!=nullptr)&&(buttonSelectedNb>1));
 
 
     ui->qqTypeCombo->clear();
-    ui->qqEnabled->setChecked((itButton!=NULL)&&((itButton->getAttributes()&sim_buttonproperty_enabled)!=0));
-    ui->qqStayDown->setChecked((itButton!=NULL)&&((itButton->getAttributes()&sim_buttonproperty_staydown)!=0));
-    ui->qqRollUp->setChecked((itButton!=NULL)&&((itButton->getAttributes()&sim_buttonproperty_rollupaction)!=0));
-    ui->qqCenteredH->setChecked((itButton!=NULL)&&((itButton->getAttributes()&sim_buttonproperty_horizontallycentered)!=0));
-    ui->qqUpDownEvent->setChecked((itButton!=NULL)&&((itButton->getAttributes()&sim_buttonproperty_downupevent)!=0));
-    ui->qqCloseAction->setChecked((itButton!=NULL)&&((itButton->getAttributes()&sim_buttonproperty_closeaction)!=0));
-    ui->qqCenteredV->setChecked((itButton!=NULL)&&((itButton->getAttributes()&sim_buttonproperty_verticallycentered)!=0));
-    ui->qqBorderless->setChecked((itButton!=NULL)&&((itButton->getAttributes()&sim_buttonproperty_borderless)!=0));
-    ui->qqIgnoreMouse->setChecked((itButton!=NULL)&&((itButton->getAttributes()&sim_buttonproperty_ignoremouse)!=0));
+    ui->qqEnabled->setChecked((itButton!=nullptr)&&((itButton->getAttributes()&sim_buttonproperty_enabled)!=0));
+    ui->qqStayDown->setChecked((itButton!=nullptr)&&((itButton->getAttributes()&sim_buttonproperty_staydown)!=0));
+    ui->qqRollUp->setChecked((itButton!=nullptr)&&((itButton->getAttributes()&sim_buttonproperty_rollupaction)!=0));
+    ui->qqCenteredH->setChecked((itButton!=nullptr)&&((itButton->getAttributes()&sim_buttonproperty_horizontallycentered)!=0));
+    ui->qqUpDownEvent->setChecked((itButton!=nullptr)&&((itButton->getAttributes()&sim_buttonproperty_downupevent)!=0));
+    ui->qqCloseAction->setChecked((itButton!=nullptr)&&((itButton->getAttributes()&sim_buttonproperty_closeaction)!=0));
+    ui->qqCenteredV->setChecked((itButton!=nullptr)&&((itButton->getAttributes()&sim_buttonproperty_verticallycentered)!=0));
+    ui->qqBorderless->setChecked((itButton!=nullptr)&&((itButton->getAttributes()&sim_buttonproperty_borderless)!=0));
+    ui->qqIgnoreMouse->setChecked((itButton!=nullptr)&&((itButton->getAttributes()&sim_buttonproperty_ignoremouse)!=0));
 
 
-    ui->qqTransparent->setChecked((itButton!=NULL)&&((itButton->getAttributes()&sim_buttonproperty_transparent)!=0));
-    ui->qqNoBackground->setChecked((itButton!=NULL)&&((itButton->getAttributes()&sim_buttonproperty_nobackgroundcolor)!=0));
+    ui->qqTransparent->setChecked((itButton!=nullptr)&&((itButton->getAttributes()&sim_buttonproperty_transparent)!=0));
+    ui->qqNoBackground->setChecked((itButton!=nullptr)&&((itButton->getAttributes()&sim_buttonproperty_nobackgroundcolor)!=0));
 
-    if (itButton!=NULL)
+    if (itButton!=nullptr)
     {
         ui->qqButtonHandle->setText(tt::getIString(false,itButton->buttonID).c_str());
         ui->qqLabelUp->setText(itButton->label.c_str());
@@ -152,23 +152,23 @@ void CQDlgUiButtons::refresh()
 CSoftButton* CQDlgUiButtons::getLastSelectedButton()
 {
     CButtonBlock* itBlock=App::ct->buttonBlockContainer->getBlockWithID(App::ct->buttonBlockContainer->getBlockInEdition());
-    if (itBlock==NULL)
-        return(NULL);
+    if (itBlock==nullptr)
+        return(nullptr);
     if (App::ct->buttonBlockContainer->selectedButtons.size()==0)
-        return(NULL);
+        return(nullptr);
     int butt=App::ct->buttonBlockContainer->selectedButtons[App::ct->buttonBlockContainer->selectedButtons.size()-1];
     VPoint size;
     itBlock->getBlockSize(size);
     CSoftButton* itButton=itBlock->getButtonAtPos(butt%size.x,butt/size.x);
-    if (itButton==NULL)
-        return(NULL);
+    if (itButton==nullptr)
+        return(nullptr);
     return(itButton);
 }
 
 int CQDlgUiButtons::getLastSelectedButtonId()
 {
     CSoftButton* itButton=getLastSelectedButton();
-    if (itButton==NULL)
+    if (itButton==nullptr)
         return(-1);
     return(itButton->buttonID);
 }
@@ -176,7 +176,7 @@ int CQDlgUiButtons::getLastSelectedButtonId()
 int CQDlgUiButtons::getSelectedButtonId(int index)
 {
     CButtonBlock* itBlock=App::ct->buttonBlockContainer->getBlockWithID(App::ct->buttonBlockContainer->getBlockInEdition());
-    if (itBlock==NULL)
+    if (itBlock==nullptr)
         return(-1);
     if (App::ct->buttonBlockContainer->selectedButtons.size()==0)
         return(-1);
@@ -186,7 +186,7 @@ int CQDlgUiButtons::getSelectedButtonId(int index)
     VPoint size;
     itBlock->getBlockSize(size);
     CSoftButton* itButton=itBlock->getButtonAtPos(butt%size.x,butt/size.x);
-    if (itButton==NULL)
+    if (itButton==nullptr)
         return(-1);
     return(itButton->buttonID);
 }
@@ -250,7 +250,7 @@ void CQDlgUiButtons::on_qqTypeCombo_currentIndexChanged(int index)
         IF_UI_EVENT_CAN_READ_DATA
         {
             CSoftButton* itButton=getLastSelectedButton();
-            if (itButton!=NULL)
+            if (itButton!=nullptr)
             {
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=SET_ATTRIBUTES_OPENGLUIBUTTONGUITRIGGEREDCMD;
@@ -270,7 +270,7 @@ void CQDlgUiButtons::on_qqEnabled_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CSoftButton* itButton=getLastSelectedButton();
-        if (itButton!=NULL)
+        if (itButton!=nullptr)
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_ATTRIBUTES_OPENGLUIBUTTONGUITRIGGEREDCMD;
@@ -289,7 +289,7 @@ void CQDlgUiButtons::on_qqStayDown_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CSoftButton* itButton=getLastSelectedButton();
-        if (itButton!=NULL)
+        if (itButton!=nullptr)
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_ATTRIBUTES_OPENGLUIBUTTONGUITRIGGEREDCMD;
@@ -308,7 +308,7 @@ void CQDlgUiButtons::on_qqRollUp_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CSoftButton* itButton=getLastSelectedButton();
-        if (itButton!=NULL)
+        if (itButton!=nullptr)
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_ATTRIBUTES_OPENGLUIBUTTONGUITRIGGEREDCMD;
@@ -327,7 +327,7 @@ void CQDlgUiButtons::on_qqCenteredH_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CSoftButton* itButton=getLastSelectedButton();
-        if (itButton!=NULL)
+        if (itButton!=nullptr)
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_ATTRIBUTES_OPENGLUIBUTTONGUITRIGGEREDCMD;
@@ -346,7 +346,7 @@ void CQDlgUiButtons::on_qqUpDownEvent_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CSoftButton* itButton=getLastSelectedButton();
-        if (itButton!=NULL)
+        if (itButton!=nullptr)
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_ATTRIBUTES_OPENGLUIBUTTONGUITRIGGEREDCMD;
@@ -365,7 +365,7 @@ void CQDlgUiButtons::on_qqCloseAction_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CSoftButton* itButton=getLastSelectedButton();
-        if (itButton!=NULL)
+        if (itButton!=nullptr)
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_ATTRIBUTES_OPENGLUIBUTTONGUITRIGGEREDCMD;
@@ -384,7 +384,7 @@ void CQDlgUiButtons::on_qqCenteredV_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CSoftButton* itButton=getLastSelectedButton();
-        if (itButton!=NULL)
+        if (itButton!=nullptr)
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_ATTRIBUTES_OPENGLUIBUTTONGUITRIGGEREDCMD;
@@ -403,7 +403,7 @@ void CQDlgUiButtons::on_qqBorderless_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CSoftButton* itButton=getLastSelectedButton();
-        if (itButton!=NULL)
+        if (itButton!=nullptr)
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_ATTRIBUTES_OPENGLUIBUTTONGUITRIGGEREDCMD;
@@ -422,7 +422,7 @@ void CQDlgUiButtons::on_qqIgnoreMouse_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CSoftButton* itButton=getLastSelectedButton();
-        if (itButton!=NULL)
+        if (itButton!=nullptr)
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_ATTRIBUTES_OPENGLUIBUTTONGUITRIGGEREDCMD;
@@ -507,11 +507,11 @@ void CQDlgUiButtons::on_qqColorUp_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CSoftButton* itButton=getLastSelectedButton();
-        if (itButton==NULL)
+        if (itButton==nullptr)
             return;
         CQDlgColor::displayDlgModal(COLOR_ID_OPENGLBUTTON_UP,App::ct->buttonBlockContainer->getBlockInEdition(),itButton->buttonID,sim_colorcomponent_ambient_diffuse,App::mainWindow);
-        float* col=App::getRGBPointerFromItem(COLOR_ID_OPENGLBUTTON_UP,App::ct->buttonBlockContainer->getBlockInEdition(),itButton->buttonID,sim_colorcomponent_ambient_diffuse,NULL);
-        if (col!=NULL)
+        float* col=App::getRGBPointerFromItem(COLOR_ID_OPENGLBUTTON_UP,App::ct->buttonBlockContainer->getBlockInEdition(),itButton->buttonID,sim_colorcomponent_ambient_diffuse,nullptr);
+        if (col!=nullptr)
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_ITEMRGB_COLORGUITRIGGEREDCMD;
@@ -533,11 +533,11 @@ void CQDlgUiButtons::on_qqColorDown_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CSoftButton* itButton=getLastSelectedButton();
-        if (itButton==NULL)
+        if (itButton==nullptr)
             return;
         CQDlgColor::displayDlgModal(COLOR_ID_OPENGLBUTTON_DOWN,App::ct->buttonBlockContainer->getBlockInEdition(),itButton->buttonID,sim_colorcomponent_ambient_diffuse,App::mainWindow);
-        float* col=App::getRGBPointerFromItem(COLOR_ID_OPENGLBUTTON_DOWN,App::ct->buttonBlockContainer->getBlockInEdition(),itButton->buttonID,sim_colorcomponent_ambient_diffuse,NULL);
-        if (col!=NULL)
+        float* col=App::getRGBPointerFromItem(COLOR_ID_OPENGLBUTTON_DOWN,App::ct->buttonBlockContainer->getBlockInEdition(),itButton->buttonID,sim_colorcomponent_ambient_diffuse,nullptr);
+        if (col!=nullptr)
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_ITEMRGB_COLORGUITRIGGEREDCMD;
@@ -559,11 +559,11 @@ void CQDlgUiButtons::on_qqColorLabel_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CSoftButton* itButton=getLastSelectedButton();
-        if (itButton==NULL)
+        if (itButton==nullptr)
             return;
         CQDlgColor::displayDlgModal(COLOR_ID_OPENGLBUTTON_TEXT,App::ct->buttonBlockContainer->getBlockInEdition(),itButton->buttonID,sim_colorcomponent_ambient_diffuse,App::mainWindow);
-        float* col=App::getRGBPointerFromItem(COLOR_ID_OPENGLBUTTON_TEXT,App::ct->buttonBlockContainer->getBlockInEdition(),itButton->buttonID,sim_colorcomponent_ambient_diffuse,NULL);
-        if (col!=NULL)
+        float* col=App::getRGBPointerFromItem(COLOR_ID_OPENGLBUTTON_TEXT,App::ct->buttonBlockContainer->getBlockInEdition(),itButton->buttonID,sim_colorcomponent_ambient_diffuse,nullptr);
+        if (col!=nullptr)
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_ITEMRGB_COLORGUITRIGGEREDCMD;
@@ -600,7 +600,7 @@ void CQDlgUiButtons::on_qqTransparent_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CSoftButton* itButton=getLastSelectedButton();
-        if (itButton!=NULL)
+        if (itButton!=nullptr)
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_ATTRIBUTES_OPENGLUIBUTTONGUITRIGGEREDCMD;
@@ -627,7 +627,7 @@ void CQDlgUiButtons::on_qqNoBackground_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CSoftButton* itButton=getLastSelectedButton();
-        if (itButton!=NULL)
+        if (itButton!=nullptr)
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId=SET_ATTRIBUTES_OPENGLUIBUTTONGUITRIGGEREDCMD;
@@ -654,7 +654,7 @@ void CQDlgUiButtons::on_qqSetTexture_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CSoftButton* itButton=getLastSelectedButton();
-        if (itButton!=NULL)
+        if (itButton!=nullptr)
             CQDlgTextures::displayDlg(TEXTURE_ID_OPENGL_GUI_BUTTON,App::ct->buttonBlockContainer->getBlockInEdition(),itButton->buttonID,App::mainWindow);
     }
 }

@@ -106,15 +106,15 @@ bool CRegisteredCollections::getShapesAndVolumesFromCollection(int groupID,std::
 { // If propMask==-1, then object main properties are not checked an all objects are taken!
     pathPlanningRoutineCalling=false; // OLD_PATH_PLANNING_REMOVE
     CRegCollection* theGroup=getCollection(groupID);
-    if (theGroup==NULL)
+    if (theGroup==nullptr)
         return(false);
     objInGroup->reserve(theGroup->collectionObjects.size());
     objInGroup->clear();
     bool overridePropertyFlag=theGroup->getOverridesObjectMainProperties();
     for (int i=0;i<int(theGroup->collectionObjects.size());i++)
     {
-        C3DObject* anObject=App::ct->objCont->getObject(theGroup->collectionObjects[i]);
-        if (anObject!=NULL)
+        C3DObject* anObject=App::ct->objCont->getObjectFromHandle(theGroup->collectionObjects[i]);
+        if (anObject!=nullptr)
         {
             if ( (anObject->getCumulativeObjectSpecialProperty()&propMask)||(propMask==-1)||overridePropertyFlag )
             {
@@ -133,15 +133,15 @@ bool CRegisteredCollections::getShapesAndDummiesFromCollection(int groupID,std::
 { // If propMask==-1, then object main properties are not checked an all objects are taken!
     pathPlanningRoutineCalling=false; // OLD_PATH_PLANNING_REMOVE
     CRegCollection* theGroup=getCollection(groupID);
-    if (theGroup==NULL)
+    if (theGroup==nullptr)
         return(false);
     objInGroup->reserve(theGroup->collectionObjects.size());
     objInGroup->clear();
     bool overridePropertyFlag=theGroup->getOverridesObjectMainProperties();
     for (int i=0;i<int(theGroup->collectionObjects.size());i++)
     {
-        C3DObject* anObject=App::ct->objCont->getObject(theGroup->collectionObjects[i]);
-        if (anObject!=NULL)
+        C3DObject* anObject=App::ct->objCont->getObjectFromHandle(theGroup->collectionObjects[i]);
+        if (anObject!=nullptr)
         {
             if ( (anObject->getCumulativeObjectSpecialProperty()&propMask)||(propMask==-1)||overridePropertyFlag )
             {
@@ -162,13 +162,13 @@ void CRegisteredCollections::getCollidableObjectsFromCollection(int collectionID
 {
     objects.clear();
     CRegCollection* theGroup=getCollection(collectionID);
-    if (theGroup!=NULL)
+    if (theGroup!=nullptr)
     {
         bool overridePropertyFlags=theGroup->getOverridesObjectMainProperties();
         for (int i=0;i<int(theGroup->collectionObjects.size());i++)
         {
-            C3DObject* anObject=App::ct->objCont->getObject(theGroup->collectionObjects[i]);
-            if ( (anObject!=NULL)&&(anObject->isPotentiallyCollidable()) )
+            C3DObject* anObject=App::ct->objCont->getObjectFromHandle(theGroup->collectionObjects[i]);
+            if ( (anObject!=nullptr)&&(anObject->isPotentiallyCollidable()) )
             {
                 if ( (anObject->getCumulativeObjectSpecialProperty()&sim_objectspecialproperty_collidable)||overridePropertyFlags )
                     objects.push_back(anObject);
@@ -181,13 +181,13 @@ void CRegisteredCollections::getMeasurableObjectsFromCollection(int collectionID
 {
     objects.clear();
     CRegCollection* theGroup=getCollection(collectionID);
-    if (theGroup!=NULL)
+    if (theGroup!=nullptr)
     {
         bool overridePropertyFlags=theGroup->getOverridesObjectMainProperties();
         for (int i=0;i<int(theGroup->collectionObjects.size());i++)
         {
-            C3DObject* anObject=App::ct->objCont->getObject(theGroup->collectionObjects[i]);
-            if ( (anObject!=NULL)&&(anObject->isPotentiallyMeasurable()) )
+            C3DObject* anObject=App::ct->objCont->getObjectFromHandle(theGroup->collectionObjects[i]);
+            if ( (anObject!=nullptr)&&(anObject->isPotentiallyMeasurable()) )
             {
                 if ( (anObject->getCumulativeObjectSpecialProperty()&sim_objectspecialproperty_measurable)||overridePropertyFlags )
                     objects.push_back(anObject);
@@ -200,13 +200,13 @@ void CRegisteredCollections::getDetectableObjectsFromCollection(int collectionID
 {
     objects.clear();
     CRegCollection* theGroup=getCollection(collectionID);
-    if (theGroup!=NULL)
+    if (theGroup!=nullptr)
     {
         bool overridePropertyFlags=theGroup->getOverridesObjectMainProperties()||(detectableMask==-1);
         for (int i=0;i<int(theGroup->collectionObjects.size());i++)
         {
-            C3DObject* anObject=App::ct->objCont->getObject(theGroup->collectionObjects[i]);
-            if ( (anObject!=NULL)&&(anObject->isPotentiallyDetectable()) )
+            C3DObject* anObject=App::ct->objCont->getObjectFromHandle(theGroup->collectionObjects[i]);
+            if ( (anObject!=nullptr)&&(anObject->isPotentiallyDetectable()) )
             {
                 if ( (anObject->getCumulativeObjectSpecialProperty()&detectableMask)||overridePropertyFlags )
                     objects.push_back(anObject);
@@ -241,7 +241,7 @@ void CRegisteredCollections::unmark(int objID)
 void CRegisteredCollections::repairMarking()
 {
     unmarkAll();
-    if (App::ct->objCont==NULL)
+    if (App::ct->objCont==nullptr)
         return;
     for (int i=0;i<App::ct->objCont->getSelSize();i++)
         mark(App::ct->objCont->getSelID(i));
@@ -268,7 +268,7 @@ CRegCollection* CRegisteredCollections::getCollection(int groupID)
         if (allCollections[i]->getCollectionID()==groupID)
             return(allCollections[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 CRegCollection* CRegisteredCollections::getCollection(std::string groupName)
@@ -278,7 +278,7 @@ CRegCollection* CRegisteredCollections::getCollection(std::string groupName)
         if (allCollections[i]->getCollectionName().compare(groupName)==0)
             return(allCollections[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 bool CRegisteredCollections::removeCollection(int groupID)
@@ -370,13 +370,13 @@ void CRegisteredCollections::addCollectionWithSuffixOffset(CRegCollection* theGr
         theName=tt::generateNewName_dash(theName,suffixOffset);
     else
     {
-        while (getCollection(theName)!=NULL)
+        while (getCollection(theName)!=nullptr)
             theName=tt::generateNewName_noDash(theName);
     }
     theGroup->setCollectionName(theName);
     // Find a free ID:
     int id=SIM_IDSTART_COLLECTION;
-    while (getCollection(id)!=NULL)
+    while (getCollection(id)!=nullptr)
         id++;
     theGroup->setCollectionID(id);
     // Add the group:
@@ -402,7 +402,7 @@ void CRegisteredCollections::addCollectionToSelection(int groupID)
 {
     // Don't call from App::ct->objCont->addObject(), App::ct->objCont->... !!
     CRegCollection* it=getCollection(groupID);
-    if (it==NULL)
+    if (it==nullptr)
         return;
     for (size_t i=0;i<selectedCollections.size();i++)
     {
@@ -425,7 +425,7 @@ void CRegisteredCollections::removeCollectionFromSelection(int groupID)
 {
     // Don't call from App::ct->objCont->addObject(), App::ct->objCont->... !!
     CRegCollection* it=getCollection(groupID);
-    if (it==NULL)
+    if (it==nullptr)
         return;
     for (int i=0;i<int(it->collectionObjects.size());i++)
         App::ct->objCont->removeObjectFromSelection(it->collectionObjects[i]);

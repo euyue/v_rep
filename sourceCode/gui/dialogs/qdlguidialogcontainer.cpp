@@ -58,7 +58,7 @@ CQDlgUiDialogContainer::~CQDlgUiDialogContainer()
 
 void CQDlgUiDialogContainer::cancelEvent()
 {
-    App::mainWindow->editModeContainer->processCommand(ANY_EDIT_MODE_FINISH_AND_APPLY_CHANGES_EMCMD,NULL);
+    App::mainWindow->editModeContainer->processCommand(ANY_EDIT_MODE_FINISH_AND_APPLY_CHANGES_EMCMD,nullptr);
 //  defaultModalDialogEndRoutine(false);
 }
 
@@ -72,7 +72,7 @@ void CQDlgUiDialogContainer::refresh()
     int uiID=App::ct->buttonBlockContainer->getBlockInEdition();
     CButtonBlock* it=App::ct->buttonBlockContainer->getBlockWithID(uiID);
     int desiredPage=currentPage;
-    if ( (it!=NULL)&&(App::ct->buttonBlockContainer->selectedButtons.size()>0) )
+    if ( (it!=nullptr)&&(App::ct->buttonBlockContainer->selectedButtons.size()>0) )
         desiredPage=1;
     else
         desiredPage=0;

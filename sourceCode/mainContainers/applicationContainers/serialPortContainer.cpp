@@ -39,7 +39,7 @@ CSerialPort* CSerialPortContainer::_getPortFromPortNumber_backwardCompatibility(
         if (_openedSerialPorts[i]->getPortNumber_backwardCompatibility()==portNb)
             return(_openedSerialPorts[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 
@@ -50,7 +50,7 @@ CSerialPort* CSerialPortContainer::_getPortFromHandle(int portHandle)
         if (_openedSerialPorts[i]->getPortHandle()==portHandle)
             return(_openedSerialPorts[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 void CSerialPortContainer::simulationEnded()
@@ -119,7 +119,7 @@ bool CSerialPortContainer::serialPortClose_alternativeRoutine(int portHandle)
     if (VThread::isCurrentThreadTheUiThread())
     { // we are in the UI thread. We execute the command now:
         CSerialPort* port=_getPortFromHandle(portHandle);
-        if (port!=NULL)
+        if (port!=nullptr)
         {
             for (int i=0;i<int(_openedSerialPorts.size());i++)
             {
@@ -131,7 +131,7 @@ bool CSerialPortContainer::serialPortClose_alternativeRoutine(int portHandle)
                 }
             }
         }
-        return(port!=NULL);
+        return(port!=nullptr);
     }
     else
     { // We are NOT in the UI thread. We execute the command via the UI thread:
@@ -150,7 +150,7 @@ int CSerialPortContainer::serialPortCheck_alternativeRoutine(int portHandle)
     { // we are in the UI thread. We execute the command now:
         CSerialPort* port=_getPortFromHandle(portHandle);
         int result=-1;
-        if (port!=NULL)
+        if (port!=nullptr)
             result=port->readDataWaiting();
         return(result);
     }
@@ -171,7 +171,7 @@ int CSerialPortContainer::serialPortSend_alternativeRoutine(int portHandle,const
     { // we are in the UI thread. We execute the command now:
         CSerialPort* port=_getPortFromHandle(portHandle);
         int result=-1;
-        if (port!=NULL)
+        if (port!=nullptr)
         {
             result=0;
             if (data.size()>0)
@@ -198,7 +198,7 @@ int CSerialPortContainer::serialPortReceive_alternativeRoutine(int portHandle,st
         data.clear();
         CSerialPort* port=_getPortFromHandle(portHandle);
         int result=-1;
-        if (port!=NULL)
+        if (port!=nullptr)
         {
             result=0;
             int availableData=port->readDataWaiting();
@@ -268,7 +268,7 @@ int CSerialPortContainer::serialPortCheck(int portHandle)
     {
         int retVal=-1;
         CSerialPort* port=_getPortFromHandle(portHandle);
-        if (port!=NULL)
+        if (port!=nullptr)
             retVal=port->readDataWaiting();
         return(retVal);
     }
@@ -282,7 +282,7 @@ int CSerialPortContainer::serialPortSend(int portHandle,const std::string& data)
     {
         CSerialPort* port=_getPortFromHandle(portHandle);
         int retVal=-1;
-        if (port!=NULL)
+        if (port!=nullptr)
             retVal=port->sendData(&data[0],(int)data.size());
         return(retVal);
     }
@@ -296,7 +296,7 @@ int CSerialPortContainer::serialPortReceive(int portHandle,std::string& data,int
     {
         CSerialPort* port=_getPortFromHandle(portHandle);
         int retVal=0;
-        if (port!=NULL)
+        if (port!=nullptr)
         {
             int availableData=port->readDataWaiting();
             if (availableData>0)
@@ -321,7 +321,7 @@ bool CSerialPortContainer::serialPortOpen_old(bool fromScript,int portNumber,int
 bool CSerialPortContainer::serialPortClose_old(int portNumber)
 { // old, for backward compatibility
     CSerialPort* port=_getPortFromPortNumber_backwardCompatibility(portNumber);
-    if (port==NULL)
+    if (port==nullptr)
         return(false);
     serialPortClose(port->getPortHandle());
     return(true);
@@ -330,7 +330,7 @@ bool CSerialPortContainer::serialPortClose_old(int portNumber)
 int CSerialPortContainer::serialPortSend_old(int portNumber,const char* data,int dataLength)
 { // old, for backward compatibility
     CSerialPort* port=_getPortFromPortNumber_backwardCompatibility(portNumber);
-    if (port==NULL)
+    if (port==nullptr)
         return(-1);
     return(port->sendData(data,dataLength));
 }
@@ -338,7 +338,7 @@ int CSerialPortContainer::serialPortSend_old(int portNumber,const char* data,int
 int CSerialPortContainer::serialPortReceive_old(int portNumber,char* buffer,int dataLengthToRead)
 { // old, for backward compatibility
     CSerialPort* port=_getPortFromPortNumber_backwardCompatibility(portNumber);
-    if (port==NULL)
+    if (port==nullptr)
         return(-1);
     int retVal=0;
     int availableData=port->readDataWaiting();

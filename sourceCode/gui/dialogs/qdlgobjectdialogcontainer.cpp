@@ -132,7 +132,7 @@ void CQDlgObjectDialogContainer::refresh()
 
     C3DObject* sel=App::ct->objCont->getLastSelection_object();
     int editMode=App::getEditModeType();
-    if (sel!=NULL)
+    if (sel!=nullptr)
     {
         int t=sel->getObjectType();
         std::string title;
@@ -174,10 +174,10 @@ void CQDlgObjectDialogContainer::refresh()
             ui->qqObjectProp->setText(strTranslate(IDSN_SHAPE));
     }
 
-    if ((currentPage==0)&&((sel!=NULL)||(editMode==PATH_EDIT_MODE)||(editMode&SHAPE_EDIT_MODE)))
+    if ((currentPage==0)&&((sel!=nullptr)||(editMode==PATH_EDIT_MODE)||(editMode&SHAPE_EDIT_MODE)))
     { // object properties
         int t=-1;
-        if (sel!=NULL)
+        if (sel!=nullptr)
             t=sel->getObjectType();
         else
         {

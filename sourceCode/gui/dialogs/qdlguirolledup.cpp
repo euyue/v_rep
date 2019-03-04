@@ -30,7 +30,7 @@ void CQDlgUiRolledUp::okEvent()
 void CQDlgUiRolledUp::refresh()
 { // the dialog is modal
     CButtonBlock* itBlock=App::ct->buttonBlockContainer->getBlockWithID(itBlockID);
-    if (itBlock!=NULL)
+    if (itBlock!=nullptr)
     {
         VPoint s;
         itBlock->getRollupMin(s);
@@ -47,7 +47,7 @@ void CQDlgUiRolledUp::on_qqFirstH_editingFinished()
     if (!ui->qqFirstH->isModified())
         return;
     CButtonBlock* itBlock=App::ct->buttonBlockContainer->getBlockWithID(itBlockID);
-    if (itBlock!=NULL)
+    if (itBlock!=nullptr)
     {
         bool ok;
         int newVal=ui->qqFirstH->text().toInt(&ok);
@@ -77,7 +77,7 @@ void CQDlgUiRolledUp::on_qqLastH_editingFinished()
     if (!ui->qqLastH->isModified())
         return;
     CButtonBlock* itBlock=App::ct->buttonBlockContainer->getBlockWithID(itBlockID);
-    if (itBlock!=NULL)
+    if (itBlock!=nullptr)
     {
         bool ok;
         int newVal=ui->qqLastH->text().toInt(&ok);
@@ -107,7 +107,7 @@ void CQDlgUiRolledUp::on_qqFirstV_editingFinished()
     if (!ui->qqFirstV->isModified())
         return;
     CButtonBlock* itBlock=App::ct->buttonBlockContainer->getBlockWithID(itBlockID);
-    if (itBlock!=NULL)
+    if (itBlock!=nullptr)
     {
         bool ok;
         int newVal=ui->qqFirstV->text().toInt(&ok);
@@ -137,7 +137,7 @@ void CQDlgUiRolledUp::on_qqLastV_editingFinished()
     if (!ui->qqLastV->isModified())
         return;
     CButtonBlock* itBlock=App::ct->buttonBlockContainer->getBlockWithID(itBlockID);
-    if (itBlock!=NULL)
+    if (itBlock!=nullptr)
     {
         bool ok;
         int newVal=ui->qqLastV->text().toInt(&ok);

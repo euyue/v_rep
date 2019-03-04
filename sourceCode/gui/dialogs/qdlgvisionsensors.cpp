@@ -169,9 +169,9 @@ void CQDlgVisionSensors::refresh()
         {
             CShape* it=App::ct->objCont->getShape(App::ct->objCont->shapeList[i]);
             std::string name(tt::decorateString("[",strTranslate(IDSN_SHAPE),"] "));
-            name+=it->getName();
+            name+=it->getObjectName();
             names.push_back(name);
-            ids.push_back(it->getID());
+            ids.push_back(it->getObjectHandle());
         }
         tt::orderStrings(names,ids);
         for (int i=0;i<int(names.size());i++)
@@ -185,9 +185,9 @@ void CQDlgVisionSensors::refresh()
         {
             CPath* it=App::ct->objCont->getPath(App::ct->objCont->pathList[i]);
             std::string name(tt::decorateString("[",strTranslate(IDSN_PATH),"] "));
-            name+=it->getName();
+            name+=it->getObjectName();
             names.push_back(name);
-            ids.push_back(it->getID());
+            ids.push_back(it->getObjectHandle());
         }
         tt::orderStrings(names,ids);
         for (int i=0;i<int(names.size());i++)
@@ -201,9 +201,9 @@ void CQDlgVisionSensors::refresh()
         {
             CGraph* it=App::ct->objCont->getGraph(App::ct->objCont->graphList[i]);
             std::string name(tt::decorateString("[",strTranslate(IDSN_GRAPH),"] "));
-            name+=it->getName();
+            name+=it->getObjectName();
             names.push_back(name);
-            ids.push_back(it->getID());
+            ids.push_back(it->getObjectHandle());
         }
         tt::orderStrings(names,ids);
         for (int i=0;i<int(names.size());i++)
@@ -376,7 +376,7 @@ void CQDlgVisionSensors::on_qqPerspectiveAngleOrOrthographicSize_editingFinished
         if (ok)
         {
             CVisionSensor* it=App::ct->objCont->getLastSelection_visionSensor();
-            if ((it!=NULL)&&it->getPerspectiveOperation())
+            if ((it!=nullptr)&&it->getPerspectiveOperation())
                 newVal*=gv::userToRad;
             App::appendSimulationThreadCommand(SET_PERSPECTANGLE_OR_ORTHOSIZE_VISIONSENSORGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),-1,newVal);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -392,7 +392,7 @@ void CQDlgVisionSensors::on_qqResX_editingFinished()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         CVisionSensor* it=App::ct->objCont->getLastSelection_visionSensor();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             bool ok;
             int newVal=ui->qqResX->text().toInt(&ok);
@@ -416,7 +416,7 @@ void CQDlgVisionSensors::on_qqResX_editingFinished()
                         App::uiThread->messageBox_warning(App::mainWindow,strTranslate("Vision sensor"),strTranslate(IDS_VISION_SENSOR_RESOLUTION_NOT_POWER_OF_TWO_WARNING),VMESSAGEBOX_OKELI);
                     SSimulationThreadCommand cmd;
                     cmd.cmdId=SET_RESOLUTION_VISIONSENSORGUITRIGGEREDCMD;
-                    cmd.intParams.push_back(it->getID());
+                    cmd.intParams.push_back(it->getObjectHandle());
                     cmd.intParams.push_back(r[0]);
                     cmd.intParams.push_back(r[1]);
                     App::appendSimulationThreadCommand(cmd);
@@ -435,7 +435,7 @@ void CQDlgVisionSensors::on_qqResY_editingFinished()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         CVisionSensor* it=App::ct->objCont->getLastSelection_visionSensor();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             bool ok;
             int newVal=ui->qqResY->text().toInt(&ok);
@@ -459,7 +459,7 @@ void CQDlgVisionSensors::on_qqResY_editingFinished()
                         App::uiThread->messageBox_warning(App::mainWindow,strTranslate("Vision sensor"),strTranslate(IDS_VISION_SENSOR_RESOLUTION_NOT_POWER_OF_TWO_WARNING),VMESSAGEBOX_OKELI);
                     SSimulationThreadCommand cmd;
                     cmd.cmdId=SET_RESOLUTION_VISIONSENSORGUITRIGGEREDCMD;
-                    cmd.intParams.push_back(it->getID());
+                    cmd.intParams.push_back(it->getObjectHandle());
                     cmd.intParams.push_back(r[0]);
                     cmd.intParams.push_back(r[1]);
                     App::appendSimulationThreadCommand(cmd);
@@ -478,7 +478,7 @@ void CQDlgVisionSensors::on_qqSizeX_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CVisionSensor* it=App::ct->objCont->getLastSelection_visionSensor();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             bool ok;
             float newVal=ui->qqSizeX->text().toFloat(&ok);
@@ -488,7 +488,7 @@ void CQDlgVisionSensors::on_qqSizeX_editingFinished()
                 s(0)=newVal;
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=SET_OBJECTSIZE_VISIONSENSORGUITRIGGEREDCMD;
-                cmd.intParams.push_back(it->getID());
+                cmd.intParams.push_back(it->getObjectHandle());
                 cmd.floatParams.push_back(s(0));
                 cmd.floatParams.push_back(s(1));
                 cmd.floatParams.push_back(s(2));
@@ -507,7 +507,7 @@ void CQDlgVisionSensors::on_qqSizeY_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CVisionSensor* it=App::ct->objCont->getLastSelection_visionSensor();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             bool ok;
             float newVal=ui->qqSizeY->text().toFloat(&ok);
@@ -517,7 +517,7 @@ void CQDlgVisionSensors::on_qqSizeY_editingFinished()
                 s(1)=newVal;
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=SET_OBJECTSIZE_VISIONSENSORGUITRIGGEREDCMD;
-                cmd.intParams.push_back(it->getID());
+                cmd.intParams.push_back(it->getObjectHandle());
                 cmd.floatParams.push_back(s(0));
                 cmd.floatParams.push_back(s(1));
                 cmd.floatParams.push_back(s(2));
@@ -536,7 +536,7 @@ void CQDlgVisionSensors::on_qqSizeZ_editingFinished()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CVisionSensor* it=App::ct->objCont->getLastSelection_visionSensor();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             bool ok;
             float newVal=ui->qqSizeZ->text().toFloat(&ok);
@@ -546,7 +546,7 @@ void CQDlgVisionSensors::on_qqSizeZ_editingFinished()
                 s(2)=newVal;
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=SET_OBJECTSIZE_VISIONSENSORGUITRIGGEREDCMD;
-                cmd.intParams.push_back(it->getID());
+                cmd.intParams.push_back(it->getObjectHandle());
                 cmd.floatParams.push_back(s(0));
                 cmd.floatParams.push_back(s(1));
                 cmd.floatParams.push_back(s(2));
@@ -563,7 +563,7 @@ void CQDlgVisionSensors::on_qqAdjustImageColor_clicked()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         CVisionSensor* it=App::ct->objCont->getLastSelection_visionSensor();
-        if (it!=NULL)
+        if (it!=nullptr)
         {
             CQDlgImageColor theDialog(this);
             float col[3];
@@ -580,7 +580,7 @@ void CQDlgVisionSensors::on_qqAdjustImageColor_clicked()
                 col[2]=theDialog.blue;
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=SET_DEFAULTIMGCOL_VISIONSENSORGUITRIGGEREDCMD;
-                cmd.intParams.push_back(it->getID());
+                cmd.intParams.push_back(it->getObjectHandle());
                 cmd.floatParams.push_back(col[0]);
                 cmd.floatParams.push_back(col[1]);
                 cmd.floatParams.push_back(col[2]);
@@ -598,16 +598,16 @@ void CQDlgVisionSensors::on_qqApplyMainProperties_clicked()
     IF_UI_EVENT_CAN_WRITE_DATA
     {
         CVisionSensor* last=App::ct->objCont->getLastSelection_visionSensor();
-        if (last!=NULL)
+        if (last!=nullptr)
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId=APPLY_MAINPROP_TO_SELECTION_VISIONSENSORGUITRIGGEREDCMD;
-            cmd.intParams.push_back(last->getID());
+            cmd.intParams.push_back(last->getObjectHandle());
             for (int i=0;i<App::ct->objCont->getSelSize()-1;i++)
             {
                 CVisionSensor* it=App::ct->objCont->getVisionSensor(App::ct->objCont->getSelID(i));
-                if (it!=NULL)
-                    cmd.intParams.push_back(it->getID());
+                if (it!=nullptr)
+                    cmd.intParams.push_back(it->getObjectHandle());
             }
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -646,16 +646,16 @@ void CQDlgVisionSensors::on_qqApplyColors_clicked()
     IF_UI_EVENT_CAN_READ_DATA
     {
         CVisionSensor* last=App::ct->objCont->getLastSelection_visionSensor();
-        if (last!=NULL)
+        if (last!=nullptr)
         {
             SSimulationThreadCommand cmd;
             cmd.cmdId=APPLY_VISUALPROP_TO_SELECTION_VISIONSENSORGUITRIGGEREDCMD;
-            cmd.intParams.push_back(last->getID());
+            cmd.intParams.push_back(last->getObjectHandle());
             for (int i=0;i<App::ct->objCont->getSelSize()-1;i++)
             {
                 CVisionSensor* it=App::ct->objCont->getVisionSensor(App::ct->objCont->getSelID(i));
-                if (it!=NULL)
-                    cmd.intParams.push_back(it->getID());
+                if (it!=nullptr)
+                    cmd.intParams.push_back(it->getObjectHandle());
             }
             App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
@@ -671,13 +671,13 @@ void CQDlgVisionSensors::on_qqEntityCombo_currentIndexChanged(int index)
         {
             int objID=ui->qqEntityCombo->itemData(ui->qqEntityCombo->currentIndex()).toInt();
             CVisionSensor* it=App::ct->objCont->getLastSelection_visionSensor();
-            if ( (it!=NULL)&&(objID!=-1) )
+            if ( (it!=nullptr)&&(objID!=-1) )
             {
                 bool displayWarning=false;
                 if ((objID<SIM_IDSTART_COLLECTION)&&(objID>=0))
                 {
-                    C3DObject* it2=App::ct->objCont->getObject(objID);
-                    if (it2!=NULL)
+                    C3DObject* it2=App::ct->objCont->getObjectFromHandle(objID);
+                    if (it2!=nullptr)
                         displayWarning|=((it2->getLocalObjectSpecialProperty()&sim_objectspecialproperty_renderable)==0);
                 }
                 if (displayWarning)

@@ -87,7 +87,7 @@ CMotionPlanningTask* CRegisteredMotionPlanningTasks::getObject(int objID)
         if (allObjects[i]->getObjectID()==objID)
             return(allObjects[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 CMotionPlanningTask* CRegisteredMotionPlanningTasks::getObject(std::string objName)
 {
@@ -96,7 +96,7 @@ CMotionPlanningTask* CRegisteredMotionPlanningTasks::getObject(std::string objNa
         if (allObjects[i]->getObjectName().compare(objName)==0)
             return(allObjects[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 void CRegisteredMotionPlanningTasks::getMinAndMaxNameSuffixes(int& minSuffix,int& maxSuffix)
@@ -170,13 +170,13 @@ void CRegisteredMotionPlanningTasks::addObjectWithSuffixOffset(CMotionPlanningTa
         theName=tt::generateNewName_dash(theName,suffixOffset);
     else
     {
-        while (getObject(theName)!=NULL)
+        while (getObject(theName)!=nullptr)
             theName=tt::generateNewName_noDash(theName);
     }
     aTask->setObjectName(theName);
 
     int objID=SIM_IDSTART_MOTIONPLANNINGTASK;
-    while (getObject(objID)!=NULL)
+    while (getObject(objID)!=nullptr)
         objID++;
     aTask->setObjectID(objID);
     allObjects.push_back(aTask);

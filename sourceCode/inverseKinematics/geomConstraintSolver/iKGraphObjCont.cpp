@@ -31,7 +31,7 @@ CIKGraphNode* CIKGraphObjCont::getNodeFromUserData0(int userData)
         if (container[i]->userData0==userData)
             return(container[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 CIKGraphNode* CIKGraphObjCont::getNodeFromUserData1(int userData)
@@ -41,7 +41,7 @@ CIKGraphNode* CIKGraphObjCont::getNodeFromUserData1(int userData)
         if (container[i]->userData1==userData)
             return(container[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 CIKGraphNode* CIKGraphObjCont::getNodeFromNodeID(int nodeID)
@@ -51,7 +51,7 @@ CIKGraphNode* CIKGraphObjCont::getNodeFromNodeID(int nodeID)
         if (container[i]->nodeID==nodeID)
             return(container[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 void CIKGraphObjCont::resetExplorationIDs()
@@ -130,7 +130,7 @@ int CIKGraphObjCont::identifyElements()
         it->elementID=-1;
     }
     CIKGraphNode* iterat=getBaseObject();
-    if (iterat==NULL)
+    if (iterat==nullptr)
     {
         iterat=container[0];
         setBaseObject(container[0]->nodeID);
@@ -155,7 +155,7 @@ int CIKGraphObjCont::identifyElements()
                 if (iterat->type==IK_GRAPH_OBJECT_TYPE)
                 {
                     CIKGraphObject* it=(CIKGraphObject*)iterat;
-                    if (it->linkPartner!=NULL)
+                    if (it->linkPartner!=nullptr)
                         startOfNewElement.push_back(it->linkPartner);
                 }
                 else 
@@ -164,7 +164,7 @@ int CIKGraphObjCont::identifyElements()
                 for (int i=0;i<neighNB;i++)
                 {
                     CIKGraphNode* candidate=iterat->getNeighbour(i,true);
-                    if ( (candidate!=NULL)&&(candidate->elementID==-1) )
+                    if ( (candidate!=nullptr)&&(candidate->elementID==-1) )
                         toExplore.push_back(candidate);
                 }
             }
@@ -241,7 +241,7 @@ void CIKGraphObjCont::replaceElementIDWithAnother(int oldID,int newID)
 void CIKGraphObjCont::setBaseObject(int nodeID)
 {
     CIKGraphNode* it=getNodeFromNodeID(nodeID);
-    if (it!=NULL)
+    if (it!=nullptr)
     {
         if (it->type==IK_GRAPH_OBJECT_TYPE)
             baseObjectID=nodeID;
@@ -264,7 +264,7 @@ void CIKGraphObjCont::actualizeAllTransformations()
 
 void CIKGraphObjCont::actualizeTransformationsWithElementID(int elementID)
 {
-    CIKGraphNode* it=NULL;
+    CIKGraphNode* it=nullptr;
     if (elementID==0)
         it=getBaseObject();
     else
@@ -282,7 +282,7 @@ void CIKGraphObjCont::actualizeTransformationsWithElementID(int elementID)
     prevToCurrTr.setIdentity();
     std::vector<C7Vector> prevToCurrTrs;
     prevToCurrTrs.push_back(prevToCurrTr);
-    CIKGraphNode* prevNode=NULL;
+    CIKGraphNode* prevNode=nullptr;
     std::vector<CIKGraphNode*> prevNodes;
     prevNodes.push_back(prevNode);
     CIKGraphNode* currentNode=it;
@@ -299,11 +299,11 @@ void CIKGraphObjCont::actualizeTransformationsWithElementID(int elementID)
         C7Vector futurePrevOldTr;
         if (currentNode->explorationID==-1)
         {
-            if ( (prevNode!=NULL)&&(prevNode->type==IK_GRAPH_JOINT_TYPE) )
+            if ( (prevNode!=nullptr)&&(prevNode->type==IK_GRAPH_JOINT_TYPE) )
             { // We have : joint--->object
                 //1. We prepare future explorations first:
                 int i=0;
-                while (currentNode->getUnexplored(i)!=NULL)
+                while (currentNode->getUnexplored(i)!=nullptr)
                 {
                     CIKGraphNode* aNode=currentNode->getUnexplored(i);
                     C7Vector currentCTMI(((CIKGraphObject*)currentNode)->cumulativeTransformation.getInverse());
@@ -325,7 +325,7 @@ void CIKGraphObjCont::actualizeTransformationsWithElementID(int elementID)
             { // We have : object--->joint
                 //1. We prepare future explorations first:
                 int i=0;
-                while (currentNode->getUnexplored(i)!=NULL)
+                while (currentNode->getUnexplored(i)!=nullptr)
                 {
                     CIKGraphNode* aNode=currentNode->getUnexplored(i);
                     prevToCurrTrs.push_back(prevToCurrTr); // The content doesn't matter here
@@ -337,10 +337,10 @@ void CIKGraphObjCont::actualizeTransformationsWithElementID(int elementID)
                 currentNode->explorationID=0; // We flag this
             }
             else
-            { // We have : object--->object or NULL--->object
+            { // We have : object--->object or nullptr--->object
                 //1. We prepare future explorations first:
                 int i=0;
-                while (currentNode->getUnexplored(i)!=NULL)
+                while (currentNode->getUnexplored(i)!=nullptr)
                 {
                     CIKGraphNode* aNode=currentNode->getUnexplored(i);
                     C7Vector currentCTMI(((CIKGraphObject*)currentNode)->cumulativeTransformation.getInverse());
@@ -360,7 +360,7 @@ void CIKGraphObjCont::actualizeTransformationsWithElementID(int elementID)
                 }
                 //2. We handle this object:
                 currentNode->explorationID=0; // We flag this
-                if (prevNode!=NULL)
+                if (prevNode!=nullptr)
                     ((CIKGraphObject*)currentNode)->cumulativeTransformation=((CIKGraphObject*)prevNode)->cumulativeTransformation*prevToCurrTr;
             }
         }

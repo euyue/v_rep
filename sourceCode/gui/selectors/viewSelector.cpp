@@ -70,10 +70,10 @@ void CViewSelector::render()
     // Compute grid size
     for (int i=0;i<int(App::ct->objCont->objectList.size());i++)
     {
-        C3DObject* it=App::ct->objCont->getObject(App::ct->objCont->objectList[i]);
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(App::ct->objCont->objectList[i]);
         if ((it->getObjectType()==sim_object_camera_type)&&((objectType==CAMERA_VIEW_SELECT_MODE)||(objectType==VIEWABLE_VIEW_SELECT_MODE)))
         {
-            viewSelectionBuffer.push_back(it->getID());
+            viewSelectionBuffer.push_back(it->getObjectHandle());
             viewSelectionBufferType.push_back(0); // This value has no importance for now
         }
         /*
@@ -87,7 +87,7 @@ void CViewSelector::render()
         */
         if ((it->getObjectType()==sim_object_visionsensor_type)&&((objectType==VISIONSENSOR_VIEW_SELECT_MODE)||(objectType==VIEWABLE_VIEW_SELECT_MODE)))
         {
-            viewSelectionBuffer.push_back(it->getID());
+            viewSelectionBuffer.push_back(it->getObjectHandle());
             viewSelectionBufferType.push_back(0);
         }
     }
@@ -140,7 +140,7 @@ void CViewSelector::render()
             if ((l+viewSelectionSize[0]*k)<int(viewSelectionBuffer.size()))
             {
                 glEnable(GL_SCISSOR_TEST);  
-                C3DObject* it=App::ct->objCont->getObject(viewSelectionBuffer[l+viewSelectionSize[0]*k]);
+                C3DObject* it=App::ct->objCont->getObjectFromHandle(viewSelectionBuffer[l+viewSelectionSize[0]*k]);
 
                 if (mouseOver==l+viewSelectionSize[0]*k)
                 {
@@ -189,13 +189,13 @@ void CViewSelector::render()
                     bool savedGlobalRefState=App::userSettings->displayWorldReference;
                     App::userSettings->displayWorldReference=false;
                     if (it->getObjectType()==sim_object_camera_type)
-                        ((CCamera*)it)->lookIn(tns,NULL);
+                        ((CCamera*)it)->lookIn(tns,nullptr);
 //                    if (it->getObjectType()==sim_object_graph_type)
-//                        ((CGraph*)it)->lookAt(tns,NULL,timeGraph,false,true,false);
+//                        ((CGraph*)it)->lookAt(tns,nullptr,timeGraph,false,true,false);
                     if (it->getObjectType()==sim_object_visionsensor_type)
                     {
                         int xxx[2]={tnd[0]+l*(tns[0]+tnd[0])+viewPosition[0],viewPosition[1]+viewSize[1]-(k+1)*(tns[1]+tnd[1])};
-                        ((CVisionSensor*)it)->lookAt(NULL,xxx,tns);
+                        ((CVisionSensor*)it)->lookAt(nullptr,xxx,tns);
                     }
                     App::userSettings->displayWorldReference=savedGlobalRefState;
                 }
@@ -212,9 +212,9 @@ void CViewSelector::render()
                 if (it->getObjectType()==sim_object_camera_type)
                 {
                     ogl::setTextColor(0.1f,0.1f,0.1f);
-                    ogl::drawText(2,tns[1]-12*App::sc,0,it->getName().append(" (Camera)"));
+                    ogl::drawText(2,tns[1]-12*App::sc,0,it->getObjectName().append(" (Camera)"));
                     ogl::setTextColor(0.9f,0.9f,0.9f);
-                    ogl::drawText(1,tns[1]-11*App::sc,0,it->getName().append(" (Camera)"));
+                    ogl::drawText(1,tns[1]-11*App::sc,0,it->getObjectName().append(" (Camera)"));
                 }
 /*                if (it->getObjectType()==sim_object_graph_type)
                 {
@@ -230,9 +230,9 @@ void CViewSelector::render()
                 {
                     std::string txt=" (Vision Sensor)";
                     ogl::setTextColor(0.1f,0.1f,0.1f);
-                    ogl::drawText(2,tns[1]-12*App::sc,0,it->getName().append(txt));
+                    ogl::drawText(2,tns[1]-12*App::sc,0,it->getObjectName().append(txt));
                     ogl::setTextColor(0.9f,0.9f,0.9f);
-                    ogl::drawText(1,tns[1]-11*App::sc,0,it->getName().append(txt));
+                    ogl::drawText(1,tns[1]-11*App::sc,0,it->getObjectName().append(txt));
                 }
                 glEnable(GL_DEPTH_TEST);
                 glDisable(GL_SCISSOR_TEST);
@@ -323,13 +323,13 @@ C3DObject* CViewSelector::getViewableObject(int x,int y)
     int pos[2]={x,y};
     int ind=getObjectIndexInViewSelection(pos);
     if (ind==-1)
-        return(NULL);
-    return(App::ct->objCont->getObject(viewSelectionBuffer[ind]));
+        return(nullptr);
+    return(App::ct->objCont->getObjectFromHandle(viewSelectionBuffer[ind]));
 }
 
 int CViewSelector::getCursor(int x,int y)
 {
-    if (getViewableObject(x,y)!=NULL)
+    if (getViewableObject(x,y)!=nullptr)
         return(sim_cursor_finger);
     return(-1);
 }
@@ -368,10 +368,10 @@ bool CViewSelector::processCommand(int commandID,int subViewIndex)
         if (!VThread::isCurrentThreadTheUiThread())
         { // we are NOT in the UI thread. We execute the command now:
             CSPage* view=App::ct->pageContainer->getPage(App::ct->pageContainer->getActivePageIndex());
-            if (view==NULL)
+            if (view==nullptr)
                 return(true);
             CSView* subView=view->getView(subViewIndex);
-            if (subView==NULL)
+            if (subView==nullptr)
                 return(true);
             int cameraNb=App::ct->objCont->getCameraNumberInSelection(&App::ct->objCont->objectList);
 //            int graphNb=App::ct->objCont->getGraphNumberInSelection(&App::ct->objCont->objectList);

@@ -97,9 +97,9 @@ void CQDlgEntityVsEntitySelection::fillComboWithCollisionEntities(QComboBox* com
     {
         CShape* it=App::ct->objCont->getShape(App::ct->objCont->shapeList[i]);
         std::string name(tt::decorateString("[",strTranslate(IDSN_SHAPE),"] "));
-        name+=it->getName();
+        name+=it->getObjectName();
         names.push_back(name);
-        ids.push_back(it->getID());
+        ids.push_back(it->getObjectHandle());
     }
     tt::orderStrings(names,ids);
     for (size_t i=0;i<names.size();i++)
@@ -113,9 +113,9 @@ void CQDlgEntityVsEntitySelection::fillComboWithCollisionEntities(QComboBox* com
     {
         COctree* it=App::ct->objCont->getOctree(App::ct->objCont->octreeList[i]);
         std::string name(tt::decorateString("[",strTranslate(IDSN_OCTREE),"] "));
-        name+=it->getName();
+        name+=it->getObjectName();
         names.push_back(name);
-        ids.push_back(it->getID());
+        ids.push_back(it->getObjectHandle());
     }
     tt::orderStrings(names,ids);
     for (size_t i=0;i<names.size();i++)
@@ -129,9 +129,9 @@ void CQDlgEntityVsEntitySelection::fillComboWithCollisionEntities(QComboBox* com
     {
         CPointCloud* it=App::ct->objCont->getPointCloud(App::ct->objCont->pointCloudList[i]);
         std::string name(tt::decorateString("[",strTranslate(IDSN_POINTCLOUD),"] "));
-        name+=it->getName();
+        name+=it->getObjectName();
         names.push_back(name);
-        ids.push_back(it->getID());
+        ids.push_back(it->getObjectHandle());
     }
     tt::orderStrings(names,ids);
     for (size_t i=0;i<names.size();i++)
@@ -145,9 +145,9 @@ void CQDlgEntityVsEntitySelection::fillComboWithCollisionEntities(QComboBox* com
     {
         CDummy* it=App::ct->objCont->getDummy(App::ct->objCont->dummyList[i]);
         std::string name(tt::decorateString("[",strTranslate(IDSN_DUMMY),"] "));
-        name+=it->getName();
+        name+=it->getObjectName();
         names.push_back(name);
-        ids.push_back(it->getID());
+        ids.push_back(it->getObjectHandle());
     }
     tt::orderStrings(names,ids);
     for (size_t i=0;i<names.size();i++)
@@ -187,9 +187,9 @@ void CQDlgEntityVsEntitySelection::fillComboWithDistanceEntities(QComboBox* comb
     {
         CShape* it=App::ct->objCont->getShape(App::ct->objCont->shapeList[i]);
         std::string name(tt::decorateString("[",strTranslate(IDSN_SHAPE),"] "));
-        name+=it->getName();
+        name+=it->getObjectName();
         names.push_back(name);
-        ids.push_back(it->getID());
+        ids.push_back(it->getObjectHandle());
     }
     tt::orderStrings(names,ids);
     for (int i=0;i<int(names.size());i++)
@@ -203,9 +203,9 @@ void CQDlgEntityVsEntitySelection::fillComboWithDistanceEntities(QComboBox* comb
     {
         COctree* it=App::ct->objCont->getOctree(App::ct->objCont->octreeList[i]);
         std::string name(tt::decorateString("[",strTranslate(IDSN_OCTREE),"] "));
-        name+=it->getName();
+        name+=it->getObjectName();
         names.push_back(name);
-        ids.push_back(it->getID());
+        ids.push_back(it->getObjectHandle());
     }
     tt::orderStrings(names,ids);
     for (size_t i=0;i<names.size();i++)
@@ -219,9 +219,9 @@ void CQDlgEntityVsEntitySelection::fillComboWithDistanceEntities(QComboBox* comb
     {
         CPointCloud* it=App::ct->objCont->getPointCloud(App::ct->objCont->pointCloudList[i]);
         std::string name(tt::decorateString("[",strTranslate(IDSN_POINTCLOUD),"] "));
-        name+=it->getName();
+        name+=it->getObjectName();
         names.push_back(name);
-        ids.push_back(it->getID());
+        ids.push_back(it->getObjectHandle());
     }
     tt::orderStrings(names,ids);
     for (size_t i=0;i<names.size();i++)
@@ -235,9 +235,9 @@ void CQDlgEntityVsEntitySelection::fillComboWithDistanceEntities(QComboBox* comb
     {
         CDummy* it=App::ct->objCont->getDummy(App::ct->objCont->dummyList[i]);
         std::string name(tt::decorateString("[",strTranslate(IDSN_DUMMY),"] "));
-        name+=it->getName();
+        name+=it->getObjectName();
         names.push_back(name);
-        ids.push_back(it->getID());
+        ids.push_back(it->getObjectHandle());
     }
     tt::orderStrings(names,ids);
     for (size_t i=0;i<names.size();i++)
@@ -272,10 +272,10 @@ bool CQDlgEntityVsEntitySelection::checkSelectionValidity()
         bool invalidCombination=false;
         if ( (entity1<SIM_IDSTART_COLLECTION)&&(entity2<SIM_IDSTART_COLLECTION) )
         {
-            int t1=App::ct->objCont->getObject(entity1)->getObjectType();
+            int t1=App::ct->objCont->getObjectFromHandle(entity1)->getObjectType();
             int t2=sim_object_octree_type;
             if (entity2!=-1)
-                t2=App::ct->objCont->getObject(entity2)->getObjectType();
+                t2=App::ct->objCont->getObjectFromHandle(entity2)->getObjectType();
             if (t1==sim_object_shape_type)
             {
                 if ( (t2!=sim_object_shape_type)&&(t2!=sim_object_octree_type) )
@@ -301,14 +301,14 @@ bool CQDlgEntityVsEntitySelection::checkSelectionValidity()
         bool displayWarning=false;
         if ((entity1<=SIM_IDEND_3DOBJECT)&&(entity1>=SIM_IDSTART_3DOBJECT))
         {
-            C3DObject* it=App::ct->objCont->getObject(entity1);
-            if (it!=NULL)
+            C3DObject* it=App::ct->objCont->getObjectFromHandle(entity1);
+            if (it!=nullptr)
                 displayWarning|=((it->getCumulativeObjectSpecialProperty()&sim_objectspecialproperty_collidable)==0);
         }
         if ((entity2<=SIM_IDEND_3DOBJECT)&&(entity2>=SIM_IDSTART_3DOBJECT))
         {
-            C3DObject* it=App::ct->objCont->getObject(entity2);
-            if (it!=NULL)
+            C3DObject* it=App::ct->objCont->getObjectFromHandle(entity2);
+            if (it!=nullptr)
                 displayWarning|=((it->getCumulativeObjectSpecialProperty()&sim_objectspecialproperty_collidable)==0);
         }
         if (displayWarning)
@@ -334,10 +334,10 @@ bool CQDlgEntityVsEntitySelection::checkSelectionValidity()
         bool invalidCombination=false;
         if ( (entity1<SIM_IDSTART_COLLECTION)&&(entity2<SIM_IDSTART_COLLECTION) )
         {
-            int t1=App::ct->objCont->getObject(entity1)->getObjectType();
+            int t1=App::ct->objCont->getObjectFromHandle(entity1)->getObjectType();
             int t2=sim_object_octree_type;
             if (entity2!=-1)
-                t2=App::ct->objCont->getObject(entity2)->getObjectType();
+                t2=App::ct->objCont->getObjectFromHandle(entity2)->getObjectType();
             if ( (t1==sim_object_shape_type)||(t1==sim_object_octree_type)||(t1==sim_object_pointcloud_type)||(t1==sim_object_dummy_type) )
             {
                 if ( (t2!=sim_object_shape_type)&&(t2!=sim_object_octree_type)&&(t2!=sim_object_pointcloud_type)&&(t2!=sim_object_dummy_type) )
@@ -355,14 +355,14 @@ bool CQDlgEntityVsEntitySelection::checkSelectionValidity()
         bool displayWarning=false;
         if ((entity1<=SIM_IDEND_3DOBJECT)&&(entity1>=SIM_IDSTART_3DOBJECT))
         {
-            C3DObject* it=App::ct->objCont->getObject(entity1);
-            if (it!=NULL)
+            C3DObject* it=App::ct->objCont->getObjectFromHandle(entity1);
+            if (it!=nullptr)
                 displayWarning|=((it->getCumulativeObjectSpecialProperty()&sim_objectspecialproperty_measurable)==0);
         }
         if ((entity2<=SIM_IDEND_3DOBJECT)&&(entity2>=SIM_IDSTART_3DOBJECT))
         {
-            C3DObject* it=App::ct->objCont->getObject(entity2);
-            if (it!=NULL)
+            C3DObject* it=App::ct->objCont->getObjectFromHandle(entity2);
+            if (it!=nullptr)
                 displayWarning|=((it->getCumulativeObjectSpecialProperty()&sim_objectspecialproperty_measurable)==0);
         }
         if (displayWarning)

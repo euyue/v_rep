@@ -571,7 +571,7 @@ void CSPage::setViewSizesAndPositions()
 CSView* CSPage::getView(int viewIndex)
 {
     if ( (viewIndex<0)||(viewIndex>=int(_allViews.size())) )
-        return(NULL);
+        return(nullptr);
     return(_allViews[viewIndex]);
 }
 

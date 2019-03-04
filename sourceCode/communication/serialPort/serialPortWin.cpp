@@ -13,7 +13,7 @@ CSerialPortWin::CSerialPortWin()
 {
     memset(&m_OverlappedRead,0,sizeof(OVERLAPPED));
     memset(&m_OverlappedWrite,0,sizeof(OVERLAPPED));
-    m_hIDComDev=NULL;
+    m_hIDComDev=nullptr;
     m_bOpened=FALSE;
     _portHandle=_nextPortHandle++;
 }
@@ -33,9 +33,9 @@ int CSerialPortWin::Open(const char* portString,int nBaud)
     if (m_bOpened)
         return(TRUE);
     DCB dcb;
-    m_hIDComDev=CreateFileA(portString,GENERIC_READ|GENERIC_WRITE,0,NULL,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL|FILE_FLAG_OVERLAPPED,NULL);
+    m_hIDComDev=CreateFileA(portString,GENERIC_READ|GENERIC_WRITE,0,nullptr,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL|FILE_FLAG_OVERLAPPED,nullptr);
 
-    if (m_hIDComDev==NULL)
+    if (m_hIDComDev==nullptr)
         return(FALSE);
     memset(&m_OverlappedRead,0,sizeof(OVERLAPPED));
     memset(&m_OverlappedWrite,0,sizeof(OVERLAPPED));
@@ -48,8 +48,8 @@ int CSerialPortWin::Open(const char* portString,int nBaud)
     CommTimeOuts.WriteTotalTimeoutConstant=5000;
     SetCommTimeouts(m_hIDComDev,&CommTimeOuts);
 
-    m_OverlappedRead.hEvent=CreateEvent(NULL,TRUE,FALSE,NULL);
-    m_OverlappedWrite.hEvent=CreateEvent(NULL,TRUE,FALSE,NULL);
+    m_OverlappedRead.hEvent=CreateEvent(nullptr,TRUE,FALSE,nullptr);
+    m_OverlappedWrite.hEvent=CreateEvent(nullptr,TRUE,FALSE,nullptr);
 
     dcb.DCBlength=sizeof(DCB);
     GetCommState(m_hIDComDev,&dcb);
@@ -61,11 +61,11 @@ int CSerialPortWin::Open(const char* portString,int nBaud)
     ucSet=(unsigned char)((FC_RTSCTS&FC_XONXOFF)!=0);
     if( !SetCommState( m_hIDComDev, &dcb ) ||
         !SetupComm( m_hIDComDev, 10000, 10000 ) ||
-        m_OverlappedRead.hEvent == NULL ||
-        m_OverlappedWrite.hEvent == NULL ){
+        m_OverlappedRead.hEvent == nullptr ||
+        m_OverlappedWrite.hEvent == nullptr ){
         //DWORD dwError = GetLastError();
-        if( m_OverlappedRead.hEvent != NULL ) CloseHandle( m_OverlappedRead.hEvent );
-        if( m_OverlappedWrite.hEvent != NULL ) CloseHandle( m_OverlappedWrite.hEvent );
+        if( m_OverlappedRead.hEvent != nullptr ) CloseHandle( m_OverlappedRead.hEvent );
+        if( m_OverlappedWrite.hEvent != nullptr ) CloseHandle( m_OverlappedWrite.hEvent );
         CloseHandle( m_hIDComDev );
         return( FALSE );
         }
@@ -77,13 +77,13 @@ int CSerialPortWin::Open(const char* portString,int nBaud)
 
 int CSerialPortWin::Close( void )
 {
-    if( !m_bOpened || m_hIDComDev == NULL ) return( TRUE );
+    if( !m_bOpened || m_hIDComDev == nullptr ) return( TRUE );
 
-    if( m_OverlappedRead.hEvent != NULL ) CloseHandle( m_OverlappedRead.hEvent );
-    if( m_OverlappedWrite.hEvent != NULL ) CloseHandle( m_OverlappedWrite.hEvent );
+    if( m_OverlappedRead.hEvent != nullptr ) CloseHandle( m_OverlappedRead.hEvent );
+    if( m_OverlappedWrite.hEvent != nullptr ) CloseHandle( m_OverlappedWrite.hEvent );
     CloseHandle( m_hIDComDev );
     m_bOpened = FALSE;
-    m_hIDComDev = NULL;
+    m_hIDComDev = nullptr;
 
     return( TRUE );
 }
@@ -107,7 +107,7 @@ int CSerialPortWin::WriteCommByte(unsigned char ucByte)
 
 int CSerialPortWin::SendData(const char *buffer,int size)
 {
-  if( !m_bOpened || m_hIDComDev == NULL ) return( 0 );
+  if( !m_bOpened || m_hIDComDev == nullptr ) return( 0 );
 
   int bWriteStat;
   DWORD dwBytesWritten;
@@ -126,7 +126,7 @@ int CSerialPortWin::SendData(const char *buffer,int size)
 
 int CSerialPortWin::ReadDataWaiting( void )
 {
-    if( !m_bOpened || m_hIDComDev == NULL ) return( 0 );
+    if( !m_bOpened || m_hIDComDev == nullptr ) return( 0 );
 
     DWORD dwErrorFlags;
     COMSTAT ComStat;
@@ -138,7 +138,7 @@ int CSerialPortWin::ReadDataWaiting( void )
 
 int CSerialPortWin::ReadData(char *buffer,int limit)
 {
-    if( !m_bOpened || m_hIDComDev == NULL ) return( 0 );
+    if( !m_bOpened || m_hIDComDev == nullptr ) return( 0 );
 
     int bReadStatus;
     DWORD dwBytesRead, dwErrorFlags;

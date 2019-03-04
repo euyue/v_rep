@@ -63,7 +63,7 @@ int CGhostObjectContainer::addGhost(int theGroupId,int theObjectHandle,int theOp
     for (size_t i=0;i<rootSel.size();i++)
     {
         CShape* obj=App::ct->objCont->getShape(rootSel[i]);
-        if (obj!=NULL)
+        if (obj!=nullptr)
             objsToAdd.push_back(obj);
     }
 
@@ -72,7 +72,7 @@ int CGhostObjectContainer::addGhost(int theGroupId,int theObjectHandle,int theOp
         CShape* obj=objsToAdd[i];
         if (obj->getShouldObjectBeDisplayed(-1,0)||(theOptions&8))
         { // only visible objects... unless we force it with bit3 (8)
-            CGhostObject* ghost=new CGhostObject(theGroupId,obj->getID(),obj->getCumulativeTransformationPart1(),theOptions,theStartTime,theEndTime,theColor);
+            CGhostObject* ghost=new CGhostObject(theGroupId,obj->getObjectHandle(),obj->getCumulativeTransformationPart1(),theOptions,theStartTime,theEndTime,theColor);
             ghost->ghostId=nextGhostId;
             retVal=nextGhostId;
             _allObjects.push_back(ghost);
@@ -104,7 +104,7 @@ int CGhostObjectContainer::modifyGhost(int groupId,int ghostId,int operation,flo
     {
         return(removeGhost(groupId,ghostId));
     }
-    if ((operation>=11)&&(operation<=13)&&(colorOrTransformation==NULL))
+    if ((operation>=11)&&(operation<=13)&&(colorOrTransformation==nullptr))
         return(-1);
     C7Vector transf;
     if ((operation>=11)&&(operation<=12))

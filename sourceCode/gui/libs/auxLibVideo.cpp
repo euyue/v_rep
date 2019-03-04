@@ -2,7 +2,7 @@
 #include "auxLibVideo.h"
 #include "app.h"
 
-WLibrary CAuxLibVideo::_lib=NULL;
+WLibrary CAuxLibVideo::_lib=nullptr;
 
 pVideo_recorderGetEncoderString CAuxLibVideo::video_recorderGetEncoderString=0;
 pVideo_recorderInitialize CAuxLibVideo::video_recorderInitialize=0;
@@ -65,20 +65,20 @@ void CAuxLibVideo::loadLibrary(bool headless)
         }
     }
     else
-        _lib=NULL;
+        _lib=nullptr;
 }
 
 bool CAuxLibVideo::_loadLibrary(const char* pathAndFilename)
 {
     _lib=VVarious::openLibrary(pathAndFilename);
-    return(_lib!=NULL);
+    return(_lib!=nullptr);
 }
 
 void CAuxLibVideo::unloadLibrary()
 {
-    if (_lib!=NULL)
+    if (_lib!=nullptr)
         VVarious::closeLibrary(_lib);
-    _lib=NULL;
+    _lib=nullptr;
 }
 
 WLibraryFunc CAuxLibVideo::_getProcAddress(const char* funcName)

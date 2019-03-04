@@ -202,7 +202,7 @@ void CLuaScriptContainer::announceObjectWillBeErased(int objectID)
 bool CLuaScriptContainer::removeScript_safe(int scriptId)
 { // removal may happen in a delayed fashion
     CLuaScriptObject* it=getScriptFromID_noAddOnsNorSandbox(scriptId);
-    if (it==NULL)
+    if (it==nullptr)
         return(false);
     int res=it->flagScriptForRemoval();
     if (res==0)
@@ -234,11 +234,11 @@ bool CLuaScriptContainer::removeScript(int scriptID)
 CLuaScriptObject* CLuaScriptContainer::getScriptFromID_alsoAddOnsAndSandbox(int scriptID) const
 {
     CLuaScriptObject* retVal=App::ct->addOnScriptContainer->getAddOnScriptFromID(scriptID);
-    if (retVal==NULL)
+    if (retVal==nullptr)
     {
-        if (retVal==NULL)
+        if (retVal==nullptr)
             retVal=getScriptFromID_noAddOnsNorSandbox(scriptID);
-        if ( (retVal==NULL)&&(App::ct->sandboxScript!=NULL)&&(App::ct->sandboxScript->getScriptID()==scriptID) )
+        if ( (retVal==nullptr)&&(App::ct->sandboxScript!=nullptr)&&(App::ct->sandboxScript->getScriptID()==scriptID) )
             retVal=App::ct->sandboxScript;
 
     }
@@ -247,7 +247,7 @@ CLuaScriptObject* CLuaScriptContainer::getScriptFromID_alsoAddOnsAndSandbox(int 
 
 CLuaScriptObject* CLuaScriptContainer::getScriptFromID_noAddOnsNorSandbox(int scriptID) const
 {
-    CLuaScriptObject* retVal=NULL;
+    CLuaScriptObject* retVal=nullptr;
     for (size_t i=0;i<allScripts.size();i++)
     {
         if (allScripts[i]->getScriptID()==scriptID)
@@ -262,13 +262,13 @@ CLuaScriptObject* CLuaScriptContainer::getScriptFromID_noAddOnsNorSandbox(int sc
 CLuaScriptObject* CLuaScriptContainer::getScriptFromObjectAttachedTo_child(int threeDObjectID) const
 { // used for child scripts
     if (threeDObjectID<0)
-        return(NULL); // 10/1/2016
+        return(nullptr); // 10/1/2016
     for (size_t i=0;i<allScripts.size();i++)
     {
         if (allScripts[i]->getObjectIDThatScriptIsAttachedTo_child()==threeDObjectID)
             return(allScripts[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 CLuaScriptObject* CLuaScriptContainer::getScriptFromObjectAttachedTo_customization(int threeDObjectID) const
@@ -278,20 +278,20 @@ CLuaScriptObject* CLuaScriptContainer::getScriptFromObjectAttachedTo_customizati
         if (allScripts[i]->getObjectIDThatScriptIsAttachedTo_customization()==threeDObjectID)
             return(allScripts[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 int CLuaScriptContainer::getScriptsFromObjectAttachedTo(int threeDObjectID,std::vector<CLuaScriptObject*>& scripts) const
 {
     scripts.clear();
     CLuaScriptObject* it=getScriptFromObjectAttachedTo_child(threeDObjectID);
-    if (it!=NULL)
+    if (it!=nullptr)
         scripts.push_back(it);
     it=getScriptFromObjectAttachedTo_jointCallback_OLD(threeDObjectID);
-    if (it!=NULL)
+    if (it!=nullptr)
         scripts.push_back(it);
     it=getScriptFromObjectAttachedTo_customization(threeDObjectID);
-    if (it!=NULL)
+    if (it!=nullptr)
         scripts.push_back(it);
     return(int(scripts.size()));
 }
@@ -303,14 +303,14 @@ CLuaScriptObject* CLuaScriptContainer::getMainScript() const
         if (allScripts[i]->getScriptType()==sim_scripttype_mainscript)
             return(allScripts[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 int CLuaScriptContainer::insertScript(CLuaScriptObject* script)
 {
     // We make sure the id is unique:
     int newID=SIM_IDSTART_LUASCRIPT;
-    while (getScriptFromID_noAddOnsNorSandbox(newID)!=NULL)
+    while (getScriptFromID_noAddOnsNorSandbox(newID)!=nullptr)
         newID++;
     script->setScriptID(newID);
     allScripts.push_back(script);
@@ -384,20 +384,20 @@ void CLuaScriptContainer::callAddOnMainChildCustomizationWithData(int callType,C
     if (!App::ct->simulation->isSimulationStopped())
     {
         CLuaScriptObject* script=getMainScript();
-        if (script!=NULL)
+        if (script!=nullptr)
         {
-            script->runMainScript(callType,inStack,NULL);
-            handleCascadedScriptExecution(sim_scripttype_childscript,callType,inStack,NULL,NULL);
+            script->runMainScript(callType,inStack,nullptr);
+            handleCascadedScriptExecution(sim_scripttype_childscript,callType,inStack,nullptr,nullptr);
         }
     }
-    handleCascadedScriptExecution(sim_scripttype_customizationscript,callType,inStack,NULL,NULL);
-    App::ct->addOnScriptContainer->handleAddOnScriptExecution(callType,inStack,NULL);
+    handleCascadedScriptExecution(sim_scripttype_customizationscript,callType,inStack,nullptr,nullptr);
+    App::ct->addOnScriptContainer->handleAddOnScriptExecution(callType,inStack,nullptr);
 }
 
 void CLuaScriptContainer::sceneOrModelAboutToBeSaved(int modelBase)
 {
-    C3DObject* obj=App::ct->objCont->getObject(modelBase);
-    if (obj!=NULL)
+    C3DObject* obj=App::ct->objCont->getObjectFromHandle(modelBase);
+    if (obj!=nullptr)
     {
         std::vector<C3DObject*> toExplore;
         toExplore.push_back(obj);
@@ -405,8 +405,8 @@ void CLuaScriptContainer::sceneOrModelAboutToBeSaved(int modelBase)
         {
             obj=toExplore[toExplore.size()-1];
             toExplore.pop_back();
-            CLuaScriptObject* it=getScriptFromObjectAttachedTo_customization(obj->getID());
-            if (it!=NULL)
+            CLuaScriptObject* it=getScriptFromObjectAttachedTo_customization(obj->getObjectHandle());
+            if (it!=nullptr)
             {
                 if (it->getCustomizationScriptCleanupBeforeSave())
                     it->killLuaState();
@@ -440,7 +440,7 @@ int CLuaScriptContainer::_getScriptsToExecute(int scriptType,std::vector<CLuaScr
     toHandle.push_back(&orderLast);
     for (size_t i=0;i<App::ct->objCont->orphanList.size();i++)
     {
-        C3DObject* it=App::ct->objCont->getObject(App::ct->objCont->orphanList[i]);
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(App::ct->objCont->orphanList[i]);
         toHandle[it->getScriptExecutionOrder(scriptType)]->push_back(it);
     }
     for (size_t i=0;i<toHandle.size();i++)
@@ -465,7 +465,7 @@ bool CLuaScriptContainer::doesScriptWithUniqueIdExist(int id) const
 int CLuaScriptContainer::handleCascadedScriptExecution(int scriptType,int callTypeOrResumeLocation,CInterfaceStack* inStack,CInterfaceStack* outStack,int* retInfo)
 {
     int cnt=0;
-    if (retInfo!=NULL)
+    if (retInfo!=nullptr)
         retInfo[0]=0;
     std::vector<CLuaScriptObject*> scripts;
     std::vector<int> uniqueIds;
@@ -491,18 +491,18 @@ int CLuaScriptContainer::handleCascadedScriptExecution(int scriptType,int callTy
                             cnt++;
                             if (callTypeOrResumeLocation==sim_syscb_contactcallback)
                             {
-                                if (retInfo!=NULL)
+                                if (retInfo!=nullptr)
                                     retInfo[0]=1;
                                 break;
                             }
                             if (callTypeOrResumeLocation==sim_syscb_beforemainscript)
                             {
                                 bool doNotRunMainScript;
-                                if ((outStack!=NULL)&&outStack->getStackMapBoolValue("doNotRunMainScript",doNotRunMainScript))
+                                if ((outStack!=nullptr)&&outStack->getStackMapBoolValue("doNotRunMainScript",doNotRunMainScript))
                                 {
                                     if (doNotRunMainScript)
                                     {
-                                        if (retInfo!=NULL)
+                                        if (retInfo!=nullptr)
                                             retInfo[0]=1;
                                     }
                                 }
@@ -536,7 +536,7 @@ int CLuaScriptContainer::handleCascadedScriptExecution(int scriptType,int callTy
                                 cnt++;
                                 if (callTypeOrResumeLocation==sim_syscb_contactcallback)
                                 {
-                                    if (retInfo!=NULL)
+                                    if (retInfo!=nullptr)
                                         retInfo[0]=1;
                                     break;
                                 }
@@ -613,7 +613,7 @@ CLuaScriptObject* CLuaScriptContainer::getScriptFromObjectAttachedTo_jointCallba
         if (allScripts[i]->getObjectIDThatScriptIsAttachedTo_callback_OLD()==threeDObjectID)
             return(allScripts[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 CLuaScriptObject* CLuaScriptContainer::getCustomContactHandlingScript_callback_OLD() const
@@ -623,7 +623,7 @@ CLuaScriptObject* CLuaScriptContainer::getCustomContactHandlingScript_callback_O
         if (allScripts[i]->getScriptType()==sim_scripttype_contactcallback)
             return(allScripts[i]);
     }
-    return(NULL);
+    return(nullptr);
 }
 
 CLuaScriptObject* CLuaScriptContainer::getGeneralCallbackHandlingScript_callback_OLD() const
@@ -633,5 +633,5 @@ CLuaScriptObject* CLuaScriptContainer::getGeneralCallbackHandlingScript_callback
         if (allScripts[i]->getScriptType()==sim_scripttype_generalcallback)
             return(allScripts[i]);
     }
-    return(NULL);
+    return(nullptr);
 }

@@ -19,13 +19,13 @@ bool CGeometricConstraintSolver::solve(CIKGraphObjCont& graphContainer,SGeomCons
     
     CIKGraphObject* baseIKGraphObject=graphContainer.getBaseObject();
     CIKGraphNode* graphIterator=baseIKGraphObject;
-    CIKGraphNode* previousPosition=NULL;
-    CIKGraphNode* nextPosition=NULL;
+    CIKGraphNode* previousPosition=nullptr;
+    CIKGraphNode* nextPosition=nullptr;
     C7Vector localTransformation;
     localTransformation.setIdentity();
     CIKObjCont ikObjs;
-    CIKJoint* lastJoint=NULL;
-    CIKJoint* treeHandle=NULL;
+    CIKJoint* lastJoint=nullptr;
+    CIKJoint* treeHandle=nullptr;
 
 // Some precalculations of some fixed rotations:
     C4X4Matrix tmpRot;
@@ -53,9 +53,9 @@ bool CGeometricConstraintSolver::solve(CIKGraphObjCont& graphContainer,SGeomCons
     std::vector<CIKGraphNode*> graphObjectsToBeExplored;
     graphObjectsToBeExplored.push_back(baseIKGraphObject);
     std::vector<CIKJoint*> lastJoints;
-    lastJoints.push_back(NULL);
+    lastJoints.push_back(nullptr);
     std::vector<CIKGraphNode*> previousPositions;
-    previousPositions.push_back(NULL);
+    previousPositions.push_back(nullptr);
     std::vector<C7Vector> localTransformations;
     localTransformations.push_back(localTransformation);
 
@@ -79,7 +79,7 @@ bool CGeometricConstraintSolver::solve(CIKGraphObjCont& graphContainer,SGeomCons
                 graphIterator->explorationID=explorationID;
             explorationID++;
             C7Vector previousCT;
-            if (previousPosition!=NULL)
+            if (previousPosition!=nullptr)
             {
                 if (previousPosition->type==IK_GRAPH_JOINT_TYPE)
                     previousCT=((CIKGraphObject*)graphIterator)->cumulativeTransformation;
@@ -110,7 +110,7 @@ bool CGeometricConstraintSolver::solve(CIKGraphObjCont& graphContainer,SGeomCons
                         { // From tip to base
                             C7Vector rel(localTransformation*rotY180);
                             newIKJoint=new CIKJoint(graphJoint,rel,false,false);
-                            if (lastJoint==NULL)
+                            if (lastJoint==nullptr)
                             {
                                 treeHandle=newIKJoint;
                                 lastJoint=treeHandle;
@@ -122,7 +122,7 @@ bool CGeometricConstraintSolver::solve(CIKGraphObjCont& graphContainer,SGeomCons
                                 lastJoint=newIKJoint;
                             }
                             avatarParent=ikObjs.getJointWithData(dataValueBase+3);
-                            if (avatarParent!=NULL) // This joint is used twice (going up and going down)
+                            if (avatarParent!=nullptr) // This joint is used twice (going up and going down)
                                 avatarParent->addAvatar(lastJoint);
                             lastJoint->data=dataValueBase+3;
                         
@@ -131,7 +131,7 @@ bool CGeometricConstraintSolver::solve(CIKGraphObjCont& graphContainer,SGeomCons
                             ikObjs.addChild(lastJoint,newIKJoint);
                             lastJoint=newIKJoint;
                             avatarParent=ikObjs.getJointWithData(dataValueBase+2);
-                            if (avatarParent!=NULL) // This joint is used twice (going up and going down)
+                            if (avatarParent!=nullptr) // This joint is used twice (going up and going down)
                                 avatarParent->addAvatar(lastJoint);
                             lastJoint->data=dataValueBase+2;    
 
@@ -140,7 +140,7 @@ bool CGeometricConstraintSolver::solve(CIKGraphObjCont& graphContainer,SGeomCons
                             ikObjs.addChild(lastJoint,newIKJoint);
                             lastJoint=newIKJoint;
                             avatarParent=ikObjs.getJointWithData(dataValueBase+1);
-                            if (avatarParent!=NULL) // This joint is used twice (going up and going down)
+                            if (avatarParent!=nullptr) // This joint is used twice (going up and going down)
                                 avatarParent->addAvatar(lastJoint);
                             lastJoint->data=dataValueBase+1;
                             
@@ -151,7 +151,7 @@ bool CGeometricConstraintSolver::solve(CIKGraphObjCont& graphContainer,SGeomCons
                                 lastJoint=newIKJoint;
                                 lastJoint->active=false; // Inactive for now (we can activate it later)
                                 avatarParent=ikObjs.getJointWithData(dataValueBase+0);
-                                if (avatarParent!=NULL) // This joint is used twice (going up and going down)
+                                if (avatarParent!=nullptr) // This joint is used twice (going up and going down)
                                     avatarParent->addAvatar(lastJoint);
                                 lastJoint->data=dataValueBase+0;
                                 localTransformation=rotY180;
@@ -160,7 +160,7 @@ bool CGeometricConstraintSolver::solve(CIKGraphObjCont& graphContainer,SGeomCons
                         { // From base to tip
                             C7Vector rel(localTransformation);
                             newIKJoint=new CIKJoint(graphJoint,rel,false,true);
-                            if (lastJoint==NULL)
+                            if (lastJoint==nullptr)
                             {
                                 treeHandle=newIKJoint;
                                 lastJoint=treeHandle;
@@ -173,7 +173,7 @@ bool CGeometricConstraintSolver::solve(CIKGraphObjCont& graphContainer,SGeomCons
                             }
                             lastJoint->active=false; // Inactive for now (we can activate it later)
                             avatarParent=ikObjs.getJointWithData(dataValueBase+0);
-                            if (avatarParent!=NULL) // This joint is used twice (going up and going down)
+                            if (avatarParent!=nullptr) // This joint is used twice (going up and going down)
                                 avatarParent->addAvatar(lastJoint);
                             lastJoint->data=dataValueBase+0;
 
@@ -182,7 +182,7 @@ bool CGeometricConstraintSolver::solve(CIKGraphObjCont& graphContainer,SGeomCons
                             ikObjs.addChild(lastJoint,newIKJoint);
                             lastJoint=newIKJoint;
                             avatarParent=ikObjs.getJointWithData(dataValueBase+1);
-                            if (avatarParent!=NULL) // This joint is used twice (going up and going down)
+                            if (avatarParent!=nullptr) // This joint is used twice (going up and going down)
                                 avatarParent->addAvatar(lastJoint);
                             lastJoint->data=dataValueBase+1;
                             
@@ -191,7 +191,7 @@ bool CGeometricConstraintSolver::solve(CIKGraphObjCont& graphContainer,SGeomCons
                             ikObjs.addChild(lastJoint,newIKJoint);
                             lastJoint=newIKJoint;
                             avatarParent=ikObjs.getJointWithData(dataValueBase+2);
-                            if (avatarParent!=NULL) // This joint is used twice (going up and going down)
+                            if (avatarParent!=nullptr) // This joint is used twice (going up and going down)
                                 avatarParent->addAvatar(lastJoint);
                             lastJoint->data=dataValueBase+2;
 
@@ -201,7 +201,7 @@ bool CGeometricConstraintSolver::solve(CIKGraphObjCont& graphContainer,SGeomCons
                             ikObjs.addChild(lastJoint,newIKJoint);
                             lastJoint=newIKJoint;
                             avatarParent=ikObjs.getJointWithData(dataValueBase+3);
-                            if (avatarParent!=NULL) // This joint is used twice (going up and going down)
+                            if (avatarParent!=nullptr) // This joint is used twice (going up and going down)
                                 avatarParent->addAvatar(lastJoint);
                             lastJoint->data=dataValueBase+3;
 
@@ -222,7 +222,7 @@ bool CGeometricConstraintSolver::solve(CIKGraphObjCont& graphContainer,SGeomCons
                             newIKJoint=new CIKJoint(graphJoint,rel,false,false);
                             localTransformation.setIdentity();
                         }
-                        if (lastJoint==NULL)
+                        if (lastJoint==nullptr)
                         {
                             treeHandle=newIKJoint;
                             lastJoint=treeHandle;
@@ -235,7 +235,7 @@ bool CGeometricConstraintSolver::solve(CIKGraphObjCont& graphContainer,SGeomCons
                         }
                         int dataValue=10*graphJoint->nodeID+0;
                         CIKJoint* avatarParent=ikObjs.getJointWithData(dataValue);
-                        if (avatarParent!=NULL) // This joint is used twice (going up and going down)
+                        if (avatarParent!=nullptr) // This joint is used twice (going up and going down)
                             avatarParent->addAvatar(lastJoint);
                         lastJoint->data=dataValue;
                     }
@@ -257,7 +257,7 @@ bool CGeometricConstraintSolver::solve(CIKGraphObjCont& graphContainer,SGeomCons
                 CIKGraphObject* theObject=(CIKGraphObject*)graphIterator;
                 if (theObject->objectType==IK_GRAPH_LINK_OBJECT_TYPE)
                 { // Link
-                    if (previousPosition!=NULL)
+                    if (previousPosition!=nullptr)
                     {
                         if (theObject->linkPartner!=previousPosition)
                             localTransformation=localTransformation*previousCT.getInverse()*theObject->cumulativeTransformation;
@@ -267,10 +267,10 @@ bool CGeometricConstraintSolver::solve(CIKGraphObjCont& graphContainer,SGeomCons
                 else
                 { // Here we have a dummy we have to assign to a configuration or a passive object
                     // We treat all cases first as passive objects:
-                    if (previousPosition!=NULL)
+                    if (previousPosition!=nullptr)
                     {
                         localTransformation=localTransformation*previousCT.getInverse()*theObject->cumulativeTransformation;
-                        if ( (theObject->objectType==IK_GRAPH_TIP_OBJECT_TYPE)&&(lastJoint!=NULL) )
+                        if ( (theObject->objectType==IK_GRAPH_TIP_OBJECT_TYPE)&&(lastJoint!=nullptr) )
                         { // This is a valid dummy-tip!
                             CIKDummy* newIKDummy=new CIKDummy(localTransformation,theObject->targetCumulativeTransformation);
                             ikObjs.addChild(lastJoint,newIKDummy);
@@ -307,7 +307,7 @@ bool CGeometricConstraintSolver::solve(CIKGraphObjCont& graphContainer,SGeomCons
                     closeComplexLoop=true;
                 goingDown=true;
             }
-            else if ((graphIterator->getNeighbourWithExplorationID(0)!=NULL)&&(!goingDown)&&(previousPosition->explorationID!=0))
+            else if ((graphIterator->getNeighbourWithExplorationID(0)!=nullptr)&&(!goingDown)&&(previousPosition->explorationID!=0))
             { // Here we have to close the loop too!
                 // We first put unexplored paths onto the stack:
                 for (int i=0;i<unexploredSize;i++)
@@ -326,10 +326,10 @@ bool CGeometricConstraintSolver::solve(CIKGraphObjCont& graphContainer,SGeomCons
             }
             else
             {
-                if (previousPosition==NULL)
+                if (previousPosition==nullptr)
                 { // This is the start. We should always explore first two links which belong together
                     // or the 3 objects making up a joint!
-                    nextPosition=NULL;
+                    nextPosition=nullptr;
                     for (int i=0;i<unexploredSize;i++)
                     {
                         CIKGraphNode* nextPositionTmp=graphIterator->getUnexplored(i);
@@ -342,7 +342,7 @@ bool CGeometricConstraintSolver::solve(CIKGraphObjCont& graphContainer,SGeomCons
                             lastJoints.push_back(lastJoint);
                             previousPositions.push_back(graphIterator);
                             localTransformations.push_back(localTransformation);
-                            if (nextPosition==NULL)
+                            if (nextPosition==nullptr)
                                 nextPosition=graphIterator->getUnexplored(i);
                         }
                     }
@@ -373,7 +373,7 @@ bool CGeometricConstraintSolver::solve(CIKGraphObjCont& graphContainer,SGeomCons
         if (it->objectType==IK_JOINT_TYPE)
         {
             CIKJoint* theJoint=(CIKJoint*)it;
-            if (theJoint->avatarParent==NULL)
+            if (theJoint->avatarParent==nullptr)
             {
                 if (theJoint->spherical)
                 {
@@ -541,7 +541,7 @@ int CGeometricConstraintSolver::performOnePass(CIKChainCont& chainCont,bool& lim
     //---------------------------------------------------------------------------
     for (int i=0;i<int(allJoints.size());i++)
     {
-        if (allJoints[i]->graphJoint->followedJoint!=NULL)
+        if (allJoints[i]->graphJoint->followedJoint!=nullptr)
             numberOfRows++;
     }
     //---------------------------------------------------------------------------
@@ -582,7 +582,7 @@ int CGeometricConstraintSolver::performOnePass(CIKChainCont& chainCont,bool& lim
     {
         CIKGraphJoint* originalGraphJoint=allJoints[i]->graphJoint;
         CIKGraphJoint* dependenceGraphJoint=originalGraphJoint->followedJoint;
-        if (dependenceGraphJoint!=NULL)
+        if (dependenceGraphJoint!=nullptr)
         {
             bool found=false;
             int j;
@@ -692,7 +692,7 @@ int CGeometricConstraintSolver::performOnePass(CIKChainCont& chainCont,bool& lim
         bool doIt=true;
         if (it->spherical)
         {
-            if (it->topJoint!=NULL)
+            if (it->topJoint!=nullptr)
                 it=it->topJoint;
             else
                 doIt=false;
@@ -730,7 +730,7 @@ int CGeometricConstraintSolver::performOnePass(CIKChainCont& chainCont,bool& lim
         CIKJoint* it=allJoints[lockJointNb];
         if (it->spherical)
         {
-            if (it->topJoint!=NULL)
+            if (it->topJoint!=nullptr)
                 it=it->topJoint;
         }
 

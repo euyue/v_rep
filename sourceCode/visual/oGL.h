@@ -70,7 +70,7 @@ public:
     static inline void drawSingle3dPoint(const float* pt,const float normalVectorForDiffuseComp[3])
     {
         glBegin(GL_POINTS);
-        if (normalVectorForDiffuseComp!=NULL)
+        if (normalVectorForDiffuseComp!=nullptr)
             glNormal3fv(normalVectorForDiffuseComp);
         else
             glNormal3f(0.0f,0.0f,1.0f);
@@ -80,7 +80,7 @@ public:
     static inline void drawSingle3dLine(const float* pt1,const float* pt2,const float normalVectorForDiffuseComp[3])
     {
         glBegin(GL_LINES);
-        if (normalVectorForDiffuseComp!=NULL)
+        if (normalVectorForDiffuseComp!=nullptr)
             glNormal3fv(normalVectorForDiffuseComp);
         else
             glNormal3f(0.0f,0.0f,1.0f);
@@ -91,7 +91,7 @@ public:
     static inline void drawSingle3dLine(float p1x,float p1y,float p1z,float p2x,float p2y,float p2z,const float normalVectorForDiffuseComp[3])
     {
         glBegin(GL_LINES);
-        if (normalVectorForDiffuseComp!=NULL)
+        if (normalVectorForDiffuseComp!=nullptr)
             glNormal3fv(normalVectorForDiffuseComp);
         else
             glNormal3f(0.0f,0.0f,1.0f);
@@ -148,7 +148,7 @@ public:
     static void drawQuad(int posX,int posY,int sizeX,int sizeY,float col[3]);
     static void drawBorder(int posX,int posY,int sizeX,int sizeY,float col[3],int type,int borderSize=3);
 
-    static void drawOutlineText(const char* txt,const C7Vector& trOrig,float textHeight,const C4X4Matrix* cameraAbsConfig,bool overlay,bool left,bool right,bool culling,const float* textColor,const float* backColor=NULL,bool sizeInPixels=false,int windowHeight=0,float verticalViewSizeOrAngle=0.0f,bool perspective=true,bool fullyFacingCamera=true);
+    static void drawOutlineText(const char* txt,const C7Vector& trOrig,float textHeight,const C4X4Matrix* cameraAbsConfig,bool overlay,bool left,bool right,bool culling,const float* textColor,const float* backColor=nullptr,bool sizeInPixels=false,int windowHeight=0,float verticalViewSizeOrAngle=0.0f,bool perspective=true,bool fullyFacingCamera=true);
     static void drawText(int posX,int posY,int posZ,std::string txt,bool verticallyCentered=false);
     static void drawBitmapTextBackgroundIntoScene(float posX,float posY,float posZ,std::string txt);
     static void drawBitmapTextIntoScene(float posX,float posY,float posZ,const std::string& txt);
@@ -173,7 +173,7 @@ public:
         float _bckgrndColor2[3],std::string text,int buttonTypeAndAttributes,
         bool editing,int editionPos,float sliderPos,bool vertical,int timeInMs,float secondTextColor[3],CTextureProperty* backgroundTexture,VPoint* backgroundPos,VPoint* backgroundSize,CTextureProperty* foregroundTexture);
 
-    static int getMultilineTextInfo(const std::string& text,std::vector<std::string>& lines,int* textMaxWidth=NULL,int* textHeight=NULL,int* charHeight=NULL);
+    static int getMultilineTextInfo(const std::string& text,std::vector<std::string>& lines,int* textMaxWidth=nullptr,int* textHeight=nullptr,int* charHeight=nullptr);
     static int getRichTextInfo(std::string& text,std::vector<int>& iconsAndPos);
     static void drawRichText(int posX,int posY,int size,std::string& text,std::vector<int>& iconsAndPos,int alignement,float backgroundColor[3],float secondTextColor[3]);
     static void drawRichTextIcon(int centerPosX,int centerPosY,int size,int icon);

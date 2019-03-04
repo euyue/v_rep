@@ -39,11 +39,11 @@ void CSimpleFilter::readAllExternalFilters()
     static bool _externalFiltersWereRead=false;
     if (!_externalFiltersWereRead)
     {
-        void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_imagefilter_enumreset,NULL,NULL,NULL);
+        void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_imagefilter_enumreset,nullptr,nullptr,nullptr);
         delete[] (char*)retVal;
         int replyData[4];
-        retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_imagefilter_enumerate,NULL,NULL,replyData);
-        while (retVal!=NULL)
+        retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_imagefilter_enumerate,nullptr,nullptr,replyData);
+        while (retVal!=nullptr)
         {
             SExternalFilterInfo f;
             f.name=std::string((char*)retVal);
@@ -51,7 +51,7 @@ void CSimpleFilter::readAllExternalFilters()
             f.header=replyData[0];
             f.id=replyData[1];
             _externalFilters.push_back(f);
-            retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_imagefilter_enumerate,NULL,NULL,replyData);
+            retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_imagefilter_enumerate,nullptr,nullptr,replyData);
         }
         _externalFiltersWereRead=true;
     }
@@ -893,7 +893,7 @@ bool CSimpleFilter::processAndTrigger(CVisionSensor* sensor,int sizeX,int sizeY,
 
 
     if ((_filterType>=sim_filtercomponent_customized)||(_filterType==-1))
-        return(processAndTrigger_customized(sensor->getID(),sizeX,sizeY,inputImage,inputDepth,outputImage,workImage,returnData,buffer1,buffer2,drawingContainer));
+        return(processAndTrigger_customized(sensor->getObjectHandle(),sizeX,sizeY,inputImage,inputDepth,outputImage,workImage,returnData,buffer1,buffer2,drawingContainer));
     return(false); // shouldn't happen!!
 }
 
@@ -1390,7 +1390,7 @@ bool CSimpleFilter::processAndTrigger_binary(int sizeX,int sizeY,const float* in
                 float l=0.3f-roundness*0.25f;
                 float redCol[3]={1.0f,0.0f,0.0f};
                 float ln[4]={rcm[0]-cos(theta)*l,rcm[1]-sin(theta)*l,rcm[0]+cos(theta)*l,rcm[1]+sin(theta)*l};
-                CDrawingObject2D* do2D=new CDrawingObject2D(sim_drawing2d_line|sim_drawing2d_blackbkground,ln,redCol,0.0f,0.0f,NULL);
+                CDrawingObject2D* do2D=new CDrawingObject2D(sim_drawing2d_line|sim_drawing2d_blackbkground,ln,redCol,0.0f,0.0f,nullptr);
                 drawingContainer.addObject(do2D);
 
             }
@@ -1399,7 +1399,7 @@ bool CSimpleFilter::processAndTrigger_binary(int sizeX,int sizeY,const float* in
         { // visualize the CM
             float rcm[2]={cmx/float(sizeX),cmy/float(sizeY)};
             float greenCol[3]={0.0f,1.0f,0.0f};
-            CDrawingObject2D* do2D=new CDrawingObject2D(sim_drawing2d_square|sim_drawing2d_blackbkground|sim_drawing2d_pixelsize,rcm,greenCol,6.0f,0,NULL);
+            CDrawingObject2D* do2D=new CDrawingObject2D(sim_drawing2d_square|sim_drawing2d_blackbkground|sim_drawing2d_pixelsize,rcm,greenCol,6.0f,0,nullptr);
             drawingContainer.addObject(do2D);
         }
     }
@@ -1712,13 +1712,13 @@ bool CSimpleFilter::processAndTrigger_blobExtraction(int sizeX,int sizeY,const f
                                 c[0]-v2[0]*cosa-v2[1]*sina, c[1]-v2[0]*sina+v2[1]*cosa,   c[0]-v2[0]*cosa+v2[1]*sina, c[1]-v2[0]*sina-v2[1]*cosa,
                                 c[0]-v2[0]*cosa+v2[1]*sina, c[1]-v2[0]*sina-v2[1]*cosa,   c[0]+v2[0]*cosa+v2[1]*sina, c[1]+v2[0]*sina-v2[1]*cosa,
                                 c[0]+v2[0]*cosa+v2[1]*sina, c[1]+v2[0]*sina-v2[1]*cosa,   c[0]+v2[0]*cosa-v2[1]*sina, c[1]+v2[0]*sina+v2[1]*cosa};
-                CDrawingObject2D* do2D=new CDrawingObject2D(sim_drawing2d_line|sim_drawing2d_blackbkground,ln,white,0.0f,0.0f,NULL);
+                CDrawingObject2D* do2D=new CDrawingObject2D(sim_drawing2d_line|sim_drawing2d_blackbkground,ln,white,0.0f,0.0f,nullptr);
                 drawingContainer.addObject(do2D);
-                do2D=new CDrawingObject2D(sim_drawing2d_line|sim_drawing2d_blackbkground,ln+4,white,0.0f,0.0f,NULL);
+                do2D=new CDrawingObject2D(sim_drawing2d_line|sim_drawing2d_blackbkground,ln+4,white,0.0f,0.0f,nullptr);
                 drawingContainer.addObject(do2D);
-                do2D=new CDrawingObject2D(sim_drawing2d_line|sim_drawing2d_blackbkground,ln+8,white,0.0f,0.0f,NULL);
+                do2D=new CDrawingObject2D(sim_drawing2d_line|sim_drawing2d_blackbkground,ln+8,white,0.0f,0.0f,nullptr);
                 drawingContainer.addObject(do2D);
-                do2D=new CDrawingObject2D(sim_drawing2d_line|sim_drawing2d_blackbkground,ln+12,white,0.0f,0.0f,NULL);
+                do2D=new CDrawingObject2D(sim_drawing2d_line|sim_drawing2d_blackbkground,ln+12,white,0.0f,0.0f,nullptr);
                 drawingContainer.addObject(do2D);
                 std::string txt;
                 txt=boost::lexical_cast<std::string>(blobCount);
@@ -1896,7 +1896,7 @@ bool CSimpleFilter::processAndTrigger_correlationWithBuffer1(int sizeX,int sizeY
     {
         float rcm[2]={0.5f,0.5f};
         float redCol[3]={1.0f,0.0f,0.0f};
-        CDrawingObject2D* do2D=new CDrawingObject2D(sim_drawing2d_circle|sim_drawing2d_blackbkground|sim_drawing2d_pixelsize,rcm,redCol,20.0f,0,NULL);
+        CDrawingObject2D* do2D=new CDrawingObject2D(sim_drawing2d_circle|sim_drawing2d_blackbkground|sim_drawing2d_pixelsize,rcm,redCol,20.0f,0,nullptr);
         drawingContainer.addObject(do2D);
     }
 
@@ -2181,13 +2181,13 @@ bool CSimpleFilter::processAndTrigger_rectangularCut(int sizeX,int sizeY,const f
 
 bool CSimpleFilter::processAndTrigger_customized(int objectHandle,int sizeX,int sizeY,const float* inputImage,const float* inputDepth,float* outputImage,float* workImage,std::vector<float>& returnData,float* buffer1,float* buffer2,CDrawingContainer2D& drawingContainer)
 {
-    void* ptrs[7]={(void*)inputImage,(void*)inputDepth,workImage,buffer1,buffer2,outputImage,NULL};
+    void* ptrs[7]={(void*)inputImage,(void*)inputDepth,workImage,buffer1,buffer2,outputImage,nullptr};
     if (_customFilterParameters.size()!=0)
         ptrs[6]=&_customFilterParameters[0];
     int auxData[5]={_customFilterHeader,_customFilterID,sizeX,sizeY,objectHandle};
     int retVals[4]={-1,-1,-1,-1};
     void* retVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_imagefilter_process,auxData,ptrs,retVals);
-    if ((retVals[1]!=0)&&(retVal!=NULL))
+    if ((retVals[1]!=0)&&(retVal!=nullptr))
     { // we register the auxiliary information (that could be a vector, a direction, etc.)
         returnData.clear();
         for (int i=0;i<retVals[1];i++)

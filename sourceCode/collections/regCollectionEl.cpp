@@ -45,14 +45,14 @@ void CRegCollectionEl::addOrRemoveAnObject(std::vector<int>* theObjects,int obje
 
 void CRegCollectionEl::addOrRemoveYourObjects(std::vector<int>* theObjects)
 {
-    C3DObject* it=App::ct->objCont->getObject(objectID);
-    if (it==NULL)
+    C3DObject* it=App::ct->objCont->getObjectFromHandle(objectID);
+    if (it==nullptr)
     {
         for (int i=0;i<int(App::ct->objCont->objectList.size());i++)
             addOrRemoveAnObject(theObjects,App::ct->objCont->objectList[i]);
     }
     if (groupType==GROUP_LOOSE)
-        addOrRemoveAnObject(theObjects,it->getID());
+        addOrRemoveAnObject(theObjects,it->getObjectHandle());
     if ( (groupType==GROUP_FROM_BASE_INCLUDED)||(groupType==GROUP_FROM_BASE_EXCLUDED) )
     {
         std::vector<C3DObject*> allObj;
@@ -60,17 +60,17 @@ void CRegCollectionEl::addOrRemoveYourObjects(std::vector<int>* theObjects)
         allObj.clear();
         it->getAllObjectsRecursive(&allObj,groupType==GROUP_FROM_BASE_INCLUDED);
         for (int i=0;i<int(allObj.size());i++)
-            addOrRemoveAnObject(theObjects,allObj[i]->getID());
+            addOrRemoveAnObject(theObjects,allObj[i]->getObjectHandle());
     }
     if ( (groupType==GROUP_FROM_TIP_INCLUDED)||(groupType==GROUP_FROM_TIP_EXCLUDED) )
     {
         if (groupType==GROUP_FROM_TIP_INCLUDED)
-            addOrRemoveAnObject(theObjects,it->getID());
-        C3DObject* itIt=it->getParent();
-        while (itIt!=NULL)
+            addOrRemoveAnObject(theObjects,it->getObjectHandle());
+        C3DObject* itIt=it->getParentObject();
+        while (itIt!=nullptr)
         {
-            addOrRemoveAnObject(theObjects,itIt->getID());
-            itIt=itIt->getParent();
+            addOrRemoveAnObject(theObjects,itIt->getObjectHandle());
+            itIt=itIt->getParentObject();
         }
     }
 }

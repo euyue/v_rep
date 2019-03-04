@@ -70,7 +70,7 @@ bool CScintillaModalDlg::initialize(int scriptId,const char* titleText,bool read
     }
 
     CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptId);
-    if (it==NULL)
+    if (it==nullptr)
         return(false);
 
     _scriptID=scriptId;

@@ -49,17 +49,17 @@ void CQDlgIkAvoidance::refresh()
         std::string tmp;
         if (avoidanceEntity1<SIM_IDSTART_COLLECTION)
         {
-            C3DObject* it=App::ct->objCont->getObject(avoidanceEntity1);
-            if (it!=NULL)
+            C3DObject* it=App::ct->objCont->getObjectFromHandle(avoidanceEntity1);
+            if (it!=nullptr)
             {
-                tmp=it->getName();
+                tmp=it->getObjectName();
                 tmp+=tt::decorateString(" [",strTranslate(IDSN_SHAPE),"]");
             }
         }
         else
         {
             CRegCollection* it=App::ct->collections->getCollection(avoidanceEntity1);
-            if (it!=NULL)
+            if (it!=nullptr)
             {
                 tmp=it->getCollectionName();
                 tmp+=tt::decorateString(" [",strTranslate(IDSN_COLLECTION),"]");
@@ -69,10 +69,10 @@ void CQDlgIkAvoidance::refresh()
 
         if (avoidanceEntity2<SIM_IDSTART_COLLECTION)
         {
-            C3DObject* it=App::ct->objCont->getObject(avoidanceEntity2);
-            if (it!=NULL)
+            C3DObject* it=App::ct->objCont->getObjectFromHandle(avoidanceEntity2);
+            if (it!=nullptr)
             {
-                tmp=it->getName();
+                tmp=it->getObjectName();
                 tmp+=tt::decorateString(" [",strTranslate(IDSN_SHAPE),"]");
             }
             else
@@ -81,7 +81,7 @@ void CQDlgIkAvoidance::refresh()
         else
         {
             CRegCollection* it=App::ct->collections->getCollection(avoidanceEntity2);
-            if (it!=NULL)
+            if (it!=nullptr)
             {
                 tmp=it->getCollectionName();
                 tmp+=tt::decorateString(" [",strTranslate(IDSN_COLLECTION),"]");

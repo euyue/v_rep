@@ -49,7 +49,7 @@ public:
     bool isPotentiallyDetectable() const;
     bool isPotentiallyRenderable() const;
     bool isPotentiallyCuttable() const;
-    bool announceObjectWillBeErased(int objID,bool copyBuffer);
+    bool announceObjectWillBeErased(int objectHandle,bool copyBuffer);
     void announceIkObjectWillBeErased(int ikGroupID,bool copyBuffer);
     void performObjectLoadingMapping(std::vector<int>* map,bool loadingAmodel);
 

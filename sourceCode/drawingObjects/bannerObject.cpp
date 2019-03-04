@@ -27,13 +27,13 @@ CBannerObject::CBannerObject(const char* label,int options,int sceneObjID,const 
     backColor.colors[0]=1.0f;
     backColor.colors[1]=1.0f;
     backColor.colors[2]=1.0f;
-    if (labelCol!=NULL)
+    if (labelCol!=nullptr)
     {
         color.setColor(labelCol+0,sim_colorcomponent_ambient_diffuse);
         color.setColor(labelCol+6,sim_colorcomponent_specular);
         color.setColor(labelCol+9,sim_colorcomponent_emission);
     }
-    if (backCol!=NULL)
+    if (backCol!=nullptr)
     {
         backColor.setColor(backCol+0,sim_colorcomponent_ambient_diffuse);
         backColor.setColor(backCol+6,sim_colorcomponent_specular);
@@ -43,7 +43,7 @@ CBannerObject::CBannerObject(const char* label,int options,int sceneObjID,const 
     _sceneObjectID=sceneObjID;
     _options=options;
     _relativeConfig.setIdentity();
-    if (relConfig!=NULL)
+    if (relConfig!=nullptr)
     {
         _relativeConfig.X.set(relConfig);
         _relativeConfig.Q.setEulerAngles(relConfig[3],relConfig[4],relConfig[5]);
@@ -140,8 +140,8 @@ void CBannerObject::draw3DStuff(bool overlay,bool transparentObject,int displayA
         tr.setIdentity();
         if (_sceneObjectID>=0)
         {
-            C3DObject* it=App::ct->objCont->getObject(_sceneObjectID);
-            if (it==NULL)
+            C3DObject* it=App::ct->objCont->getObjectFromHandle(_sceneObjectID);
+            if (it==nullptr)
                 _sceneObjectID=-2; // should normally never happen
             else
             {
@@ -159,7 +159,7 @@ void CBannerObject::draw3DStuff(bool overlay,bool transparentObject,int displayA
             return;
 
         tr*=_relativeConfig;
-        float* bckColor=NULL;
+        float* bckColor=nullptr;
         if ((_options&sim_banner_nobackground)==0)
             bckColor=backColor.colors;
 

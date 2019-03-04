@@ -55,14 +55,14 @@ CToolDlgWrapper::CToolDlgWrapper(int dlgType,int resID)
     // It is created/destroyed in setVisible
     dialogType=dlgType;
     resourceID=resID;
-    toolDialog=NULL;
+    toolDialog=nullptr;
     position[0]=42000; // indicates: uninitialized
     position[1]=42000;
 }
 
 CToolDlgWrapper::~CToolDlgWrapper()
 {
-    if (toolDialog!=NULL)
+    if (toolDialog!=nullptr)
     {
         delete toolDialog;
     }
@@ -70,19 +70,19 @@ CToolDlgWrapper::~CToolDlgWrapper()
 
 void CToolDlgWrapper::dialogCallbackFunc(const SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut)
 {
-    if (toolDialog!=NULL)
+    if (toolDialog!=nullptr)
         toolDialog->dialogCallbackFunc(cmdIn,cmdOut);
 }
 
 void CToolDlgWrapper::refresh()
 {
-    if (toolDialog!=NULL)
+    if (toolDialog!=nullptr)
         toolDialog->refresh();
 }
 
 void CToolDlgWrapper::showDialogButDontOpenIt()
 {
-    if (toolDialog!=NULL)
+    if (toolDialog!=nullptr)
     {
         toolDialog->showDialog(true);
 #ifdef LIN_VREP
@@ -93,29 +93,29 @@ void CToolDlgWrapper::showDialogButDontOpenIt()
 
 void CToolDlgWrapper::hideDialogButDontCloseIt()
 {
-    if (toolDialog!=NULL)
+    if (toolDialog!=nullptr)
         toolDialog->showDialog(false);
 }
 
 void CToolDlgWrapper::visibleInstanceAboutToSwitch()
 {
-    if (toolDialog!=NULL)
+    if (toolDialog!=nullptr)
     {
         if (toolDialog->doesInstanceSwitchRequireDestruction())
-            setVisible(false,NULL);
+            setVisible(false,nullptr);
     }
 }
 void CToolDlgWrapper::setVisible(bool visible,QWidget* parentWindow)
 {
-    if ( (toolDialog!=NULL)&&(!visible) )
+    if ( (toolDialog!=nullptr)&&(!visible) )
     {
-        getPosition(NULL); // To save the current position
+        getPosition(nullptr); // To save the current position
         delete toolDialog;
-        toolDialog=NULL;
+        toolDialog=nullptr;
     }
     if (visible)
     {
-        if (toolDialog!=NULL)
+        if (toolDialog!=nullptr)
             toolDialog->bringDialogToTop();
         else
         {
@@ -181,7 +181,7 @@ void CToolDlgWrapper::setVisible(bool visible,QWidget* parentWindow)
             if (dialogType==MULTISHAPE_EDITION_DLG)
                 toolDialog=new CQDlgMultishapeEdition(App::mainWindow);
 
-            if (toolDialog!=NULL)
+            if (toolDialog!=nullptr)
             {
                 if (position[0]==42000)
                 { // first time we open that dialog
@@ -211,26 +211,26 @@ void CToolDlgWrapper::setVisible(bool visible,QWidget* parentWindow)
 
 void CToolDlgWrapper::destroyIfDestructionNeeded()
 {
-    if (toolDialog!=NULL)
+    if (toolDialog!=nullptr)
     {
         if (toolDialog->needsDestruction())
         {
-            getPosition(NULL); // To save the current position
+            getPosition(nullptr); // To save the current position
             delete toolDialog;
-            toolDialog=NULL;
+            toolDialog=nullptr;
         }
     }
 }
 
 bool CToolDlgWrapper::getVisible()
 {
-    return(toolDialog!=NULL);
+    return(toolDialog!=nullptr);
 }
 void CToolDlgWrapper::getPosition(int pos[2])
 {
-    if (toolDialog!=NULL)
-        toolDialog->getDialogPositionAndSize(position,NULL);
-    if (pos!=NULL)
+    if (toolDialog!=nullptr)
+        toolDialog->getDialogPositionAndSize(position,nullptr);
+    if (pos!=nullptr)
     {
         pos[0]=position[0];
         pos[1]=position[1];
@@ -241,8 +241,8 @@ void CToolDlgWrapper::setPosition(int x,int y)
 {
     position[0]=x;
     position[1]=y;
-    if (toolDialog!=NULL)
-        toolDialog->setDialogPositionAndSize(position,NULL);
+    if (toolDialog!=nullptr)
+        toolDialog->setDialogPositionAndSize(position,nullptr);
 }
 
 int CToolDlgWrapper::getDialogType()
