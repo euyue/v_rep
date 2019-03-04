@@ -9630,8 +9630,6 @@ simInt simExportMesh_internal(simInt fileformat,const simChar* pathAndFilename,s
         std::string format;
         if (fileformat==0)
             format="obj";
-        if (fileformat==2)
-            format="stp";
         if (fileformat==3)
             format="stl";
         if (fileformat==4)
@@ -9639,15 +9637,9 @@ simInt simExportMesh_internal(simInt fileformat,const simChar* pathAndFilename,s
         if (fileformat==5)
             format="collada";
         if (fileformat==6)
-            format="3ds";
-        if (fileformat==7)
             format="ply";
-        if (fileformat==8)
+        if (fileformat==7)
             format="plyb";
-        if (fileformat==9)
-            format="assxml";
-        if (fileformat==10)
-            format="assbin";
         if (format.size()==0)
         {
             CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_INVALID_FILE_FORMAT);

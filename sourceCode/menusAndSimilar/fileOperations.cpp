@@ -416,7 +416,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                 std::string tst(App::directories->cadFormatDirectory);
 
                 std::vector<std::string> filenamesAndPaths;
-                App::uiThread->getOpenFileNames(filenamesAndPaths,App::mainWindow,0,IDS_IMPORTING_MESH___,tst,"",false,"Mesh files","obj","dxf","ply","stl","dae","stp");
+                App::uiThread->getOpenFileNames(filenamesAndPaths,App::mainWindow,0,IDS_IMPORTING_MESH___,tst,"",false,"Mesh files","obj","dxf","ply","stl","dae");
                 std::string files;
                 for (size_t i=0;i<filenamesAndPaths.size();i++)
                 {
@@ -427,8 +427,6 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                 CInterfaceStack stack;
                 stack.pushStringOntoStack(files.c_str(),0);
                 App::ct->sandboxScript->callScriptFunctionEx("simAssimp.importShapesDlg",&stack);
-                App::addStatusbarMessage(IDSNS_DONE);
-                POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
             }
             else
                 App::uiThread->messageBox_critical(App::mainWindow,strTranslate(IDSN_EXPORT),"Assimp plugin was not found, cannot import",VMESSAGEBOX_OKELI);
@@ -512,7 +510,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     if (0==App::ct->objCont->getShapeNumberInSelection(&sel))
                         return(true); // Selection contains nothing that can be exported!
                     std::string tst(App::directories->cadFormatDirectory);
-                    std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,strTranslate(IDSNS_EXPORTING_SHAPES),tst,"",false,"Mesh files","obj","ply","stl","dae","stp");
+                    std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,strTranslate(IDSNS_EXPORTING_SHAPES),tst,"",false,"Mesh files","obj","ply","stl","dae");
                     if (filenameAndPath.length()!=0)
                     {
                         App::directories->cadFormatDirectory=App::directories->getPathFromFull(filenameAndPath);
@@ -527,8 +525,6 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                             stack.insertDataIntoStackTable();
                         }
                         App::ct->sandboxScript->callScriptFunctionEx("simAssimp.exportShapesDlg",&stack);
-                        App::ct->objCont->deselectObjects();
-                        App::addStatusbarMessage(IDSNS_DONE);
                     }
                     else
                         App::addStatusbarMessage(IDSNS_ABORTED);
