@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "vMenubar.h"
@@ -23,7 +22,7 @@ public:
         menu->appendMenuItem(noShapePathEditModeNoSelector&&App::mainWindow->getBrowserToggleViaGuiEnabled(),App::getBrowserEnabled(),TOGGLE_BROWSER_DLG_CMD,IDSN_MODEL_BROWSER,true);
         menu->appendMenuItem(App::mainWindow->getHierarchyToggleViaGuiEnabled(),App::mainWindow->oglSurface->isHierarchyEnabled(),TOGGLE_HIERARCHY_DLG_CMD,IDSN_SCENE_HIERARCHY,true);
         menu->appendMenuItem(true,App::mainWindow->dlgCont->isVisible(LAYERS_DLG),TOGGLE_LAYERS_DLG_CMD,IDS_LAYERS,true);
-        menu->appendMenuItem(CAuxLibVideo::video_recorderGetEncoderString!=NULL,App::mainWindow->dlgCont->isVisible(AVI_RECORDER_DLG),TOGGLE_AVI_RECORDER_DLG_CMD,IDSN_AVI_RECORDER,true);
+        menu->appendMenuItem(CAuxLibVideo::video_recorderGetEncoderString!=nullptr,App::mainWindow->dlgCont->isVisible(AVI_RECORDER_DLG),TOGGLE_AVI_RECORDER_DLG_CMD,IDSN_AVI_RECORDER,true);
         menu->appendMenuItem(noShapePathEditModeNoSelector,App::mainWindow->dlgCont->isVisible(SETTINGS_DLG),TOGGLE_SETTINGS_DLG_CMD,IDSN_USER_SETTINGS,true);
     }
 };

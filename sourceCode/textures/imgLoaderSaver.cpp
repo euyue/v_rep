@@ -267,6 +267,7 @@ unsigned char* CImageLoaderSaver::getScaledImage(const unsigned char* originalIm
 
 bool CImageLoaderSaver::save(const unsigned char* data,const int resolution[2],int options,const char* filename,int quality,std::string* buffer)
 {
+    bool retVal=false;
 #ifdef SIM_WITH_GUI
     unsigned char *buff=nullptr;
     QImage::Format format=QImage::Format_ARGB32;
@@ -293,7 +294,6 @@ bool CImageLoaderSaver::save(const unsigned char* data,const int resolution[2],i
             }
         }
     }
-    bool retVal=false;
     {
         QImage image(buff,resolution[0],resolution[1],resolution[0]*bytesPerPixel,format);
         if (buffer==nullptr)
@@ -312,10 +312,8 @@ bool CImageLoaderSaver::save(const unsigned char* data,const int resolution[2],i
         }
     }
     delete[] buff;
-    return(retVal);
-#else
-    return(nullptr);
 #endif
+    return(retVal);
 }
 
 unsigned char* CImageLoaderSaver::load(int resolution[2],int options,const char* filename,void* reserved)

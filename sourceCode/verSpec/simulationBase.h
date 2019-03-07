@@ -1,4 +1,3 @@
-
 #pragma once
 
 #ifndef SIM_WITHOUT_QT_AT_ALL
@@ -45,7 +44,7 @@ public:
         menu->appendMenuItem(simRunning&&(!App::mainWindow->oglSurface->isSceneSelectionActive()||App::mainWindow->oglSurface->isPageSelectionActive()||App::mainWindow->oglSurface->isViewSelectionActive()),!App::mainWindow->getOpenGlDisplayEnabled(),SIMULATION_COMMANDS_TOGGLE_VISUALIZATION_SCCMD,IDSN_TOGGLE_VISUALIZATION,true);
 
         menu->appendMenuSeparator();
-        if (App::mainWindow!=NULL)
+        if (App::mainWindow!=nullptr)
             menu->appendMenuItem(true,App::mainWindow->dlgCont->isVisible(SIMULATION_DLG),TOGGLE_SIMULATION_DLG_CMD,IDSN_SIMULATION_SETTINGS,true);
     }
 #endif

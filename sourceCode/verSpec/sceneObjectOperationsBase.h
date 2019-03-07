@@ -39,8 +39,8 @@ static void handleVerSpec_sceneObjectOperations_addMenu1(VMenu* menu)
     bool hasCustomizationScriptAttached=false;
     if (selItems==1)
     {
-        hasChildScriptAttached=(App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(App::ct->objCont->getSelID(0))!=NULL);
-        hasCustomizationScriptAttached=(App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(App::ct->objCont->getSelID(0))!=NULL);
+        hasChildScriptAttached=(App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(App::ct->objCont->getSelID(0))!=nullptr);
+        hasCustomizationScriptAttached=(App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(App::ct->objCont->getSelID(0))!=nullptr);
     }
     std::vector<int> rootSel;
     for (int i=0;i<App::ct->objCont->getSelSize();i++)
@@ -64,9 +64,9 @@ static void handleVerSpec_sceneObjectOperations_addMenu1(VMenu* menu)
         { // we have 2 selected dummies we might want to link/unlink:
             CDummy* dumA=App::ct->objCont->getDummy(App::ct->objCont->getSelID(0));
             CDummy* dumB=App::ct->objCont->getDummy(App::ct->objCont->getSelID(1));
-            if ((dumA!=NULL)&&(dumB!=NULL))
+            if ((dumA!=nullptr)&&(dumB!=nullptr))
             {
-                if (dumA->getLinkedDummyID()==dumB->getID())
+                if (dumA->getLinkedDummyID()==dumB->getObjectHandle())
                     menu->appendMenuItem(true,false,SCENE_OBJECT_OPERATION_UNLINK_DUMMIES_SOOCMD,IDS_UNLINK_SELECTED_DUMMIES_MENU_ITEM);
                 else
                 {

@@ -9550,14 +9550,29 @@ simInt simImportShape_internal(simInt fileformat,const simChar* pathAndFilename,
             op|=1;
         if ((options&32)!=0)
             op|=64;
-        int cnt=0;
-        int* shapes=CPluginContainer::assimp_importShapes(pathAndFilename,512,scalingFactor,1,op,&cnt);
         int h=-1;
-        App::ct->objCont->deselectObjects();
-        if (cnt>0)
+        std::string ending(pathAndFilename+strlen(pathAndFilename)-4);
+        std::transform(ending.begin(),ending.end(),ending.begin(),std::tolower);
+        if (ending.compare(".dae")==0)
+        { // either the Assimp library, or the Assimp plugin for V-REP doesn't correctly transform meshes. So we use the old collada plugin here:
+            CPlugin* plugin=CPluginContainer::getPluginFromName("Collada");
+            if (plugin!=nullptr)
+            {
+                int auxVals[4]={1,(options&8)==0,int(scalingFactor*1000.0f),0};
+                int retVals[4];
+                plugin->sendEventCallbackMessage(sim_message_eventcallback_colladaplugin,auxVals,(void*)pathAndFilename,retVals);
+                h=retVals[0];
+            }
+        }
+        else
         {
-            h=shapes[0];
-            delete[] shapes;
+            int cnt=0;
+            int* shapes=CPluginContainer::assimp_importShapes(pathAndFilename,512,scalingFactor,1,op,&cnt);
+            if (cnt>0)
+            {
+                h=shapes[0];
+                delete[] shapes;
+            }
         }
         App::ct->objCont->deselectObjects();
         return(h);

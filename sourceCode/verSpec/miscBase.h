@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "app.h"
@@ -10,7 +9,7 @@ public:
     {
         #ifdef SIM_WITH_GUI
             // Following 2 lines since 2010/10/12 so that we can override model selection with shift+ctrl down at the same time!
-            if ((App::mainWindow!=NULL)&&(App::mainWindow->getKeyDownState()&1)&&(App::mainWindow->getKeyDownState()&2))
+            if ((App::mainWindow!=nullptr)&&(App::mainWindow->getKeyDownState()&1)&&(App::mainWindow->getKeyDownState()&2))
                 return(true);
         #endif
         return(false);

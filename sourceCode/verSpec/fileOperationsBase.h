@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "app.h"
@@ -51,8 +50,8 @@ public:
         bool justModelSelected=false;
         if (selItems==1)
         {
-            C3DObject* obj=App::ct->objCont->getObject(App::ct->objCont->getSelID(0));
-            justModelSelected=(obj!=NULL)&&(obj->getModelBase());
+            C3DObject* obj=App::ct->objCont->getObjectFromHandle(App::ct->objCont->getSelID(0));
+            justModelSelected=(obj!=nullptr)&&(obj->getModelBase());
         }
         std::vector<int> sel;
         sel.reserve(App::ct->objCont->getSelSize());
