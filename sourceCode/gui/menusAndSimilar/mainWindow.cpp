@@ -36,7 +36,6 @@
 #include <QLabel>
 #include <QWindow>
 #ifdef MAC_VREP
-    #include <OpenGL.h> // in order to undertsand the CGLContextObj, etc.
     #include <curses.h> // required for the beep() function
 #endif
 #ifdef LIN_VREP

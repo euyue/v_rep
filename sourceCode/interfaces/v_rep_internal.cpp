@@ -9552,7 +9552,7 @@ simInt simImportShape_internal(simInt fileformat,const simChar* pathAndFilename,
             op|=64;
         int h=-1;
         std::string ending(pathAndFilename+strlen(pathAndFilename)-4);
-        std::transform(ending.begin(),ending.end(),ending.begin(),std::tolower);
+        std::transform(ending.begin(),ending.end(),ending.begin(),::tolower);
         if (ending.compare(".dae")==0)
         { // either the Assimp library, or the Assimp plugin for V-REP doesn't correctly transform meshes. So we use the old collada plugin here:
             CPlugin* plugin=CPluginContainer::getPluginFromName("Collada");

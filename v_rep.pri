@@ -59,11 +59,16 @@ WITH_SERIAL {
     QMAKE_CXXFLAGS_WARN_ON += -wd4996 # "function or variable may be unsafe..."
     QMAKE_CXXFLAGS_WARN_ON += -wd4101 # "unreferenced local variable"
 
-    *-msvc2015 {
-        DEFINES += VREP_COMPILER_STR=\\\"MSVC2015\\\"
+    *-msvc2017 {
+        DEFINES += VREP_COMPILER_STR=\\\"MSVC2017\\\"
     }
     else {
-        DEFINES += VREP_COMPILER_STR=\\\"MSVC\\\"
+        *-msvc2015 {
+            DEFINES += VREP_COMPILER_STR=\\\"MSVC2015\\\"
+        }
+        else {
+            DEFINES += VREP_COMPILER_STR=\\\"MSVC\\\"
+        }
     }
 }
 
