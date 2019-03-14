@@ -370,7 +370,7 @@ void CikEl::checkIfWithinTolerance(bool& position,bool& orientation,bool useTemp
     CDummy* tooltipObj=App::ct->objCont->getDummy(tooltip);
     C7Vector targetM(targetObj->getCumulativeTransformationPart1(useTempValues));
     C7Vector tooltipM(tooltipObj->getCumulativeTransformationPart1(useTempValues));
- 
+
     // Since everything is relative to the base
     C7Vector baseM;
     baseM.setIdentity();

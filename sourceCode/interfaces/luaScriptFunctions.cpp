@@ -12911,7 +12911,7 @@ int _simAuxiliaryConsoleOpen(luaWrap_lua_State* L)
         CLuaScriptObject* itScrObj=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
         if ( (itScrObj->getScriptType()==sim_scripttype_mainscript)||(itScrObj->getScriptType()==sim_scripttype_childscript)||(itScrObj->getScriptType()==sim_scripttype_jointctrlcallback)||(itScrObj->getScriptType()==sim_scripttype_contactcallback) )//||(itScrObj->getScriptType()==sim_scripttype_generalcallback) )
         { // Add-ons and customization scripts do not have this restriction
-            mode&=1;
+            mode|=1;
         }
         if ( (itScrObj->getScriptType()!=sim_scripttype_sandboxscript)&&(itScrObj->getScriptType()!=sim_scripttype_addonscript) )
         { // Add-ons and sandbox scripts do not have this restriction
