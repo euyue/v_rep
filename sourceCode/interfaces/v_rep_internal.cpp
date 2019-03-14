@@ -9393,10 +9393,6 @@ simInt simAuxiliaryConsoleOpen_internal(const simChar* title,simInt maxLines,sim
                     if (backgroundColor!=nullptr)
                         bCol[i]=int(backgroundColor[i]*255.1f);
                 }
-                if (position!=nullptr)
-                    printf("Pos: %i, %i\n",position[0],position[1]);
-                if (size!=nullptr)
-                    printf("Size: %i, %i\n",size[0],size[1]);
                 retVal=App::mainWindow->codeEditorContainer->openConsole(title,maxLines,mode,position,size,tCol,bCol,-1);
             }
         }
