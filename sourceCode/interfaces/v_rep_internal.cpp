@@ -9546,29 +9546,15 @@ simInt simImportShape_internal(simInt fileformat,const simChar* pathAndFilename,
             op|=1;
         if ((options&32)!=0)
             op|=64;
+        if ((options&128)!=0)
+            op|=128;
         int h=-1;
-        std::string ending(pathAndFilename+strlen(pathAndFilename)-4);
-        std::transform(ending.begin(),ending.end(),ending.begin(),::tolower);
-        if (ending.compare(".dae")==0)
-        { // either the Assimp library, or the Assimp plugin for V-REP doesn't correctly transform meshes. So we use the old collada plugin here:
-            CPlugin* plugin=CPluginContainer::getPluginFromName("Collada");
-            if (plugin!=nullptr)
-            {
-                int auxVals[4]={1,(options&8)==0,int(scalingFactor*1000.0f),0};
-                int retVals[4];
-                plugin->sendEventCallbackMessage(sim_message_eventcallback_colladaplugin,auxVals,(void*)pathAndFilename,retVals);
-                h=retVals[0];
-            }
-        }
-        else
+        int cnt=0;
+        int* shapes=CPluginContainer::assimp_importShapes(pathAndFilename,512,scalingFactor,1,op,&cnt);
+        if (cnt>0)
         {
-            int cnt=0;
-            int* shapes=CPluginContainer::assimp_importShapes(pathAndFilename,512,scalingFactor,1,op,&cnt);
-            if (cnt>0)
-            {
-                h=shapes[0];
-                delete[] shapes;
-            }
+            h=shapes[0];
+            delete[] shapes;
         }
         App::ct->objCont->deselectObjects();
         return(h);
@@ -9600,7 +9586,9 @@ simInt simImportMesh_internal(simInt fileformat,const simChar* pathAndFilename,s
         int op=0;
         if ((options&1)!=0)
             op|=16;
-        int retVal=CPluginContainer::assimp_importMeshes(pathAndFilename,scalingFactor,1.0f,op,vertices,verticesSizes,indices,indicesSizes);
+        if ((options&128)!=0)
+            op|=128;
+        int retVal=CPluginContainer::assimp_importMeshes(pathAndFilename,scalingFactor,1,op,vertices,verticesSizes,indices,indicesSizes);
         if (names!=nullptr)
             names[0]=new char*[retVal];
         for (int i=0;i<retVal;i++)
@@ -9754,9 +9742,7 @@ simInt simCreatePureShape_internal(simInt primitiveType,simInt options,const sim
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
