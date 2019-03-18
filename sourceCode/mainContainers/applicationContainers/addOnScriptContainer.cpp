@@ -54,6 +54,16 @@ CLuaScriptObject* CAddOnScriptContainer::getAddOnScriptFromID(int scriptID) cons
     return(nullptr);
 }
 
+CLuaScriptObject* CAddOnScriptContainer::getAddOnScriptFromName(const char* name) const
+{
+    for (size_t i=0;i<allAddOnScripts.size();i++)
+    {
+        if (allAddOnScripts[i]->getAddOnName().compare(name)==0)
+            return(allAddOnScripts[i]);
+    }
+    return(nullptr);
+}
+
 int CAddOnScriptContainer::insertScript(CLuaScriptObject* script)
 {
     // We make sure the id is unique:

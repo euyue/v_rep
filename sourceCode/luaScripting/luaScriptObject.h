@@ -145,6 +145,7 @@ public:
 
     std::string getLastErrorString() const;
     void setLastErrorString(const char* txt);
+    std::string getLastStackTraceback();
 
     int getAddOnExecutionState() const;
 
@@ -243,6 +244,7 @@ protected:
     int _timeOfPcallStart;
     int _errorReportMode;
     std::string _lastErrorString;
+    std::string _lastStackTraceback;
     bool _compatibilityModeOrFirstTimeCall_sysCallbacks;
     bool _containsJointCallbackFunction;
     bool _containsContactCallbackFunction;

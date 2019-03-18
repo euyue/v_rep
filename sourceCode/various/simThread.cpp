@@ -3118,7 +3118,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CJoint* it=App::ct->objCont->getJoint(cmd.intParams[0]);
             if (it!=nullptr)
-                it->setDependencyJointFact(cmd.floatParams[0]);
+                it->setDependencyJointOffset(cmd.floatParams[0]);
         }
         if (cmd.cmdId==SET_MULTFACT_JOINTDEPENDENCYGUITRIGGEREDCMD)
         {

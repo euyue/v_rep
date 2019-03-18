@@ -431,6 +431,7 @@ simInt simIsDeprecated_internal(const simChar* funcOrConst);
 simChar* simGetPersistentDataTags_internal(simInt* tagCount);
 simInt simEventNotification_internal(const simChar* event);
 simInt simApplyTexture_internal(simInt shapeHandle,const simFloat* textureCoordinates,simInt textCoordSize,const simUChar* texture,const simInt* textureResolution,simInt options);
+simInt simSetJointDependency_internal(simInt jointHandle,simInt masterJointHandle,simFloat offset,simFloat coeff);
 
 
 

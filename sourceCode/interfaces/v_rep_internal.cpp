@@ -15564,27 +15564,30 @@ simInt simCallScriptFunctionEx_internal(simInt scriptHandleOrType,const simChar*
             funcName=funcNameAtScriptName;
         if (scriptHandleOrType==sim_scripttype_mainscript)
             script=App::ct->luaScriptContainer->getMainScript();
-        if (scriptHandleOrType==sim_scripttype_generalcallback)
-            script=App::ct->luaScriptContainer->getGeneralCallbackHandlingScript_callback_OLD();
-        if (scriptHandleOrType==sim_scripttype_contactcallback)
-            script=App::ct->luaScriptContainer->getCustomContactHandlingScript_callback_OLD();
         if (scriptHandleOrType==sim_scripttype_sandboxscript)
             script=App::ct->sandboxScript;
+        if (scriptHandleOrType==sim_scripttype_addonscript)
+            script=App::ct->addOnScriptContainer->getAddOnScriptFromName(scriptName.c_str());
         if (scriptHandleOrType==sim_scripttype_childscript)
         {
             int objId=App::ct->objCont->getObjectHandleFromName(scriptName.c_str());
             script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(objId);
-        }
-        if (scriptHandleOrType==sim_scripttype_jointctrlcallback)
-        {
-            int objId=App::ct->objCont->getObjectHandleFromName(scriptName.c_str());
-            script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(objId);
         }
         if (scriptHandleOrType==sim_scripttype_customizationscript)
         {
             int objId=App::ct->objCont->getObjectHandleFromName(scriptName.c_str());
             script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
         }
+        // Following script types are deprecated:
+        if (scriptHandleOrType==sim_scripttype_jointctrlcallback)
+        {
+            int objId=App::ct->objCont->getObjectHandleFromName(scriptName.c_str());
+            script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(objId);
+        }
+        if (scriptHandleOrType==sim_scripttype_generalcallback)
+            script=App::ct->luaScriptContainer->getGeneralCallbackHandlingScript_callback_OLD();
+        if (scriptHandleOrType==sim_scripttype_contactcallback)
+            script=App::ct->luaScriptContainer->getCustomContactHandlingScript_callback_OLD();
     }
 
     if (script!=nullptr)
@@ -18742,6 +18745,34 @@ simInt simApplyTexture_internal(simInt shapeHandle,const simFloat* textureCoordi
     return(retVal);
 }
 
+simInt simSetJointDependency_internal(simInt jointHandle,simInt masterJointHandle,simFloat offset,simFloat coeff)
+{
+    C_API_FUNCTION_DEBUG;
+    int retVal=-1;
+
+    if (!isSimulatorInitialized(__func__))
+        return(retVal);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
+    {
+        if (isJoint(__func__,jointHandle))
+        {
+            if ( (masterJointHandle==-1)||isJoint(__func__,masterJointHandle) )
+            {
+                CJoint* joint=App::ct->objCont->getJoint(jointHandle);
+                if (joint->setDependencyJointID(masterJointHandle))
+                {
+                    joint->setDependencyJointOffset(offset);
+                    joint->setDependencyJointCoeff(coeff);
+                    retVal=0;
+                    return(retVal);
+                }
+            }
+        }
+    }
+    CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
+    return(retVal);
+}
 
 //************************************************************************************************************
 //************************************************************************************************************

@@ -565,6 +565,8 @@ extern int _simTextEditorOpen(luaWrap_lua_State* L);
 extern int _simTextEditorClose(luaWrap_lua_State* L);
 extern int _simTextEditorShow(luaWrap_lua_State* L);
 extern int _simTextEditorGetInfo(luaWrap_lua_State* L);
+extern int _simSetJointDependency(luaWrap_lua_State* L);
+extern int _simGetStackTraceback(luaWrap_lua_State* L);
 
 
 // DEPRECATED

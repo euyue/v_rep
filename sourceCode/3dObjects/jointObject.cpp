@@ -87,7 +87,7 @@ void CJoint::commonInit()
     _jointMode=sim_jointmode_ik;
     _dependencyJointID=-1;
     _dependencyJointCoeff=1.0f;
-    _dependencyJointFact=0.0f;
+    _dependencyJointOffset=0.0f;
 
     // Dynamic values:
     _dynamicMotorEnabled=false;
@@ -875,36 +875,40 @@ void CJoint::setDynamicMotorReflectedPosition_useOnlyFromDynamicPart(float rfp)
     _rectifyDependentJoints(false);
 }
 
-void CJoint::setDependencyJointID(int depJointID)
+bool CJoint::setDependencyJointID(int depJointID)
 {
-    if (_jointType==sim_joint_spherical_subtype)
-        return;
-    _dependencyJointID=depJointID;
-    if (depJointID==-1)
-    { // We disable the dependency:
-        _dependencyJointID=-1;
-        App::ct->objCont->actualizeObjectInformation();
-    }
-    else
+    bool retVal=false;
+    if ( (_jointType!=sim_joint_spherical_subtype)&&(getJointMode()==sim_jointmode_dependent) )
     {
-        // We now check for an illegal loop:
-        CJoint* it=App::ct->objCont->getJoint(depJointID);
-        CJoint* iterat=it;
-        while (iterat->getDependencyJointID()!=-1)
-        {
-            if (iterat->getJointMode()!=_jointMode)
-                break; // We might have a loop, but it is interupted by another jointMode!! (e.g. IK dependency VS direct dependency)
-            int joint=iterat->getDependencyJointID();
-            if (joint==getObjectHandle())
-            { // We have an illegal loop! We disable it:
-                iterat->setDependencyJointID(-1);
-                break;
-            }
-            iterat=App::ct->objCont->getJoint(joint);
+        _dependencyJointID=depJointID;
+        if (depJointID==-1)
+        { // We disable the dependency:
+            _dependencyJointID=-1;
+            App::ct->objCont->actualizeObjectInformation();
         }
-        App::ct->objCont->actualizeObjectInformation();
-        setPosition(getPosition()); // To actualize dependencies
+        else
+        {
+            // We now check for an illegal loop:
+            CJoint* it=App::ct->objCont->getJoint(depJointID);
+            CJoint* iterat=it;
+            while (iterat->getDependencyJointID()!=-1)
+            {
+                if (iterat->getJointMode()!=_jointMode)
+                    break; // We might have a loop, but it is interupted by another jointMode!! (e.g. IK dependency VS direct dependency)
+                int joint=iterat->getDependencyJointID();
+                if (joint==getObjectHandle())
+                { // We have an illegal loop! We disable it:
+                    iterat->setDependencyJointID(-1);
+                    break;
+                }
+                iterat=App::ct->objCont->getJoint(joint);
+            }
+            App::ct->objCont->actualizeObjectInformation();
+            setPosition(getPosition()); // To actualize dependencies
+        }
+        retVal=true;
     }
+    return(retVal);
 }
 
 void CJoint::setDependencyJointCoeff(float coeff)
@@ -916,12 +920,12 @@ void CJoint::setDependencyJointCoeff(float coeff)
     setPosition(getPosition()); // To actualize dependencies
 }
 
-void CJoint::setDependencyJointFact(float fact)
+void CJoint::setDependencyJointOffset(float off)
 {
     if (_jointType==sim_joint_spherical_subtype)
         return;
-    fact=tt::getLimitedFloat(-10000.0f,10000.0f,fact);
-    _dependencyJointFact=fact;
+    off=tt::getLimitedFloat(-10000.0f,10000.0f,off);
+    _dependencyJointOffset=off;
     setPosition(getPosition()); // To actualize dependencies
 }
 
@@ -1391,7 +1395,7 @@ void CJoint::scaleObject(float scalingFactor)
         _jointPositionForMotionHandling_DEPRECATED*=scalingFactor;
         _jointMinPosition*=scalingFactor;
         _jointPositionRange*=scalingFactor;
-        _dependencyJointFact*=scalingFactor;
+        _dependencyJointOffset*=scalingFactor;
         _maxStepSize*=scalingFactor;
         _dynamicMotorPositionControl_targetPosition*=scalingFactor;
 
@@ -1471,7 +1475,7 @@ void CJoint::scaleObjectNonIsometrically(float x,float y,float z)
         _jointPosition*=z;
         _jointMinPosition*=z;
         _jointPositionRange*=z;
-        _dependencyJointFact*=z;
+        _dependencyJointOffset*=z;
         _maxStepSize*=z;
         _dynamicMotorPositionControl_targetPosition*=z;
 
@@ -1867,7 +1871,7 @@ C3DObject* CJoint::copyYourself()
     newJoint->_jointPosition=_jointPosition;
     newJoint->_dependencyJointID=_dependencyJointID;
     newJoint->_dependencyJointCoeff=_dependencyJointCoeff;
-    newJoint->_dependencyJointFact=_dependencyJointFact;
+    newJoint->_dependencyJointOffset=_dependencyJointOffset;
     newJoint->_ikWeight=_ikWeight;
     newJoint->_diameter=_diameter;
     newJoint->_length=_length;
@@ -2114,7 +2118,7 @@ void CJoint::serialize(CSer& ar)
         ar.flush();
 
         ar.storeDataName("Jdt");
-        ar << _dependencyJointID << _dependencyJointCoeff << _dependencyJointFact;
+        ar << _dependencyJointID << _dependencyJointCoeff << _dependencyJointOffset;
         ar.flush();
 
         ar.storeDataName("Jm2");
@@ -2295,7 +2299,7 @@ void CJoint::serialize(CSer& ar)
                 {
                     noHit=false;
                     ar >> byteQuantity;
-                    ar >> _dependencyJointID >> _dependencyJointCoeff >> _dependencyJointFact;
+                    ar >> _dependencyJointID >> _dependencyJointCoeff >> _dependencyJointOffset;
                 }
                 if (theName.compare("Jtt")==0)
                 {
@@ -2569,7 +2573,7 @@ void CJoint::serializeWExtIk(CExtIkSer& ar)
 
     ar.writeInt(_dependencyJointID);
     ar.writeFloat(_dependencyJointCoeff);
-    ar.writeFloat(_dependencyJointFact);
+    ar.writeFloat(_dependencyJointOffset);
 }
 
 void CJoint::performObjectLoadingMapping(std::vector<int>* map,bool loadingAmodel)
@@ -2665,7 +2669,7 @@ float CJoint::getDependencyJointCoeff()
 
 float CJoint::getDependencyJointFact()
 {
-    return(_dependencyJointFact);
+    return(_dependencyJointOffset);
 }
 
 CVisualParam* CJoint::getColor(bool getPart2)
@@ -2778,9 +2782,9 @@ void CJoint::setPosition(float parameter,bool useTempValues)
                 linked=_dependencyJointCoeff*anAct->getPosition(useTempValues);
         }
         if (useTempValues)  
-            _jointPosition_tempForIK=linked+_dependencyJointFact;
+            _jointPosition_tempForIK=linked+_dependencyJointOffset;
         else
-            _jointPosition=linked+_dependencyJointFact;
+            _jointPosition=linked+_dependencyJointOffset;
     }
     _rectifyDependentJoints(useTempValues);
     setVelocity_DEPRECATED(getVelocity_DEPRECATED()); // To make sure velocity is within allowed range

@@ -584,6 +584,13 @@ void CLuaScriptObject::setLastErrorString(const char* txt)
     _lastErrorString=txt;
 }
 
+std::string CLuaScriptObject::getLastStackTraceback()
+{
+    std::string retVal=_lastStackTraceback;
+    _lastStackTraceback.clear();
+    return(retVal);
+}
+
 double CLuaScriptObject::getRandomDouble()
 {
     return(double(_randGen())/double(_randGen.max()));
@@ -2563,6 +2570,7 @@ void CLuaScriptObject::_displayScriptError(const char* errMsg,int errorType)
         message="System callback error: ";
     message+=errMsg;
     App::addStatusbarMessage(message.c_str(),true);
+    _lastStackTraceback=message;
     SUIThreadCommand cmdIn;
     cmdIn.cmdId=FLASH_STATUSBAR_UITHREADCMD;
     App::uiThread->executeCommandViaUiThread(&cmdIn,nullptr);

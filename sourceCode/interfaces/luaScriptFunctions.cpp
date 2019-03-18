@@ -463,6 +463,8 @@ const SLuaCommands simLuaCommands[]=
     {"sim.textEditorClose",_simTextEditorClose,                  "string text,table_2 pos,table_2 size=sim.textEditorClose(number handle)",true},
     {"sim.textEditorShow",_simTextEditorShow,                    "number res=sim.textEditorShow(number handle,boolean showState)",true},
     {"sim.textEditorGetInfo",_simTextEditorGetInfo,              "string text,table_2 pos,table_2 size,boolean visible=sim.textEditorGetInfo(number handle)",true},
+    {"sim.setJointDependency",_simSetJointDependency,            "number res=sim.setJointDependency(number jointHandle,number masterJointHandle,number offset,number coefficient)",true},
+    {"sim.getStackTraceback",_simGetStackTraceback,              "string stacktraceback=sim.getStackTraceback()",true},
 
 
 
@@ -8703,6 +8705,42 @@ int _simTextEditorGetInfo(luaWrap_lua_State* L)
     LUA_END(0);
 }
 
+int _simSetJointDependency(luaWrap_lua_State* L)
+{
+    LUA_API_FUNCTION_DEBUG;
+    LUA_START("sim.setJointDependency");
+    int retVal=-1;
+    if (checkInputArguments(L,&errorString,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
+    {
+        int jointHandle=luaWrap_lua_tointeger(L,1);
+        int masterJointHandle=luaWrap_lua_tointeger(L,2);
+        float off=luaWrap_lua_tonumber(L,3);
+        float coeff=luaWrap_lua_tonumber(L,4);
+        retVal=simSetJointDependency_internal(jointHandle,masterJointHandle,off,coeff);
+        if (retVal>=0)
+        {
+            luaWrap_lua_pushinteger(L,retVal);
+            LUA_END(1);
+        }
+    }
+
+    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simGetStackTraceback(luaWrap_lua_State* L)
+{
+    LUA_API_FUNCTION_DEBUG;
+    LUA_START("sim.getLastStackTraceback");
+    std::string retVal;
+    CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptID(L));
+    if (it!=nullptr)
+        retVal=it->getLastStackTraceback();
+//    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    luaWrap_lua_pushstring(L,retVal.c_str());
+    LUA_END(1);
+}
 
 
 int _simSetNavigationMode(luaWrap_lua_State* L)
@@ -15052,25 +15090,30 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
         { // the script is identified by its type sometimes also by its name
             if (scriptHandleOrType==sim_scripttype_mainscript)
                 script=App::ct->luaScriptContainer->getMainScript();
-            if (scriptHandleOrType==sim_scripttype_generalcallback)
-                script=App::ct->luaScriptContainer->getGeneralCallbackHandlingScript_callback_OLD();
-            if (scriptHandleOrType==sim_scripttype_contactcallback)
-                script=App::ct->luaScriptContainer->getCustomContactHandlingScript_callback_OLD();
             if (scriptHandleOrType==sim_scripttype_childscript)
             {
                 int objId=App::ct->objCont->getObjectHandleFromName(scriptDescription.c_str());
                 script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(objId);
-            }
-            if (scriptHandleOrType==sim_scripttype_jointctrlcallback)
-            {
-                int objId=App::ct->objCont->getObjectHandleFromName(scriptDescription.c_str());
-                script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(objId);
             }
             if (scriptHandleOrType==sim_scripttype_customizationscript)
             {
                 int objId=App::ct->objCont->getObjectHandleFromName(scriptDescription.c_str());
                 script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
             }
+            if (scriptHandleOrType==sim_scripttype_sandboxscript)
+                script=App::ct->sandboxScript;
+            if (scriptHandleOrType==sim_scripttype_addonscript)
+                script=App::ct->addOnScriptContainer->getAddOnScriptFromName(scriptDescription.c_str());
+            // Following script types are deprecated:
+            if (scriptHandleOrType==sim_scripttype_jointctrlcallback)
+            {
+                int objId=App::ct->objCont->getObjectHandleFromName(scriptDescription.c_str());
+                script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(objId);
+            }
+            if (scriptHandleOrType==sim_scripttype_generalcallback)
+                script=App::ct->luaScriptContainer->getGeneralCallbackHandlingScript_callback_OLD();
+            if (scriptHandleOrType==sim_scripttype_contactcallback)
+                script=App::ct->luaScriptContainer->getCustomContactHandlingScript_callback_OLD();
         }
 
         if (script!=nullptr)

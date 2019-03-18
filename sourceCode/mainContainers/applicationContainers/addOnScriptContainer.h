@@ -24,6 +24,7 @@ public:
     int insertScript(CLuaScriptObject* script);
     void removeAllScripts();
     CLuaScriptObject* getAddOnScriptFromID(int scriptID) const;
+    CLuaScriptObject* getAddOnScriptFromName(const char* name) const;
 
     int insertAddOnScripts();
     int prepareAddOnFunctionNames();

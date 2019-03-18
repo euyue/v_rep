@@ -106,7 +106,7 @@ void CQDlgDependencyEquation::on_qqOffset_editingFinished()
         float newVal=ui->qqOffset->text().toFloat(&ok);
         if (ok&&(it!=nullptr))
         {
-            it->setDependencyJointFact(newVal); // we also modify the ui resources (dlg is modal)
+            it->setDependencyJointOffset(newVal); // we also modify the ui resources (dlg is modal)
             App::appendSimulationThreadCommand(SET_OFFFSET_JOINTDEPENDENCYGUITRIGGEREDCMD,it->getObjectHandle(),-1,newVal);
             // scene change announcement at the end of this modal dlg
         }

@@ -1703,6 +1703,10 @@ VREP_DLLEXPORT simInt simApplyTexture(simInt shapeHandle,const simFloat* texture
 {
     return(simApplyTexture_internal(shapeHandle,textureCoordinates,textCoordSize,texture,textureResolution,options));
 }
+VREP_DLLEXPORT simInt simSetJointDependency(simInt jointHandle,simInt masterJointHandle,simFloat offset,simFloat coeff)
+{
+    return(simSetJointDependency_internal(jointHandle,masterJointHandle,offset,coeff));
+}
 
 
 VREP_DLLEXPORT simInt _simGetContactCallbackCount()

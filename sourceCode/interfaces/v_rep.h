@@ -441,6 +441,7 @@ VREP_DLLEXPORT simInt simIsDeprecated(const simChar* funcOrConst);
 VREP_DLLEXPORT simChar* simGetPersistentDataTags(simInt* tagCount);
 VREP_DLLEXPORT simInt simEventNotification(const simChar* event);
 VREP_DLLEXPORT simInt simApplyTexture(simInt shapeHandle,const simFloat* textureCoordinates,simInt textCoordSize,const simUChar* texture,const simInt* textureResolution,simInt options);
+VREP_DLLEXPORT simInt simSetJointDependency(simInt jointHandle,simInt masterJointHandle,simFloat offset,simFloat coeff);
 
 
 

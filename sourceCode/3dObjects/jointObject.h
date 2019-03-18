@@ -223,9 +223,9 @@ public:
 
 
 
-    void setDependencyJointID(int depJointID);
+    bool setDependencyJointID(int depJointID);
     void setDependencyJointCoeff(float coeff);
-    void setDependencyJointFact(float fact);
+    void setDependencyJointOffset(float off);
 
     float getEngineFloatParam(int what,bool* ok);
     int getEngineIntParam(int what,bool* ok);
@@ -358,7 +358,7 @@ protected:
     int _jointMode;
     int _dependencyJointID;
     float _dependencyJointCoeff;
-    float _dependencyJointFact;
+    float _dependencyJointOffset;
 
     // Joint visual attributes:
     float _length;
