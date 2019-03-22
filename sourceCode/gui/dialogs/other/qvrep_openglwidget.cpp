@@ -1,8 +1,8 @@
-
 #include "qvrep_openglwidget.h"
 #include <QMimeData>
 #include <QMouseEvent>
 #include <QWindow>
+#include <QTimer>
 #include "vDateTime.h"
 #include "ttUtil.h"
 #include "app.h"

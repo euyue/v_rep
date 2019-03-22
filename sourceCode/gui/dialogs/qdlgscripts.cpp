@@ -1,4 +1,3 @@
-
 #include "vrepMainHeader.h"
 #include "qdlgscripts.h"
 #include "ui_qdlgscripts.h"
@@ -8,7 +7,6 @@
 #include "app.h"
 #include "v_repStrings.h"
 #include "jointObject.h"
-#include "scintillaModalDlg.h"
 #include "vMessageBox.h"
 
 int CQDlgScripts::scriptViewMode=0;
@@ -52,9 +50,6 @@ void CQDlgScripts::refresh()
     ui->qqCombo->clear();
     ui->qqCombo->addItem(strTranslate(IDS_SIMULATION_SCRIPTS),QVariant(0));
     ui->qqCombo->addItem(strTranslate(IDS_CUSTOMIZATION_SCRIPTS),QVariant(1));
-    if (App::userSettings->enableOldCustomContactHandlingEdition||App::userSettings->enableOldJointCallbackScriptEdition||App::userSettings->enableOldGeneralCallbackScriptEdition)
-        ui->qqCombo->addItem(strTranslate(IDS_CALLBACK_SCRIPTS),QVariant(3));
-
 
     ui->qqCombo->setCurrentIndex(scriptViewMode);
 
@@ -71,16 +66,16 @@ void CQDlgScripts::refresh()
     ui->qqAssociatedObjectCombo->clear();
 
     CLuaScriptObject* theScript=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getSelectedObjectID());
-    ui->qqExecutionOrder->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_jointctrlcallback)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
-    ui->qqTreeTraversalDirection->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_jointctrlcallback)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
+    ui->qqExecutionOrder->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
+    ui->qqTreeTraversalDirection->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
     ui->qqDebugMode->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript)||(theScript->getScriptType()==sim_scripttype_mainscript) ));
-    ui->qqAssociatedObjectCombo->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_jointctrlcallback)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
+    ui->qqAssociatedObjectCombo->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
     ui->qqDisabled->setEnabled((theScript!=nullptr)&&noEditMode&&( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript) ));
     ui->qqExecuteOnce->setEnabled((theScript!=nullptr)&&noEditModeAndNoSim&&(theScript->getScriptType()==sim_scripttype_childscript)&&theScript->getThreadedExecution());
 
     if (theScript!=nullptr)
     {
-        if ( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_jointctrlcallback)||(theScript->getScriptType()==sim_scripttype_customizationscript) )
+        if ( (theScript->getScriptType()==sim_scripttype_childscript)||(theScript->getScriptType()==sim_scripttype_customizationscript) )
         {
             ui->qqExecutionOrder->addItem(strTranslate(IDSN_FIRST),QVariant(sim_scriptexecorder_first));
             ui->qqExecutionOrder->addItem(strTranslate(IDSN_NORMAL),QVariant(sim_scriptexecorder_normal));
@@ -109,29 +104,12 @@ void CQDlgScripts::refresh()
                 CLuaScriptObject* so=nullptr;
                 if (theScript->getScriptType()==sim_scripttype_childscript)
                     so=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(it->getObjectHandle());
-                if (theScript->getScriptType()==sim_scripttype_jointctrlcallback)
-                    so=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(it->getObjectHandle());
                 if (theScript->getScriptType()==sim_scripttype_customizationscript)
                     so=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(it->getObjectHandle());
                 if ( (so==nullptr)||(so==theScript) )
                 {
-                    if (theScript->getScriptType()!=sim_scripttype_jointctrlcallback)
-                    {
-                        names.push_back(it->getObjectName());
-                        ids.push_back(it->getObjectHandle());
-                    }
-                    else
-                    { // joint control callbacks. The object needs to be a joint (non-spherical):
-                        if (it->getObjectType()==sim_object_joint_type)
-                        {
-                            CJoint* itj=(CJoint*)it;
-                            if ( (itj->getJointType()==sim_joint_revolute_subtype)||(itj->getJointType()==sim_joint_prismatic_subtype) )
-                            {
-                                names.push_back(it->getObjectName());
-                                ids.push_back(it->getObjectHandle());
-                            }
-                        }
-                    }
+                    names.push_back(it->getObjectName());
+                    ids.push_back(it->getObjectHandle());
                 }
             }
             tt::orderStrings(names,ids);
@@ -140,8 +118,6 @@ void CQDlgScripts::refresh()
             int objIdAttached=-1;
             if (theScript->getScriptType()==sim_scripttype_childscript)
                 objIdAttached=theScript->getObjectIDThatScriptIsAttachedTo_child();
-            if (theScript->getScriptType()==sim_scripttype_jointctrlcallback)
-                objIdAttached=theScript->getObjectIDThatScriptIsAttachedTo_callback_OLD();
             if (theScript->getScriptType()==sim_scripttype_customizationscript)
                 objIdAttached=theScript->getObjectIDThatScriptIsAttachedTo_customization();
             for (int i=0;i<ui->qqAssociatedObjectCombo->count();i++)
@@ -234,58 +210,6 @@ void CQDlgScripts::updateObjectsInList()
         }
     }
 
-    if (scriptViewMode==3)
-    { // Callback scripts. DEPRECATED
-        CLuaScriptObject* it=nullptr;
-        if (App::userSettings->enableOldCustomContactHandlingEdition)
-        {
-            it=App::ct->luaScriptContainer->getCustomContactHandlingScript_callback_OLD();
-            if (it!=nullptr)
-            {
-                std::string tmp=it->getDescriptiveName();
-                int id=it->getScriptID();
-                QListWidgetItem* itm=new QListWidgetItem(tmp.c_str());
-                itm->setData(Qt::UserRole,QVariant(id));
-                itm->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
-                itm->setForeground(QColor(128,128,255)); // BLUE
-                ui->qqScriptList->addItem(itm);
-            }
-        }
-        if (App::userSettings->enableOldGeneralCallbackScriptEdition)
-        {
-            it=App::ct->luaScriptContainer->getGeneralCallbackHandlingScript_callback_OLD();
-            if (it!=nullptr)
-            {
-                std::string tmp=it->getDescriptiveName();
-                int id=it->getScriptID();
-                QListWidgetItem* itm=new QListWidgetItem(tmp.c_str());
-                itm->setData(Qt::UserRole,QVariant(id));
-                itm->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
-                itm->setForeground(QColor(128,255,128)); // GREEN
-                ui->qqScriptList->addItem(itm);
-            }
-        }
-        if (App::userSettings->enableOldJointCallbackScriptEdition)
-        {
-            for (size_t i=0;i<App::ct->luaScriptContainer->allScripts.size();i++)
-            {
-                it=App::ct->luaScriptContainer->allScripts[i];
-                int t=it->getScriptType();
-                if (t==sim_scripttype_jointctrlcallback)
-                {
-                    std::string tmp=it->getDescriptiveName();
-                    int id=it->getScriptID();
-                    QListWidgetItem* itm=new QListWidgetItem(tmp.c_str());
-                    itm->setData(Qt::UserRole,QVariant(id));
-                    itm->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
-                    itm->setForeground(QColor(128,128,128)); // GREY
-                    ui->qqScriptList->addItem(itm);
-                }
-            }
-        }
-
-    }
-
     rebuildingRoutine=false;
 }
 
@@ -368,55 +292,6 @@ void CQDlgScripts::on_qqAddNewScript_clicked()
                 scriptViewMode=1;
                 App::appendSimulationThreadCommand(INSERT_SCRIPT_SCRIPTGUITRIGGEREDCMD,sim_scripttype_customizationscript,0);
             }
-            if ( (theDialog.scriptType==sim_scripttype_contactcallback)&&App::userSettings->enableOldCustomContactHandlingEdition )
-            {
-                scriptViewMode=3;
-                bool goOn=true;
-                bool doNotShowWarning=false;
-                if (App::ct->environment->getEnableCustomContactHandlingViaScript_OLD())
-                { // we already have a handler!
-                    goOn=false;
-                    doNotShowWarning=true;
-                    if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,strTranslate("Custom collision/contact response"),strTranslate(IDS_INFO_NO_MORE_THAN_ONE_CONTACT_CALLBACK_SCRIPT),VMESSAGEBOX_YES_NO))
-                    { // let's first remove the existing callback:
-                        CLuaScriptObject* it=App::ct->luaScriptContainer->getCustomContactHandlingScript_callback_OLD();
-                        if (it!=nullptr)
-                            App::appendSimulationThreadCommand(DELETE_SCRIPT_SCRIPTGUITRIGGEREDCMD,it->getScriptID());
-                        goOn=true;
-                    }
-                }
-                if (goOn)
-                { // enable it
-                    if (!doNotShowWarning)
-                        App::uiThread->messageBox_warning(App::mainWindow,strTranslate("Custom collision/contact response"),strTranslate(IDSN_CUSTOM_CONTACT_IS_SLOW_AND_NOT_RECOMENDED_WARNING),VMESSAGEBOX_OKELI);
-                    App::appendSimulationThreadCommand(INSERT_SCRIPT_SCRIPTGUITRIGGEREDCMD,sim_scripttype_contactcallback,0);
-                }
-            }
-            if ( (theDialog.scriptType==sim_scripttype_generalcallback)&&App::userSettings->enableOldGeneralCallbackScriptEdition )
-            {
-                scriptViewMode=3;
-                bool goOn=true;
-                if (App::ct->environment->getEnableGeneralCallbackScript_OLD())
-                { // we already have a handler!
-                    goOn=false;
-                    if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,strTranslate("General callback script"),strTranslate(IDS_INFO_NO_MORE_THAN_ONE_GENERAL_CALLBACK_SCRIPT),VMESSAGEBOX_YES_NO))
-                    { // let's first remove the existing callback:
-                        CLuaScriptObject* it=App::ct->luaScriptContainer->getGeneralCallbackHandlingScript_callback_OLD();
-                        if (it!=nullptr)
-                            App::appendSimulationThreadCommand(DELETE_SCRIPT_SCRIPTGUITRIGGEREDCMD,it->getScriptID());
-                        goOn=true;
-                    }
-                }
-                if (goOn)
-                { // enable it
-                    App::appendSimulationThreadCommand(INSERT_SCRIPT_SCRIPTGUITRIGGEREDCMD,sim_scripttype_generalcallback,0);
-                }
-            }
-            if ( (theDialog.scriptType==sim_scripttype_jointctrlcallback)&&App::userSettings->enableOldJointCallbackScriptEdition )
-            {
-                scriptViewMode=3;
-                App::appendSimulationThreadCommand(INSERT_SCRIPT_SCRIPTGUITRIGGEREDCMD,sim_scripttype_jointctrlcallback,0);
-            }
 
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
@@ -443,37 +318,11 @@ void CQDlgScripts::on_qqScriptList_itemDoubleClicked(QListWidgetItem *item)
             CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(item->data(Qt::UserRole).toInt());
             if (it!=nullptr)
             {
-                if (App::userSettings->useOldCodeEditor)
-                {
-                    if ((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript)||(it->getScriptType()==sim_scripttype_jointctrlcallback)||(it->getScriptType()==sim_scripttype_contactcallback)||(it->getScriptType()==sim_scripttype_generalcallback))
-                        App::mainWindow->scintillaEditorContainer->openEditorForScript(it->getScriptID());
-                    if (it->getScriptType()==sim_scripttype_customizationscript)
-                    { // needs to be modal
-                        // Process the command via the simulation thread (delayed):
-                        C3DObject* theObj=App::ct->objCont->getObjectFromHandle(it->getObjectIDThatScriptIsAttachedTo_customization());
-                        SSimulationThreadCommand cmd;
-                        cmd.cmdId=OPEN_MODAL_CUSTOMIZATION_SCRIPT_EDITOR_CMD;
-                        cmd.intParams.push_back(theObj->getObjectHandle());
-                        App::appendSimulationThreadCommand(cmd);
-                    }
-                    if (it->getScriptType()==sim_scripttype_addonscript)
-                    { // needs to be modal
-                        CScintillaModalDlg dlg(sim_scripttype_addonscript,false,App::mainWindow);
-                        std::string dlgTitle("Add-on script '");
-                        dlgTitle+=it->getAddOnName();
-                        dlgTitle+="' (READ ONLY)";
-                        if (dlg.initialize(it->getScriptID(),dlgTitle.c_str(),true,true))
-                            dlg.makeDialogModal();
-                    }
-                }
-                else
-                {
-                    // Process the command via the simulation thread (delayed):
-                    SSimulationThreadCommand cmd;
-                    cmd.cmdId=OPEN_SCRIPT_EDITOR_CMD;
-                    cmd.intParams.push_back(it->getScriptID());
-                    App::appendSimulationThreadCommand(cmd);
-                }
+                // Process the command via the simulation thread (delayed):
+                SSimulationThreadCommand cmd;
+                cmd.cmdId=OPEN_SCRIPT_EDITOR_CMD;
+                cmd.intParams.push_back(it->getScriptID());
+                App::appendSimulationThreadCommand(cmd);
             }
         }
     }

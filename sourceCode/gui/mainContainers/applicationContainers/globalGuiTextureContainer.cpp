@@ -161,21 +161,11 @@ CGlobalGuiTextureContainer::CGlobalGuiTextureContainer()
     dat=CImageLoaderSaver::loadQTgaImageData(":/targaFiles/folder.tga",xres,yres,rgba,nullptr);
     addObject(FOLDER_PICTURE,xres,yres,rgba,false,true,dat);
     delete[] dat;
-    dat=CImageLoaderSaver::loadQTgaImageData(":/targaFiles/jointCtrlScript.tga",xres,yres,rgba,nullptr);
-    addObject(JOINTCTRLSCRIPT_PICTURE,xres,yres,rgba,false,true,dat);
-    delete[] dat;
     dat=CImageLoaderSaver::loadQTgaImageData(":/targaFiles/customizationScript.tga",xres,yres,rgba,nullptr);
     addObject(CUSTOMIZATIONSCRIPT_PICTURE,xres,yres,rgba,false,true,dat);
     delete[] dat;
     dat=CImageLoaderSaver::loadQTgaImageData(":/targaFiles/customizationScriptDisabled.tga",xres,yres,rgba,nullptr);
     addObject(CUSTOMIZATIONSCRIPTDISABLED_PICTURE,xres,yres,rgba,false,true,dat);
-    delete[] dat;
-    dat=CImageLoaderSaver::loadQTgaImageData(":/targaFiles/collRespScript.tga",xres,yres,rgba,nullptr);
-    addObject(COLLISIONRESPONSESCRIPT_PICTURE,xres,yres,rgba,false,true,dat);
-    delete[] dat;
-
-    dat=CImageLoaderSaver::loadQTgaImageData(":/targaFiles/generalCallbackScript.tga",xres,yres,rgba,nullptr);
-    addObject(GENERALCALLBACKSCRIPT_PICTURE,xres,yres,rgba,false,true,dat);
     delete[] dat;
 
 

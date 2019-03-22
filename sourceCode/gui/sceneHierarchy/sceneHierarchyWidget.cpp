@@ -389,7 +389,7 @@ void CSceneHierarchyWidget::mouseDoubleClickEvent(QMouseEvent* aEvent)
         if (_doubleClickedColumn==1)
         {
             SSimulationThreadCommand cmd;
-            cmd.cmdId=OPEN_MODAL_CUSTOMIZATION_SCRIPT_EDITOR_CMD;
+            //cmd.cmdId=OPEN_MODAL_CUSTOMIZATION_SCRIPT_EDITOR_CMD;
             cmd.intParams.push_back(objHandle);
             App::appendSimulationThreadCommand(cmd);
             return;
@@ -397,7 +397,7 @@ void CSceneHierarchyWidget::mouseDoubleClickEvent(QMouseEvent* aEvent)
         if (_doubleClickedColumn==2)
         {
             SSimulationThreadCommand cmd;
-            cmd.cmdId=OPEN_CHILD_SCRIPT_EDITOR_CMD;
+            //cmd.cmdId=OPEN_CHILD_SCRIPT_EDITOR_CMD;
             cmd.intParams.push_back(objHandle);
             App::appendSimulationThreadCommand(cmd);
             return;
@@ -405,7 +405,7 @@ void CSceneHierarchyWidget::mouseDoubleClickEvent(QMouseEvent* aEvent)
         if (_doubleClickedColumn==3)
         {
             SSimulationThreadCommand cmd;
-            cmd.cmdId=OPEN_JOINT_CALLBACK_SCRIPT_EDITOR_CMD;
+            //cmd.cmdId=OPEN_JOINT_CALLBACK_SCRIPT_EDITOR_CMD;
             cmd.intParams.push_back(objHandle);
             App::appendSimulationThreadCommand(cmd);
             return;

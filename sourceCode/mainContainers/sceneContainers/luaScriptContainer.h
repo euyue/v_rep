@@ -48,12 +48,8 @@ public:
     bool isContactCallbackFunctionAvailable();
     bool isDynCallbackFunctionAvailable();
 
-    void callAddOnMainChildCustomizationWithData(int callType,CInterfaceStack* inStack);
+    void callChildMainCustomizationAddonSandboxScriptWithData(int callType,CInterfaceStack* inStack);
     void sceneOrModelAboutToBeSaved(int modelBase);
-
-    CLuaScriptObject* getScriptFromObjectAttachedTo_jointCallback_OLD(int threeDObjectID) const;
-    CLuaScriptObject* getCustomContactHandlingScript_callback_OLD() const;
-    CLuaScriptObject* getGeneralCallbackHandlingScript_callback_OLD() const;
 
     std::vector<CLuaScriptObject*> allScripts;
 

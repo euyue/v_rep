@@ -504,6 +504,7 @@ extern int _simGetShapeTextureId(luaWrap_lua_State* L);
 extern int _simGetCollectionObjects(luaWrap_lua_State* L);
 extern int _simHandleCustomizationScripts(luaWrap_lua_State* L);
 extern int _simHandleAddOnScripts(luaWrap_lua_State* L);
+extern int _simHandleSandboxScript(luaWrap_lua_State* L);
 extern int _simSetScriptAttribute(luaWrap_lua_State* L);
 extern int _simGetScriptAttribute(luaWrap_lua_State* L);
 extern int _simReorientShapeBoundingBox(luaWrap_lua_State* L);

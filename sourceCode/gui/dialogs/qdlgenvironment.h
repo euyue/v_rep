@@ -37,19 +37,11 @@ private slots:
 
     void on_qqAcknowledgments_textChanged();
 
-    void on_qqCustomContactHandling_clicked();
-
-    void on_qqEditCustomContact_clicked();
-
     void on_qqCleanUpHashNames_clicked();
 
     void on_qqCleanUpGhosts_clicked();
 
     void on_qqMinRelTriangleSize_editingFinished();
-
-    void on_qqGeneralCallback_clicked();
-
-    void on_qqEditGeneralCallback_clicked();
 
     void on_qqExtensionString_editingFinished();
 

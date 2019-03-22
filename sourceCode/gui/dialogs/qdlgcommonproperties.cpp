@@ -11,7 +11,6 @@
 #include "qdlgscaling.h"
 #include "v_repStrings.h"
 #include "app.h"
-#include "scintillaModalDlg.h"
 #include "vMessageBox.h"
 
 CQDlgCommonProperties::CQDlgCommonProperties(QWidget *parent) :

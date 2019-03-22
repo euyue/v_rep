@@ -319,7 +319,7 @@ int CCopyBuffer::pasteBuffer(bool intoLockedScene)
         stack.insertDataIntoStackTable();
     }
     stack.insertDataIntoStackTable();
-    App::ct->luaScriptContainer->callAddOnMainChildCustomizationWithData(sim_syscb_aftercreate,&stack);
+    App::ct->luaScriptContainer->callChildMainCustomizationAddonSandboxScriptWithData(sim_syscb_aftercreate,&stack);
 
     return(1);
 }
@@ -366,7 +366,7 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
     }
     stack.insertDataIntoStackTable();
 
-    App::ct->luaScriptContainer->callAddOnMainChildCustomizationWithData(sim_syscb_beforecopy,&stack);
+    App::ct->luaScriptContainer->callChildMainCustomizationAddonSandboxScriptWithData(sim_syscb_beforecopy,&stack);
 
     for (size_t i=0;i<selObj.size();i++)
     {
@@ -376,7 +376,7 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
         objectBuffer.push_back(it);
     }
 
-    App::ct->luaScriptContainer->callAddOnMainChildCustomizationWithData(sim_syscb_aftercopy,&stack);
+    App::ct->luaScriptContainer->callChildMainCustomizationAddonSandboxScriptWithData(sim_syscb_aftercopy,&stack);
 
     // 3DObjects are copied. We need to prepare the parenting info:
     for (size_t i=0;i<selObj.size();i++)
@@ -437,15 +437,10 @@ void CCopyBuffer::copyCurrentSelection(std::vector<int>* sel,bool fromLockedScen
             buttonBlockBuffer.push_back(App::ct->buttonBlockContainer->allBlocks[i]->copyYourself());
     }
     for (size_t i=0;i<App::ct->luaScriptContainer->allScripts.size();i++)
-    { // Copy only child scripts, callback scripts or customization scripts:
+    { // Copy only child scripts or customization scripts:
         if (App::ct->luaScriptContainer->allScripts[i]->getScriptType()==sim_scripttype_childscript)
         { // don't copy the unassociated scripts:
             if (App::ct->luaScriptContainer->allScripts[i]->getObjectIDThatScriptIsAttachedTo_child()!=-1)
-                luaScriptBuffer.push_back(App::ct->luaScriptContainer->allScripts[i]->copyYourself());
-        }
-        if (App::ct->luaScriptContainer->allScripts[i]->getScriptType()==sim_scripttype_jointctrlcallback)
-        { // don't copy the unassociated scripts:
-            if (App::ct->luaScriptContainer->allScripts[i]->getObjectIDThatScriptIsAttachedTo_callback_OLD()!=-1)
                 luaScriptBuffer.push_back(App::ct->luaScriptContainer->allScripts[i]->copyYourself());
         }
         if (App::ct->luaScriptContainer->allScripts[i]->getScriptType()==sim_scripttype_customizationscript)

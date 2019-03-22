@@ -139,8 +139,6 @@ void CEnvironment::setUpDefaultValues()
     _calculationMaxTriangleSize=0.3f; // from 0.8 to 0.3 on 2010/07/07
     _calculationMinRelTriangleSize=0.02f;
     _saveExistingCalculationStructures=false;
-    _useCustomContactHandlingViaScript_OLD=false;
-    _useGeneralCallbackHandlingViaScript_OLD=false;
     _showPartRepository=false;
     _showPalletRepository=false;
     _jobFuncEnabled=false;
@@ -341,56 +339,6 @@ int CEnvironment::getFogType() const
     return(fogType);
 }
 
-int CEnvironment::setEnableCustomContactHandlingViaScript(bool c,const char* scriptContent)
-{
-    int retVal=-1;
-    _useCustomContactHandlingViaScript_OLD=c;
-
-    // We remove a script that might be associated:
-    CLuaScriptObject* script=App::ct->luaScriptContainer->getCustomContactHandlingScript_callback_OLD();
-    if (script!=nullptr)
-        App::ct->luaScriptContainer->removeScript(script->getScriptID());
-
-    if (_useCustomContactHandlingViaScript_OLD&&App::userSettings->enableOldCustomContactHandlingEdition)
-    { // we have to add a script
-        CLuaScriptObject* script=new CLuaScriptObject(sim_scripttype_contactcallback);
-        if (scriptContent)
-            script->setScriptText(scriptContent);
-        retVal=App::ct->luaScriptContainer->insertScript(script);
-    }
-    return(retVal);
-}
-
-bool CEnvironment::getEnableCustomContactHandlingViaScript_OLD() const
-{
-    return(_useCustomContactHandlingViaScript_OLD);
-}
-
-int CEnvironment::setEnableGeneralCallbackScript_OLD(bool c,const char* scriptContent)
-{
-    int retVal=-1;
-    _useGeneralCallbackHandlingViaScript_OLD=c;
-
-    // We remove a script that might be associated:
-    CLuaScriptObject* script=App::ct->luaScriptContainer->getGeneralCallbackHandlingScript_callback_OLD();
-    if (script)
-        App::ct->luaScriptContainer->removeScript(script->getScriptID());
-
-    if (_useGeneralCallbackHandlingViaScript_OLD)
-    { // we have to add a script
-        CLuaScriptObject* script=new CLuaScriptObject(sim_scripttype_generalcallback);
-        if (scriptContent)
-            script->setScriptText(scriptContent);
-        retVal=App::ct->luaScriptContainer->insertScript(script);
-    }
-    return(retVal);
-}
-
-bool CEnvironment::getEnableGeneralCallbackScript_OLD() const
-{
-    return(_useGeneralCallbackHandlingViaScript_OLD);
-}
-
 void CEnvironment::setAcknowledgement(const std::string& a)
 {
     _acknowledgement=a;
@@ -449,23 +397,10 @@ void CEnvironment::serialize(CSer& ar)
         ar << dummy;
         ar.flush();
 
-        ar.storeDataName("Va2");
-        dummy=0;
-        // 9/1/2016     SIM_SET_CLEAR_BIT(dummy,0,_showingInertias);
-        SIM_SET_CLEAR_BIT(dummy,1,_useCustomContactHandlingViaScript_OLD);
-        SIM_SET_CLEAR_BIT(dummy,2,_useGeneralCallbackHandlingViaScript_OLD);
-//        SIM_SET_CLEAR_BIT(dummy,3,_visualizePackMlStates);
-//        SIM_SET_CLEAR_BIT(dummy,4,_simplifiedPackMlStatesVisualization);
-//        SIM_SET_CLEAR_BIT(dummy,5,_visualizeTime);
-//        SIM_SET_CLEAR_BIT(dummy,6,_simplifiedTimeVisualization);
-//        SIM_SET_CLEAR_BIT(dummy,7,_visualizeOee);
-        ar << dummy;
-        ar.flush();
-
         ar.storeDataName("Va3");
         dummy=0;
-// free        SIM_SET_CLEAR_BIT(dummy,0,_showPartRepository);
-// free       SIM_SET_CLEAR_BIT(dummy,1,_showPalletRepository);
+        // free        SIM_SET_CLEAR_BIT(dummy,0,_showPartRepository);
+        // free       SIM_SET_CLEAR_BIT(dummy,1,_showPalletRepository);
         ar << dummy;
         ar.flush();
 
@@ -553,16 +488,6 @@ void CEnvironment::serialize(CSer& ar)
                     ar >> byteQuantity;
                     unsigned char dummy;
                     ar >> dummy;
-                    // 9/1/2016         _showingInertias=SIM_IS_BIT_SET(dummy,0);
-                    _useCustomContactHandlingViaScript_OLD=SIM_IS_BIT_SET(dummy,1);
-                    _useGeneralCallbackHandlingViaScript_OLD=SIM_IS_BIT_SET(dummy,2);
-                    /*
-                    _visualizePackMlStates=SIM_IS_BIT_SET(dummy,3);
-                    _simplifiedPackMlStatesVisualization=SIM_IS_BIT_SET(dummy,4);
-                    _visualizeTime=SIM_IS_BIT_SET(dummy,5);
-                    _simplifiedTimeVisualization=SIM_IS_BIT_SET(dummy,6);
-                    _visualizeOee=SIM_IS_BIT_SET(dummy,7);
-                    */
                 }
                 if (theName.compare("Va3")==0)
                 {

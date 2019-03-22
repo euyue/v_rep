@@ -1007,7 +1007,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                     stack.pushStringOntoStack("objectHandles",0);
                     stack.pushIntArrayTableOntoStack(&newObjectHandles[0],(int)newObjectHandles.size());
                     stack.insertDataIntoStackTable();
-                    App::ct->luaScriptContainer->callAddOnMainChildCustomizationWithData(sim_syscb_aftercreate,&stack);
+                    App::ct->luaScriptContainer->callChildMainCustomizationAddonSandboxScriptWithData(sim_syscb_aftercreate,&stack);
                 }
             }
             else

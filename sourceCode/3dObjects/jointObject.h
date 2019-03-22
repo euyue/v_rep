@@ -187,9 +187,6 @@ public:
     void setEnableDynamicMotorControlLoop(bool p);
     bool getEnableDynamicMotorControlLoop();
 
-    void setEnableDynamicMotorCustomControl_OLD(bool c,const char* scriptContent);
-    bool getEnableDynamicMotorCustomControl_OLD();
-
     void handleDynJointControl(bool init,int loopCnt,int totalLoops,float currentPos,float effort,float dynStepSize,float errorV,float& velocity,float& forceTorque);
 
     void setEnableTorqueModulation(bool p);
@@ -378,7 +375,6 @@ protected:
     float _dynamicMotorPositionControl_D;
     float _dynamicMotorSpringControl_K;
     float _dynamicMotorSpringControl_C;
-    bool _dynamicMotorCustomControl_OLD;
     bool _jointHasHybridFunctionality;
 
     float _dynamicMotorPIDCumulativeErrorForIntegralParameter;

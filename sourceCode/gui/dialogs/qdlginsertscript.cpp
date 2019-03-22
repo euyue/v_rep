@@ -35,12 +35,6 @@ void CQDlgInsertScript::initialize()
     ui->qqCombo->addItem(strTranslate(IDS_MAIN_SCRIPT),QVariant(sim_scripttype_mainscript));
     ui->qqCombo->addItem(strTranslate(IDS_CHILD_SCRIPT_UNTHREADED),QVariant(sim_scripttype_childscript));
     ui->qqCombo->addItem(strTranslate(IDS_CHILD_SCRIPT_THREADED),QVariant(sim_scripttype_childscript|sim_scripttype_threaded));
-    if (App::userSettings->enableOldCustomContactHandlingEdition)
-        ui->qqCombo->addItem(strTranslate(IDS_CONTACT_CALLBACK_SCRIPT),QVariant(sim_scripttype_contactcallback));
-    if (App::userSettings->enableOldJointCallbackScriptEdition)
-        ui->qqCombo->addItem(strTranslate(IDS_JOINT_CTRL_CALLBACK_SCRIPT),QVariant(sim_scripttype_jointctrlcallback));
-    if (App::userSettings->enableOldGeneralCallbackScriptEdition)
-        ui->qqCombo->addItem(strTranslate(IDS_GENERAL_CALLBACK_SCRIPT),QVariant(sim_scripttype_generalcallback));
     ui->qqCombo->addItem(strTranslate(IDS_CUSTOMIZATION_SCRIPT),QVariant(sim_scripttype_customizationscript));
 }
 

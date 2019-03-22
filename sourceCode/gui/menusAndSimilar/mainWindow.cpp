@@ -86,13 +86,10 @@ CMainWindow::CMainWindow() : QMainWindow()
 
     editModeContainer=new CEditModeContainer();
     oglSurface=new COglSurface();
-    scintillaConsoleContainer=new CScintillaConsoleContainer();
-    scintillaUserNonModalDlgContainer=new CScintillaUserNonModalDlgContainer();
     codeEditorContainer=new CCodeEditorContainer();
 
     // the simulator instances were created before the main window was created,
     // so duplicate the correct instance count here:
-    scintillaEditorContainer=nullptr;
     for (int i=0;i<App::ct->getInstanceCount();i++)
         newInstanceAboutToBeCreated();
 
@@ -283,12 +280,11 @@ CMainWindow::~CMainWindow()
 
     ogl::freeOutlineFont();
     ogl::freeBitmapFonts();
-    while (_scintillaEditorContainerList.size()!=0)
-        instanceAboutToBeDestroyed(int(_scintillaEditorContainerList.size()-1));
+
+    while (_sceneThumbnails.size()!=0)
+        instanceAboutToBeDestroyed(int(_sceneThumbnails.size()-1));
 
     delete codeEditorContainer;
-    delete scintillaUserNonModalDlgContainer; // since they are parented with the main window, they automatically get destroyed (i.e. their Window thing!)
-    delete scintillaConsoleContainer; // since they are parented with the main window, they automatically get destroyed (i.e. their Window thing!)
     delete oglSurface;
     delete editModeContainer;
 }
@@ -680,8 +676,6 @@ void CMainWindow::refreshDialogs_uiThread()
     void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_guipass,nullptr,nullptr,nullptr);
     delete[] (char*)returnVal;
 
-    scintillaUserNonModalDlgContainer->handleDlgRemoval();
-    scintillaConsoleContainer->handleConsoles();
     _resetStatusbarFlashIfNeeded();
 
     // We refresh dialogs and the toolbar here:
@@ -774,8 +768,6 @@ void CMainWindow::refreshDialogs_uiThread()
 
     if (VDateTime::getTimeDiffInMs(_mouseWheelEventTime)>300)
         _mouseButtonsState&=0xffff-2; // We clear the mouse wheel event
-
-    scintillaEditorContainer->updateWindowsExceptContentText();
 }
 
 int CMainWindow::_renderOpenGlContent_callFromRenderingThreadOnly()
@@ -1761,7 +1753,6 @@ void CMainWindow::simulationEnded()
 {
     tabBar->setEnabled(true);
     editModeContainer->simulationEnded();
-    scintillaConsoleContainer->simulationEnded();
     // reset those:
     _proxSensorClickSelectDown=0;
     _proxSensorClickSelectUp=0;
@@ -2500,8 +2491,6 @@ void CMainWindow::setToolbarRefreshFlag()
 void CMainWindow::newInstanceAboutToBeCreated()
 {
     FUNCTION_DEBUG;
-    if (scintillaEditorContainer!=nullptr) // can be nullptr when the Window is created
-        scintillaEditorContainer->showOrHideAllEditors(false);
     if (_sceneHierarchyWidgetList.size()>0)
     {
         sceneHierarchyWidget=new CSceneHierarchyWidget();
@@ -2511,12 +2500,7 @@ void CMainWindow::newInstanceAboutToBeCreated()
     }
     if (codeEditorContainer!=nullptr)
         codeEditorContainer->showOrHideAll(false);
-    if (scintillaUserNonModalDlgContainer!=nullptr)
-        scintillaUserNonModalDlgContainer->showOrHideAll(false);
 
-    _scintillaEditorContainerList.push_back(nullptr);
-    scintillaEditorContainer=new CScintillaEditorContainer();
-    _scintillaEditorContainerList[_scintillaEditorContainerList.size()-1]=scintillaEditorContainer;
     SSceneThumbnail thumb;
     thumb.textureResolution[0]=0;
     thumb.textureResolution[1]=0;
@@ -2534,9 +2518,6 @@ void CMainWindow::newInstanceWasJustCreated()
 void CMainWindow::instanceAboutToBeDestroyed(int currentInstanceIndex)
 {
     FUNCTION_DEBUG;
-    delete scintillaEditorContainer;
-    scintillaEditorContainer=nullptr;
-    _scintillaEditorContainerList.erase(_scintillaEditorContainerList.begin()+currentInstanceIndex);
     delete[] _sceneThumbnails[currentInstanceIndex].textureData;
     _sceneThumbnails.erase(_sceneThumbnails.begin()+currentInstanceIndex);
 
@@ -2552,15 +2533,8 @@ void CMainWindow::instanceAboutToChange(int newInstanceIndex)
 {
     FUNCTION_DEBUG;
 
-    if (scintillaEditorContainer!=nullptr) // can be nullptr if instanceAboutToBeDestroyed was called before!
-        scintillaEditorContainer->showOrHideAllEditors(false);
-    if ( (newInstanceIndex>=0)&&(newInstanceIndex<int(_scintillaEditorContainerList.size())) )
-        scintillaEditorContainer=_scintillaEditorContainerList[newInstanceIndex];
-    scintillaEditorContainer->showOrHideAllEditors(true);
     if (codeEditorContainer!=nullptr)
         codeEditorContainer->showOrHideAll(false);
-    if (scintillaUserNonModalDlgContainer!=nullptr)
-        scintillaUserNonModalDlgContainer->showOrHideAll(false);
 
     if (sceneHierarchyWidget!=nullptr)
         sceneHierarchyWidget->setVisible(false);
@@ -2580,8 +2554,6 @@ void CMainWindow::instanceHasChanged(int newInstanceIndex)
 
     if (codeEditorContainer!=nullptr)
         codeEditorContainer->showOrHideAll(true);
-    if (scintillaUserNonModalDlgContainer!=nullptr)
-        scintillaUserNonModalDlgContainer->showOrHideAll(true);
 }
 
 
@@ -2610,12 +2582,6 @@ void CMainWindow::closeTemporarilyDialogsForPageSelector()
     { // we are in the UI thread. We execute the command now:
         if (codeEditorContainer!=nullptr)
             codeEditorContainer->showOrHideAll(false);
-        if (scintillaUserNonModalDlgContainer!=nullptr)
-            scintillaUserNonModalDlgContainer->showOrHideAll(false);
-        if (scintillaEditorContainer!=nullptr) // can be nullptr if instanceAboutToBeDestroyed was called before!
-            scintillaEditorContainer->showOrHideAllEditors(false);
-        if (scintillaConsoleContainer!=nullptr)
-            scintillaConsoleContainer->hideOrShowAll(false);
         _closeDialogTemporarilyIfOpened(SETTINGS_DLG,_dialogsClosedTemporarily_pageSelector);
         _closeDialogTemporarilyIfOpened(SELECTION_DLG,_dialogsClosedTemporarily_pageSelector);
         _closeDialogTemporarilyIfOpened(SIMULATION_DLG,_dialogsClosedTemporarily_pageSelector);
@@ -2652,12 +2618,6 @@ void CMainWindow::reopenTemporarilyClosedDialogsForPageSelector()
         _dialogsClosedTemporarily_pageSelector.clear();
         if (codeEditorContainer!=nullptr)
             codeEditorContainer->showOrHideAll(true);
-        if (scintillaUserNonModalDlgContainer!=nullptr)
-            scintillaUserNonModalDlgContainer->showOrHideAll(true);
-        if (scintillaEditorContainer!=nullptr) // can be nullptr if instanceAboutToBeDestroyed was called before!
-            scintillaEditorContainer->showOrHideAllEditors(true);
-        if (scintillaConsoleContainer!=nullptr)
-            scintillaConsoleContainer->hideOrShowAll(true);
     }
     else
     { // We are NOT in the UI thread. We execute the command via the UI thread:
@@ -2675,12 +2635,6 @@ void CMainWindow::closeTemporarilyDialogsForViewSelector()
     { // we are in the UI thread. We execute the command now:
         if (codeEditorContainer!=nullptr)
             codeEditorContainer->showOrHideAll(false);
-        if (scintillaUserNonModalDlgContainer!=nullptr)
-            scintillaUserNonModalDlgContainer->showOrHideAll(false);
-        if (scintillaEditorContainer!=nullptr) // can be nullptr if instanceAboutToBeDestroyed was called before!
-            scintillaEditorContainer->showOrHideAllEditors(false);
-        if (scintillaConsoleContainer!=nullptr)
-            scintillaConsoleContainer->hideOrShowAll(false);
         _closeDialogTemporarilyIfOpened(SETTINGS_DLG,_dialogsClosedTemporarily_viewSelector);
         _closeDialogTemporarilyIfOpened(SELECTION_DLG,_dialogsClosedTemporarily_viewSelector);
         _closeDialogTemporarilyIfOpened(SIMULATION_DLG,_dialogsClosedTemporarily_viewSelector);
@@ -2717,12 +2671,6 @@ void CMainWindow::reopenTemporarilyClosedDialogsForViewSelector()
         _dialogsClosedTemporarily_viewSelector.clear();
         if (codeEditorContainer!=nullptr)
             codeEditorContainer->showOrHideAll(true);
-        if (scintillaUserNonModalDlgContainer!=nullptr)
-            scintillaUserNonModalDlgContainer->showOrHideAll(true);
-        if (scintillaEditorContainer!=nullptr) // can be nullptr if instanceAboutToBeDestroyed was called before!
-            scintillaEditorContainer->showOrHideAllEditors(true);
-        if (scintillaConsoleContainer!=nullptr)
-            scintillaConsoleContainer->hideOrShowAll(true);
     }
     else
     { // We are NOT in the UI thread. We execute the command via the UI thread:
@@ -2740,12 +2688,6 @@ void CMainWindow::closeTemporarilyDialogsForSceneSelector()
     { // we are in the UI thread. We execute the command now:
         if (codeEditorContainer!=nullptr)
             codeEditorContainer->showOrHideAll(false);
-        if (scintillaUserNonModalDlgContainer!=nullptr)
-            scintillaUserNonModalDlgContainer->showOrHideAll(false);
-        if (scintillaEditorContainer!=nullptr) // can be nullptr if instanceAboutToBeDestroyed was called before!
-            scintillaEditorContainer->showOrHideAllEditors(false);
-        if (scintillaConsoleContainer!=nullptr)
-            scintillaConsoleContainer->hideOrShowAll(false);
         _closeDialogTemporarilyIfOpened(SETTINGS_DLG,_dialogsClosedTemporarily_sceneSelector);
         _closeDialogTemporarilyIfOpened(SELECTION_DLG,_dialogsClosedTemporarily_sceneSelector);
         _closeDialogTemporarilyIfOpened(SIMULATION_DLG,_dialogsClosedTemporarily_sceneSelector);
@@ -2782,12 +2724,6 @@ void CMainWindow::reopenTemporarilyClosedDialogsForSceneSelector()
         _dialogsClosedTemporarily_sceneSelector.clear();
         if (codeEditorContainer!=nullptr)
             codeEditorContainer->showOrHideAll(true);
-        if (scintillaUserNonModalDlgContainer!=nullptr)
-            scintillaUserNonModalDlgContainer->showOrHideAll(true);
-        if (scintillaEditorContainer!=nullptr) // can be nullptr if instanceAboutToBeDestroyed was called before!
-            scintillaEditorContainer->showOrHideAllEditors(true);
-        if (scintillaConsoleContainer!=nullptr)
-            scintillaConsoleContainer->hideOrShowAll(true);
     }
     else
     { // We are NOT in the UI thread. We execute the command via the UI thread:
@@ -2807,12 +2743,6 @@ void CMainWindow::reopenTemporarilyClosedNonEditModeDialogs()
         _dialogsClosedTemporarily_editModes.clear();
         if (codeEditorContainer!=nullptr)
             codeEditorContainer->showOrHideAll(true);
-        if (scintillaUserNonModalDlgContainer!=nullptr)
-            scintillaUserNonModalDlgContainer->showOrHideAll(true);
-        if (scintillaEditorContainer!=nullptr) // can be nullptr if instanceAboutToBeDestroyed was called before!
-            scintillaEditorContainer->showOrHideAllEditors(true);
-        if (scintillaConsoleContainer!=nullptr)
-            scintillaConsoleContainer->hideOrShowAll(true);
     }
     else
     { // We are NOT in the UI thread. We execute the command via the UI thread:
@@ -2829,12 +2759,6 @@ void CMainWindow::closeTemporarilyNonEditModeDialogs()
     { // we are in the UI thread. We execute the command now:
         if (codeEditorContainer!=nullptr)
             codeEditorContainer->showOrHideAll(false);
-        if (scintillaUserNonModalDlgContainer!=nullptr)
-            scintillaUserNonModalDlgContainer->showOrHideAll(false);
-        if (scintillaEditorContainer!=nullptr) // can be nullptr if instanceAboutToBeDestroyed was called before!
-            scintillaEditorContainer->showOrHideAllEditors(false);
-        if (scintillaConsoleContainer!=nullptr)
-            scintillaConsoleContainer->hideOrShowAll(false);
         _closeDialogTemporarilyIfOpened(SETTINGS_DLG,_dialogsClosedTemporarily_editModes);
         _closeDialogTemporarilyIfOpened(SELECTION_DLG,_dialogsClosedTemporarily_editModes);
         _closeDialogTemporarilyIfOpened(SIMULATION_DLG,_dialogsClosedTemporarily_editModes);

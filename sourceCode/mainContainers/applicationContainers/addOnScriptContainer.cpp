@@ -89,43 +89,21 @@ int CAddOnScriptContainer::insertAddOnScripts()
         {
             std::string fp(App::directories->executableDirectory+VREP_SLASH);
             fp+=foundItem->name;
-
-            if (VFile::doesFileExist(fp))
+            CLuaScriptObject* defScript=new CLuaScriptObject(sim_scripttype_addonscript);
+            if (defScript->setScriptTextFromFile(fp.c_str()))
             {
-                try
-                {
-                    VFile file(fp,VFile::READ|VFile::SHARE_DENY_NONE);
-                    VArchive archive(&file,VArchive::LOAD);
-                    unsigned int archiveLength=(unsigned int)file.getLength();
-                    char* script=new char[archiveLength+1];
-                    for (int i=0;i<int(archiveLength);i++)
-                        archive >> script[i];
-                    script[archiveLength]=0;
-                    CLuaScriptObject* defScript=new CLuaScriptObject(sim_scripttype_addonscript);
-                    insertScript(defScript);
-                    defScript->setScriptText(script);
-
-                    std::string nm(foundItem->name);
-                    nm.erase(nm.begin(),nm.begin()+strlen(ADDON_SCRIPT_PREFIX_AUTOSTART));
-                    nm.erase(nm.end()-strlen(ADDON_EXTENTION)-1,nm.end());
-
-                    defScript->setAddOnName(nm.c_str());
-                    defScript->setThreadedExecution(false);
-                    if (foundItem->name.find(ADDON_SCRIPT_PREFIX_AUTOSTART)==0)
-                        defScript->setAddOnScriptAutoRun();
-
-                    delete[] script;        
-                    archive.close();
-                    file.close();
-                    addOnsCount++;
-                    printf("Add-on script '%s' was loaded.\n",foundItem->name.c_str());
-                }
-                catch(VFILE_EXCEPTION_TYPE e)
-                {
-                    printf("Failed loading add-on script '%s'.\n",foundItem->name.c_str());
-                }
+                insertScript(defScript);
+                std::string nm(foundItem->name);
+                nm.erase(nm.begin(),nm.begin()+strlen(ADDON_SCRIPT_PREFIX_AUTOSTART));
+                nm.erase(nm.end()-strlen(ADDON_EXTENTION)-1,nm.end());
+                defScript->setAddOnName(nm.c_str());
+                if (foundItem->name.find(ADDON_SCRIPT_PREFIX_AUTOSTART)==0)
+                    defScript->setAddOnScriptAutoRun();
+                addOnsCount++;
+                printf("Add-on script '%s' was loaded.\n",foundItem->name.c_str());
             }
-
+            else
+                printf("Failed loading add-on script '%s'.\n",foundItem->name.c_str());
         }
         cnt++;
         foundItem=finder.getFoundItem(cnt);

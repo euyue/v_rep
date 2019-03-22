@@ -8,7 +8,6 @@
 #include "tt.h"
 #include "app.h"
 #include "v_repStrings.h"
-#include "scintillaModalDlg.h"
 #include "vMessageBox.h"
 
 CQDlgEnvironment::CQDlgEnvironment(QWidget *parent) :
@@ -30,26 +29,6 @@ void CQDlgEnvironment::refresh()
     bool noEditModeNoSim=(App::getEditModeType()==NO_EDIT_MODE)&&App::ct->simulation->isSimulationStopped();
 
     ui->qqNextSaveIsDefinitive->setEnabled((!App::ct->environment->getSceneLocked())&&noEditModeNoSim);
-    if (App::userSettings->enableOldCustomContactHandlingEdition)
-    {
-        ui->qqCustomContactHandling->setEnabled(noEditModeNoSim);
-        ui->qqEditCustomContact->setEnabled(noEditModeNoSim&&App::ct->environment->getEnableCustomContactHandlingViaScript_OLD());
-    }
-    else
-    {
-        ui->qqCustomContactHandling->setVisible(false);
-        ui->qqEditCustomContact->setVisible(false);
-    }
-    if (App::userSettings->enableOldGeneralCallbackScriptEdition)
-    {
-        ui->qqGeneralCallback->setEnabled(noEditModeNoSim);
-        ui->qqEditGeneralCallback->setEnabled(noEditModeNoSim&&App::ct->environment->getEnableGeneralCallbackScript_OLD());
-    }
-    else
-    {
-        ui->qqGeneralCallback->setVisible(false);
-        ui->qqEditGeneralCallback->setVisible(false);
-    }
     ui->qqCleanUpHashNames->setEnabled(noEditModeNoSim);
     ui->qqExtensionString->setEnabled(noEditModeNoSim);
     ui->qqBackgroundColorUp->setEnabled(noEditModeNoSim);
@@ -71,9 +50,6 @@ void CQDlgEnvironment::refresh()
 //    ui->qqUserInterfaceTexturesDisabled->setChecked(!App::ct->environment->get2DElementTexturesEnabled());
 
     ui->qqNextSaveIsDefinitive->setChecked(App::ct->environment->getRequestFinalSave());
-
-    ui->qqCustomContactHandling->setChecked(App::ct->environment->getEnableCustomContactHandlingViaScript_OLD());
-    ui->qqGeneralCallback->setChecked(App::ct->environment->getEnableGeneralCallbackScript_OLD());
 
     ui->qqExtensionString->setText(App::ct->environment->getExtensionString().c_str());
     ui->qqAcknowledgments->setPlainText(App::ct->environment->getAcknowledgement().c_str());
@@ -154,54 +130,6 @@ void CQDlgEnvironment::on_qqAcknowledgments_textChanged()
     App::appendSimulationThreadCommand(SET_ACKNOWLEDGMENT_ENVIRONMENTGUITRIGGEREDCMD,-1,-1,0.0,0.0,txt.c_str());
 }
 
-void CQDlgEnvironment::on_qqCustomContactHandling_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        bool doIt=false;
-        bool disableIt=false;
-        std::string scriptTxt;
-        if (App::ct->environment->getEnableCustomContactHandlingViaScript_OLD())
-        { // disable it
-            if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,strTranslate("Custom collision/contact response"),strTranslate(IDSN_SURE_TO_REMOVE_CUSTOM_CONTACT_WARNING),VMESSAGEBOX_YES_NO))
-            {
-                doIt=true;
-                disableIt=true;
-            }
-        }
-        else
-        { // enable it
-            App::uiThread->messageBox_warning(App::mainWindow,strTranslate("Custom collision/contact response"),strTranslate(IDSN_CUSTOM_CONTACT_IS_SLOW_AND_NOT_RECOMENDED_WARNING),VMESSAGEBOX_OKELI);
-            scriptTxt="Default collision/contact response script file could not be found!"; // do not use comments ("--"), we want to cause an execution error!
-            doIt=true;
-            disableIt=false;
-        }
-        if (doIt)
-        {
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=SET_CUSTOMCOLLRESPONSE_ENVIRONMENTGUITRIGGEREDCMD;
-            cmd.boolParams.push_back(!disableIt);
-            cmd.stringParams.push_back(scriptTxt);
-            App::appendSimulationThreadCommand(cmd);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        }
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
-}
-
-void CQDlgEnvironment::on_qqEditCustomContact_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        if (App::ct->environment->getEnableCustomContactHandlingViaScript_OLD())
-        {
-            CLuaScriptObject* script=App::ct->luaScriptContainer->getCustomContactHandlingScript_callback_OLD();
-            if (script)
-                App::mainWindow->scintillaEditorContainer->openEditorForScript(script->getScriptID());
-        }
-    }
-}
-
 void CQDlgEnvironment::on_qqCleanUpHashNames_clicked()
 {
     App::appendSimulationThreadCommand(CLEANUP_OBJNAMES_ENVIRONMENTGUITRIGGEREDCMD);
@@ -229,53 +157,6 @@ void CQDlgEnvironment::on_qqMinRelTriangleSize_editingFinished()
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
-}
-
-void CQDlgEnvironment::on_qqGeneralCallback_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        bool doIt=false;
-        bool enableIt=false;
-        std::string scriptTxt;
-        if (App::ct->environment->getEnableGeneralCallbackScript_OLD())
-        { // disable it
-            if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,strTranslate("General callback script"),strTranslate(IDSN_SURE_TO_REMOVE_GENERAL_CALLBACK_WARNING),VMESSAGEBOX_YES_NO))
-            {
-                doIt=true;
-                enableIt=false;
-            }
-        }
-        else
-        { // enable it
-            doIt=true;
-            enableIt=true;
-            scriptTxt="Default general callback script file could not be found!"; // do not use comments ("--"), we want to cause an execution error!
-        }
-        if (doIt)
-        {
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=SET_GENERALCALLBACK_ENVIRONMENTGUITRIGGEREDCMD;
-            cmd.boolParams.push_back(enableIt);
-            cmd.stringParams.push_back(scriptTxt);
-            App::appendSimulationThreadCommand(cmd);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        }
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
-}
-
-void CQDlgEnvironment::on_qqEditGeneralCallback_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        if (App::ct->environment->getEnableGeneralCallbackScript_OLD())
-        {
-            CLuaScriptObject* script=App::ct->luaScriptContainer->getGeneralCallbackHandlingScript_callback_OLD();
-            if (script)
-                App::mainWindow->scintillaEditorContainer->openEditorForScript(script->getScriptID());
-        }
     }
 }
 

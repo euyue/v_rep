@@ -798,24 +798,6 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
             localOffset+=(HIERARCHY_ICON_WIDTH+HIERARCHY_INTER_ICON_SPACING)*App::sc;
         }
 
-        // Joint callback scripts:
-        script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(it->getObjectHandle());
-        if ( (script!=nullptr)&&App::userSettings->enableOldJointCallbackScriptEdition )
-        {
-            if (!dontDisplay)
-            {
-                App::ct->globalGuiTextureCont->startTextureDisplay(JOINTCTRLSCRIPT_PICTURE);
-                _drawTexturedIcon(tPosX+localOffset,tPosY,HIERARCHY_ICON_WIDTH*App::sc,HIERARCHY_ICON_HEIGHT*App::sc,transparencyFactor);
-            }
-            if (!forDragAndDrop)
-            {
-                hier->scriptIconPosition.push_back(tPosX+localOffset);
-                hier->scriptIconPosition.push_back(tPosY);
-                hier->scriptIconPosition.push_back(script->getScriptID());
-            }
-            localOffset+=HIERARCHY_ICON_WIDTH*App::sc;
-        }
-
         // Customization scripts:
         script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(it->getObjectHandle());
         if (script!=nullptr)
@@ -874,41 +856,6 @@ void CHierarchyElement::renderElement_3DObject(CHierarchy* hier,int labelEditObj
             }
             localOffset+=(HIERARCHY_ICON_WIDTH+HIERARCHY_INTER_ICON_SPACING)*App::sc;
         }
-
-        script=App::ct->luaScriptContainer->getCustomContactHandlingScript_callback_OLD();
-        if ( (script!=nullptr)&&App::userSettings->enableOldCustomContactHandlingEdition )
-        {
-            if (!dontDisplay)
-            {
-                App::ct->globalGuiTextureCont->startTextureDisplay(COLLISIONRESPONSESCRIPT_PICTURE);
-                _drawTexturedIcon(tPosX+localOffset,tPosY,HIERARCHY_ICON_WIDTH*App::sc,HIERARCHY_ICON_HEIGHT*App::sc,transparencyFactor);
-            }
-            if (!forDragAndDrop)
-            {
-                hier->scriptIconPosition.push_back(tPosX+localOffset);
-                hier->scriptIconPosition.push_back(tPosY);
-                hier->scriptIconPosition.push_back(script->getScriptID());
-            }
-            localOffset+=HIERARCHY_ICON_WIDTH*App::sc;
-        }
-
-        script=App::ct->luaScriptContainer->getGeneralCallbackHandlingScript_callback_OLD();
-        if ( (script!=nullptr)&&App::userSettings->enableOldGeneralCallbackScriptEdition )
-        {
-            if (!dontDisplay)
-            {
-                App::ct->globalGuiTextureCont->startTextureDisplay(GENERALCALLBACKSCRIPT_PICTURE);
-                _drawTexturedIcon(tPosX+localOffset,tPosY,HIERARCHY_ICON_WIDTH*App::sc,HIERARCHY_ICON_HEIGHT*App::sc,transparencyFactor);
-            }
-            if (!forDragAndDrop)
-            {
-                hier->scriptIconPosition.push_back(tPosX+localOffset);
-                hier->scriptIconPosition.push_back(tPosY);
-                hier->scriptIconPosition.push_back(script->getScriptID());
-            }
-            localOffset+=HIERARCHY_ICON_WIDTH*App::sc;
-        }
-
     }
     lineLastPos+=localOffset;
 

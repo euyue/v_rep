@@ -64,12 +64,9 @@
         <file>targaFiles/convexm.tga</file>
         <file>targaFiles/convexs.tga</file>
         <file>targaFiles/customizationScript.tga</file>
-        <file>targaFiles/jointCtrlScript.tga</file>
-        <file>targaFiles/collRespScript.tga</file>
         <file>targaFiles/customizationScriptDisabled.tga</file>
         <file>targaFiles/scriptDisabled.tga</file>
         <file>targaFiles/scriptthreadedDisabled.tga</file>
-        <file>targaFiles/generalCallbackScript.tga</file>
         <file>targaFiles/octree.tga</file>
         <file>targaFiles/pointcloud.tga</file>
     </qresource>

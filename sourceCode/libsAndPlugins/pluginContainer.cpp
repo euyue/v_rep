@@ -331,11 +331,17 @@ CPlugin* CPluginContainer::getPluginFromIndex(int index)
 bool CPluginContainer::killPlugin(int handle)
 {
     FUNCTION_DEBUG;
-    for (int i=0;i<int(_allPlugins.size());i++)
+    for (size_t i=0;i<_allPlugins.size();i++)
     {
         if (_allPlugins[i]->handle==handle)
         {
             FUNCTION_INSIDE_DEBUG(_allPlugins[i]->name.c_str());
+
+#ifdef SIM_WITH_GUI
+            if ( (App::mainWindow!=nullptr)&&(_allPlugins[i]->name.compare("CodeEditor")==0) )
+                App::mainWindow->codeEditorContainer->closeAll();
+#endif
+
             if (_allPlugins[i]->_loadCount==1)
             { // will unload it
                 _allPlugins[i]->endAddress();
@@ -353,16 +359,6 @@ bool CPluginContainer::killPlugin(int handle)
         }
     }
     return(false);
-}
-
-void CPluginContainer::killAllPlugins()
-{
-    for (int i=0;i<int(_allPlugins.size());i++)
-    {
-        _allPlugins[i]->endAddress();
-        delete _allPlugins[i];
-    }
-    _allPlugins.clear();
 }
 
 int CPluginContainer::getPluginCount()

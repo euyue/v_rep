@@ -277,7 +277,7 @@ void CModelListWidget::setFolder(const char* folderPath)
             serObj.writeOpen();
             serializePart1(serObj);
             serializePart2(serObj);
-            serObj.writeClose(App::userSettings->compressFiles);
+            serObj.writeClose(App::userSettings->compressFiles,3);
             archive.close();
             myFile.close();
         }

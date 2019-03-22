@@ -54,11 +54,6 @@ public:
     void setSaveExistingCalculationStructuresTemp(bool s);
     bool getSaveExistingCalculationStructuresTemp() const;
 
-    int setEnableCustomContactHandlingViaScript(bool c,const char* scriptContent);
-    bool getEnableCustomContactHandlingViaScript_OLD() const;
-    int setEnableGeneralCallbackScript_OLD(bool c,const char* scriptContent);
-    bool getEnableGeneralCallbackScript_OLD() const;
-
     int getSceneUniqueID() const;
 
 
@@ -147,8 +142,6 @@ protected:
     bool _saveExistingCalculationStructures;
     bool _saveExistingCalculationStructuresTemp;
     bool _sceneCanBeDiscardedWhenNewSceneOpened;
-    bool _useCustomContactHandlingViaScript_OLD;
-    bool _useGeneralCallbackHandlingViaScript_OLD;
 
     bool _jobFuncEnabled; // not serialized
     bool _showPartRepository; // not serialized

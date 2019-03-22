@@ -12,8 +12,6 @@
 #include "app.h"
 #include "miscBase.h"
 #ifdef SIM_WITH_GUI
-    #include "scintillaDlg.h"
-    #include "scintillaConsoleDlg.h"
     #include "vDialog.h"
 #endif
 
@@ -85,12 +83,8 @@
 #define _USR_ENABLE_OPENGL_BASED_CUSTOM_UI_EDITOR "enableOpenGlBasedCustomUiEditor"
 #define _USR_CHANGE_SCRIPT_CODE_NEW_API_NOTATION "changeScriptCodeForNewApiNotation"
 #define _USR_SUPPORT_OLD_API_NOTATION "supportOldApiNotation"
-#define _USR_ENABLE_OLD_CUSTOM_CONTACT_HANDLING_EDITION "enableOldCustomContactHandlingEdition"
-#define _USR_ENABLE_OLD_GENERAL_CALLBACK_SCRIPT_EDITION "enableOldGeneralCallbackScriptEdition"
-#define _USR_ENABLE_OLD_JOINT_CALLBACK_SCRIPT_EDITION "enableOldJointCallbackScriptEdition"
 #define _USR_ENABLE_OLD_MILL_OBJECTS "enableOldMillObjects"
 #define _USR_ENABLE_OLD_MIRROR_OBJECTS "enableOldMirrorObjects"
-#define _USR_ENABLE_OLD_CODE_EDITOR "useOldCodeEditor"
 
 
 #define _USR_ABORT_SCRIPT_EXECUTION_BUTTON "abortScriptExecutionButton"
@@ -361,13 +355,9 @@ CUserSettings::CUserSettings()
     useAlternateSerialPortRoutines=false;
     enableOpenGlBasedCustomUiEditor=false;
     changeScriptCodeForNewApiNotation=1;
-    enableOldCustomContactHandlingEdition=false;
-    enableOldGeneralCallbackScriptEdition=false;
-    enableOldJointCallbackScriptEdition=false;
     _supportOldApiNotation=true;
     enableOldMillObjects=false;
     enableOldMirrorObjects=false;
-    useOldCodeEditor=false;
 
 
 
@@ -744,12 +734,8 @@ void CUserSettings::saveUserSettings()
     c.addBoolean(_USR_ENABLE_OPENGL_BASED_CUSTOM_UI_EDITOR,enableOpenGlBasedCustomUiEditor,"");
     c.addInteger(_USR_CHANGE_SCRIPT_CODE_NEW_API_NOTATION,changeScriptCodeForNewApiNotation,"1=enabled, 0=disabled.");
     c.addBoolean(_USR_SUPPORT_OLD_API_NOTATION,_supportOldApiNotation,"");
-    c.addBoolean(_USR_ENABLE_OLD_CUSTOM_CONTACT_HANDLING_EDITION,enableOldCustomContactHandlingEdition,"");
-    c.addBoolean(_USR_ENABLE_OLD_GENERAL_CALLBACK_SCRIPT_EDITION,enableOldGeneralCallbackScriptEdition,"");
-    c.addBoolean(_USR_ENABLE_OLD_JOINT_CALLBACK_SCRIPT_EDITION,enableOldJointCallbackScriptEdition,"");
     c.addBoolean(_USR_ENABLE_OLD_MILL_OBJECTS,enableOldMillObjects,"");
     c.addBoolean(_USR_ENABLE_OLD_MIRROR_OBJECTS,enableOldMirrorObjects,"");
-    c.addBoolean(_USR_ENABLE_OLD_CODE_EDITOR,useOldCodeEditor,"");
 
 
     c.addRandomLine("");
@@ -1026,12 +1012,8 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_ENABLE_OPENGL_BASED_CUSTOM_UI_EDITOR,enableOpenGlBasedCustomUiEditor);
     c.getInteger(_USR_CHANGE_SCRIPT_CODE_NEW_API_NOTATION,changeScriptCodeForNewApiNotation);
     c.getBoolean(_USR_SUPPORT_OLD_API_NOTATION,_supportOldApiNotation);
-    c.getBoolean(_USR_ENABLE_OLD_CUSTOM_CONTACT_HANDLING_EDITION,enableOldCustomContactHandlingEdition);
-    c.getBoolean(_USR_ENABLE_OLD_GENERAL_CALLBACK_SCRIPT_EDITION,enableOldGeneralCallbackScriptEdition);
-    c.getBoolean(_USR_ENABLE_OLD_JOINT_CALLBACK_SCRIPT_EDITION,enableOldJointCallbackScriptEdition);
     c.getBoolean(_USR_ENABLE_OLD_MILL_OBJECTS,enableOldMillObjects);
     c.getBoolean(_USR_ENABLE_OLD_MIRROR_OBJECTS,enableOldMirrorObjects);
-    c.getBoolean(_USR_ENABLE_OLD_CODE_EDITOR,useOldCodeEditor);
 
     // Various section:
     // *****************************
@@ -1062,20 +1044,13 @@ void CUserSettings::loadUserSettings()
         if (macChildDialogType<=0)
         { // Qt::Tool
             VDialog::dialogStyle=QT_MODELESS_DLG_STYLE;
-            CScintillaDlg::dialogStyle=QT_MODELESS_SCINTILLA_DLG_STYLE;
-            CScintillaConsoleDlg::dialogStyle=QT_MODELESS_SCINTILLA_DLG_STYLE;
         }
         else
         { // Qt::Dialog
             VDialog::dialogStyle=Qt::Dialog;
-            CScintillaDlg::dialogStyle=Qt::Dialog;
-            CScintillaConsoleDlg::dialogStyle=Qt::Dialog;
         }
     #else
         VDialog::dialogStyle=QT_MODELESS_DLG_STYLE;
-        CScintillaDlg::dialogStyle=QT_MODELESS_SCINTILLA_DLG_STYLE;
-        CScintillaConsoleDlg::dialogStyle=QT_MODELESS_SCINTILLA_DLG_STYLE;
-        CScintillaUserNonModalDlg::dialogStyle=QT_MODELESS_SCINTILLA_DLG_STYLE;
     #endif
 #endif
     c.getBoolean(_USR_USE_EXTERNAL_LUA_LIBRARY,useExternalLuaLibrary);

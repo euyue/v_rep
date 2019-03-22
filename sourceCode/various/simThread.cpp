@@ -68,12 +68,6 @@ void CSimThread::executeMessages()
         }
     }
 
-    if (App::mainWindow!=nullptr)
-    {
-        if (App::mainWindow->scintillaUserNonModalDlgContainer!=nullptr)
-            App::mainWindow->scintillaUserNonModalDlgContainer->handleCallbacks();
-    }
-
 #endif
 
     int pass=0;
@@ -320,50 +314,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     }
                 }
             }
-            if (cmd.cmdId==OPEN_MODAL_CUSTOMIZATION_SCRIPT_EDITOR_CMD)
-            {
-                if (App::getEditModeType()==NO_EDIT_MODE)
-                {
-                    CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(cmd.intParams[0]);
-                    C3DObject* obj=App::ct->objCont->getObjectFromHandle(cmd.intParams[0]);
-                    if ( (it!=nullptr)&&(obj!=nullptr) )
-                    {
-                        SUIThreadCommand cmdIn;
-                        SUIThreadCommand cmdOut;
-                        cmdIn.cmdId=OPEN_MODAL_CUSTOMIZATION_SCRIPT_EDITOR_UITHREADCMD;
-                        cmdIn.intParams.push_back(it->getScriptID());
-                        std::string dlgTitle("Customization script '");
-                        dlgTitle+=obj->getObjectName();
-                        dlgTitle+="'";
-                        cmdIn.stringParams.push_back(dlgTitle);
-                        {
-                            it->killLuaState();
-                            // Following instruction very important in the function below tries to lock resources (or a plugin it calls!):
-                            SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
-                            App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-                        }
-                    }
-                }
-            }
-            if (cmd.cmdId==OPEN_CHILD_SCRIPT_EDITOR_CMD)
-            {
-                if (App::getEditModeType()==NO_EDIT_MODE)
-                {
-                    CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(cmd.intParams[0]);
-                    if (it!=nullptr)
-                        App::mainWindow->scintillaEditorContainer->openEditorForScript(it->getScriptID());
-                }
-            }
 
-            if (cmd.cmdId==OPEN_JOINT_CALLBACK_SCRIPT_EDITOR_CMD)
-            {
-                if (App::getEditModeType()==NO_EDIT_MODE)
-                {
-                    CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(cmd.intParams[0]);
-                    if (it!=nullptr)
-                        App::mainWindow->scintillaEditorContainer->openEditorForScript(it->getScriptID());
-                }
-            }
             if (cmd.cmdId==OPEN_MODAL_MODEL_PROPERTIES_CMD)
             {
                 if (App::getEditModeType()==NO_EDIT_MODE)
@@ -1967,13 +1918,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             App::ct->environment->setAcknowledgement(cmd.stringParams[0]);
         }
-        if (cmd.cmdId==SET_CUSTOMCOLLRESPONSE_ENVIRONMENTGUITRIGGEREDCMD)
-        {
-            if (cmd.boolParams[0])
-                App::ct->environment->setEnableCustomContactHandlingViaScript(true,cmd.stringParams[0].c_str());
-            else
-                App::ct->environment->setEnableCustomContactHandlingViaScript(false,nullptr);
-        }
         if (cmd.cmdId==CLEANUP_OBJNAMES_ENVIRONMENTGUITRIGGEREDCMD)
         {
             if (App::ct->simulation->isSimulationStopped())
@@ -1987,15 +1931,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             App::ct->environment->setExtensionString(cmd.stringParams[0].c_str());
         }
-        if (cmd.cmdId==SET_GENERALCALLBACK_ENVIRONMENTGUITRIGGEREDCMD)
-        {
-            if (cmd.boolParams[0])
-                App::ct->environment->setEnableGeneralCallbackScript_OLD(true,cmd.stringParams[0].c_str());
-            else
-                App::ct->environment->setEnableGeneralCallbackScript_OLD(false,nullptr);
-        }
-
-
         if (cmd.cmdId==TOGGLE_ENABLED_FOGGUITRIGGEREDCMD)
         {
             App::ct->environment->setFogEnabled(!App::ct->environment->getFogEnabled());
@@ -3347,13 +3282,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             CJoint* last=App::ct->objCont->getJoint(cmd.intParams[0]);
             if ( (last!=nullptr)&&((last->getJointMode()==sim_jointmode_force)||last->getHybridFunctionality()) )
             {
-                const char* callbackScriptText=nullptr;
-                if (last->getEnableDynamicMotorCustomControl_OLD())
-                {
-                    CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(last->getObjectHandle());
-                    if (script)
-                        callbackScriptText=script->getScriptText();
-                }
                 for (size_t i=1;i<cmd.intParams.size();i++)
                 {
                     CJoint* it=App::ct->objCont->getJoint(cmd.intParams[i]);
@@ -3369,36 +3297,21 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         last->getDynamicMotorSpringControlParameters(kp,cp);
                         it->setDynamicMotorSpringControlParameters(kp,cp);
                         it->setDynamicMotorPositionControlTargetPosition(last->getDynamicMotorPositionControlTargetPosition());
-                        it->setEnableDynamicMotorCustomControl_OLD(false,nullptr);
-                        if (last->getEnableDynamicMotorCustomControl_OLD())
-                            it->setEnableDynamicMotorCustomControl_OLD(true,callbackScriptText);
                     }
                 }
             }
-        }
-        if (cmd.cmdId==SELECT_CUSTOMCTRL_JOINTDYNGUITRIGGEREDCMD)
-        {
-            CJoint* it=App::ct->objCont->getJoint(cmd.intParams[0]);
-            if ((it!=nullptr)&&(!it->getEnableDynamicMotorCustomControl_OLD()))
-                it->setEnableDynamicMotorCustomControl_OLD(true,cmd.stringParams[0].c_str());
         }
         if (cmd.cmdId==SELECT_PIDCTRL_JOINTDYNGUITRIGGEREDCMD)
         {
             CJoint* it=App::ct->objCont->getJoint(cmd.intParams[0]);
             if (it!=nullptr)
-            {
-                it->setEnableDynamicMotorCustomControl_OLD(false,nullptr);
                 it->setEnableTorqueModulation(false);
-            }
         }
         if (cmd.cmdId==SELECT_SPRINGDAMPERCTRL_JOINTDYNGUITRIGGEREDCMD)
         {
             CJoint* it=App::ct->objCont->getJoint(cmd.intParams[0]);
             if (it!=nullptr)
-            {
-                it->setEnableDynamicMotorCustomControl_OLD(false,nullptr);
                 it->setEnableTorqueModulation(true);
-            }
         }
         if (cmd.cmdId==SET_KCVALUES_JOINTDYNGUITRIGGEREDCMD)
         {
@@ -3742,21 +3655,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
             {
                 if ((script->getScriptType()==sim_scripttype_mainscript)||(script->getScriptType()==sim_scripttype_childscript))
                     App::ct->luaScriptContainer->removeScript(scriptID);
-                else if (script->getScriptType()==sim_scripttype_jointctrlcallback)
-                { // a bit more complicated here!
-                    int objID=script->getObjectIDThatScriptIsAttachedTo_callback_OLD();
-                    C3DObject* it=App::ct->objCont->getObjectFromHandle(objID);
-                    if (it!=nullptr)
-                    {
-                        if (it->getObjectType()==sim_object_joint_type)
-                        {
-                            CJoint* joint=(CJoint*)it;
-                            joint->setEnableDynamicMotorCustomControl_OLD(false,nullptr);
-                        }
-                    }
-                    else
-                        App::ct->luaScriptContainer->removeScript(scriptID); // unassociated
-                }
                 else if (script->getScriptType()==sim_scripttype_customizationscript)
                 {
                     int objID=script->getObjectIDThatScriptIsAttachedTo_customization();
@@ -3766,10 +3664,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     else
                         App::ct->luaScriptContainer->removeScript(scriptID); // unassociated
                 }
-                else if (script->getScriptType()==sim_scripttype_contactcallback)
-                    App::ct->environment->setEnableCustomContactHandlingViaScript(false,nullptr);
-                else if (script->getScriptType()==sim_scripttype_generalcallback)
-                    App::ct->environment->setEnableGeneralCallbackScript_OLD(false,nullptr);
             }
         }
         if (cmd.cmdId==INSERT_SCRIPT_SCRIPTGUITRIGGEREDCMD)
@@ -3811,16 +3705,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
                 CLuaScriptObject* script=new CLuaScriptObject(sim_scripttype_customizationscript);
                 script->setScriptText(scriptInitText.c_str());
-                newScriptID=App::ct->luaScriptContainer->insertScript(script);
-            }
-            if (scriptT==sim_scripttype_contactcallback)
-                newScriptID=App::ct->environment->setEnableCustomContactHandlingViaScript(true,"Default collision/contact response script file could not be found!");
-            if (scriptT==sim_scripttype_generalcallback)
-                newScriptID=App::ct->environment->setEnableGeneralCallbackScript_OLD(true,"Default general callback script file could not be found!");
-            if (scriptT==sim_scripttype_jointctrlcallback)
-            {
-                CLuaScriptObject* script=new CLuaScriptObject(sim_scripttype_jointctrlcallback);
-                script->setScriptText("Default joint custom control script file could not be found!");
                 newScriptID=App::ct->luaScriptContainer->insertScript(script);
             }
             // Now select the new collection in the UI. We need to post it so that it arrives after the dialog refresh!:
@@ -3911,36 +3795,6 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                     {
                         it->setObjectIDThatScriptIsAttachedTo_customization(-1);
                         App::ct->setModificationFlag(16384); // script deleted flag
-                    }
-                }
-                if (it->getScriptType()==sim_scripttype_jointctrlcallback)
-                {
-                    CJoint* theOldJ=App::ct->objCont->getJoint(it->getObjectIDThatScriptIsAttachedTo_callback_OLD());
-                    if (it2!=nullptr)
-                    {
-                        // Check if the object doesn't already have a script attached:
-                        if (App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(objID)==nullptr)
-                        {
-                            CJoint* theNewJ=App::ct->objCont->getJoint(objID);
-                            if (theNewJ!=nullptr)
-                            {
-                                if (theOldJ!=nullptr)
-                                {
-                                    it->setObjectIDThatScriptIsAttachedTo_callback_OLD(-1);
-                                    theOldJ->setEnableDynamicMotorCustomControl_OLD(false,nullptr);
-                                }
-                                theNewJ->setEnableDynamicMotorCustomControl_OLD(true,nullptr);
-                                it->setObjectIDThatScriptIsAttachedTo_callback_OLD(objID);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (theOldJ!=nullptr)
-                        {
-                            it->setObjectIDThatScriptIsAttachedTo_callback_OLD(-1);
-                            theOldJ->setEnableDynamicMotorCustomControl_OLD(false,nullptr);
-                        }
                     }
                 }
             }
@@ -5884,6 +5738,8 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 stack.insertDataIntoStackTable();
                 App::ct->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_br,&stack,nullptr,nullptr);
                 App::ct->addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_br,&stack,nullptr);
+                if (App::ct->sandboxScript!=nullptr)
+                    App::ct->sandboxScript->runSandboxScript(sim_syscb_br,&stack,nullptr);
             }
         }
 

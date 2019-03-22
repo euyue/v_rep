@@ -169,15 +169,7 @@ bool CUndoBufferCont::memorizeState()
     int startTime=VDateTime::getTimeInMs();
 
     if (App::mainWindow!=nullptr)
-    {
-        if (App::userSettings->useOldCodeEditor)
-        {
-            if (App::mainWindow->scintillaEditorContainer!=nullptr)
-                App::mainWindow->scintillaEditorContainer->applyChanges();
-        }
-        else
-            App::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();
-    }
+        App::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();
 
     std::vector<char> newBuff;
     CSer serObj(newBuff);
@@ -190,7 +182,7 @@ bool CUndoBufferCont::memorizeState()
     App::ct->objCont->saveScene(serObj); // This takes the 90% of time of the whole routine
     cameraBuffers->restoreCameras();
     _undoPointSavingOrRestoringUnderWay=false;
-    serObj.writeClose(false); // We don't wanna compression
+    serObj.writeClose(false,0); // We don't wanna compression
 
     CUndoBuffer* it=new CUndoBuffer(newBuff,_nextBufferId++,cameraBuffers);
     if (_currentStateIndex==-1)
@@ -322,21 +314,10 @@ void CUndoBufferCont::undo()
     if (App::mainWindow==nullptr)
         return; // we are in headless mode
 
-    if (App::userSettings->useOldCodeEditor)
+    if (App::mainWindow->codeEditorContainer->areSceneEditorsOpen())
     {
-        if (App::mainWindow->scintillaEditorContainer->areWindowsOpen())
-        {
-            App::uiThread->messageBox_information(App::mainWindow,strTranslate(IDSN_UNDO_REDO),strTranslate(IDS_UNDO_REDO_WITH_OPEN_SCRIPT_EDITOR_MESSAGE),VMESSAGEBOX_OKELI);
-            return;
-        }
-    }
-    else
-    {
-        if (App::mainWindow->codeEditorContainer->areSceneEditorsOpen())
-        {
-            App::uiThread->messageBox_information(App::mainWindow,strTranslate(IDSN_UNDO_REDO),strTranslate(IDS_UNDO_REDO_WITH_OPEN_SCRIPT_EDITOR_MESSAGE),VMESSAGEBOX_OKELI);
-            return;
-        }
+        App::uiThread->messageBox_information(App::mainWindow,strTranslate(IDSN_UNDO_REDO),strTranslate(IDS_UNDO_REDO_WITH_OPEN_SCRIPT_EDITOR_MESSAGE),VMESSAGEBOX_OKELI);
+        return;
     }
     _inUndoRoutineNow=true;
     // 1. We memorize this position: NOOOOOOO!!! Can cause subtle errors!! 
@@ -406,21 +387,10 @@ void CUndoBufferCont::redo()
         return; // nothing to redo
     if (App::mainWindow==nullptr)
         return; // we are in headless mode
-    if (App::userSettings->useOldCodeEditor)
+    if (App::mainWindow->codeEditorContainer->areSceneEditorsOpen())
     {
-        if (App::mainWindow->scintillaEditorContainer->areWindowsOpen())
-        {
-            App::uiThread->messageBox_information(App::mainWindow,strTranslate(IDSN_UNDO_REDO),strTranslate(IDS_UNDO_REDO_WITH_OPEN_SCRIPT_EDITOR_MESSAGE),VMESSAGEBOX_OKELI);
-            return;
-        }
-    }
-    else
-    {
-        if (App::mainWindow->codeEditorContainer->areSceneEditorsOpen())
-        {
-            App::uiThread->messageBox_information(App::mainWindow,strTranslate(IDSN_UNDO_REDO),strTranslate(IDS_UNDO_REDO_WITH_OPEN_SCRIPT_EDITOR_MESSAGE),VMESSAGEBOX_OKELI);
-            return;
-        }
+        App::uiThread->messageBox_information(App::mainWindow,strTranslate(IDSN_UNDO_REDO),strTranslate(IDS_UNDO_REDO_WITH_OPEN_SCRIPT_EDITOR_MESSAGE),VMESSAGEBOX_OKELI);
+        return;
     }
     // 2. We go forward:
     _currentStateIndex++;

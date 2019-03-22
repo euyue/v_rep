@@ -1756,7 +1756,7 @@ void CSceneObjectOperations::ungroupSelection(std::vector<int>* selection,bool s
         stack.pushStringOntoStack("objectHandles",0);
         stack.pushIntArrayTableOntoStack(&newObjectHandles[0],(int)newObjectHandles.size());
         stack.insertDataIntoStackTable();
-        App::ct->luaScriptContainer->callAddOnMainChildCustomizationWithData(sim_syscb_aftercreate,&stack);
+        App::ct->luaScriptContainer->callChildMainCustomizationAddonSandboxScriptWithData(sim_syscb_aftercreate,&stack);
     }
 
 }
@@ -2082,7 +2082,7 @@ void CSceneObjectOperations::divideSelection(std::vector<int>* selection,bool sh
         stack.pushStringOntoStack("objectHandles",0);
         stack.pushIntArrayTableOntoStack(&newObjectHandles[0],(int)newObjectHandles.size());
         stack.insertDataIntoStackTable();
-        App::ct->luaScriptContainer->callAddOnMainChildCustomizationWithData(sim_syscb_aftercreate,&stack);
+        App::ct->luaScriptContainer->callChildMainCustomizationAddonSandboxScriptWithData(sim_syscb_aftercreate,&stack);
     }
 
     if (showMessages)

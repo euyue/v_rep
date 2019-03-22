@@ -207,7 +207,6 @@ WITH_GUI {
     INCLUDEPATH += $$PWD/"sourceCode/gui/modelBrowser"
     INCLUDEPATH += $$PWD/"sourceCode/gui/sceneHierarchy"
     INCLUDEPATH += $$PWD/"sourceCode/gui/selectors"
-    INCLUDEPATH += $$PWD/"sourceCode/gui/scintillaRelated"
     INCLUDEPATH += $$PWD/"sourceCode/gui/menusAndSimilar"
     INCLUDEPATH += $$PWD/"sourceCode/gui/various"
     INCLUDEPATH += $$PWD/"sourceCode/gui/libs"
@@ -785,12 +784,9 @@ WITH_GUI {
         $$PWD/sourceCode/gui/platform/vFileDialog.h \
         $$PWD/sourceCode/gui/platform/vDialog.h \
 
-    HEADERS += $$PWD/sourceCode/gui/mainContainers/sceneContainers/scintillaEditorContainer.h \
-        $$PWD/sourceCode/gui/mainContainers/sceneContainers/oglSurface.h \
+    HEADERS += $$PWD/sourceCode/gui/mainContainers/sceneContainers/oglSurface.h \
 
-    HEADERS += $$PWD/sourceCode/gui/mainContainers/applicationContainers/scintillaConsoleContainer.h \
-        $$PWD/sourceCode/gui/mainContainers/applicationContainers/globalGuiTextureContainer.h \
-        $$PWD/sourceCode/gui/mainContainers/applicationContainers/scintillaUserNonModalDlgContainer.h \
+    HEADERS += $$PWD/sourceCode/gui/mainContainers/applicationContainers/globalGuiTextureContainer.h \
         $$PWD/sourceCode/gui/mainContainers/applicationContainers/codeEditorContainer.h \
 
     HEADERS += $$PWD/sourceCode/gui/editModes/editModeContainer.h \
@@ -813,13 +809,6 @@ WITH_GUI {
     HEADERS += $$PWD/sourceCode/gui/selectors/viewSelector.h \
         $$PWD/sourceCode/gui/selectors/pageSelector.h \
         $$PWD/sourceCode/gui/selectors/sceneSelector.h \
-
-    HEADERS += $$PWD/sourceCode/gui/scintillaRelated/scintillaEditor.h \
-        $$PWD/sourceCode/gui/scintillaRelated/scintillaDlg.h \
-        $$PWD/sourceCode/gui/scintillaRelated/scintillaModalDlg.h \
-        $$PWD/sourceCode/gui/scintillaRelated/scintillaUserModalDlg.h \
-        $$PWD/sourceCode/gui/scintillaRelated/scintillaUserNonModalDlg.h \
-        $$PWD/sourceCode/gui/scintillaRelated/scintillaConsoleDlg.h \
 
     HEADERS += $$PWD/sourceCode/gui/menusAndSimilar/toolBarCommand.h \
         $$PWD/sourceCode/gui/menusAndSimilar/customMenuBarItemContainer.h \
@@ -1276,12 +1265,9 @@ WITH_GUI {
         $$PWD/sourceCode/gui/platform/vFileDialog.cpp \
         $$PWD/sourceCode/gui/platform/vDialog.cpp \
 
-    SOURCES += $$PWD/sourceCode/gui/mainContainers/sceneContainers/scintillaEditorContainer.cpp \
-        $$PWD/sourceCode/gui/mainContainers/sceneContainers/oglSurface.cpp \
+    SOURCES += $$PWD/sourceCode/gui/mainContainers/sceneContainers/oglSurface.cpp \
 
-    SOURCES += $$PWD/sourceCode/gui/mainContainers/applicationContainers/scintillaConsoleContainer.cpp \
-        $$PWD/sourceCode/gui/mainContainers/applicationContainers/globalGuiTextureContainer.cpp \
-        $$PWD/sourceCode/gui/mainContainers/applicationContainers/scintillaUserNonModalDlgContainer.cpp \
+    SOURCES += $$PWD/sourceCode/gui/mainContainers/applicationContainers/globalGuiTextureContainer.cpp \
         $$PWD/sourceCode/gui/mainContainers/applicationContainers/codeEditorContainer.cpp \
 
     SOURCES += $$PWD/sourceCode/gui/editModes/editModeContainer.cpp \
@@ -1304,13 +1290,6 @@ WITH_GUI {
     SOURCES += $$PWD/sourceCode/gui/selectors/pageSelector.cpp \
         $$PWD/sourceCode/gui/selectors/viewSelector.cpp \
         $$PWD/sourceCode/gui/selectors/sceneSelector.cpp \
-
-    SOURCES += $$PWD/sourceCode/gui/scintillaRelated/scintillaEditor.cpp \
-        $$PWD/sourceCode/gui/scintillaRelated/scintillaDlg.cpp \
-        $$PWD/sourceCode/gui/scintillaRelated/scintillaModalDlg.cpp \
-        $$PWD/sourceCode/gui/scintillaRelated/scintillaUserModalDlg.cpp \
-        $$PWD/sourceCode/gui/scintillaRelated/scintillaUserNonModalDlg.cpp \
-        $$PWD/sourceCode/gui/scintillaRelated/scintillaConsoleDlg.cpp \
 
     SOURCES += $$PWD/sourceCode/gui/menusAndSimilar/toolBarCommand.cpp \
         $$PWD/sourceCode/gui/menusAndSimilar/customMenuBarItemContainer.cpp \

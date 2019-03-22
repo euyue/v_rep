@@ -5,6 +5,7 @@
 
 struct SCodeEditor {
     int handle;
+    int uniqueId;
     int scriptHandle;
     int callingScriptHandle;
     int sceneUniqueId;
@@ -26,6 +27,7 @@ public:
 
     // From UI thread:
     void showOrHideAll(bool showState);
+    void closeAll();
 
     // From sim thread:
     int open(const char* initText,const char* xml,int callingScriptHandle); // func. sim.textEditorOpen
@@ -52,6 +54,8 @@ public:
     bool appendText(int handle,const char* txt) const;
 
     // From any thread:
+    int getHandleFromUniqueId(int uid);
+    int getUniqueId(int handle);
     bool areSceneEditorsOpen() const;
     void sceneClosed(int sceneUniqueId);
     static QString getXmlColorString(const char* colTxt,const int rgbCol[3]);
@@ -63,4 +67,5 @@ public:
 
 protected:
     std::vector<SCodeEditor> _allEditors;
+    static int _nextUniqueId;
 };

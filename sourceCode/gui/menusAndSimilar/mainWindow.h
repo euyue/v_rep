@@ -21,9 +21,6 @@
 #include "VPoint.h"
 #include "oglSurface.h"
 #include "editModeContainer.h"
-#include "scintillaConsoleContainer.h"
-#include "scintillaEditorContainer.h"
-#include "scintillaUserNonModalDlgContainer.h"
 #include "codeEditorContainer.h"
 #include "simThread.h"
 #include "modelFolderWidget.h"
@@ -143,9 +140,6 @@ public:
     CSimRecorder* simulationRecorder;
     COglSurface* oglSurface;
     CEditModeContainer* editModeContainer;
-    CScintillaConsoleContainer* scintillaConsoleContainer;
-    CScintillaEditorContainer* scintillaEditorContainer;
-    CScintillaUserNonModalDlgContainer* scintillaUserNonModalDlgContainer;
     CCodeEditorContainer* codeEditorContainer;
 
     void onLeftMouseButtonDownTT(int xPos,int yPos);
@@ -215,7 +209,6 @@ private:
     VMenu* _sSystemMenu;
 
 
-    std::vector<CScintillaEditorContainer*> _scintillaEditorContainerList;
     std::vector<SSceneThumbnail> _sceneThumbnails;
     std::vector<CSceneHierarchyWidget*> _sceneHierarchyWidgetList;
 

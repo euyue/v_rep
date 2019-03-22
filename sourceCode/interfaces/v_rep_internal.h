@@ -522,7 +522,6 @@ simInt _simHandleCustomContact_internal(simInt objHandle1,simInt objHandle2,simI
 const simVoid* _simGetIkGroupObject_internal(int ikGroupID);
 simInt _simMpHandleIkGroupObject_internal(const simVoid* ikGroup);
 simFloat _simGetPureHollowScaling_internal(const simVoid* geometric);
-simInt _simGetJointCallbackCallOrder_internal(const simVoid* joint);
 simVoid _simDynCallback_internal(const simInt* intData,const simFloat* floatData);
 
 

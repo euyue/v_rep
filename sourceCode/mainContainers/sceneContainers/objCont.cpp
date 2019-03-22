@@ -1,4 +1,3 @@
-
 // This file needs serious refactoring!!
 
 #include "vrepMainHeader.h"
@@ -14,6 +13,7 @@
 #include "v_repStrings.h"
 #include "app.h"
 #include "vDateTime.h"
+#include "ttUtil.h"
 
 CObjCont::CObjCont()
 {
@@ -256,7 +256,27 @@ bool CObjCont::loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool jus
                 ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
                 CLuaScriptObject* it=new CLuaScriptObject(-1);
                 it->serialize(ar);
-                loadedLuaScriptList.push_back(it);
+                if ( (it->getScriptType()==sim_scripttype_jointctrlcallback_old)||(it->getScriptType()==sim_scripttype_generalcallback_old)||(it->getScriptType()==sim_scripttype_contactcallback_old) )
+                { // joint callback, contact callback and general callback scripts are not supported anymore since V3.6.1.rev2
+                    std::string ml(it->getScriptText());
+                    std::string l;
+                    while (CTTUtil::extractLine(ml,l))
+                    {
+                        l="<font color='orange'>"+l;
+                        l+="</font>@html";
+                        App::addStatusbarMessage(l.c_str());
+                    }
+                    if (it->getScriptType()==sim_scripttype_jointctrlcallback_old)
+                        App::addStatusbarMessage("<font color='red'>The file contains a joint control callback script, which is a script type that is not supported anymore (since V-REP V3.6.1 rev2). Use a joint callback function instead.</font>@html");
+                    if (it->getScriptType()==sim_scripttype_generalcallback_old)
+                        App::addStatusbarMessage("<font color='red'>The file contains a general callback script, which is a script type that is not supported anymore (since V-REP V3.6.1 rev2).</font>@html");
+                    if (it->getScriptType()==sim_scripttype_contactcallback_old)
+                        App::addStatusbarMessage("<font color='red'>The file contains a contact callback script, which is a script type that is not supported anymore (since V-REP V3.6.1 rev2). Use a contact callback functions instead.</font>@html");
+                    App::addStatusbarMessage("<font color='red'>See above the content of the unsupported script</font>@html");
+                    delete it;
+                }
+                else
+                    loadedLuaScriptList.push_back(it);
                 noHit=false;
             }
             if (theName.compare(SER_GEOMETRIC_CONSTRAINT_OBJECT)==0)
@@ -367,7 +387,7 @@ bool CObjCont::loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool jus
             stack.insertDataIntoStackTable();
         }
         stack.insertDataIntoStackTable();
-        App::ct->luaScriptContainer->callAddOnMainChildCustomizationWithData(sim_syscb_aftercreate,&stack);
+        App::ct->luaScriptContainer->callChildMainCustomizationAddonSandboxScriptWithData(sim_syscb_aftercreate,&stack);
     }
     return(true);
 }
@@ -2921,7 +2941,7 @@ bool CObjCont::addObjectToSceneWithSuffixOffset(C3DObject* newObject,bool object
         stack.pushNumberOntoStack(newObject->getObjectHandle());
         stack.insertDataIntoStackTable();
         stack.insertDataIntoStackTable();
-        App::ct->luaScriptContainer->callAddOnMainChildCustomizationWithData(sim_syscb_aftercreate,&stack);
+        App::ct->luaScriptContainer->callChildMainCustomizationAddonSandboxScriptWithData(sim_syscb_aftercreate,&stack);
     }
     App::ct->setModificationFlag(2); // object created
     return(true);
@@ -3422,30 +3442,33 @@ C3DObject* CObjCont::getObjectFromAltName(const char* altName) const
 
 void CObjCont::eraseSeveralObjects(const std::vector<int>& objHandles,bool generateBeforeAfterDeleteCallback)
 {
-    CInterfaceStack stack;
-    if (generateBeforeAfterDeleteCallback)
+    if (objHandles.size()>0)
     {
-        stack.pushTableOntoStack();
-        stack.pushStringOntoStack("objectHandles",0);
-        stack.pushTableOntoStack();
-        for (size_t i=0;i<objHandles.size();i++)
+        CInterfaceStack stack;
+        if (generateBeforeAfterDeleteCallback)
         {
-            stack.pushNumberOntoStack(double(objHandles[i])); // key or index
-            stack.pushBoolOntoStack(true);
+            stack.pushTableOntoStack();
+            stack.pushStringOntoStack("objectHandles",0);
+            stack.pushTableOntoStack();
+            for (size_t i=0;i<objHandles.size();i++)
+            {
+                stack.pushNumberOntoStack(double(objHandles[i])); // key or index
+                stack.pushBoolOntoStack(true);
+                stack.insertDataIntoStackTable();
+            }
             stack.insertDataIntoStackTable();
+            stack.pushStringOntoStack("allObjects",0);
+            stack.pushBoolOntoStack(objHandles.size()==objectList.size());
+            stack.insertDataIntoStackTable();
+            App::ct->luaScriptContainer->callChildMainCustomizationAddonSandboxScriptWithData(sim_syscb_beforedelete,&stack);
         }
-        stack.insertDataIntoStackTable();
-        stack.pushStringOntoStack("allObjects",0);
-        stack.pushBoolOntoStack(objHandles.size()==objectList.size());
-        stack.insertDataIntoStackTable();
-        App::ct->luaScriptContainer->callAddOnMainChildCustomizationWithData(sim_syscb_beforedelete,&stack);
+
+        for (size_t i=0;i<objHandles.size();i++)
+            eraseObject(getObjectFromHandle(objHandles[i]),false);
+
+        if (generateBeforeAfterDeleteCallback)
+            App::ct->luaScriptContainer->callChildMainCustomizationAddonSandboxScriptWithData(sim_syscb_afterdelete,&stack);
     }
-
-    for (size_t i=0;i<objHandles.size();i++)
-        eraseObject(getObjectFromHandle(objHandles[i]),false);
-
-    if (generateBeforeAfterDeleteCallback)
-        App::ct->luaScriptContainer->callAddOnMainChildCustomizationWithData(sim_syscb_afterdelete,&stack);
 }
 
 bool CObjCont::eraseObject(C3DObject* it,bool generateBeforeAfterDeleteCallback)
@@ -3468,7 +3491,7 @@ bool CObjCont::eraseObject(C3DObject* it,bool generateBeforeAfterDeleteCallback)
         stack.pushStringOntoStack("allObjects",0);
         stack.pushBoolOntoStack(objectList.size()==1);
         stack.insertDataIntoStackTable();
-        App::ct->luaScriptContainer->callAddOnMainChildCustomizationWithData(sim_syscb_beforedelete,&stack);
+        App::ct->luaScriptContainer->callChildMainCustomizationAddonSandboxScriptWithData(sim_syscb_beforedelete,&stack);
     }
 
     // We announce the object will be erased:
@@ -3499,7 +3522,7 @@ bool CObjCont::eraseObject(C3DObject* it,bool generateBeforeAfterDeleteCallback)
     App::ct->setModificationFlag(1); // object erased
 
     if (generateBeforeAfterDeleteCallback)
-        App::ct->luaScriptContainer->callAddOnMainChildCustomizationWithData(sim_syscb_afterdelete,&stack);
+        App::ct->luaScriptContainer->callChildMainCustomizationAddonSandboxScriptWithData(sim_syscb_afterdelete,&stack);
 
     return(true);
 }

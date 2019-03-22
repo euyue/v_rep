@@ -1,4 +1,3 @@
-
 #include "vrepMainHeader.h"
 #include "qdlgjointdyn.h"
 #include "ui_qdlgjointdyn.h"
@@ -6,7 +5,6 @@
 #include "gV.h"
 #include "propBrowser_engineProp_joint.h"
 #include "qdlgjoints.h"
-#include "scintillaModalDlg.h"
 #include "app.h"
 #include "v_repStringTable.h"
 #include "vMessageBox.h"
@@ -48,7 +46,6 @@ void CQDlgJointDyn::refresh()
     bool ctrlEnabled=false;
     bool pidCtrlEnabled=true;
     bool springCtrlEnabled=false;
-    bool customCtrlEnabled=false;
     CJoint* it=nullptr;
     if (sel)
     {
@@ -60,9 +57,8 @@ void CQDlgJointDyn::refresh()
         dynamicMotControlAllowed=(dynamic&&(!spherical));
         motorEnabled=dynamic&&it->getEnableDynamicMotor();
         ctrlEnabled=motorEnabled&&it->getEnableDynamicMotorControlLoop();
-        pidCtrlEnabled=ctrlEnabled&&(!it->getEnableDynamicMotorCustomControl_OLD())&&(!it->getEnableTorqueModulation());
-        springCtrlEnabled=ctrlEnabled&&(!it->getEnableDynamicMotorCustomControl_OLD())&&it->getEnableTorqueModulation();
-        customCtrlEnabled=ctrlEnabled&&it->getEnableDynamicMotorCustomControl_OLD();
+        pidCtrlEnabled=ctrlEnabled&&(!it->getEnableTorqueModulation());
+        springCtrlEnabled=ctrlEnabled&&it->getEnableTorqueModulation();
     }
 
     if (sel&&prismatic)
@@ -108,18 +104,6 @@ void CQDlgJointDyn::refresh()
 
     ui->qqMotorEnabled->setChecked(dynamic&&it->getEnableDynamicMotor());
     ui->qqControlEnabled->setChecked(dynamic&&it->getEnableDynamicMotorControlLoop());
-
-    if (App::userSettings->enableOldJointCallbackScriptEdition)
-    {
-        ui->qqEditCustomControl->setEnabled(dynamicMotControlAllowed&&ctrlEnabled&&noEditModeNoSim&&customCtrlEnabled);
-        ui->qqCustomControl->setEnabled(dynamicMotControlAllowed&&ctrlEnabled&&noEditModeNoSim);
-    }
-    else
-    {
-        ui->qqEditCustomControl->setVisible(false);
-        ui->qqCustomControl->setVisible(false);
-    }
-
 
     if (dynamicMotControlAllowed)
     {
@@ -184,7 +168,6 @@ void CQDlgJointDyn::refresh()
 
 
         ui->qqPositionControl->setChecked(pidCtrlEnabled);
-        ui->qqCustomControl->setChecked(customCtrlEnabled);
         ui->qqSpringControl->setChecked(springCtrlEnabled);
     }
     else
@@ -455,25 +438,6 @@ void CQDlgJointDyn::on_qqApplyControlParameters_clicked()
     }
 }
 
-void CQDlgJointDyn::on_qqCustomControl_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        CJoint* it=App::ct->objCont->getLastSelection_joint();
-        if ((it!=nullptr)&&(!it->getEnableDynamicMotorCustomControl_OLD()))
-        {
-            SSimulationThreadCommand cmd;
-            cmd.cmdId=SELECT_CUSTOMCTRL_JOINTDYNGUITRIGGEREDCMD;
-            cmd.intParams.push_back(it->getObjectHandle());
-            cmd.stringParams.push_back("Default joint custom control script file could not be found!"); // do not use comments ("--"), we want to cause an execution error!
-
-            App::appendSimulationThreadCommand(cmd);
-            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-        }
-        App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
-}
-
 void CQDlgJointDyn::on_qqPositionControl_clicked()
 {
     IF_UI_EVENT_CAN_READ_DATA
@@ -481,33 +445,10 @@ void CQDlgJointDyn::on_qqPositionControl_clicked()
         CJoint* it=App::ct->objCont->getLastSelection_joint();
         if (it!=nullptr)
         {
-            bool doIt=true;
-            if (App::userSettings->enableOldJointCallbackScriptEdition)
-            {
-                if (it->getEnableDynamicMotorCustomControl_OLD())
-                    doIt=(VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,strTranslate("Custom control"),strTranslate(IDSN_SURE_TO_REMOVE_CUSTOM_JOINT_CTRL_WARNING),VMESSAGEBOX_YES_NO));
-            }
-            if (doIt)
-            {
-                App::appendSimulationThreadCommand(SELECT_PIDCTRL_JOINTDYNGUITRIGGEREDCMD,it->getObjectHandle());
-                App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-            }
+            App::appendSimulationThreadCommand(SELECT_PIDCTRL_JOINTDYNGUITRIGGEREDCMD,it->getObjectHandle());
+            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
-    }
-}
-
-void CQDlgJointDyn::on_qqEditCustomControl_clicked()
-{
-    IF_UI_EVENT_CAN_READ_DATA
-    {
-        CJoint* it=App::ct->objCont->getLastSelection_joint();
-        if ((it!=nullptr)&&it->getEnableDynamicMotorCustomControl_OLD())
-        {
-            CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(it->getObjectHandle());
-            if (script)
-                App::mainWindow->scintillaEditorContainer->openEditorForScript(script->getScriptID());
-        }
     }
 }
 
@@ -518,17 +459,8 @@ void CQDlgJointDyn::on_qqSpringControl_clicked()
         CJoint* it=App::ct->objCont->getLastSelection_joint();
         if (it!=nullptr)
         {
-            bool doIt=true;
-            if (App::userSettings->enableOldJointCallbackScriptEdition)
-            {
-                if (it->getEnableDynamicMotorCustomControl_OLD())
-                    doIt=(VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,strTranslate("Custom control"),strTranslate(IDSN_SURE_TO_REMOVE_CUSTOM_JOINT_CTRL_WARNING),VMESSAGEBOX_YES_NO));
-            }
-            if (doIt)
-            {
-                App::appendSimulationThreadCommand(SELECT_SPRINGDAMPERCTRL_JOINTDYNGUITRIGGEREDCMD,it->getObjectHandle());
-                App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
-            }
+            App::appendSimulationThreadCommand(SELECT_SPRINGDAMPERCTRL_JOINTDYNGUITRIGGEREDCMD,it->getObjectHandle());
+            App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
         }
         App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
     }

@@ -297,7 +297,6 @@ public:
     static CPlugin* getPluginFromName(const char* pluginName);
     static CPlugin* getPluginFromIndex(int index);
     static bool killPlugin(int handle);
-    static void killAllPlugins();
     static int getPluginCount();
 
     static void selectExtRenderer(int index);

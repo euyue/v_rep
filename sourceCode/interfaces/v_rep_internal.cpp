@@ -4165,9 +4165,7 @@ simInt simLoadScene_internal(const simChar* filename)
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -5079,13 +5077,18 @@ simInt simHandleMainScript_internal()
     // Add-on scripts:
     bool as=App::ct->addOnScriptContainer->handleAddOnScriptExecution_beforeMainScript();
 
-    if ( ( (rtVal[0]==-1)&&cs&&as )||App::ct->simulation->didStopRequestCounterChangeSinceSimulationStart() )
+    // Sandbox script:
+    bool ss=true;
+    if (App::ct->sandboxScript!=nullptr)
+        ss=App::ct->sandboxScript->runSandboxScript_beforeMainScript();
+
+    if ( ( (rtVal[0]==-1)&&cs&&as&&ss )||App::ct->simulation->didStopRequestCounterChangeSinceSimulationStart() )
     {
         CLuaScriptObject* it=App::ct->luaScriptContainer->getMainScript();
         if (it!=nullptr)
         {
             App::ct->calcInfo->simulationPassStart();
-            retVal=it->runMainScript(-1,nullptr,nullptr);
+            retVal=it->runMainScript(-1,nullptr,nullptr,nullptr);
             App::ct->calcInfo->simulationPassEnd();
         }
         else
@@ -5149,12 +5152,7 @@ simInt simSetScriptText_internal(simInt scriptHandle,const simChar* scriptText)
 
 #ifdef SIM_WITH_GUI
         if (App::mainWindow!=nullptr)
-        {
-            if (App::userSettings->useOldCodeEditor)
-                App::mainWindow->scintillaEditorContainer->closeEditor(scriptHandle);
-            else
-                App::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptHandle,nullptr,true);
-        }
+            App::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptHandle,nullptr,true);
 #endif
         it->setScriptText(scriptText);
         if ( (it->getScriptType()!=sim_scripttype_childscript)||(!it->getThreadedExecution())||App::ct->simulation->isSimulationStopped() )
@@ -5189,17 +5187,7 @@ const simChar* simGetScriptText_internal(simInt scriptHandle)
 
 #ifdef SIM_WITH_GUI
         if (App::mainWindow!=nullptr)
-        {
-            if (App::userSettings->useOldCodeEditor)
-            {
-                bool wasOpen=App::mainWindow->scintillaEditorContainer->closeEditor(scriptHandle);
-                retVal=it->getScriptText();
-                if (wasOpen)
-                    App::mainWindow->scintillaEditorContainer->openEditorForScript(scriptHandle);
-            }
-            else
-                App::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptHandle,nullptr,false);
-        }
+            App::mainWindow->codeEditorContainer->closeFromScriptHandle(scriptHandle,nullptr,false);
         else
 #endif
             retVal=it->getScriptText();
@@ -5298,8 +5286,6 @@ simInt simGetObjectAssociatedWithScript_internal(simInt scriptHandle)
         int retVal=-1;
         if (it->getScriptType()==sim_scripttype_childscript)
                 retVal=it->getObjectIDThatScriptIsAttachedTo_child();
-        if (it->getScriptType()==sim_scripttype_jointctrlcallback)
-                retVal=it->getObjectIDThatScriptIsAttachedTo_callback_OLD();
         if (it->getScriptType()==sim_scripttype_customizationscript)
                 retVal=it->getObjectIDThatScriptIsAttachedTo_customization();
         return(retVal);
@@ -5458,10 +5444,6 @@ simInt simRemoveScript_internal(simInt scriptHandle)
                 CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_SIMULATION_NOT_STOPPED);
                 return(-1);
             }
-#ifdef SIM_WITH_GUI
-            if (App::mainWindow!=nullptr)
-                App::mainWindow->scintillaEditorContainer->closeAllEditors();
-#endif
             App::ct->luaScriptContainer->removeAllScripts();
             App::setFullDialogRefreshFlag();
             return(1);
@@ -9377,24 +9359,16 @@ simInt simAuxiliaryConsoleOpen_internal(const simChar* title,simInt maxLines,sim
 #ifdef SIM_WITH_GUI
         if (App::mainWindow!=nullptr)
         {
-            if (App::userSettings->useOldCodeEditor)
+            int tCol[3]={0,0,0};
+            int bCol[3]={255,255,255};
+            for (size_t i=0;i<3;i++)
             {
-                CConsoleInitInfo* info=new CConsoleInitInfo(mode,title,maxLines,position,size,textColor,backgroundColor,App::ct->getCurrentInstanceIndex());
-                retVal=App::mainWindow->scintillaConsoleContainer->addConsoleInfo(info);
+                if (textColor!=nullptr)
+                    tCol[i]=int(textColor[i]*255.1f);
+                if (backgroundColor!=nullptr)
+                    bCol[i]=int(backgroundColor[i]*255.1f);
             }
-            else
-            {
-                int tCol[3]={0,0,0};
-                int bCol[3]={255,255,255};
-                for (size_t i=0;i<3;i++)
-                {
-                    if (textColor!=nullptr)
-                        tCol[i]=int(textColor[i]*255.1f);
-                    if (backgroundColor!=nullptr)
-                        bCol[i]=int(backgroundColor[i]*255.1f);
-                }
-                retVal=App::mainWindow->codeEditorContainer->openConsole(title,maxLines,mode,position,size,tCol,bCol,-1);
-            }
+            retVal=App::mainWindow->codeEditorContainer->openConsole(title,maxLines,mode,position,size,tCol,bCol,-1);
         }
 #endif
         return(retVal);
@@ -9413,16 +9387,8 @@ simInt simAuxiliaryConsoleClose_internal(simInt consoleHandle)
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
 #ifdef SIM_WITH_GUI
-        if (App::userSettings->useOldCodeEditor)
-        {
-            if ( (App::mainWindow!=nullptr)&&(App::mainWindow->scintillaConsoleContainer->removeConsole(consoleHandle)) )
-                return(1);
-        }
-        else
-        {
-            if ( (App::mainWindow!=nullptr)&&(App::mainWindow->codeEditorContainer->close(consoleHandle,nullptr,nullptr,nullptr)) )
-                return(1);
-        }
+        if ( (App::mainWindow!=nullptr)&&(App::mainWindow->codeEditorContainer->close(consoleHandle,nullptr,nullptr,nullptr)) )
+            return(1);
 #endif
         return(0);
     }
@@ -9444,29 +9410,13 @@ simInt simAuxiliaryConsoleShow_internal(simInt consoleHandle,simBool showState)
         int handle=consoleHandle&0x000fffff;
         if ((handleFlags&sim_handleflag_extended)!=0)
         { // we just wanna now if the console is still open
-            if (App::userSettings->useOldCodeEditor)
-            {
-                if ( (App::mainWindow!=nullptr)&&(App::mainWindow->scintillaConsoleContainer->isConsoleHandleValid(handle)) )
-                    return(1);
-            }
-            else
-            {
-                if ( (App::mainWindow!=nullptr)&&(App::mainWindow->codeEditorContainer->isHandleValid(handle)) )
-                    return(1);
-            }
+            if ( (App::mainWindow!=nullptr)&&(App::mainWindow->codeEditorContainer->isHandleValid(handle)) )
+                return(1);
         }
         else
         { // normal operation
-            if (App::userSettings->useOldCodeEditor)
-            {
-                if ( (App::mainWindow!=nullptr)&&(App::mainWindow->scintillaConsoleContainer->consoleSetShowState(handle,showState!=0)) )
-                    return(1);
-            }
-            else
-            {
-                if (App::mainWindow!=nullptr)
-                    return(App::mainWindow->codeEditorContainer->showOrHide(handle,showState!=0));
-            }
+            if (App::mainWindow!=nullptr)
+                return(App::mainWindow->codeEditorContainer->showOrHide(handle,showState!=0));
         }
 #endif
         return(0);
@@ -9487,29 +9437,11 @@ simInt simAuxiliaryConsolePrint_internal(simInt consoleHandle,const simChar* tex
 #ifdef SIM_WITH_GUI
         if (App::mainWindow!=nullptr)
         {
-            if (App::userSettings->useOldCodeEditor)
-            {
-                CScintillaConsoleDlg* it=App::mainWindow->scintillaConsoleContainer->getConsoleFromHandle(consoleHandle);
-                if (it==nullptr)
-                {
-                    CConsoleInitInfo* info=App::mainWindow->scintillaConsoleContainer->getConsoleInfoFromHandle(consoleHandle);
-                    if (info==nullptr)
-                        return(0); // Kind of silent error
-                    else
-                        info->addText(text);
-                }
-                else
-                    it->info->addText(text);
+            if (text==nullptr)
+                App::mainWindow->codeEditorContainer->setText(consoleHandle,"");
+            if (App::mainWindow->codeEditorContainer->appendText(consoleHandle,text))
                 return(1);
-            }
-            else
-            {
-                if (text==nullptr)
-                    App::mainWindow->codeEditorContainer->setText(consoleHandle,"");
-                if (App::mainWindow->codeEditorContainer->appendText(consoleHandle,text))
-                    return(1);
-                return(0);
-            }
+            return(0);
         }
 #endif
         return(1); // in headless mode we fake success
@@ -10848,11 +10780,7 @@ simInt simGetObjectInt32Parameter_internal(simInt objectHandle,simInt parameterI
             }
             if (parameterID==2020)
             { // deprecated functionality
-                CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(joint->getObjectHandle());
                 parameter[0]=0;
-                if (it!=nullptr)
-                    parameter[0]=it->getExecutionOrder()-1;
-                // parameter[0]=joint->getJointCallbackCallOrder();
                 retVal=1;
             }
             if (parameterID==sim_jointintparam_velocity_lock)
@@ -11174,10 +11102,6 @@ simInt simSetObjectInt32Parameter_internal(simInt objectHandle,simInt parameterI
             }
             if (parameterID==2020)
             { // deprecated command
-                CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(joint->getObjectHandle());
-                if (it!=nullptr)
-                    it->setExecutionOrder(parameter+1);
-                // joint->setJointCallbackCallOrder(parameter);
                 retVal=1;
             }
             if (parameterID==sim_jointintparam_velocity_lock)
@@ -15578,16 +15502,6 @@ simInt simCallScriptFunctionEx_internal(simInt scriptHandleOrType,const simChar*
             int objId=App::ct->objCont->getObjectHandleFromName(scriptName.c_str());
             script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
         }
-        // Following script types are deprecated:
-        if (scriptHandleOrType==sim_scripttype_jointctrlcallback)
-        {
-            int objId=App::ct->objCont->getObjectHandleFromName(scriptName.c_str());
-            script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(objId);
-        }
-        if (scriptHandleOrType==sim_scripttype_generalcallback)
-            script=App::ct->luaScriptContainer->getGeneralCallbackHandlingScript_callback_OLD();
-        if (scriptHandleOrType==sim_scripttype_contactcallback)
-            script=App::ct->luaScriptContainer->getCustomContactHandlingScript_callback_OLD();
     }
 
     if (script!=nullptr)
@@ -17019,12 +16933,11 @@ simInt simSetScriptVariable_internal(simInt scriptHandleOrType,const simChar* va
 
             if (scriptHandleOrType==sim_scripttype_mainscript)
                 script=App::ct->luaScriptContainer->getMainScript();
-            if (scriptHandleOrType==sim_scripttype_generalcallback)
-                script=App::ct->luaScriptContainer->getGeneralCallbackHandlingScript_callback_OLD();
-            if (scriptHandleOrType==sim_scripttype_contactcallback)
-                script=App::ct->luaScriptContainer->getCustomContactHandlingScript_callback_OLD();
-            if (scriptHandleOrType==sim_scripttype_addonscript) // this is actually not officially supported
-                script=App::ct->luaScriptContainer->getCustomContactHandlingScript_callback_OLD();
+            if (scriptHandleOrType==sim_scripttype_addonscript)
+            {
+                if (scriptName.size()>0)
+                    script=App::ct->addOnScriptContainer->getAddOnScriptFromName(scriptName.c_str());
+            }
             if (scriptHandleOrType==sim_scripttype_sandboxscript)
                 script=App::ct->sandboxScript;
             if (scriptHandleOrType==sim_scripttype_childscript)
@@ -17034,11 +16947,6 @@ simInt simSetScriptVariable_internal(simInt scriptHandleOrType,const simChar* va
                     int objId=App::ct->objCont->getObjectHandleFromName(scriptName.c_str());
                     script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(objId);
                 }
-            }
-            if (scriptHandleOrType==sim_scripttype_jointctrlcallback)
-            {
-                int objId=App::ct->objCont->getObjectHandleFromName(scriptName.c_str());
-                script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(objId);
             }
             if (scriptHandleOrType==sim_scripttype_customizationscript)
             {
@@ -17891,46 +17799,16 @@ simChar* simOpenTextEditor_internal(const simChar* initText,const simChar* xml,s
         return(nullptr);
 
     char* retVal=nullptr;
-    if (App::userSettings->useOldCodeEditor)
-    {
-        SUIThreadCommand cmdIn;
-        SUIThreadCommand cmdOut;
-        cmdIn.cmdId=OPEN_MODAL_USER_EDITOR_UITHREADCMD;
-        std::string _xml;
-        if (xml!=nullptr)
-            _xml=xml;
-        cmdIn.stringParams.push_back(_xml);
-        cmdIn.stringParams.push_back(initText);
-        {
-            // Following instruction very important if the function below tries to lock resources (or a plugin it calls!):
-            SIM_THREAD_INDICATE_UI_THREAD_CAN_DO_ANYTHING;
-            App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-            retVal=new char[cmdOut.stringParams[0].size()+1];
-            for (size_t i=0;i<cmdOut.stringParams[0].size();i++)
-                retVal[i]=cmdOut.stringParams[0][i];
-            retVal[cmdOut.stringParams[0].size()]=0;
-            if (various!=nullptr)
-            {
-                various[0]=cmdOut.intParams[0];
-                various[1]=cmdOut.intParams[1];
-                various[2]=cmdOut.intParams[2];
-                various[3]=cmdOut.intParams[3];
-            }
-        }
-    }
-    else
-    {
 #ifdef SIM_WITH_GUI
-        if (App::mainWindow!=nullptr)
-        {
-            std::string txt=App::mainWindow->codeEditorContainer->openModalTextEditor(initText,xml,various);
-            retVal=new char[txt.size()+1];
-            for (size_t i=0;i<txt.size();i++)
-                retVal[i]=txt[i];
-            retVal[txt.size()]=0;
-        }
-#endif
+    if (App::mainWindow!=nullptr)
+    {
+        std::string txt=App::mainWindow->codeEditorContainer->openModalTextEditor(initText,xml,various);
+        retVal=new char[txt.size()+1];
+        for (size_t i=0;i<txt.size();i++)
+            retVal[i]=txt[i];
+        retVal[txt.size()]=0;
     }
+#endif
     return(retVal);
 }
 
@@ -18303,12 +18181,11 @@ simInt simExecuteScriptString_internal(simInt scriptHandleOrType,const simChar* 
 
             if (scriptHandleOrType==sim_scripttype_mainscript)
                 script=App::ct->luaScriptContainer->getMainScript();
-            if (scriptHandleOrType==sim_scripttype_generalcallback)
-                script=App::ct->luaScriptContainer->getGeneralCallbackHandlingScript_callback_OLD();
-            if (scriptHandleOrType==sim_scripttype_contactcallback)
-                script=App::ct->luaScriptContainer->getCustomContactHandlingScript_callback_OLD();
-            if (scriptHandleOrType==sim_scripttype_addonscript) // this is actually not officially supported
-                script=App::ct->luaScriptContainer->getCustomContactHandlingScript_callback_OLD();
+            if (scriptHandleOrType==sim_scripttype_addonscript)
+            {
+                if (scriptName.size()>0)
+                    script=App::ct->addOnScriptContainer->getAddOnScriptFromName(scriptName.c_str());
+            }
             if (scriptHandleOrType==sim_scripttype_sandboxscript)
                 script=App::ct->sandboxScript;
             if (scriptHandleOrType==sim_scripttype_childscript)
@@ -18318,11 +18195,6 @@ simInt simExecuteScriptString_internal(simInt scriptHandleOrType,const simChar* 
                     int objId=App::ct->objCont->getObjectHandleFromName(scriptName.c_str());
                     script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(objId);
                 }
-            }
-            if (scriptHandleOrType==sim_scripttype_jointctrlcallback)
-            {
-                int objId=App::ct->objCont->getObjectHandleFromName(scriptName.c_str());
-                script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(objId);
             }
             if (scriptHandleOrType==sim_scripttype_customizationscript)
             {
@@ -19516,28 +19388,7 @@ simInt _simHandleCustomContact_internal(simInt objHandle1,simInt objHandle2,simI
         }
     }
 
-    // 2. For backward compatibility:
-    if (App::ct->environment->getEnableCustomContactHandlingViaScript_OLD()&&((engine&1024)==0))
-    { // the engine flag 1024 means: the calling thread is not the simulation thread
-        if (!VThread::isCurrentThreadTheMainSimulationThread())
-        {
-            printf("The contact callback script can only be called from the simulation thread!\n");
-            App::beep();
-        }
-        // For backward compatibility:
-        CLuaScriptObject* script=App::ct->luaScriptContainer->getCustomContactHandlingScript_callback_OLD();
-        if (script!=nullptr)
-        {
-            int inDataInt[3]={objHandle1,objHandle2,engine};
-            int retVal=script->runContactCallback_OLD(inDataInt,dataInt,dataFloat);
-            if (retVal==0)
-                return(0); // no collision
-            if (retVal>0)
-                return(1);
-        }
-    }
-
-    // 3. We check if a plugin wants to handle the contact:
+    // 2. We check if a plugin wants to handle the contact:
     size_t callbackCount=allContactCallbacks.size();
     if (callbackCount!=0)
     {
@@ -19557,18 +19408,6 @@ simFloat _simGetPureHollowScaling_internal(const simVoid* geometric)
 {
     C_API_FUNCTION_DEBUG;
     return(((CGeometric*)geometric)->getPurePrimitiveInsideScaling());
-}
-
-simInt _simGetJointCallbackCallOrder_internal(const simVoid* joint)
-{
-    C_API_FUNCTION_DEBUG;
-    CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(((CJoint*)joint)->getObjectHandle());
-    if (it!=nullptr)
-    { // should always pass!
-        return(it->getExecutionOrder()-1);
-    }
-    return(0);
-//  return(((CJoint*)joint)->getJointCallbackCallOrder());
 }
 
 simVoid _simDynCallback_internal(const simInt* intData,const simFloat* floatData)
@@ -20386,12 +20225,11 @@ simInt simAppendScriptArrayEntry_internal(const simChar* reservedSetToNull,simIn
 
                 if (scriptHandleOrType==sim_scripttype_mainscript) // new and old way (same coding)
                     script=App::ct->luaScriptContainer->getMainScript();
-                if (scriptHandleOrType==sim_scripttype_generalcallback) // new way only possible (7 was not available in the old way)
-                    script=App::ct->luaScriptContainer->getGeneralCallbackHandlingScript_callback_OLD();
-                if (scriptHandleOrType==sim_scripttype_contactcallback) // new way only possible (5 was customization script, which require a script name)
-                    script=App::ct->luaScriptContainer->getCustomContactHandlingScript_callback_OLD();
-                if (scriptHandleOrType==sim_scripttype_addonscript) // old way (that type is not available in the new way)
-                    script=App::ct->luaScriptContainer->getCustomContactHandlingScript_callback_OLD();
+                if (scriptHandleOrType==sim_scripttype_addonscript)
+                {
+                    if (scriptName.size()>0)
+                        script=App::ct->addOnScriptContainer->getAddOnScriptFromName(scriptName.c_str());
+                }
                 if (scriptHandleOrType==sim_scripttype_sandboxscript)
                     script=App::ct->sandboxScript;
                 if (scriptHandleOrType==sim_scripttype_childscript)
@@ -20401,13 +20239,6 @@ simInt simAppendScriptArrayEntry_internal(const simChar* reservedSetToNull,simIn
                         int objId=App::ct->objCont->getObjectHandleFromName(scriptName.c_str());
                         script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(objId);
                     }
-                    else // following is old way
-                        script=App::ct->luaScriptContainer->getGeneralCallbackHandlingScript_callback_OLD();
-                }
-                if (scriptHandleOrType==sim_scripttype_jointctrlcallback)
-                { // new way only possible (otherwise reservedSetToNull would not be nullptr)
-                    int objId=App::ct->objCont->getObjectHandleFromName(scriptName.c_str());
-                    script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(objId);
                 }
                 if (scriptHandleOrType==sim_scripttype_customizationscript)
                 { // new way only possible (6 was not available in the old way)
@@ -20420,19 +20251,10 @@ simInt simAppendScriptArrayEntry_internal(const simChar* reservedSetToNull,simIn
                 arrayName=arrayNameAtScriptName;
                 if (scriptHandleOrType==0) // main script
                     script=App::ct->luaScriptContainer->getMainScript();
-                if (scriptHandleOrType==1) // general callback
-                    script=App::ct->luaScriptContainer->getGeneralCallbackHandlingScript_callback_OLD();
-                if (scriptHandleOrType==2) // contact callback
-                    script=App::ct->luaScriptContainer->getCustomContactHandlingScript_callback_OLD();
                 if (scriptHandleOrType==3) // child script
                 {
                     int objId=App::ct->objCont->getObjectHandleFromName(reservedSetToNull);
                     script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(objId);
-                }
-                if (scriptHandleOrType==4) // joint callback
-                {
-                    int objId=App::ct->objCont->getObjectHandleFromName(reservedSetToNull);
-                    script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(objId);
                 }
                 if (scriptHandleOrType==5) // customization
                 {
@@ -20491,12 +20313,11 @@ simInt simClearScriptVariable_internal(const simChar* reservedSetToNull,simInt s
 
             if (scriptHandleOrType==sim_scripttype_mainscript) // new and old way (same coding)
                 script=App::ct->luaScriptContainer->getMainScript();
-            if (scriptHandleOrType==sim_scripttype_generalcallback) // new way only possible (7 was not available in the old way)
-                script=App::ct->luaScriptContainer->getGeneralCallbackHandlingScript_callback_OLD();
-            if (scriptHandleOrType==sim_scripttype_contactcallback) // new way only possible (5 was customization script, which require a script name)
-                script=App::ct->luaScriptContainer->getCustomContactHandlingScript_callback_OLD();
-            if (scriptHandleOrType==sim_scripttype_addonscript) // old way (that type is not available in the new way)
-                script=App::ct->luaScriptContainer->getCustomContactHandlingScript_callback_OLD();
+            if (scriptHandleOrType==sim_scripttype_addonscript)
+            {
+                if (scriptName.size()>0)
+                    script=App::ct->addOnScriptContainer->getAddOnScriptFromName(scriptName.c_str());
+            }
             if (scriptHandleOrType==sim_scripttype_sandboxscript)
                 script=App::ct->sandboxScript;
             if (scriptHandleOrType==sim_scripttype_childscript)
@@ -20506,13 +20327,6 @@ simInt simClearScriptVariable_internal(const simChar* reservedSetToNull,simInt s
                     int objId=App::ct->objCont->getObjectHandleFromName(scriptName.c_str());
                     script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(objId);
                 }
-                else // following is old way
-                    script=App::ct->luaScriptContainer->getGeneralCallbackHandlingScript_callback_OLD();
-            }
-            if (scriptHandleOrType==sim_scripttype_jointctrlcallback)
-            { // new way only possible (otherwise reservedSetToNull would not be nullptr)
-                int objId=App::ct->objCont->getObjectHandleFromName(scriptName.c_str());
-                script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(objId);
             }
             if (scriptHandleOrType==sim_scripttype_customizationscript)
             { // new way only possible (6 was not available in the old way)
@@ -20525,19 +20339,10 @@ simInt simClearScriptVariable_internal(const simChar* reservedSetToNull,simInt s
             variableName=variableNameAtScriptName;
             if (scriptHandleOrType==0) // main script
                 script=App::ct->luaScriptContainer->getMainScript();
-            if (scriptHandleOrType==1) // general callback
-                script=App::ct->luaScriptContainer->getGeneralCallbackHandlingScript_callback_OLD();
-            if (scriptHandleOrType==2) // contact callback
-                script=App::ct->luaScriptContainer->getCustomContactHandlingScript_callback_OLD();
             if (scriptHandleOrType==3) // child script
             {
                 int objId=App::ct->objCont->getObjectHandleFromName(reservedSetToNull);
                 script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(objId);
-            }
-            if (scriptHandleOrType==4) // joint callback
-            {
-                int objId=App::ct->objCont->getObjectHandleFromName(reservedSetToNull);
-                script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(objId);
             }
             if (scriptHandleOrType==5) // customization
             {
@@ -20958,32 +20763,6 @@ simInt simGetObjectCustomData_internal(simInt objectHandle,simInt header,simChar
 simInt simLoadUI_internal(const simChar* filename,int maxCount,int* uiHandles)
 {
     C_API_FUNCTION_DEBUG;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
-    {
-        if (!VFile::doesFileExist(filename))
-        {
-            CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_FILE_NOT_FOUND);
-            return(-1);
-        }
-        std::vector<int> handles;
-        bool res=CFileOperations::loadUserInterfaces(filename,false,false,false,&handles,true);
-        if (!res)
-        {
-            CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_UI_COULD_NOT_BE_READ);
-            return(-1);
-        }
-        int m=SIM_MIN(maxCount,int(handles.size()));
-        for (int i=0;i<m;i++)
-            uiHandles[i]=handles[i];
-        return((int)handles.size());
-    }
-    CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_WRITE);
     return(-1);
 }
 
@@ -20992,9 +20771,7 @@ simInt simCreateUI_internal(const simChar* elementName,simInt menuAttributes,con
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_WRITE_DATA
     {
@@ -21580,37 +21357,6 @@ simInt simSetUIButtonTexture_internal(simInt elementHandle,simInt buttonHandle,c
 simInt simSaveUI_internal(int count,const int* uiHandles,const simChar* filename)
 {
     C_API_FUNCTION_DEBUG;
-
-    if (!isSimulatorInitialized(__func__))
-    {
-        return(-1);
-    }
-
-    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
-    {
-        if (App::ct->environment->getSceneLocked())
-        {
-            CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_SCENE_LOCKED);
-            return(-1);
-        }
-        bool result;
-        if (count<1)
-            result=CFileOperations::saveUserInterfaces(filename,false,false,false,nullptr);
-        else
-        {
-            std::vector<int> h;
-            for (int i=0;i<count;i++)
-                h.push_back(uiHandles[i]);
-            result=CFileOperations::saveUserInterfaces(filename,false,false,false,&h);
-        }
-        if (!result)
-        {
-            CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_UI_COULD_NOT_BE_SAVED);
-            return(-1);
-        }
-        return(1);
-    }
-    CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
     return(-1);
 }
 
@@ -21619,16 +21365,12 @@ simInt simGetUIPosition_internal(simInt elementHandle,simInt* position)
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
         if (!doesUIExist(__func__,elementHandle))
-        {
             return(-1);
-        }
 
         CButtonBlock* it=App::ct->buttonBlockContainer->getBlockWithID(elementHandle);
         VPoint p;
@@ -21667,18 +21409,6 @@ simInt simSetUIPosition_internal(simInt elementHandle,const simInt* position)
 simInt simHandleGeneralCallbackScript_internal(simInt callbackId,simInt callbackTag,simVoid* additionalData)
 { // Deprecated since release 3.4.1
     C_API_FUNCTION_DEBUG;
-    if (VThread::isCurrentThreadTheMainSimulationThread())
-    { // Should not be called by the GUI thread!!
-        if (App::ct->environment->getEnableGeneralCallbackScript_OLD())
-        {
-            CLuaScriptObject* script=App::ct->luaScriptContainer->getGeneralCallbackHandlingScript_callback_OLD();
-            if (script)
-            {
-                int retVal=script->runGeneralCallback_OLD(callbackId,callbackTag,additionalData);
-                return(retVal);
-            }
-        }
-    }
     return(-1);
 }
 
@@ -21875,44 +21605,28 @@ simInt simCallScriptFunction_internal(simInt scriptHandleOrType,const simChar* f
                 funcName=funcNameAtScriptName;
             if (scriptHandleOrType==sim_scripttype_mainscript)
                 script=App::ct->luaScriptContainer->getMainScript();
-            if (scriptHandleOrType==sim_scripttype_generalcallback)
-                script=App::ct->luaScriptContainer->getGeneralCallbackHandlingScript_callback_OLD();
-            if (scriptHandleOrType==sim_scripttype_contactcallback)
-                script=App::ct->luaScriptContainer->getCustomContactHandlingScript_callback_OLD();
             if (scriptHandleOrType==sim_scripttype_childscript)
             {
                 int objId=App::ct->objCont->getObjectHandleFromName(scriptName.c_str());
                 script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(objId);
-            }
-            if (scriptHandleOrType==sim_scripttype_jointctrlcallback)
-            {
-                int objId=App::ct->objCont->getObjectHandleFromName(scriptName.c_str());
-                script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(objId);
             }
             if (scriptHandleOrType==sim_scripttype_customizationscript)
             {
                 int objId=App::ct->objCont->getObjectHandleFromName(scriptName.c_str());
                 script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(objId);
             }
+            if (scriptHandleOrType==sim_scripttype_addonscript)
+                script=App::ct->addOnScriptContainer->getAddOnScriptFromName(scriptName.c_str());
         }
         else
         { // this is the old way of doing it. Deprecated. Was only 2 months active, not officially
             funcName=functionNameAtScriptName;
             if (scriptHandleOrType==0) // main script
                 script=App::ct->luaScriptContainer->getMainScript();
-            if (scriptHandleOrType==1) // general callback
-                script=App::ct->luaScriptContainer->getGeneralCallbackHandlingScript_callback_OLD();
-            if (scriptHandleOrType==2) // contact callback
-                script=App::ct->luaScriptContainer->getCustomContactHandlingScript_callback_OLD();
             if (scriptHandleOrType==3) // child script
             {
                 int objId=App::ct->objCont->getObjectHandleFromName(reservedSetToNull);
                 script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(objId);
-            }
-            if (scriptHandleOrType==4) // joint callback
-            {
-                int objId=App::ct->objCont->getObjectHandleFromName(reservedSetToNull);
-                script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(objId);
             }
             if (scriptHandleOrType==5) // customization
             {

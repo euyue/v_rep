@@ -77,7 +77,6 @@
 #define IDSN_ASSEMBLING_METHOD "Setting local matrix transformation (for assembly)"
 #define IDSN_ASSEMBLING_METHOD_QUESTION "Do you want to use current local transformation matrix as local transformation matrix after assembly?"
 
-#define IDSNS_SIMULATOR_LAUNCHED "Simulator launched."
 #define IDSNS_HIERARCHY_EXPANDED "Hierarchy expanded."
 #define IDSNS_HIERARCHY_COLLAPSED "Hierarchy collapsed."
 #define IDSNS_HIERARCHY_TREES_EXPANDED "Hierarchy tree(s) expanded."
@@ -107,7 +106,6 @@
 #define IDSNS_DELETING_SELECTION "Deleting selection..."
 #define IDSNS_CUTTING_SELECTION "Cutting selection..."
 #define IDSNS_PREPARING_INITIAL_CALCULATION_STRUCTURES "Preparing initial calculation structures..."
-#define IDSNS_SAVING_CUSTOM_USER_INTERFACES "Saving OpenGl-based custom UIs..."
 #define IDSNS_INSERTING_BUTTONS "Inserting buttons..."
 #define IDSNS_INSERTING_MERGED_BUTTON "Inserting merged button..."
 
@@ -234,7 +232,6 @@
 #define IDSNS_LOADING_UI "Loading OpenGl-based custom UI"
 #define IDSNS_FILE_WAS_PREVIOUSLY_WRITTEN_WITH_VREP_VERSION "File was previously written with V-REP version"
 
-#define IDSNS_LEAVING "Leaving..."
 #define IDSNS_DEFAULT_SCENE_WAS_SET_UP "Default scene was set-up."
 #define IDSNS_SERIALIZATION_VERSION_IS "Serialization version is"
 #define IDSNS_MODEL_LOADED "Model loaded."
@@ -292,9 +289,6 @@
 #define IDSN_PATH_EDIT_MODE "Path edit mode" //addedOn 11/3/2012
 #define IDSN_DO_YOU_WANT_TO_APPLY_THE_CHANGES "Do you wish to apply the changes? (clicking no will however still preserve extracted objects)" //addedOn 11/3/2012
 #define IDSN_CUSTOM_USER_INTERFACES         "OpenGl-based custom UIs" //addedOn 14/3/2012
-//#define IDS_LOAD_UI___MENU_ITEM "Load OpenGl-based custom UIs..." //addedOn 14/3/2012
-//#define IDS_SAVE_UI_AS___MENU_ITEM "Save OpenGl-based custom UIs as..." //addedOn 14/3/2012
-#define IDSN_LOADING_UI "Loading OpenGl-based custom UIs..." //addedOn 14/3/2012
 #define IDSN_SHAPE_EDIT_MODE_START_MENU_ITEM "Enter shape edit mode"
 #define IDSN_RECORDER_INITIALIZATION_FAILED "Video compressor initialization failed."
 
@@ -859,14 +853,10 @@
 #define IDS_MAIN_SCRIPT         "Main script"
 #define IDS_CHILD_SCRIPT_UNTHREADED "Child script (non-threaded)"
 #define IDS_CHILD_SCRIPT_THREADED "Child script (threaded)"
-#define IDS_CONTACT_CALLBACK_SCRIPT "Contact callback script"
-#define IDS_GENERAL_CALLBACK_SCRIPT "General callback script"
-#define IDS_JOINT_CTRL_CALLBACK_SCRIPT "Joint control callback script"
 #define IDS_CUSTOMIZATION_SCRIPT "Customization script"
 
 #define IDS_SIMULATION_SCRIPTS         "Simulation scripts"
 #define IDS_CUSTOMIZATION_SCRIPTS "Customization scripts"
-#define IDS_CALLBACK_SCRIPTS "Callback scripts"
 
 
 #define IDS_PROVIDE_MORE_INFO_AND_VALID_EMAIL "Please provide more information and a valid email address."

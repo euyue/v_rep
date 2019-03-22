@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <string>
@@ -16,6 +15,11 @@ public:
     AppBase(){}
     virtual ~AppBase(){}
 
+    static void handleVerSpecConstructor0()
+    {
+        printf("\nV-REP custom build V%s %s\n",VREP_PROGRAM_VERSION,VREP_PROGRAM_REVISION);
+    }
+    
     static void handleVerSpecConstructor1()
     {
         #ifndef SIM_WITHOUT_QT_AT_ALL

@@ -98,7 +98,6 @@ void CJoint::commonInit()
     _dynamicSecondPartLocalTransform.setIdentity();
 
     _dynamicMotorControlLoopEnabled=false;
-    _dynamicMotorCustomControl_OLD=false;
     _dynamicMotorPositionControl_P=0.1f;
     _dynamicMotorPositionControl_I=0.0f;
     _dynamicMotorPositionControl_D=0.0f;
@@ -779,30 +778,6 @@ void CJoint::setEnableDynamicMotorControlLoop(bool p)
 bool CJoint::getEnableDynamicMotorControlLoop()
 {
     return(_dynamicMotorControlLoopEnabled);
-}
-
-void CJoint::setEnableDynamicMotorCustomControl_OLD(bool c,const char* scriptContent)
-{
-    _dynamicMotorCustomControl_OLD=c;
-
-    // We remove a script that might be associated:
-    CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(getObjectHandle());
-    if (script)
-        App::ct->luaScriptContainer->removeScript(script->getScriptID());
-
-    if (_dynamicMotorCustomControl_OLD&&(scriptContent!=nullptr))
-    { // we have to add a script
-        CLuaScriptObject* script=new CLuaScriptObject(sim_scripttype_jointctrlcallback);
-        if (scriptContent)
-            script->setScriptText(scriptContent);
-        App::ct->luaScriptContainer->insertScript(script);
-        script->setObjectIDThatScriptIsAttachedTo_callback_OLD(getObjectHandle());
-    }
-}
-
-bool CJoint::getEnableDynamicMotorCustomControl_OLD()
-{
-    return(_dynamicMotorCustomControl_OLD);
 }
 
 void CJoint::setEnableTorqueModulation(bool p)
@@ -1735,102 +1710,64 @@ void CJoint::handleDynJointControl(bool init,int loopCnt,int totalLoops,float cu
         }
         else
         { // there doesn't seem to be any appropriate function for joint handling in the attached child or customization scripts
-            if (!_dynamicMotorCustomControl_OLD)
-            { // we have the built-in control (position PID or spring-damper KC)
-                // Following 9 new since 7/5/2014:
-                float P=_dynamicMotorPositionControl_P;
-                float I=_dynamicMotorPositionControl_I;
-                float D=_dynamicMotorPositionControl_D;
-                if (spring)
-                {
-                    P=_dynamicMotorSpringControl_K/maxForce;
-                    I=0.0f;
-                    D=_dynamicMotorSpringControl_C/maxForce;
-                }
+            // we have the built-in control (position PID or spring-damper KC)
+            // Following 9 new since 7/5/2014:
+            float P=_dynamicMotorPositionControl_P;
+            float I=_dynamicMotorPositionControl_I;
+            float D=_dynamicMotorPositionControl_D;
+            if (spring)
+            {
+                P=_dynamicMotorSpringControl_K/maxForce;
+                I=0.0f;
+                D=_dynamicMotorSpringControl_C/maxForce;
+            }
 
-                if (init)
-                    _dynamicMotorPIDCumulativeErrorForIntegralParameter=0.0f;
+            if (init)
+                _dynamicMotorPIDCumulativeErrorForIntegralParameter=0.0f;
 
-                float e=errorV;
+            float e=errorV;
 
-                // Proportional part:
-                float ctrl=e*P;
+            // Proportional part:
+            float ctrl=e*P;
 
-                // Integral part:
-                if (I!=0.0f) // so that if we turn the integral part on, we don't try to catch up all the past errors!
-                    _dynamicMotorPIDCumulativeErrorForIntegralParameter+=e*dynStepSize; // '*dynStepSize'  was forgotten and added on 7/5/2014. The I term is corrected during load operation.
-                else
-                    _dynamicMotorPIDCumulativeErrorForIntegralParameter=0.0f; // added on 2009/11/29
-                ctrl+=_dynamicMotorPIDCumulativeErrorForIntegralParameter*I;
+            // Integral part:
+            if (I!=0.0f) // so that if we turn the integral part on, we don't try to catch up all the past errors!
+                _dynamicMotorPIDCumulativeErrorForIntegralParameter+=e*dynStepSize; // '*dynStepSize'  was forgotten and added on 7/5/2014. The I term is corrected during load operation.
+            else
+                _dynamicMotorPIDCumulativeErrorForIntegralParameter=0.0f; // added on 2009/11/29
+            ctrl+=_dynamicMotorPIDCumulativeErrorForIntegralParameter*I;
 
-                // Derivative part:
-                if (!init) // this condition was forgotten. Added on 7/5/2014
-                    ctrl+=(e-_dynamicMotorPIDLastErrorForDerivativeParameter)*D/dynStepSize; // '/dynStepSize' was forgotten and added on 7/5/2014. The D term is corrected during load operation.
-                _dynamicMotorPIDLastErrorForDerivativeParameter=e;
+            // Derivative part:
+            if (!init) // this condition was forgotten. Added on 7/5/2014
+                ctrl+=(e-_dynamicMotorPIDLastErrorForDerivativeParameter)*D/dynStepSize; // '/dynStepSize' was forgotten and added on 7/5/2014. The D term is corrected during load operation.
+            _dynamicMotorPIDLastErrorForDerivativeParameter=e;
 
-                if (spring)
-                { // "spring" mode, i.e. force modulation mode
-                    float vel=fabs(targetVel);
-                    if (ctrl<0.0f)
-                        vel=-vel;
+            if (spring)
+            { // "spring" mode, i.e. force modulation mode
+                float vel=fabs(targetVel);
+                if (ctrl<0.0f)
+                    vel=-vel;
 
-                    forceTorque=fabs(ctrl)*maxForce;
+                forceTorque=fabs(ctrl)*maxForce;
 
-                    // Following 2 lines new since 7/5/2014:
-                    if (forceTorque>maxForce)
-                        forceTorque=maxForce;
-
-                    velocity=vel;
-                }
-                else
-                { // regular position control (i.e. built-in PID)
-                    // We calculate the velocity needed to reach the position in one time step:
-                    float vel=ctrl/dynStepSize;
-                    float maxVel=upperLimitVel;
-                    if (vel>maxVel)
-                        vel=maxVel;
-                    if (vel<-maxVel)
-                        vel=-maxVel;
-
+                // Following 2 lines new since 7/5/2014:
+                if (forceTorque>maxForce)
                     forceTorque=maxForce;
-                    velocity=vel;
-                }
+
+                velocity=vel;
             }
             else
-            { // we have a custom control here (joint control callback script, OLD). We keep this back backward compatibility
-                CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(getObjectHandle());
-                if (script!=nullptr)
-                { // using the DEPRECATED joint control callback scripts
-                    std::vector<bool> inDataBool;
-                    std::vector<int> inDataInt;
-                    std::vector<float> inDataFloat;
-                    std::vector<float> outData;
-                    std::vector<bool> outDataValidity;
-                    inDataBool.push_back(init);
-                    inDataBool.push_back(rev);
-                    inDataBool.push_back(cycl);
-                    inDataInt.push_back(getObjectHandle());
-                    inDataInt.push_back(loopCnt);
-                    inDataInt.push_back(totalLoops);
-                    inDataFloat.push_back(currentPos);
-                    inDataFloat.push_back(targetPos);
-                    inDataFloat.push_back(errorV);
-                    inDataFloat.push_back(effort);
-                    inDataFloat.push_back(dynStepSize);
-                    inDataFloat.push_back(lowL);
-                    inDataFloat.push_back(highL);
-                    inDataFloat.push_back(targetVel);
-                    inDataFloat.push_back(maxForce);
-                    inDataFloat.push_back(upperLimitVel);
-                    script->runJointCtrlCallback_OLD(inDataBool,inDataInt,inDataFloat,outData,outDataValidity);
-                    if (outDataValidity.size()>=2)
-                    {
-                        if (outDataValidity[0])
-                            forceTorque=outData[0];
-                        if (outDataValidity[1])
-                            velocity=outData[1];
-                    }
-                }
+            { // regular position control (i.e. built-in PID)
+                // We calculate the velocity needed to reach the position in one time step:
+                float vel=ctrl/dynStepSize;
+                float maxVel=upperLimitVel;
+                if (vel>maxVel)
+                    vel=maxVel;
+                if (vel<-maxVel)
+                    vel=-maxVel;
+
+                forceTorque=maxForce;
+                velocity=vel;
             }
         }
     }
@@ -1901,8 +1838,6 @@ C3DObject* CJoint::copyYourself()
     newJoint->_dynamicMotorPositionControl_torqueModulation=_dynamicMotorPositionControl_torqueModulation;
     newJoint->_jointHasHybridFunctionality=_jointHasHybridFunctionality;
     newJoint->_dynamicMotorPositionControl_targetPosition=_dynamicMotorPositionControl_targetPosition;
-
-    newJoint->_dynamicMotorCustomControl_OLD=_dynamicMotorCustomControl_OLD;
 
     newJoint->_bulletFloatParams.assign(_bulletFloatParams.begin(),_bulletFloatParams.end());
     newJoint->_bulletIntParams.assign(_bulletIntParams.begin(),_bulletIntParams.end());
@@ -2076,7 +2011,6 @@ void CJoint::serialize(CSer& ar)
 
         ar.storeDataName("Vaa");
         dummy=0;
-        SIM_SET_CLEAR_BIT(dummy,0,_dynamicMotorCustomControl_OLD);
         SIM_SET_CLEAR_BIT(dummy,1,_dynamicLockModeWhenInVelocityControl);
         ar << dummy;
         ar.flush();
@@ -2284,7 +2218,7 @@ void CJoint::serialize(CSer& ar)
                     ar >> byteQuantity;
                     unsigned char dummy;
                     ar >> dummy;
-                    _dynamicMotorCustomControl_OLD=SIM_IS_BIT_SET(dummy,0);
+                    // _dynamicMotorCustomControl_OLD=SIM_IS_BIT_SET(dummy,0);
                     _dynamicLockModeWhenInVelocityControl=SIM_IS_BIT_SET(dummy,1);
                 }
                 if (theName.compare("Jmd")==0)
@@ -2516,7 +2450,7 @@ void CJoint::serialize(CSer& ar)
 
         if (!kAndCSpringParameterPresent)
         { // for backward compatibility (7/5/2014):
-            if (_dynamicMotorEnabled&&_dynamicMotorControlLoopEnabled&&_dynamicMotorPositionControl_torqueModulation&&(!_dynamicMotorCustomControl_OLD))
+            if (_dynamicMotorEnabled&&_dynamicMotorControlLoopEnabled&&_dynamicMotorPositionControl_torqueModulation)
             { // we have a joint that behaves as a spring. We need to compute the corresponding K and C parameters, and adjust the max. force/torque (since that was not limited before):
                 _dynamicMotorSpringControl_K=_dynamicMotorMaximumForce*_dynamicMotorPositionControl_P;
                 _dynamicMotorSpringControl_C=_dynamicMotorMaximumForce*_dynamicMotorPositionControl_D;

@@ -85,6 +85,8 @@ void CMainContainer::simulationAboutToStart()
 
     luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforesimulation,nullptr,nullptr,nullptr);
     addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_beforesimulation,nullptr,nullptr);
+    if (sandboxScript!=nullptr)
+        sandboxScript->runSandboxScript(sim_syscb_beforesimulation,nullptr,nullptr);
 
     _initialObjectUniqueIdentifiersForRemovingNewObjects.clear();
     for (int i=0;i<int(objCont->objectList.size());i++)
@@ -98,12 +100,7 @@ void CMainContainer::simulationAboutToStart()
 
 #ifdef SIM_WITH_GUI
     if (App::mainWindow!=nullptr)
-    {
-        if (App::userSettings->useOldCodeEditor)
-            App::mainWindow->scintillaEditorContainer->applyChanges();
-        else
-            App::mainWindow->codeEditorContainer->simulationAboutToStart();
-    }
+        App::mainWindow->codeEditorContainer->simulationAboutToStart();
 #endif
 
     if (App::ct->dynamicsContainer->getDynamicEngineType(nullptr)==sim_physics_newton)
@@ -174,7 +171,7 @@ void CMainContainer::simulationPaused()
 {
     CLuaScriptObject* mainScript=luaScriptContainer->getMainScript();
     if (mainScript!=nullptr)
-        mainScript->runMainScript(sim_syscb_suspend,nullptr,nullptr);
+        mainScript->runMainScript(sim_syscb_suspend,nullptr,nullptr,nullptr);
     App::setToolbarRefreshFlag();
     App::setFullDialogRefreshFlag();
     App::addStatusbarMessage(IDSNS_SIMULATION_PAUSED);
@@ -184,7 +181,7 @@ void CMainContainer::simulationAboutToResume()
 {
     CLuaScriptObject* mainScript=luaScriptContainer->getMainScript();
     if (mainScript!=nullptr)
-        mainScript->runMainScript(sim_syscb_resume,nullptr,nullptr);
+        mainScript->runMainScript(sim_syscb_resume,nullptr,nullptr,nullptr);
     App::setToolbarRefreshFlag();
     App::setFullDialogRefreshFlag();
     App::addStatusbarMessage(IDSNS_SIMULATION_RESUMED);
@@ -294,6 +291,8 @@ void CMainContainer::simulationEnded(bool removeNewObjects)
     POST_SCENE_CHANGED_ANNOUNCEMENT(""); // keeps this (additional objects were removed, and object positions were reset)
     luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_aftersimulation,nullptr,nullptr,nullptr);
     addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_aftersimulation,nullptr,nullptr);
+    if (sandboxScript!=nullptr)
+        sandboxScript->runSandboxScript(sim_syscb_aftersimulation,nullptr,nullptr);
 }
 
 void CMainContainer::setModificationFlag(int bitMask)
@@ -341,7 +340,7 @@ int CMainContainer::createNewInstance()
         luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforeinstanceswitch,nullptr,nullptr,nullptr);
     addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
     if (sandboxScript!=nullptr)
-        sandboxScript->runSandboxScript(sim_syscb_beforeinstanceswitch);
+        sandboxScript->runSandboxScript(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
 
     if (simulation!=nullptr)
         simulation->setOnlineMode(false); // disable online mode before switching
@@ -479,7 +478,7 @@ int CMainContainer::createNewInstance()
 
     addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_afterinstanceswitch,nullptr,nullptr);
     if (sandboxScript!=nullptr)
-        sandboxScript->runSandboxScript(sim_syscb_afterinstanceswitch);
+        sandboxScript->runSandboxScript(sim_syscb_afterinstanceswitch,nullptr,nullptr);
 
     int data[4]={getCurrentInstanceIndex(),_environmentList[currentInstanceIndex]->getSceneUniqueID(),0,0};
     void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceswitch,data,nullptr,nullptr);
@@ -511,7 +510,7 @@ int CMainContainer::destroyCurrentInstance()
     { // only send the switch instance message if there is another instance to switch to:
         addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
         if (sandboxScript!=nullptr)
-            sandboxScript->runSandboxScript(sim_syscb_beforeinstanceswitch);
+            sandboxScript->runSandboxScript(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
         int pluginData[4]={-1,_environmentList[int(_objContList.size())-2]->getSceneUniqueID(),0,0};
         void* pluginReturnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceabouttoswitch,pluginData,nullptr,nullptr);
         delete[] (char*)pluginReturnVal;
@@ -772,7 +771,7 @@ bool CMainContainer::makeInstanceCurrentFromIndex(int instanceIndex,bool previou
         luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_beforeinstanceswitch,nullptr,nullptr,nullptr);
         addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
         if (sandboxScript!=nullptr)
-            sandboxScript->runSandboxScript(sim_syscb_beforeinstanceswitch);
+            sandboxScript->runSandboxScript(sim_syscb_beforeinstanceswitch,nullptr,nullptr);
         int pluginData[4]={currentInstanceIndex,_environmentList[instanceIndex]->getSceneUniqueID(),0,0};
         void* pluginReturnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceabouttoswitch,pluginData,nullptr,nullptr);
         delete[] (char*)pluginReturnVal;
@@ -827,7 +826,7 @@ bool CMainContainer::makeInstanceCurrentFromIndex(int instanceIndex,bool previou
         luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_afterinstanceswitch,nullptr,nullptr,nullptr);
     addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_afterinstanceswitch,nullptr,nullptr);
     if (sandboxScript!=nullptr)
-        sandboxScript->runSandboxScript(sim_syscb_afterinstanceswitch);
+        sandboxScript->runSandboxScript(sim_syscb_afterinstanceswitch,nullptr,nullptr);
 
     int pluginData[4]={currentInstanceIndex,environment->getSceneUniqueID(),0,0};
     void* pluginReturnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instanceswitch,pluginData,nullptr,nullptr);

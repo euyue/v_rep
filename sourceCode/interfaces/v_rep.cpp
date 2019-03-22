@@ -2057,10 +2057,6 @@ VREP_DLLEXPORT simFloat _simGetPureHollowScaling(const simVoid* geometric)
 {
     return(_simGetPureHollowScaling_internal(geometric));
 }
-VREP_DLLEXPORT simInt _simGetJointCallbackCallOrder(const simVoid* joint)
-{
-    return(_simGetJointCallbackCallOrder_internal(joint));
-}
 VREP_DLLEXPORT simVoid _simDynCallback(const simInt* intData,const simFloat* floatData)
 {
     _simDynCallback_internal(intData,floatData);
@@ -2372,6 +2368,10 @@ VREP_DLLEXPORT simInt simHandleCustomizationScripts(simInt callType)
 VREP_DLLEXPORT simInt simCallScriptFunction(simInt scriptHandleOrType,const simChar* functionNameAtScriptName,SLuaCallBack* data,const simChar* reservedSetToNull)
 {
     return(simCallScriptFunction_internal(scriptHandleOrType,functionNameAtScriptName,data,reservedSetToNull));
+}
+VREP_DLLEXPORT simInt _simGetJointCallbackCallOrder(const simVoid* )
+{
+    return(0);
 }
 // Deprecated end
 

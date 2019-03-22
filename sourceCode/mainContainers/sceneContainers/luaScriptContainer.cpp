@@ -42,8 +42,6 @@ void CLuaScriptContainer::simulationEnded()
     broadcastDataContainer.simulationEnded();
     removeDestroyedScripts(sim_scripttype_mainscript);
     removeDestroyedScripts(sim_scripttype_childscript);
-    removeDestroyedScripts(sim_scripttype_jointctrlcallback);
-    removeDestroyedScripts(sim_scripttype_contactcallback);
     for (size_t i=0;i<_callbackStructureToDestroyAtEndOfSimulation_new.size();i++)
         delete _callbackStructureToDestroyAtEndOfSimulation_new[i];
     _callbackStructureToDestroyAtEndOfSimulation_new.clear();
@@ -177,7 +175,7 @@ void CLuaScriptContainer::killAllSimulationLuaStates()
 {
     for (size_t i=0;i<allScripts.size();i++)
     {
-        if ((allScripts[i]->getScriptType()==sim_scripttype_mainscript)||(allScripts[i]->getScriptType()==sim_scripttype_childscript)||(allScripts[i]->getScriptType()==sim_scripttype_jointctrlcallback)||(allScripts[i]->getScriptType()==sim_scripttype_contactcallback)) //||(allScripts[i]->getScriptType()==sim_scripttype_generalcallback)) // not the customization scripts!!||(allScripts[i]->getScriptType()==sim_scripttype_customizationscript))
+        if ( (allScripts[i]->getScriptType()==sim_scripttype_mainscript)||(allScripts[i]->getScriptType()==sim_scripttype_childscript) )
             allScripts[i]->killLuaState();
     }
 }
@@ -287,9 +285,6 @@ int CLuaScriptContainer::getScriptsFromObjectAttachedTo(int threeDObjectID,std::
     CLuaScriptObject* it=getScriptFromObjectAttachedTo_child(threeDObjectID);
     if (it!=nullptr)
         scripts.push_back(it);
-    it=getScriptFromObjectAttachedTo_jointCallback_OLD(threeDObjectID);
-    if (it!=nullptr)
-        scripts.push_back(it);
     it=getScriptFromObjectAttachedTo_customization(threeDObjectID);
     if (it!=nullptr)
         scripts.push_back(it);
@@ -378,7 +373,7 @@ int CLuaScriptContainer::insertDefaultScript_mainAndChildScriptsOnly(int scriptT
     return(retVal);
 }
 
-void CLuaScriptContainer::callAddOnMainChildCustomizationWithData(int callType,CInterfaceStack* inStack)
+void CLuaScriptContainer::callChildMainCustomizationAddonSandboxScriptWithData(int callType,CInterfaceStack* inStack)
 {
     FUNCTION_DEBUG;
     if (!App::ct->simulation->isSimulationStopped())
@@ -386,12 +381,14 @@ void CLuaScriptContainer::callAddOnMainChildCustomizationWithData(int callType,C
         CLuaScriptObject* script=getMainScript();
         if (script!=nullptr)
         {
-            script->runMainScript(callType,inStack,nullptr);
+            script->runMainScript(callType,inStack,nullptr,nullptr);
             handleCascadedScriptExecution(sim_scripttype_childscript,callType,inStack,nullptr,nullptr);
         }
     }
     handleCascadedScriptExecution(sim_scripttype_customizationscript,callType,inStack,nullptr,nullptr);
     App::ct->addOnScriptContainer->handleAddOnScriptExecution(callType,inStack,nullptr);
+    if (App::ct->sandboxScript!=nullptr)
+        App::ct->sandboxScript->runSandboxScript(callType,inStack,nullptr);
 }
 
 void CLuaScriptContainer::sceneOrModelAboutToBeSaved(int modelBase)
@@ -604,34 +601,4 @@ bool CLuaScriptContainer::addCommandToOutsideCommandQueues(int commandID,int aux
             allScripts[i]->addCommandToOutsideCommandQueue(commandID,auxVal1,auxVal2,auxVal3,auxVal4,aux2Vals,aux2Count);
     }
     return(true);
-}
-
-CLuaScriptObject* CLuaScriptContainer::getScriptFromObjectAttachedTo_jointCallback_OLD(int threeDObjectID) const
-{ // used for callback scripts
-    for (size_t i=0;i<allScripts.size();i++)
-    {
-        if (allScripts[i]->getObjectIDThatScriptIsAttachedTo_callback_OLD()==threeDObjectID)
-            return(allScripts[i]);
-    }
-    return(nullptr);
-}
-
-CLuaScriptObject* CLuaScriptContainer::getCustomContactHandlingScript_callback_OLD() const
-{
-    for (size_t i=0;i<allScripts.size();i++)
-    {
-        if (allScripts[i]->getScriptType()==sim_scripttype_contactcallback)
-            return(allScripts[i]);
-    }
-    return(nullptr);
-}
-
-CLuaScriptObject* CLuaScriptContainer::getGeneralCallbackHandlingScript_callback_OLD() const
-{
-    for (size_t i=0;i<allScripts.size();i++)
-    {
-        if (allScripts[i]->getScriptType()==sim_scripttype_generalcallback)
-            return(allScripts[i]);
-    }
-    return(nullptr);
 }

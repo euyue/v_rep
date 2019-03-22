@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "serBase.h"
@@ -18,7 +17,7 @@ public:
     virtual ~CSer();
 
     void writeOpen();
-    void writeClose(bool compress);
+    void writeClose(bool compress,char filetype);
 
     int readOpen(int& serializationVersion,unsigned short& vrepVersionThatWroteThis,int& licenseTypeThatWroteThis,char& revNumber);
     void readClose();
@@ -67,6 +66,8 @@ public:
     std::string readDataName();
     int readBytesButKeepPointerUnchanged(unsigned char* buffer,int desiredCount);
     VArchive& getArchive();
+
+    static char getFileTypeFromName(const char* filename);
 
     static int SER_SERIALIZATION_VERSION;
     static int SER_MIN_SERIALIZATION_VERSION_THAT_CAN_READ_THIS;

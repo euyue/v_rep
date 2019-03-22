@@ -112,8 +112,6 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     }
                     else
                     {
-                        if (App::mainWindow!=nullptr)
-                            App::mainWindow->scintillaEditorContainer->closeAllEditors();
                         App::ct->simulation->stopSimulation();
                         App::ct->emptyScene(true);
                     }
@@ -176,8 +174,6 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                     }
                     else
                     {
-                        if (App::mainWindow!=nullptr)
-                            App::mainWindow->scintillaEditorContainer->closeAllEditors();
                         App::ct->simulation->stopSimulation();
                         App::ct->emptyScene(true);
                     }
@@ -215,22 +211,6 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
         return(true);
     }
-    if (cmd.cmdId==FILE_OPERATION_LOAD_UI_FOCMD)
-    {
-        if (!VThread::isCurrentThreadTheUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            std::string tst(App::directories->uiDirectory);
-            std::string filenameAndPath=App::uiThread->getOpenFileName(App::mainWindow,0,strTranslate(IDSN_LOADING_UI),tst,"",false,"V-REP Custom UI Files","ttb");
-            if (filenameAndPath.length()!=0)
-                loadUserInterfaces(filenameAndPath.c_str(),true,true,true,nullptr,true); // Undo thing done here too
-            else
-                App::addStatusbarMessage(IDSNS_ABORTED);
-        }
-        else
-            App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
-        return(true);
-    }
-
     if (cmd.cmdId==FILE_OPERATION_SAVE_SCENE_FOCMD)
     {
         if (App::ct->simulation->isSimulationStopped()&&(App::getEditModeType()==NO_EDIT_MODE) )
@@ -383,26 +363,6 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             else
                 App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
         }
-        return(true);
-    }
-    if (cmd.cmdId==FILE_OPERATION_SAVE_UI_FOCMD)
-    {
-        if (!VThread::isCurrentThreadTheUiThread())
-        { // we are NOT in the UI thread. We execute the command now:
-            if (!App::ct->environment->getSceneLocked())
-            {
-                App::addStatusbarMessage(IDSNS_SAVING_CUSTOM_USER_INTERFACES);
-                std::string filenameAndPath=App::uiThread->getSaveFileName(App::mainWindow,0,strTranslate(IDSNS_SAVING_CUSTOM_USER_INTERFACES),"","",false,"V-REP OpenGl-based Custom UI Files","ttb");
-                if (filenameAndPath.length()!=0)
-                    saveUserInterfaces(filenameAndPath.c_str(),true,true,true,nullptr);
-                else
-                    App::addStatusbarMessage(IDSNS_ABORTED);
-            }
-            else
-                App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_SAVE),strTranslate(IDS_SCENE_IS_LOCKED_WARNING),VMESSAGEBOX_OKELI);
-        }
-        else
-            App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
         return(true);
     }
     if (cmd.cmdId==FILE_OPERATION_IMPORT_MESH_FOCMD)
@@ -774,7 +734,6 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
 #endif
             if (!displayed)
             {
-                App::addStatusbarMessage(IDSNS_LEAVING);
                 SSimulationThreadCommand cmd;
                 cmd.cmdId=FINAL_EXIT_REQUEST_CMD;
                 App::appendSimulationThreadCommand(cmd);
@@ -812,13 +771,7 @@ void CFileOperations::createNewScene(bool displayMessages,bool forceForNewInstan
     if (useNewInstance)
         App::ct->createNewInstance();
     else
-    {
-#ifdef SIM_WITH_GUI
-        if (App::mainWindow!=nullptr)
-            App::mainWindow->scintillaEditorContainer->closeAllEditors();
-#endif
         App::ct->simulation->stopSimulation();
-    }
     App::ct->emptyScene(true);
     std::string fullPathAndFilename=App::directories->systemDirectory+VREP_SLASH;
     fullPathAndFilename+="dfltscn.";
@@ -855,13 +808,9 @@ void CFileOperations::closeScene(bool displayMessages,bool displayDialogs)
 #endif
     if (action==VMESSAGEBOX_REPLY_NO)
     {
-#ifdef SIM_WITH_GUI
-        App::setDefaultMouseMode();
-        if (App::mainWindow!=nullptr)
-            App::mainWindow->scintillaEditorContainer->closeAllEditors();
-#endif
         App::ct->simulation->stopSimulation();
 #ifdef SIM_WITH_GUI
+        App::setDefaultMouseMode();
         if (App::mainWindow!=nullptr)
             App::mainWindow->editModeContainer->processCommand(ANY_EDIT_MODE_FINISH_AND_CANCEL_CHANGES_EMCMD,nullptr);
 #endif
@@ -1126,10 +1075,6 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages
 
     int result=-3;
     CFileOperationsBase::handleVerSpec_loadScene1();
-#ifdef SIM_WITH_GUI
-    if (App::mainWindow!=nullptr)
-        App::mainWindow->scintillaEditorContainer->closeAllEditors();
-#endif
     App::ct->objCont->deselectObjects();
     App::ct->simulation->stopSimulation(); // should be anyway stopped!
     if (VFile::doesFileExist(pathAndFilename))
@@ -1449,320 +1394,6 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
     }
     return(result==1);
 }
-bool CFileOperations::saveUserInterfaces(const char* pathAndFilename,bool displayMessages,bool displayDialogs,bool setCurrentDir,std::vector<int>* uiHandlesOrNullForAll)
-{
-    if (App::isFullScreen())
-        displayDialogs=false;
-    bool retVal=false; // means error
-    if ((App::ct->buttonBlockContainer!=nullptr)&&(App::ct->buttonBlockContainer->getUnassociatedNonSystemBlockCount()!=0))
-    { // ok, we have something to save!
-        if (displayDialogs)
-            App::uiThread->showOrHideProgressBar(true,-1,"Saving custom UI(s)...");
-
-        VFile myFile(pathAndFilename,VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE);
-        VArchive archive(&myFile,VArchive::STORE);
-        CSer ar(archive);
-
-        std::string infoPrintOut(IDSNS_SAVING_CUSTOM_USER_INTERFACES);
-        infoPrintOut+=" (";
-        infoPrintOut+=std::string(pathAndFilename)+"). ";
-        infoPrintOut+=" ";
-        infoPrintOut+=IDSNS_SERIALIZATION_VERSION_IS;
-        infoPrintOut+=" ";
-        infoPrintOut+=boost::lexical_cast<std::string>(CSer::SER_SERIALIZATION_VERSION)+".";
-        if (displayMessages)
-            App::addStatusbarMessage(infoPrintOut.c_str());
-        
-        //**********************************
-        ar.writeOpen();
-        std::vector<CTextureProperty*> allTextureProperties;
-        bool somethingWasWritten=false;
-        for (int i=0;i<int(App::ct->buttonBlockContainer->allBlocks.size());i++)
-        {
-            if ((App::ct->buttonBlockContainer->allBlocks[i]->getAttributes()&sim_ui_property_systemblock)==0)
-            {
-                bool takeIt=false;
-                if (uiHandlesOrNullForAll==nullptr)
-                    takeIt=true;
-                if (!takeIt)
-                {
-                    for (int j=0;j<int(uiHandlesOrNullForAll->size());j++)
-                    {
-                        if (uiHandlesOrNullForAll->at(j)==App::ct->buttonBlockContainer->allBlocks[i]->getBlockID())
-                        {
-                            takeIt=true;
-                            break;
-                        }
-                    }
-                }
-                if (takeIt)
-                {
-                    somethingWasWritten=true;
-                    ar.storeDataName(SER_BUTTON_BLOCK);
-                    ar.setCountingMode();
-                    App::ct->buttonBlockContainer->allBlocks[i]->serialize(ar);
-                    if (ar.setWritingMode())
-                        App::ct->buttonBlockContainer->allBlocks[i]->serialize(ar);
-                    App::ct->buttonBlockContainer->allBlocks[i]->getAllAttachedTextureProperties(allTextureProperties);
-                }
-            }
-        }
-        if (somethingWasWritten)
-        {
-            // Now make sure that every texture object appears no more than once and is not linked to any vision sensor, then serialize the related texture object:
-            std::vector<CTextureProperty*> tpc(allTextureProperties);
-            allTextureProperties.clear();
-            for (int i=0;i<int(tpc.size());i++)
-            {
-                bool present=false;
-                for (int j=0;j<int(allTextureProperties.size());j++)
-                {
-                    if (allTextureProperties[j]->getTextureObjectID()==tpc[i]->getTextureObjectID())
-                    {
-                        present=true;
-                        break;
-                    }
-                }
-                if (!present)
-                {
-                    allTextureProperties.push_back(tpc[i]);
-                    int objid=tpc[i]->getTextureObjectID();
-                    CTextureObject* to=App::ct->textureCont->getObject(objid);
-                    if (to!=nullptr)
-                    {
-                        ar.storeDataName(SER_TEXTURE);
-                        ar.setCountingMode();
-                        to->serialize(ar);
-                        if (ar.setWritingMode())
-                            to->serialize(ar);
-                    }
-
-                }
-            }
-            ar.storeDataName(SER_END_OF_FILE);
-            ar.writeClose(App::userSettings->compressFiles);
-            //**********************************
-            retVal=true;
-
-            if (displayMessages)
-                App::addStatusbarMessage(IDSNS_DONE);
-        }
-        archive.close();
-        myFile.close();
-        if (displayDialogs)
-            App::uiThread->showOrHideProgressBar(false);
-    }
-    return(retVal);
-}
-
-bool CFileOperations::loadUserInterfaces(const char* pathAndFilename,bool displayMessages,bool displayDialogs,bool setCurrentDir,std::vector<int>* uiHandles,bool doUndoThingInHere)
-{
-    bool retVal=false;
-    if (uiHandles!=nullptr)
-        uiHandles->clear();
-    if (VFile::doesFileExist(pathAndFilename))
-    {
-        if (displayDialogs)
-            App::uiThread->showOrHideProgressBar(true,-1,"Loading custom UI(s)...");
-        App::ct->objCont->deselectObjects();
-        if (setCurrentDir)
-            App::directories->uiDirectory=App::directories->getPathFromFull(pathAndFilename);
-        VFile file(pathAndFilename,VFile::READ|VFile::SHARE_DENY_NONE);
-        VArchive archive(&file,VArchive::LOAD);
-        CSer ar(archive);
-        int serializationVersion;
-        unsigned short vrepVersionThatWroteThis;
-        int licenseTypeThatWroteThis;
-        char revisionNumber;
-        int result=ar.readOpen(serializationVersion,vrepVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber);
-
-        std::string infoPrintOut(tt::decorateString("",IDSNS_LOADING_UI," ("));
-        infoPrintOut+=std::string(pathAndFilename)+"). ";
-
-#ifdef SIM_WITH_GUI
-        if ((result==-3)&&(App::mainWindow!=nullptr))
-        {
-            if (displayMessages)
-                App::addStatusbarMessage(IDS_NOT_VALID_V_REP_FILE);
-            if (displayDialogs)
-            {
-                App::uiThread->showOrHideProgressBar(false);
-                App::uiThread->messageBox_critical(App::mainWindow,strTranslate(IDSN_SERIALIZATION),strTranslate(IDS_NOT_VALID_V_REP_FILE),VMESSAGEBOX_OKELI);
-                App::uiThread->showOrHideProgressBar(true);
-            }
-        }
-        if ((result!=-3)&&displayMessages&&(App::mainWindow!=nullptr))
-        {
-            infoPrintOut+=" ";
-            infoPrintOut+=IDSNS_SERIALIZATION_VERSION_IS;
-            infoPrintOut+=" ";
-            infoPrintOut+=boost::lexical_cast<std::string>(serializationVersion)+".";
-            App::addStatusbarMessage(infoPrintOut.c_str());
-            infoPrintOut=_getStringOfVersionAndLicenseThatTheFileWasWrittenWith(vrepVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber);
-            if (infoPrintOut!="")
-                App::addStatusbarMessage(infoPrintOut.c_str());
-        }
-        if ((result==-2)&&(App::mainWindow!=nullptr))
-        {
-            if (displayMessages)
-                App::addStatusbarMessage(IDS_SERIALIZATION_VERSION_NOT_SUPPORTED_ANYMORE);
-            if (displayDialogs)
-            {
-                App::uiThread->showOrHideProgressBar(false);
-                App::uiThread->messageBox_critical(App::mainWindow,strTranslate(IDSN_SERIALIZATION),strTranslate(IDS_SERIALIZATION_VERSION_NOT_SUPPORTED_ANYMORE),VMESSAGEBOX_OKELI);
-                App::uiThread->showOrHideProgressBar(true);
-            }
-        }
-        if ((result==-1)&&(App::mainWindow!=nullptr))
-        {
-            if (displayMessages)
-                App::addStatusbarMessage(IDS_SERIALIZATION_VERSION_TOO_RECENT);
-            if (displayDialogs)
-            {
-                App::uiThread->showOrHideProgressBar(false);
-                App::uiThread->messageBox_critical(App::mainWindow,strTranslate(IDSN_SERIALIZATION),strTranslate(IDS_SERIALIZATION_VERSION_TOO_RECENT),VMESSAGEBOX_OKELI);
-                App::uiThread->showOrHideProgressBar(true);
-            }
-        }
-        if ((result==0)&&(App::mainWindow!=nullptr))
-        {
-            if (displayMessages)
-                App::addStatusbarMessage(IDS_COMPRESSION_SCHEME_NOT_SUPPORTED);
-            if (displayDialogs)
-            {
-                App::uiThread->showOrHideProgressBar(false);
-                App::uiThread->messageBox_critical(App::mainWindow,strTranslate(IDSN_SERIALIZATION),strTranslate(IDS_COMPRESSION_SCHEME_NOT_SUPPORTED),VMESSAGEBOX_OKELI);
-                App::uiThread->showOrHideProgressBar(true);
-            }
-        }
-#endif
-        if (result==1)
-        {
-            std::vector<CButtonBlock*> loadedButtonBlockList;
-            std::vector<CTextureObject*> loadedTextureList;
-            int byteQuantity;
-            std::string theName="";
-            while (theName.compare(SER_END_OF_FILE)!=0)
-            {
-                theName=ar.readDataName();
-                if (theName.compare(SER_END_OF_FILE)!=0)
-                {
-                    bool noHit=true;
-                    if (theName.compare(SER_END_OF_OBJECT)==0) // those 2 lines can probably be removed..
-                        noHit=false;
-                    if (theName.compare(SER_BUTTON_BLOCK)==0)
-                    {
-                        ar >> byteQuantity;
-                        CButtonBlock* it=new CButtonBlock(1,1,10,10,0);
-                        it->serialize(ar);
-                        loadedButtonBlockList.push_back(it);
-                        noHit=false;
-                    }
-                    if (theName.compare(SER_TEXTURE)==0)
-                    {
-                        ar >> byteQuantity;
-                        CTextureObject* it=new CTextureObject();
-                        it->serialize(ar);
-                        loadedTextureList.push_back(it);
-                        noHit=false;
-                    }
-                    if (noHit)
-                        ar.loadUnknownData();
-                }
-            }
-            bool addUis=true;
-
-#ifdef SIM_WITH_GUI
-            if ((App::mainWindow!=nullptr))
-            {
-                if (displayMessages)
-                    App::addStatusbarMessage(IDSNS_UI_LOADED);
-                if ((vrepVersionThatWroteThis>VREP_PROGRAM_VERSION_NB)&&displayDialogs)
-                {
-                    App::uiThread->showOrHideProgressBar(false);
-                    App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_CUSTOM_USER_INTERFACES),strTranslate(IDS_SAVED_WITH_MORE_RECENT_VERSION_WARNING),VMESSAGEBOX_OKELI);
-                    App::uiThread->showOrHideProgressBar(true);
-                }
-            }
-#endif
-            if (addUis)
-            {
-                // We add the 2Delements to the container and do the mapping:
-                std::vector<int> buttonBlockMapping;
-                std::vector<int> textureObjectMapping;
-                for (int i=0;i<int(loadedButtonBlockList.size());i++)
-                {
-                    buttonBlockMapping.push_back(loadedButtonBlockList[i]->getBlockID()); // Old ID
-                    App::ct->buttonBlockContainer->insertBlock(loadedButtonBlockList[i],false);
-                    buttonBlockMapping.push_back(loadedButtonBlockList[i]->getBlockID()); // New ID
-                    if (uiHandles!=nullptr)
-                        uiHandles->push_back(loadedButtonBlockList[i]->getBlockID());
-                }
-                App::ct->objCont->prepareFastLoadingMapping(buttonBlockMapping);
-
-                for (int i=0;i<int(loadedTextureList.size());i++)
-                {
-                    textureObjectMapping.push_back(loadedTextureList[i]->getObjectID()); // Old ID
-                    int nID=App::ct->textureCont->addObject(loadedTextureList[i],false);
-                    textureObjectMapping.push_back(nID); // New ID
-                }
-                App::ct->objCont->prepareFastLoadingMapping(textureObjectMapping);
-
-                for (int i=0;i<int(loadedButtonBlockList.size());i++)
-                {
-                    loadedButtonBlockList[i]->removeAllVisionSensorTextures();
-                    loadedButtonBlockList[i]->removeAllObjectAttachements();
-                    loadedButtonBlockList[i]->performTextureObjectLoadingMapping(&textureObjectMapping);
-                }
-
-                // We set ALL texture object dependencies (not just for loaded objects):
-                App::ct->textureCont->clearAllDependencies();
-                App::ct->buttonBlockContainer->setTextureDependencies();
-                for (int i=0;i<int(App::ct->objCont->shapeList.size());i++)
-                {
-                    CShape* it=App::ct->objCont->getShape(App::ct->objCont->shapeList[i]);
-                    it->geomData->setTextureDependencies(it->getObjectHandle());
-                }
-
-                retVal=true;
-            }
-            else
-            {
-                for (int i=0;i<int(loadedButtonBlockList.size());i++)
-                    delete loadedButtonBlockList[i];
-                for (int i=0;i<int(loadedTextureList.size());i++)
-                    delete loadedTextureList[i];
-                retVal=false;
-            }
-            ar.readClose();
-            App::uiThread->showOrHideProgressBar(false);
-        }
-        else
-        {
-            if (displayMessages)
-                App::addStatusbarMessage(IDSNS_UI_COULD_NOT_BE_LOADED);
-        }
-        archive.close();
-        file.close();
-
-        // We need to make sure texture dependencies are ok:
-        App::ct->textureCont->clearAllDependencies();
-        for (int j=0;j<int(App::ct->objCont->shapeList.size());j++)
-            App::ct->objCont->getShape(App::ct->objCont->shapeList[j])->geomData->setTextureDependencies(App::ct->objCont->shapeList[j]);
-        App::ct->buttonBlockContainer->setTextureDependencies();
-
-        if (doUndoThingInHere)
-        {
-            POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
-        }
-    }
-    else
-    {
-        if (displayMessages)
-            App::addStatusbarMessage(IDSNS_ABORTED_FILE_DOES_NOT_EXIST);
-    }
-    return(retVal);
-}
 
 bool CFileOperations::saveScene(const char* pathAndFilename,bool displayMessages,bool displayDialogs,bool setCurrentDir,bool changeSceneUniqueId)
 { // There is a similar routine in CUndoBuffer!!
@@ -1773,12 +1404,7 @@ bool CFileOperations::saveScene(const char* pathAndFilename,bool displayMessages
 
 #ifdef SIM_WITH_GUI
         if (App::mainWindow!=nullptr)
-        {
-            if (App::userSettings->useOldCodeEditor)
-                App::mainWindow->scintillaEditorContainer->applyChanges();
-            else
-                App::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();
-        }
+            App::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();
 #endif
 
         void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scenesave,nullptr,nullptr,nullptr);
@@ -1812,7 +1438,7 @@ bool CFileOperations::saveScene(const char* pathAndFilename,bool displayMessages
 
             serObj.writeOpen();
             App::ct->objCont->saveScene(serObj);
-            serObj.writeClose(App::userSettings->compressFiles);
+            serObj.writeClose(App::userSettings->compressFiles,CSer::getFileTypeFromName(pathAndFilename));
 
             if (displayMessages)
                 App::addStatusbarMessage(IDSNS_SCENE_WAS_SAVED);
@@ -1865,12 +1491,7 @@ bool CFileOperations::saveModel(int modelBaseDummyID,const char* pathAndFilename
 
 #ifdef SIM_WITH_GUI
         if (App::mainWindow!=nullptr)
-        {
-            if (App::userSettings->useOldCodeEditor)
-                App::mainWindow->scintillaEditorContainer->applyChanges();
-            else
-                App::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();
-        }
+            App::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();
 #endif
 
         if (sel.size()>0)
@@ -1896,7 +1517,7 @@ bool CFileOperations::saveModel(int modelBaseDummyID,const char* pathAndFilename
 
                 serObj.writeOpen();
                 App::ct->copyBuffer->serializeCurrentSelection(serObj,&sel,modelTr,modelBBSize,modelNonDefaultTranslationStepSize);
-                serObj.writeClose(App::userSettings->compressFiles);
+                serObj.writeClose(App::userSettings->compressFiles,CSer::getFileTypeFromName(pathAndFilename));
                 archive.close();
                 myFile.close();
             }
@@ -1906,7 +1527,7 @@ bool CFileOperations::saveModel(int modelBaseDummyID,const char* pathAndFilename
 
                 serObj.writeOpen();
                 App::ct->copyBuffer->serializeCurrentSelection(serObj,&sel,modelTr,modelBBSize,modelNonDefaultTranslationStepSize);
-                serObj.writeClose(App::userSettings->compressFiles);
+                serObj.writeClose(App::userSettings->compressFiles,7);
             }
             infoPrintOut+=IDSNS_SERIALIZATION_VERSION_IS;
             infoPrintOut+=" ";

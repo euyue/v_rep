@@ -52,18 +52,21 @@ public:
 
 
     void setScriptText(const char* scriptTxt);
+    bool setScriptTextFromFile(const char* filename);
     const char* getScriptText();
 
     void setCalledInThisSimulationStep(bool c);
     bool getCalledInThisSimulationStep() const;
 
-    int runMainScript(int optionalCallType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
+    int runMainScript(int optionalCallType,const CInterfaceStack* inStack,CInterfaceStack* outStack,bool* functionPresent);
     bool launchThreadedChildScript();
     int resumeThreadedChildScriptIfLocationMatch(int resumeLocation);
     int runNonThreadedChildScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     int runCustomizationScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     int runAddOn(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
-    int runSandboxScript(int callType);
+    int runSandboxScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
+    bool runSandboxScript_beforeMainScript();
+
 
     void handleDebug(const char* funcName,const char* funcType,bool inCall,bool sysCall);
 
@@ -165,11 +168,6 @@ public:
 
     void setAutomaticCascadingCallsDisabled_OLD(bool disabled);
     bool getAutomaticCascadingCallsDisabled_OLD() const;
-    int getObjectIDThatScriptIsAttachedTo_callback_OLD() const; // for callback scripts
-    void setObjectIDThatScriptIsAttachedTo_callback_OLD(int newObjectID); // for callback scripts
-    void runJointCtrlCallback_OLD(const std::vector<bool>& inDataBool,const std::vector<int>& inDataInt,const std::vector<float>& inDataFloat,std::vector<float>& outDataFloat,std::vector<bool>& outDataValidity);
-    int runContactCallback_OLD(const int inDataInt[3],int outDataInt[3],float outDataFloat[14]);
-    int runGeneralCallback_OLD(int callbackId,int callbackTag,void* additionalData);
     bool checkAndSetWarningAboutSimHandleChildScriptAlreadyIssued_oldCompatibility_7_8_2014();
     bool checkAndSetWarning_simRMLPosition_oldCompatibility_30_8_2014();
     bool checkAndSetWarning_simRMLVelocity_oldCompatibility_30_8_2014();
@@ -185,8 +183,8 @@ protected:
     bool _luaLoadBuffer(luaWrap_lua_State* luaState,const char* buff,size_t sz,const char* name);
     int _luaPCall(luaWrap_lua_State* luaState,int nargs,int nresult,int errfunc,const char* funcName);
 
-    int _runMainScript(int optionalCallType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
-    int _runMainScriptNow(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
+    int _runMainScript(int optionalCallType,const CInterfaceStack* inStack,CInterfaceStack* outStack,bool* functionPresent);
+    int _runMainScriptNow(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack,bool* functionPresent);
     int _runNonThreadedChildScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     int _runNonThreadedChildScriptNow(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     void _launchThreadedChildScriptNow();
@@ -197,8 +195,6 @@ protected:
 
     bool _prepareLuaStateAndCallScriptInitSectionIfNeeded();
     bool _checkIfMixingOldAndNewCallMethods();
-
-    void _runJointCtrlCallback_OLD(int callType,const std::vector<bool>& inDataBool,const std::vector<int>& inDataInt,const std::vector<float>& inDataFloat,std::vector<float>& outDataFloat,std::vector<bool>& outDataValidity);
 
     // Variables that need to be copied and serialized:
     int scriptID;
@@ -214,7 +210,6 @@ protected:
     bool _inDebug;
     int _treeTraversalDirection;
     int _objectIDAttachedTo_child;
-    int _objectIDAttachedTo_callback;
     int _objectIDAttachedTo_customization;
     bool _calledInThisSimulationStep;
 

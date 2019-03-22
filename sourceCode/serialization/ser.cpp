@@ -22,6 +22,11 @@ int CSer::SER_SERIALIZATION_VERSION=21; // 9 since 2008/09/01,
 int CSer::SER_MIN_SERIALIZATION_VERSION_THAT_CAN_READ_THIS=18; // means: files written with this can be read by older v-rep with serialization THE_NUMBER
 int CSer::SER_MIN_SERIALIZATION_VERSION_THAT_THIS_CAN_READ=16; // means: this executable can read versions >=THE_NUMBER
 
+char CSer::getFileTypeFromName(const char* filename)
+{
+    return(CSerBase::typeFromName(filename));
+}
+
 CSer::CSer(VArchive& ar)
 { // When reading: if serializationVersion==-1 --> not recognized
     _commonInit();
@@ -58,10 +63,10 @@ void CSer::writeOpen()
 {
 }
 
-void CSer::writeClose(bool compress)
+void CSer::writeClose(bool compress,char filetype)
 { // we write the whole file from the fileBuffer:
     // We write the header:
-    for (int i=0;i<int(strlen(SER_VREP_HEADER));i++)
+    for (size_t i=0;i<strlen(SER_VREP_HEADER);i++)
     {
         if (theArchive!=nullptr)
             (*theArchive) << SER_VREP_HEADER[i];
@@ -177,8 +182,15 @@ void CSer::writeClose(bool compress)
     else
         (*_bufferArchive).push_back(VREP_PROGRAM_REVISION_NB);
 
-    // We write 1000-7 bytes for future use:
-    for (int i=0;i<993;i++)
+
+    // File type:
+    if (theArchive!=nullptr)
+        (*theArchive) << filetype;
+    else
+        (*_bufferArchive).push_back(filetype);
+
+    // We write 1000-8 bytes for future use:
+    for (int i=0;i<992;i++)
     {
         if (theArchive!=nullptr)
             (*theArchive) << (char)0;
@@ -186,12 +198,12 @@ void CSer::writeClose(bool compress)
             (*_bufferArchive).push_back((char)0);
     }
 
-    compress=handleVerSpecWriteClose1(compress);
+    compress=handleVerSpecWriteClose1(compress,filetype);
 
     // Now we write all the data:
     if (compress)
     { // compressed. When changing compression method, then serialization version has to be incremented and older version won't be able to read newer versions anymore!
-        handleVerSpecWriteClose2(this);
+        handleVerSpecWriteClose2(this,filetype);
 
         // Hufmann:
         unsigned char* writeBuff=new unsigned char[_fileBuffer.size()+400]; // actually 384
@@ -246,11 +258,12 @@ int CSer::readOpen(int& serializationVersion,unsigned short& vrepVersionThatWrot
         if ((*_bufferArchive).size()<strlen(SER_VREP_HEADER))
             return(-3); // wrong fileformat
     }
+    char filetype=0;
     char compressMethod=0;
     int originalDataSize=0;
     std::string head;
     int bufferArchivePointer=0;
-    for (int i=0;i<int(strlen(SER_VREP_HEADER));i++)
+    for (size_t i=0;i<strlen(SER_VREP_HEADER);i++)
     {
         char tmp;
         if (theArchive!=nullptr)
@@ -357,9 +370,14 @@ int CSer::readOpen(int& serializationVersion,unsigned short& vrepVersionThatWrot
             else
                 revNumber=(*_bufferArchive)[bufferArchivePointer++];
 
-            char dummy;
-            for (int i=0;i<993;i++)
+            if (theArchive!=nullptr)
+                (*theArchive) >> filetype;
+            else
+                filetype=(*_bufferArchive)[bufferArchivePointer++];
+
+            for (int i=0;i<992;i++)
             { // for future use!
+                char dummy;
                 if (theArchive!=nullptr)
                     (*theArchive) >> dummy; // not used for now
                 else
@@ -414,9 +432,7 @@ int CSer::readOpen(int& serializationVersion,unsigned short& vrepVersionThatWrot
                 _fileBuffer.push_back(uncompressedBuffer[i]);
             delete[] uncompressedBuffer;
 
-            handleVerSpecReadOpen(this);
-
-            return(1); // everything went ok!
+            return(handleVerSpecReadOpen(this,filetype));
         }
     }
     else

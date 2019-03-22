@@ -384,6 +384,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.getCollectionObjects",_simGetCollectionObjects,        "table objectHandles=sim.getCollectionObjects(number collectionHandle)",true},
     {"sim.handleCustomizationScripts",_simHandleCustomizationScripts,"number count=sim.handleCustomizationScripts(number callType)",true},
     {"sim.handleAddOnScripts",_simHandleAddOnScripts,            "number count=sim.handleAddOnScripts(number callType)",true},
+    {"sim.handleSandboxScript",_simHandleSandboxScript,          "sim.handleSandboxScript(number callType)",true},
     {"sim.setScriptAttribute",_simSetScriptAttribute,            "number result=sim.setScriptAttribute(number scriptHandle,number attributeID,number/boolean attribute)",true},
     {"sim.getScriptAttribute",_simGetScriptAttribute,            "number/boolean attribute=sim.getScriptAttribute(number scriptHandle,number attributeID)",true},
     {"sim.handleChildScripts",_simHandleChildScripts,            "number executedScriptCount=sim.handleChildScripts(number callType,...(objects to be passed))",true},
@@ -1124,9 +1125,6 @@ const SLuaVariables simLuaVariables[]=
     {"sim.scripttype_childscript",sim_scripttype_childscript,true},
     {"sim.scripttype_addonscript",sim_scripttype_addonscript,true},
     {"sim.scripttype_addonfunction",sim_scripttype_addonfunction,true},
-    {"sim.scripttype_jointctrlcallback",sim_scripttype_jointctrlcallback,true},
-    {"sim.scripttype_contactcallback",sim_scripttype_contactcallback,true},
-    {"sim.scripttype_generalcallback",sim_scripttype_generalcallback,true},
     {"sim.scripttype_customizationscript",sim_scripttype_customizationscript,true},
     {"sim.scripttype_sandboxscript",sim_scripttype_sandboxscript,true},
     {"sim.scripttype_threaded",sim_scripttype_threaded,true},
@@ -2147,9 +2145,6 @@ const SLuaVariables simLuaVariablesOldApi[]=
     {"sim_scripttype_childscript",sim_scripttype_childscript,false},
     {"sim_scripttype_addonscript",sim_scripttype_addonscript,false},
     {"sim_scripttype_addonfunction",sim_scripttype_addonfunction,false},
-    {"sim_scripttype_jointctrlcallback",sim_scripttype_jointctrlcallback,false},
-    {"sim_scripttype_contactcallback",sim_scripttype_contactcallback,false},
-    {"sim_scripttype_generalcallback",sim_scripttype_generalcallback,false},
     {"sim_scripttype_customizationscript",sim_scripttype_customizationscript,false},
     {"sim_scripttype_threaded",sim_scripttype_threaded,false},
     {"sim_mainscriptcall_initialization",sim_syscb_init,false},
@@ -3154,29 +3149,6 @@ void getScriptTree(luaWrap_lua_State* L,bool selfIncluded,std::vector<int>& scri
             }
         }
 
-        if (it->getScriptType()==sim_scripttype_jointctrlcallback)
-        { // we have a joint ctrl callback script
-            C3DObject* obj=App::ct->objCont->getObjectFromHandle(it->getObjectIDThatScriptIsAttachedTo_callback_OLD());
-            if (obj!=nullptr)
-            { // should always pass
-                if (selfIncluded)
-                {
-                    CLuaScriptObject* aScript=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(obj->getObjectHandle());
-                    if (aScript!=nullptr)
-                        scriptHandles.push_back(aScript->getScriptID());
-                }
-
-                std::vector<C3DObject*> objList;
-                obj->getAllObjectsRecursive(&objList,false);
-                for (int i=0;i<int(objList.size());i++)
-                {
-                    CLuaScriptObject* lso=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(objList[i]->getObjectHandle());
-                    if (lso!=nullptr)
-                        scriptHandles.push_back(lso->getScriptID());
-                }
-            }
-        }
-
         if (it->getScriptType()==sim_scripttype_customizationscript)
         { // we have a customization script
             C3DObject* obj=App::ct->objCont->getObjectFromHandle(it->getObjectIDThatScriptIsAttachedTo_customization());
@@ -3226,33 +3198,6 @@ void getScriptChain(luaWrap_lua_State* L,bool selfIncluded,bool mainIncluded,std
             {
                 if (selfIncluded)
                     scriptHandles.push_back(currentScriptID);
-                while (obj->getParentObject()!=nullptr)
-                {
-                    obj=obj->getParentObject();
-                    CLuaScriptObject* lso=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(obj->getObjectHandle());
-                    if (lso!=nullptr)
-                        scriptHandles.push_back(lso->getScriptID());
-                }
-                if (mainIncluded)
-                {
-                    CLuaScriptObject* lso=App::ct->luaScriptContainer->getMainScript();
-                    if (lso!=nullptr)
-                        scriptHandles.push_back(lso->getScriptID());
-                }
-            }
-        }
-
-        if (it->getScriptType()==sim_scripttype_jointctrlcallback)
-        { // we have a joint callback script here
-            C3DObject* obj=App::ct->objCont->getObjectFromHandle(it->getObjectIDThatScriptIsAttachedTo_callback_OLD());
-            if (obj!=nullptr)
-            {
-                if (selfIncluded)
-                {
-                    CLuaScriptObject* aScript=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(obj->getObjectHandle());
-                    if (aScript!=nullptr)
-                        scriptHandles.push_back(aScript->getScriptID());
-                }
                 while (obj->getParentObject()!=nullptr)
                 {
                     obj=obj->getParentObject();
@@ -3467,7 +3412,7 @@ void luaHookFunction(luaWrap_lua_State* L,luaWrap_lua_Debug* ar)
         // Also remember: the hook gets also called when calling luaWrap_luaL_doString from c++ and similar!!
 
         int scriptType=it->getScriptType();
-        if ( (scriptType==sim_scripttype_mainscript)||(scriptType==sim_scripttype_childscript)||(scriptType==sim_scripttype_jointctrlcallback)||(scriptType==sim_scripttype_contactcallback) ) //||(scriptType==sim_scripttype_generalcallback) )
+        if ( (scriptType==sim_scripttype_mainscript)||(scriptType==sim_scripttype_childscript) )
         {
 #ifdef SIM_WITH_GUI
             if (App::userSettings->getAbortScriptExecutionTiming()!=0)
@@ -4234,12 +4179,6 @@ int _genericFunctionHandler_new(luaWrap_lua_State* L,CLuaCustomFunction* func,st
         if (obj!=nullptr)
             linkedObject=obj->getObjectHandle();
     }
-    if (itObj->getScriptType()==sim_scripttype_jointctrlcallback)
-    {
-        C3DObject* obj=App::ct->objCont->getObjectFromHandle(itObj->getObjectIDThatScriptIsAttachedTo_callback_OLD());
-        if (obj!=nullptr)
-            linkedObject=obj->getObjectHandle();
-    }
     if (itObj->getScriptType()==sim_scripttype_customizationscript)
     {
         C3DObject* obj=App::ct->objCont->getObjectFromHandle(itObj->getObjectIDThatScriptIsAttachedTo_customization());
@@ -4327,12 +4266,6 @@ int _genericFunctionHandler_old(luaWrap_lua_State* L,CLuaCustomFunction* func)
     if (itObj->getScriptType()==sim_scripttype_childscript)
     {
         C3DObject* obj=App::ct->objCont->getObjectFromHandle(itObj->getObjectIDThatScriptIsAttachedTo_child());
-        if (obj!=nullptr)
-            linkedObject=obj->getObjectHandle();
-    }
-    if (itObj->getScriptType()==sim_scripttype_jointctrlcallback)
-    {
-        C3DObject* obj=App::ct->objCont->getObjectFromHandle(itObj->getObjectIDThatScriptIsAttachedTo_callback_OLD());
         if (obj!=nullptr)
             linkedObject=obj->getObjectHandle();
     }
@@ -7078,17 +7011,8 @@ int _simGetScriptSimulationParameter(luaWrap_lua_State* L)
         if (handle==sim_handle_self)
         {
             handle=getCurrentScriptID(L);
-            // Since this routine can also be called by joint callback and customization scripts, check for that here:
+            // Since this routine can also be called by customization scripts, check for that here:
             CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(handle);
-            if (it->getScriptType()==sim_scripttype_jointctrlcallback)
-            {
-                handle=it->getObjectIDThatScriptIsAttachedTo_callback_OLD();
-                it=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(handle);
-                if (it!=nullptr)
-                    handle=it->getScriptID();
-                else
-                    goOn=false;
-            }
             if (it->getScriptType()==sim_scripttype_customizationscript)
             {
                 handle=it->getObjectIDThatScriptIsAttachedTo_customization();
@@ -7210,17 +7134,8 @@ int _simSetScriptSimulationParameter(luaWrap_lua_State* L)
         if (handle==sim_handle_self)
         {
             handle=getCurrentScriptID(L);
-            // Since this routine can also be called by joint callback and customization scripts, check for that here:
+            // Since this routine can also be called by customization scripts, check for that here:
             CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(handle);
-            if (it->getScriptType()==sim_scripttype_jointctrlcallback)
-            {
-                handle=it->getObjectIDThatScriptIsAttachedTo_callback_OLD();
-                it=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(handle);
-                if (it!=nullptr)
-                    handle=it->getScriptID();
-                else
-                    goOn=false;
-            }
             if (it->getScriptType()==sim_scripttype_customizationscript)
             {
                 handle=it->getObjectIDThatScriptIsAttachedTo_customization();
@@ -11001,7 +10916,7 @@ int _simAddDrawingObject(luaWrap_lua_State* L)
                 { // following condition added on 2011/01/06 so as to not remove objects created from the c/c++ interface or from an add-on:
                     int currentScriptID=getCurrentScriptID(L);
                     CLuaScriptObject* itScrObj=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
-                    if ( (itScrObj->getScriptType()==sim_scripttype_mainscript)||(itScrObj->getScriptType()==sim_scripttype_childscript)||(itScrObj->getScriptType()==sim_scripttype_jointctrlcallback)||(itScrObj->getScriptType()==sim_scripttype_contactcallback) ) //||(itScrObj->getScriptType()==sim_scripttype_generalcallback) )
+                    if ( (itScrObj->getScriptType()==sim_scripttype_mainscript)||(itScrObj->getScriptType()==sim_scripttype_childscript) )
                     {
                         CDrawingObject* anObj=App::ct->drawingCont->getObject(retVal);
                         if (anObj!=nullptr)
@@ -11033,7 +10948,7 @@ int _simRemoveDrawingObject(luaWrap_lua_State* L)
         { // following condition added here on 2011/01/06 so as not to remove objects created from a c/c++ call or from add-on:
             int currentScriptID=getCurrentScriptID(L);
             CLuaScriptObject* itScrObj=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
-            App::ct->drawingCont->removeAllObjects((itScrObj->getScriptType()==sim_scripttype_mainscript)||(itScrObj->getScriptType()==sim_scripttype_childscript)||(itScrObj->getScriptType()==sim_scripttype_jointctrlcallback)||(itScrObj->getScriptType()==sim_scripttype_contactcallback),true); //||(itScrObj->getScriptType()==sim_scripttype_generalcallback));
+            App::ct->drawingCont->removeAllObjects((itScrObj->getScriptType()==sim_scripttype_mainscript)||(itScrObj->getScriptType()==sim_scripttype_childscript),true);
             retVal=1;
         }
         else
@@ -11284,7 +11199,7 @@ int _simSetIntegerSignal(luaWrap_lua_State* L)
     {
         int currentScriptID=getCurrentScriptID(L);
         CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
-        App::ct->signalContainer->setIntegerSignal(std::string(luaWrap_lua_tostring(L,1)).c_str(),luaToInt(L,2),(it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript)||(it->getScriptType()==sim_scripttype_jointctrlcallback)||(it->getScriptType()==sim_scripttype_contactcallback)); //||(it->getScriptType()==sim_scripttype_generalcallback));
+        App::ct->signalContainer->setIntegerSignal(std::string(luaWrap_lua_tostring(L,1)).c_str(),luaToInt(L,2),(it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript));
         retVal=1;
     }
 
@@ -11325,7 +11240,7 @@ int _simClearIntegerSignal(luaWrap_lua_State* L)
         {
             int currentScriptID=getCurrentScriptID(L);
             CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
-            retVal=App::ct->signalContainer->clearAllIntegerSignals((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript)||(it->getScriptType()==sim_scripttype_jointctrlcallback)||(it->getScriptType()==sim_scripttype_contactcallback));//||(it->getScriptType()==sim_scripttype_generalcallback));
+            retVal=App::ct->signalContainer->clearAllIntegerSignals((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript));
         }
         else
             retVal=simClearIntegerSignal_internal(std::string(luaWrap_lua_tostring(L,1)).c_str());
@@ -11346,7 +11261,7 @@ int _simSetFloatSignal(luaWrap_lua_State* L)
     {
         int currentScriptID=getCurrentScriptID(L);
         CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
-        App::ct->signalContainer->setFloatSignal(std::string(luaWrap_lua_tostring(L,1)).c_str(),luaToFloat(L,2),(it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript)||(it->getScriptType()==sim_scripttype_jointctrlcallback)||(it->getScriptType()==sim_scripttype_contactcallback));//||(it->getScriptType()==sim_scripttype_generalcallback));
+        App::ct->signalContainer->setFloatSignal(std::string(luaWrap_lua_tostring(L,1)).c_str(),luaToFloat(L,2),(it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript));
         retVal=1;
     }
 
@@ -11387,7 +11302,7 @@ int _simClearFloatSignal(luaWrap_lua_State* L)
         {
             int currentScriptID=getCurrentScriptID(L);
             CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
-            retVal=App::ct->signalContainer->clearAllFloatSignals((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript)||(it->getScriptType()==sim_scripttype_jointctrlcallback)||(it->getScriptType()==sim_scripttype_contactcallback));//||(it->getScriptType()==sim_scripttype_generalcallback));
+            retVal=App::ct->signalContainer->clearAllFloatSignals((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript));
         }
         else
             retVal=simClearFloatSignal_internal(std::string(luaWrap_lua_tostring(L,1)).c_str());
@@ -11410,7 +11325,7 @@ int _simSetStringSignal(luaWrap_lua_State* L)
         char* data=(char*)luaWrap_lua_tolstring(L,2,&dataLength);
         int currentScriptID=getCurrentScriptID(L);
         CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
-        App::ct->signalContainer->setStringSignal(std::string(luaWrap_lua_tostring(L,1)).c_str(),std::string(data,dataLength),(it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript)||(it->getScriptType()==sim_scripttype_jointctrlcallback)||(it->getScriptType()==sim_scripttype_contactcallback));//||(it->getScriptType()==sim_scripttype_generalcallback));
+        App::ct->signalContainer->setStringSignal(std::string(luaWrap_lua_tostring(L,1)).c_str(),std::string(data,dataLength),(it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript));
         retVal=1;
     }
 
@@ -11453,7 +11368,7 @@ int _simClearStringSignal(luaWrap_lua_State* L)
         {
             int currentScriptID=getCurrentScriptID(L);
             CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
-            retVal=App::ct->signalContainer->clearAllStringSignals((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript)||(it->getScriptType()==sim_scripttype_jointctrlcallback)||(it->getScriptType()==sim_scripttype_contactcallback));//||(it->getScriptType()==sim_scripttype_generalcallback));
+            retVal=App::ct->signalContainer->clearAllStringSignals((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript));
         }
         else
             retVal=simClearStringSignal_internal(std::string(luaWrap_lua_tostring(L,1)).c_str());
@@ -12817,7 +12732,7 @@ int _simTubeOpen(luaWrap_lua_State* L)
         std::string strTmp=luaWrap_lua_tostring(L,2);
         int currentScriptID=getCurrentScriptID(L);
         CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
-        retVal=App::ct->commTubeContainer->openTube(luaToInt(L,1),strTmp.c_str(),(it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript)||(it->getScriptType()==sim_scripttype_jointctrlcallback)||(it->getScriptType()==sim_scripttype_contactcallback),luaToInt(L,3));//||(it->getScriptType()==sim_scripttype_generalcallback),luaToInt(L,3));
+        retVal=App::ct->commTubeContainer->openTube(luaToInt(L,1),strTmp.c_str(),(it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript),luaToInt(L,3));
     }
 
     LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
@@ -12947,7 +12862,7 @@ int _simAuxiliaryConsoleOpen(luaWrap_lua_State* L)
         int mode=luaToInt(L,3);
         int currentScriptID=getCurrentScriptID(L);
         CLuaScriptObject* itScrObj=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
-        if ( (itScrObj->getScriptType()==sim_scripttype_mainscript)||(itScrObj->getScriptType()==sim_scripttype_childscript)||(itScrObj->getScriptType()==sim_scripttype_jointctrlcallback)||(itScrObj->getScriptType()==sim_scripttype_contactcallback) )//||(itScrObj->getScriptType()==sim_scripttype_generalcallback) )
+        if ( (itScrObj->getScriptType()==sim_scripttype_mainscript)||(itScrObj->getScriptType()==sim_scripttype_childscript) )
         { // Add-ons and customization scripts do not have this restriction
             mode|=1;
         }
@@ -13455,7 +13370,7 @@ int _simAddBanner(luaWrap_lua_State* L)
                     CLuaScriptObject* itScrObj=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
                     CBannerObject* anObj=App::ct->bannerCont->getObject(retVal);
                     if (anObj!=nullptr)
-                        anObj->setCreatedFromScript((itScrObj->getScriptType()==sim_scripttype_mainscript)||(itScrObj->getScriptType()==sim_scripttype_childscript)||(itScrObj->getScriptType()==sim_scripttype_jointctrlcallback)||(itScrObj->getScriptType()==sim_scripttype_contactcallback)); //||(itScrObj->getScriptType()==sim_scripttype_generalcallback));
+                        anObj->setCreatedFromScript((itScrObj->getScriptType()==sim_scripttype_mainscript)||(itScrObj->getScriptType()==sim_scripttype_childscript));
                 }
             }
         }
@@ -14173,7 +14088,7 @@ int _simRMLPos(luaWrap_lua_State* L)
 
                         int currentScriptID=getCurrentScriptID(L);
                         CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
-                        if ((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript)||(it->getScriptType()==sim_scripttype_jointctrlcallback)||(it->getScriptType()==sim_scripttype_contactcallback)) //||(it->getScriptType()==sim_scripttype_generalcallback))
+                        if ((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript))
                             ((int*)(auxData+1))[0]=1; // destroy at simulation end!
                         retVal=simRMLPos_internal(dofs,timeStep,flags,currentPosVelAccel,maxVelAccelJerk,(unsigned char*)selection,targetPosVel,auxData);
                         delete[] targetPosVel;
@@ -14298,7 +14213,7 @@ int _simRMLVel(luaWrap_lua_State* L)
 
                         int currentScriptID=getCurrentScriptID(L);
                         CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
-                        if ((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript)||(it->getScriptType()==sim_scripttype_jointctrlcallback)||(it->getScriptType()==sim_scripttype_contactcallback)) //||(it->getScriptType()==sim_scripttype_generalcallback))
+                        if ((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript))
                             ((int*)(auxData+1))[0]=1; // destroy at simulation end!
 
                         retVal=simRMLVel_internal(dofs,timeStep,flags,currentPosVelAccel,maxAccelJerk,(unsigned char*)selection,targetVel,auxData);
@@ -15104,16 +15019,6 @@ int _simCallScriptFunction(luaWrap_lua_State* L)
                 script=App::ct->sandboxScript;
             if (scriptHandleOrType==sim_scripttype_addonscript)
                 script=App::ct->addOnScriptContainer->getAddOnScriptFromName(scriptDescription.c_str());
-            // Following script types are deprecated:
-            if (scriptHandleOrType==sim_scripttype_jointctrlcallback)
-            {
-                int objId=App::ct->objCont->getObjectHandleFromName(scriptDescription.c_str());
-                script=App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_jointCallback_OLD(objId);
-            }
-            if (scriptHandleOrType==sim_scripttype_generalcallback)
-                script=App::ct->luaScriptContainer->getGeneralCallbackHandlingScript_callback_OLD();
-            if (scriptHandleOrType==sim_scripttype_contactcallback)
-                script=App::ct->luaScriptContainer->getCustomContactHandlingScript_callback_OLD();
         }
 
         if (script!=nullptr)
@@ -15945,7 +15850,7 @@ int _simAddPointCloud(luaWrap_lua_State* L)
         int options=luaToInt(L,4);
         int currentScriptID=getCurrentScriptID(L);
         CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
-        if ( (it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript)||(it->getScriptType()==sim_scripttype_jointctrlcallback)||(it->getScriptType()==sim_scripttype_contactcallback) )//||(it->getScriptType()==sim_scripttype_generalcallback) )
+        if ( (it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript) )
             options=(options|1)-1; // cloud is automatically removed at the end of the simulation (i.e. is not persistent)
         float pointSize=luaToFloat(L,5);
         int pointCnt=(int)luaWrap_lua_objlen(L,6)/3;
@@ -16280,6 +16185,29 @@ int _simHandleAddOnScripts(luaWrap_lua_State* L)
     LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
     luaWrap_lua_pushnumber(L,retVal);
     LUA_END(1);
+}
+
+int _simHandleSandboxScript(luaWrap_lua_State* L)
+{
+    LUA_API_FUNCTION_DEBUG;
+    LUA_START("sim.handleSandboxScript");
+
+    int currentScriptID=getCurrentScriptID(L);
+    CLuaScriptObject* itScrObj=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
+    if (itScrObj->getScriptType()==sim_scripttype_mainscript)
+    {
+        if (checkInputArguments(L,&errorString,lua_arg_number,0))
+        {
+            int callType=luaToInt(L,1);
+            if ( (App::getEditModeType()==NO_EDIT_MODE)&&(App::ct->sandboxScript!=nullptr) )
+                App::ct->sandboxScript->runSandboxScript(callType,nullptr,nullptr);
+        }
+    }
+    else
+        errorString=SIM_ERROR_CAN_ONLY_BE_CALLED_FROM_MAIN_SCRIPT;
+
+    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_END(0);
 }
 
 int _simSetScriptAttribute(luaWrap_lua_State* L)
@@ -17872,27 +17800,10 @@ int _simOpenTextEditor(luaWrap_lua_State* L)
                 if (it!=nullptr)
                 {
                     std::string callbackFunction(luaWrap_lua_tostring(L,3));
-                    if (App::userSettings->useOldCodeEditor)
-                    {
-                        SUIThreadCommand cmdIn;
-                        SUIThreadCommand cmdOut;
-                        cmdIn.cmdId=OPEN_NONMODAL_USER_EDITOR_UITHREADCMD;
-                        cmdIn.stringParams.push_back(xml);
-                        cmdIn.stringParams.push_back(initText);
-                        cmdIn.stringParams.push_back(callbackFunction);
-                        cmdIn.intParams.push_back(it->getScriptID());
-                        cmdIn.intParams.push_back(App::ct->environment->getSceneUniqueID());
-                        cmdIn.boolParams.push_back(it->isSimulationScript());
-                        App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-                        handle=cmdOut.intParams[0];
-                    }
-                    else
-                    {
 #ifdef SIM_WITH_GUI
-                        if (App::mainWindow!=nullptr)
-                            handle=App::mainWindow->codeEditorContainer->openTextEditor(initText.c_str(),xml.c_str(),callbackFunction.c_str(),it->getScriptID(),it->isSimulationScript());
+                    if (App::mainWindow!=nullptr)
+                        handle=App::mainWindow->codeEditorContainer->openTextEditor(initText.c_str(),xml.c_str(),callbackFunction.c_str(),it->getScriptID(),it->isSimulationScript());
 #endif
-                    }
                 }
                 luaWrap_lua_pushinteger(L,handle);
                 LUA_END(1);
@@ -17917,31 +17828,13 @@ int _simCloseTextEditor(luaWrap_lua_State* L)
         std::string txt;
         std::string cb;
         int posAndSize[4];
-        if (App::userSettings->useOldCodeEditor)
-        {
-            SUIThreadCommand cmdIn;
-            SUIThreadCommand cmdOut;
-            cmdIn.cmdId=CLOSE_NONMODAL_USER_EDITOR_UITHREADCMD;
-            cmdIn.intParams.push_back(h);
-            App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-            res=cmdOut.intParams[0];
-            posAndSize[2]=cmdOut.intParams[1];
-            posAndSize[3]=cmdOut.intParams[2];
-            posAndSize[0]=cmdOut.intParams[3];
-            posAndSize[1]=cmdOut.intParams[4];
-            cb=cmdOut.stringParams[0];
-            txt=cmdOut.stringParams[1];
-        }
-        else
-        {
 #ifdef SIM_WITH_GUI
-            if (App::mainWindow!=nullptr)
-            {
-                if (App::mainWindow->codeEditorContainer->close(h,posAndSize,&txt,&cb))
-                    res=1;
-            }
-#endif
+        if (App::mainWindow!=nullptr)
+        {
+            if (App::mainWindow->codeEditorContainer->close(h,posAndSize,&txt,&cb))
+                res=1;
         }
+#endif
         if ( (res>0)&&(!ignoreCb) )
         {   // We call the callback directly from here:
             CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(getCurrentScriptID(L));
@@ -20091,19 +19984,6 @@ int _simLoadUI(luaWrap_lua_State* L)
 { // DEPRECATED since 09/02/2017
     LUA_API_FUNCTION_DEBUG;
     LUA_START("simLoadUI");
-
-    if (checkInputArguments(L,&errorString,lua_arg_string,0))
-    {
-        int tble[1000];
-        int res=simLoadUI_internal(luaWrap_lua_tostring(L,1),1000,tble);
-        if (res>0)
-        {
-            pushIntTableOntoStack(L,res,tble);
-            LUA_END(1);
-        }
-    }
-
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
     LUA_END(0);
 }
 

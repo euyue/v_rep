@@ -6,6 +6,8 @@
 #include "v_repStrings.h"
 #include "app.h"
 
+int CCodeEditorContainer::_nextUniqueId=0;
+
 QString CCodeEditorContainer::getXmlColorString(const char* colTxt,const int rgbCol[3])
 {
     return(getXmlColorString(colTxt,rgbCol[0],rgbCol[1],rgbCol[2]));
@@ -258,6 +260,7 @@ int CCodeEditorContainer::open(const char* initText,const char* xml,int callingS
             inf.closeAfterCallbackCalled=false;
             inf.restartScriptWhenClosing=false;
             inf.callbackFunction="";
+            inf.uniqueId=_nextUniqueId++;
             _allEditors.push_back(inf);
         }
     }
@@ -382,6 +385,7 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
             inf.closeAfterCallbackCalled=false;
             inf.restartScriptWhenClosing=false;
             inf.callbackFunction="";
+            inf.uniqueId=_nextUniqueId++;
             _allEditors.push_back(inf);
         }
     }
@@ -455,6 +459,7 @@ int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingSc
             inf.closeAfterCallbackCalled=false;
             inf.restartScriptWhenClosing=true;
             inf.callbackFunction="";
+            inf.uniqueId=_nextUniqueId++;
             _allEditors.push_back(inf);
         }
     }
@@ -529,6 +534,7 @@ int CCodeEditorContainer::openConsole(const char* title,int maxLines,int mode,co
         inf.restartScriptWhenClosing=false;
         inf.restartScriptWhenClosing=false;
         inf.callbackFunction="";
+        inf.uniqueId=_nextUniqueId++;
         _allEditors.push_back(inf);
     }
     else
@@ -579,6 +585,7 @@ int CCodeEditorContainer::openTextEditor(const char* initText,const char* xml,co
         inf.closeAfterCallbackCalled=true;
         inf.restartScriptWhenClosing=false;
         inf.callbackFunction=callback;
+        inf.uniqueId=_nextUniqueId++;
         _allEditors.push_back(inf);
     }
     else
@@ -668,6 +675,13 @@ bool CCodeEditorContainer::closeFromScriptHandle(int scriptHandle,int posAndSize
         }
     }
     return(false);
+}
+
+void CCodeEditorContainer::closeAll()
+{ // before unloading the code editor plugin
+    for (size_t i=0;i<_allEditors.size();i++)
+        CPluginContainer::codeEditor_close(_allEditors[i].handle,nullptr);
+    _allEditors.clear();
 }
 
 void CCodeEditorContainer::restartScript(int handle) const
@@ -780,7 +794,7 @@ void CCodeEditorContainer::simulationAboutToStart() const
         if ( (_allEditors[i].sceneUniqueId==sceneId)&&(_allEditors[i].scriptHandle>=0) )
         {
             CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(_allEditors[i].scriptHandle);
-            if ( (it!=nullptr)&&((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript)||(it->getScriptType()==sim_scripttype_contactcallback)||(it->getScriptType()==sim_scripttype_generalcallback)||(it->getScriptType()==sim_scripttype_jointctrlcallback)) )
+            if ( (it!=nullptr)&&((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript)) )
                 applyChanges(_allEditors[i].handle);
         }
     }
@@ -814,6 +828,26 @@ bool CCodeEditorContainer::areSceneEditorsOpen() const
             return(true);
     }
     return(false);
+}
+
+int CCodeEditorContainer::getHandleFromUniqueId(int uid)
+{
+    for (size_t i=0;i<_allEditors.size();i++)
+    {
+        if (_allEditors[i].uniqueId==uid)
+            return(_allEditors[i].handle);
+    }
+    return(-1);
+}
+
+int CCodeEditorContainer::getUniqueId(int handle)
+{
+    for (size_t i=0;i<_allEditors.size();i++)
+    {
+        if (_allEditors[i].handle==handle)
+            return(_allEditors[i].uniqueId);
+    }
+    return(-1);
 }
 
 void CCodeEditorContainer::sceneClosed(int sceneUniqueId)

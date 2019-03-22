@@ -27,8 +27,6 @@
     #include "qdlgmodelthumbnail.h"
     #include "qdlgtextureloadoptions.h"
     #include "qdlgheightfielddimension.h"
-    #include "scintillaModalDlg.h"
-    #include "scintillaUserModalDlg.h"
     #include "qdlgmodelproperties.h"
     #include "qdlgscriptparameters.h"
     #include "qdlgstopscripts.h"
@@ -361,58 +359,6 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
         cmdOut->floatParams.push_back(theDialog.xSize);
         cmdOut->floatParams.push_back(theDialog.zScaling);
     }
-    if ( (!App::isFullScreen())&&(App::mainWindow!=nullptr)&&(cmdIn->cmdId==OPEN_MODAL_CUSTOMIZATION_SCRIPT_EDITOR_UITHREADCMD) )
-    {
-        CScintillaModalDlg dlg(sim_scripttype_customizationscript,false,App::mainWindow);
-        if (dlg.initialize(cmdIn->intParams[0],cmdIn->stringParams[0].c_str(),false,false))
-            dlg.makeDialogModal();
-    }
-    if ( (!App::isFullScreen())&&(App::mainWindow!=nullptr)&&(cmdIn->cmdId==OPEN_MODAL_USER_EDITOR_UITHREADCMD) )
-    {
-        CScintillaUserModalDlg dlg(cmdIn->stringParams[0],App::mainWindow);
-        if (dlg.initialize(cmdIn->stringParams[1].c_str()))
-        {
-            cmdOut->stringParams.push_back(dlg.makeDialogModal());
-            int s[2];
-            int p[2];
-            dlg.getSizeAndPosition(s,p);
-            cmdOut->intParams.push_back(s[0]);
-            cmdOut->intParams.push_back(s[1]);
-            cmdOut->intParams.push_back(p[0]);
-            cmdOut->intParams.push_back(p[1]);
-        }
-    }
-    if ( (!App::isFullScreen())&&(App::mainWindow!=nullptr)&&(cmdIn->cmdId==OPEN_NONMODAL_USER_EDITOR_UITHREADCMD) )
-    {
-        CScintillaUserNonModalDlg* dlg=new CScintillaUserNonModalDlg(cmdIn->stringParams[0],cmdIn->intParams[0],cmdIn->intParams[1],cmdIn->stringParams[2].c_str(),cmdIn->boolParams[0],App::mainWindow);
-        dlg->initialize(cmdIn->stringParams[1].c_str());
-        int handle=App::mainWindow->scintillaUserNonModalDlgContainer->addDlg(dlg);
-        cmdOut->intParams.push_back(handle);
-    }
-    if ( (!App::isFullScreen())&&(App::mainWindow!=nullptr)&&(cmdIn->cmdId==CLOSE_NONMODAL_USER_EDITOR_UITHREADCMD) )
-    {
-        int h=cmdIn->intParams[0];
-        CScintillaUserNonModalDlg* dlg=App::mainWindow->scintillaUserNonModalDlgContainer->getDlg(h);
-        int retVal=0;
-        if (dlg!=nullptr)
-        {
-            if (dlg->getIsOpen())
-            {
-                retVal=1;
-                cmdOut->stringParams.push_back(dlg->getCallbackFunc());
-                std::string txt;
-                int pos[2];
-                int size[2];
-                dlg->forceClose(&txt,pos,size);
-                cmdOut->stringParams.push_back(txt);
-                cmdOut->intParams.push_back(pos[0]);
-                cmdOut->intParams.push_back(pos[1]);
-                cmdOut->intParams.push_back(size[0]);
-                cmdOut->intParams.push_back(size[1]);
-           }
-        }
-        cmdOut->intParams.push_back(retVal);
-    }
     if ( (!App::isFullScreen())&&(App::mainWindow!=nullptr)&&(cmdIn->cmdId==OPEN_MODAL_SCRIPT_SIMULATION_PARAMETERS_UITHREADCMD) )
     {
         CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(cmdIn->intParams[0]);
@@ -456,12 +402,6 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
 
     if ( (App::mainWindow!=nullptr)&&(cmdIn->cmdId==CLOSE_HIERARCHY_UITHREADCMD) )
         App::mainWindow->dlgCont->processCommand(CLOSE_HIERARCHY_DLG_CMD);
-
-    if ( (App::mainWindow!=nullptr)&&(cmdIn->cmdId>SCINTILLA_CONSOLES_START_SCUITHREADCMD)&&(cmdIn->cmdId<SCINTILLA_CONSOLES_END_SCUITHREADCMD) )
-        App::mainWindow->scintillaConsoleContainer->executeCommand(cmdIn,cmdOut);
-
-    if ( (App::mainWindow!=nullptr)&&(cmdIn->cmdId>SCINTILLA_EDITOR_START_SEUITHREADCMD)&&(cmdIn->cmdId<SCINTILLA_EDITOR_END_SEUITHREADCMD) )
-        App::mainWindow->scintillaEditorContainer->executeCommand(cmdIn,cmdOut);
 
     if ( (App::mainWindow!=nullptr)&&(cmdIn->cmdId>MAIN_WINDOW_START_MWUITHREADCMD)&&(cmdIn->cmdId<MAIN_WINDOW_END_MWUITHREADCMD) )
         App::mainWindow->executeCommand(cmdIn,cmdOut);

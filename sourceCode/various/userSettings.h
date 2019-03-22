@@ -81,9 +81,6 @@ public:
     bool enableOldCalcModuleGuis;
     bool useAlternateSerialPortRoutines;
     bool enableOpenGlBasedCustomUiEditor;
-    bool enableOldCustomContactHandlingEdition;
-    bool enableOldGeneralCallbackScriptEdition;
-    bool enableOldJointCallbackScriptEdition;
     bool enableOldMillObjects;
     bool enableOldMirrorObjects;
     bool displayBoundingBoxeWhenObjectSelected;
@@ -197,8 +194,6 @@ public:
     int hierarchyRefreshCnt;
     int desktopRecordingIndex;
     int desktopRecordingWidth;
-
-    bool useOldCodeEditor;
 
 private:
     bool _supportOldApiNotation;

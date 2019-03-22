@@ -44,11 +44,7 @@ private slots:
 
     void on_qqApplyControlParameters_clicked();
 
-    void on_qqCustomControl_clicked();
-
     void on_qqPositionControl_clicked();
-
-    void on_qqEditCustomControl_clicked();
 
     void on_qqSpringControl_clicked();
 
