@@ -157,7 +157,6 @@ void CMainContainer::simulationAboutToStart()
 
     App::setToolbarRefreshFlag();
     App::setFullDialogRefreshFlag();
-    App::addStatusbarMessage(IDSNS_SIMULATION_STARTED);
     if (VREP_PROGRAM_VERSION_NB==30500)
         App::addStatusbarMessage("Warning: 'print()' now prints to the status bar, instead of the console (use 'print=printToConsole' to revert).");
 
@@ -174,7 +173,6 @@ void CMainContainer::simulationPaused()
         mainScript->runMainScript(sim_syscb_suspend,nullptr,nullptr,nullptr);
     App::setToolbarRefreshFlag();
     App::setFullDialogRefreshFlag();
-    App::addStatusbarMessage(IDSNS_SIMULATION_PAUSED);
 }
 
 void CMainContainer::simulationAboutToResume()
@@ -184,7 +182,6 @@ void CMainContainer::simulationAboutToResume()
         mainScript->runMainScript(sim_syscb_resume,nullptr,nullptr,nullptr);
     App::setToolbarRefreshFlag();
     App::setFullDialogRefreshFlag();
-    App::addStatusbarMessage(IDSNS_SIMULATION_RESUMED);
 }
 
 void CMainContainer::simulationAboutToStep()
@@ -260,7 +257,6 @@ void CMainContainer::simulationEnded(bool removeNewObjects)
     App::setMouseMode(_savedMouseMode);
     App::setToolbarRefreshFlag();
     App::setFullDialogRefreshFlag();
-    App::addStatusbarMessage(IDSNS_SIMULATION_STOPPED);
 
     if (removeNewObjects)
     {

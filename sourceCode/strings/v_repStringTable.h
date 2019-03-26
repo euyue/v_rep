@@ -111,13 +111,6 @@
 
 #define IDSNS_OPERATION_DISABLED_WITH_INDIVIDUAL_PATH_POINTS_SELECTED "Operation disabled while individual path points are selected."
 
-
-#define IDSNS_SIMULATION_STARTED "Simulation started."
-#define IDSNS_SIMULATION_RESUMED "Simulation resumed."
-#define IDSNS_SIMULATION_PAUSED "Simulation suspended."
-#define IDSNS_SIMULATION_STOPPED "Simulation stopped."
-#define IDSNS_SIMULATION_STOPPING "Simulation stopping..."
-
 #define IDSNS_TOGGLED_TO_REAL_TIME_MODE "Toggled to real-time simulation mode."
 #define IDSNS_TOGGLED_TO_NON_REAL_TIME_MODE "Toggled to non real-time simulation mode."
 #define IDSNS_TOGGLED_TO_ONLINE_MODE "Toggled to online mode."

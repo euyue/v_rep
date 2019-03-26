@@ -302,10 +302,7 @@ bool CSimulation::stopSimulation()
 {
     FUNCTION_DEBUG;
     if (simulationState!=sim_simulation_stopped)
-    {
-        App::addStatusbarMessage(IDSNS_SIMULATION_STOPPING);
         App::setFullScreen(false);
-    }
 
     if ((simulationState==sim_simulation_advancing_abouttostop)||
         (simulationState==sim_simulation_advancing_lastbeforestop))

@@ -3979,6 +3979,9 @@ simChar* simGetStringParameter_internal(simInt parameter)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
+        char* dval=handleVerSpec_getStringParam(parameter);
+        if (dval!=nullptr)
+            return(dval);
         if (parameter==sim_stringparam_application_path)
         {
             char* retVal=new char[App::directories->executableDirectory.length()+1];
