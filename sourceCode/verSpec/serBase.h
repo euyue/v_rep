@@ -17,7 +17,7 @@ public:
     void handleVerSpecWriteClose2(CSer* ser,char filetype){}
     int handleVerSpecReadOpen(CSer* ser,char filetype){if ( (filetype<=3)||(filetype==6)||(filetype==7) ) return(1); return(-3);}
     
-    static char CSerBase::typeFromName(const char* filename)
+    static char typeFromName(const char* filename)
     {
         std::string ext(".");
         ext+=VREP_SCENE_EXTENSION;
