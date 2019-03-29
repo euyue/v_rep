@@ -3546,6 +3546,12 @@ simInt simGetInt32Parameter_internal(simInt parameter,simInt* intState)
             intState[0]=VREP_PROGRAM_REVISION_NB;
             return(1);
         }
+        if (parameter==sim_intparam_program_full_version)
+        {
+            intState[0]=VREP_PROGRAM_FULL_VERSION_NB;
+            return(1);
+        }
+
         if (parameter==sim_intparam_scene_unique_id)
         {
             if (App::ct->environment==nullptr)
@@ -4177,16 +4183,26 @@ simInt simLoadScene_internal(const simChar* filename)
             CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_SIMULATION_NOT_STOPPED);
             return(-1);
         }
-        if (strlen(filename)!=0)
+
+        std::string nm(filename);
+        size_t keepCurrentPos=nm.find("@keepCurrent");
+        bool keepCurrent=(keepCurrentPos!=std::string::npos);
+        if (keepCurrent)
+            nm.erase(nm.begin()+keepCurrentPos,nm.end());
+
+        if (nm.size()!=0)
         {
-            if (!VFile::doesFileExist(filename))
+            if (!VFile::doesFileExist(nm.c_str()))
             {
                 CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_FILE_NOT_FOUND);
                 return(-1);
             }
         }
 
-        if (!CFileOperations::loadScene(filename,outputSceneOrModelLoadMessagesWithApiCall,outputSceneOrModelLoadMessagesWithApiCall,false))
+        if (keepCurrent)
+            CFileOperations::createNewScene(outputSceneOrModelLoadMessagesWithApiCall,true);
+
+        if (!CFileOperations::loadScene(nm.c_str(),outputSceneOrModelLoadMessagesWithApiCall,outputSceneOrModelLoadMessagesWithApiCall,false))
         {
             CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_SCENE_COULD_NOT_BE_READ);
             return(-1);
@@ -13766,7 +13782,7 @@ simInt simModifyGhost_internal(simInt ghostGroup,simInt ghostId,simInt operation
     return(-1);
 }
 
-simVoid simQuitSimulator_internal(simBool doNotDisplayMessages)
+simVoid simQuitSimulator_internal(simBool ignoredArgument)
 {
     C_API_FUNCTION_DEBUG;
     SSimulationThreadCommand cmd;

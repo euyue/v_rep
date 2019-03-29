@@ -135,10 +135,6 @@ public:
 
     void prepareFastLoadingMapping(std::vector<int>& map);
 
-    static void setDefaultSceneID(float id);
-    static float getDefaultSceneID();
-    float computeSceneID();
-
     // Object selection info routines:
     int getMirrorNumberInSelection();
     int getOctreeNumberInSelection();
@@ -310,8 +306,6 @@ private:
 
     std::string _loadOperationIssuesToBeDisplayed;
     std::vector<int> _loadOperationIssuesToBeDisplayed_objectHandles;
-
-    static float _defaultSceneID;
 };
 
 inline bool CObjCont::isObjectSelected(int objectHandle)

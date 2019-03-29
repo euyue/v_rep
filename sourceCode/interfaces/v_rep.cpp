@@ -1235,9 +1235,9 @@ VREP_DLLEXPORT simInt simModifyGhost(simInt ghostGroup,simInt ghostId,simInt ope
 {
     return(simModifyGhost_internal(ghostGroup,ghostId,operation,floatValue,options,optionsMask,colorOrTransformation));
 }
-VREP_DLLEXPORT simVoid simQuitSimulator(simBool doNotDisplayMessages)
+VREP_DLLEXPORT simVoid simQuitSimulator(simBool ignoredArgument)
 {
-    simQuitSimulator_internal(doNotDisplayMessages);
+    simQuitSimulator_internal(ignoredArgument);
 }
 VREP_DLLEXPORT simInt simGetThreadId()
 {

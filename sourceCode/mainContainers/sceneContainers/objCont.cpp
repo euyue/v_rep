@@ -27,32 +27,10 @@ CObjCont::~CObjCont()
     removeAllObjects(false); // should already have been done
 }
 
-float CObjCont::_defaultSceneID=0.0f;
-
-void CObjCont::setDefaultSceneID(float id)
-{
-    _defaultSceneID=id;
-}
-
-float CObjCont::getDefaultSceneID()
-{
-    return(_defaultSceneID);
-}
-
 void CObjCont::appendLoadOperationIssue(const char* text,int objectId)
 {
     _loadOperationIssuesToBeDisplayed+=text;
     _loadOperationIssuesToBeDisplayed_objectHandles.push_back(objectId);
-}
-
-float CObjCont::computeSceneID()
-{ // there is no guarantee at all that two same ids really represent the same scene! Should just be used as an indication!
-    float id=0.0f;
-    for (int i=0;i<int(objectList.size());i++)
-        id+=float(objectList[i]);
-    if (objectList.size()!=0)
-        id/=float(objectList.size());
-    return(id);
 }
 
 void CObjCont::simulationAboutToStart()

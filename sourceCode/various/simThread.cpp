@@ -6055,7 +6055,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
 
     if (cmd.cmdId==OPEN_DRAG_AND_DROP_SCENE_PHASE2_CMD)
     {
-        CFileOperations::createNewScene(false,false);
+        CFileOperations::createNewScene(false,true);
         CFileOperations::loadScene(cmd.stringParams[0].c_str(),true,cmd.boolParams[0],false);
         App::ct->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
     }
@@ -6177,7 +6177,7 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
             { // ask what to do:
                 if (!App::isFullScreen())
                 {
-                    if (!App::userSettings->doNotShowCrashRecoveryMessage)
+                    if ( (!App::userSettings->doNotShowCrashRecoveryMessage)&&(!App::userSettings->suppressStartupDialogs) )
                     {
                         if (VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_question(App::mainWindow,IDSN_VREP_CRASH,IDSN_VREP_CRASH_OR_NEW_INSTANCE_INFO,VMESSAGEBOX_YES_NO))
                         {
@@ -6215,6 +6215,8 @@ void CSimThread::_handleAutoSaveSceneCommand(SSimulationThreadCommand cmd)
                             App::ct->makeInstanceCurrentFromIndex(0,false);
                         }
                     }
+                    else
+                        App::addStatusbarMessage("It seems that V-REP crashed in last session (or you might be running several instances of V-REP in parallel).");
                 }
             }
         }

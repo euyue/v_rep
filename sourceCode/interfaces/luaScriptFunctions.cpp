@@ -362,7 +362,7 @@ const SLuaCommands simLuaCommands[]=
     {"sim.convexDecompose",_simConvexDecompose,                  "number shapeHandle=sim.convexDecompose(number shapeHandle,number options,table_4 intParams,table_3 floatParams)",true},
     {"sim.addGhost",_simAddGhost,                                "number ghostId=sim.addGhost(number ghostGroup,number objectHandle,number options,number startTime,number endTime,table_12 color=nil)",true},
     {"sim.modifyGhost",_simModifyGhost,                          "number result=sim.modifyGhost(number ghostGroup,number ghostId,number operation,number floatValue,number options=nil,\nnumber optionsMask=nil,table colorOrTransformation=nil)",true},
-    {"sim.quitSimulator",_simQuitSimulator,                      "sim.quitSimulator(boolean doNotDisplayMessages)",true},
+    {"sim.quitSimulator",_simQuitSimulator,                      "sim.quitSimulator()",true},
     {"sim.getThreadId",_simGetThreadId,                          "number threadId=sim.getThreadId()",true},
     {"sim.setShapeMaterial",_simSetShapeMaterial,                "number result=sim.setShapeMaterial(number shapeHandle,number materialIdOrShapeHandle)",true},
     {"sim.getTextureId",_simGetTextureId,                        "number textureId,table_2 resolution=sim.getTextureId(string textureName)",true},
@@ -1341,6 +1341,7 @@ const SLuaVariables simLuaVariables[]=
     // Integer parameters:
     {"sim.intparam_error_report_mode",sim_intparam_error_report_mode,true},
     {"sim.intparam_program_version",sim_intparam_program_version,true},
+    {"sim.intparam_program_full_version",sim_intparam_program_full_version,true},
     {"sim.intparam_compilation_version",sim_intparam_compilation_version,true},
     {"sim.intparam_current_page",sim_intparam_current_page,true},
     {"sim.intparam_flymode_camera_handle",sim_intparam_flymode_camera_handle,true},
@@ -15435,11 +15436,7 @@ int _simQuitSimulator(luaWrap_lua_State* L)
     LUA_API_FUNCTION_DEBUG;
     LUA_START("sim.quitSimulator");
 
-    if (checkInputArguments(L,&errorString,lua_arg_bool,0))
-    {
-        bool doNotDisplayMessages=luaToBool(L,1);
-        simQuitSimulator_internal(doNotDisplayMessages);
-    }
+    simQuitSimulator_internal(false);
 
     LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
     LUA_END(0);

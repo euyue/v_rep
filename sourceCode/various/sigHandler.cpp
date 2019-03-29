@@ -145,6 +145,8 @@ bool handleSignal(int signal)
 {
 //    std::cout << "Handling signal " << signal << std::endl;
     std::cout << "External exit request: " << signal << std::endl;
-    App::appendSimulationThreadCommand(FINAL_EXIT_REQUEST_CMD);
+    SSimulationThreadCommand cmd;
+    cmd.cmdId=FINAL_EXIT_REQUEST_CMD;
+    App::appendSimulationThreadCommand(cmd);
     return true; // don't propagate the signal further
 }

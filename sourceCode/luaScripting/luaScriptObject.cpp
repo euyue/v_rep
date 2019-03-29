@@ -463,6 +463,8 @@ bool CLuaScriptObject::canCallSystemCallback(int scriptType,bool threaded,int ca
             return(true);
         if (callType==sim_syscb_suspend)
             return(true);
+        if (callType==sim_syscb_suspended)
+            return(true);
         if (callType==sim_syscb_resume)
             return(true);
         if (callType==sim_syscb_beforecopy)

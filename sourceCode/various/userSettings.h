@@ -112,6 +112,7 @@ public:
     bool doNotShowAcknowledgmentMessages;
     bool doNotShowVideoCompressionLibraryLoadError;
     bool redirectStatusbarMsgToConsoleInHeadlessMode;
+    bool suppressStartupDialogs;
 
     std::string scriptEditorFont;
     int scriptEditorFontSize;

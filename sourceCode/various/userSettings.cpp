@@ -183,6 +183,7 @@
 #define _USR_DO_NOT_SHOW_ACKNOWLEDGMENT_MESSAGES "doNotShowAcknowledgmentMessages"
 #define _USR_DO_NOT_SHOW_VIDEO_COMPRESSION_LIBRARY_LOAD_ERROR "doNotShowVideoCompressionLibraryLoadError"
 #define _USR_REDIRECT_STATUSBAR_MSG_TO_CONSOLE_IN_HEADLESS_MODE "redirectStatusbarMsgToConsoleInHeadlessMode"
+#define _USR_SUPPRESS_STARTUP_DIALOG "suppressStartupDialogs"
 
 #define _USR_SCRIPT_EDITOR_FONT "scriptEditorFont"
 #define _USR_SCRIPT_EDITOR_FONT_SIZE "scriptEditorFontSize"
@@ -343,6 +344,7 @@ CUserSettings::CUserSettings()
     doNotShowAcknowledgmentMessages=false;
     doNotShowVideoCompressionLibraryLoadError=false;
     redirectStatusbarMsgToConsoleInHeadlessMode=false;
+    suppressStartupDialogs=false;
 
 
     // Compatibility section:
@@ -717,6 +719,9 @@ void CUserSettings::saveUserSettings()
     c.addBoolean(_USR_DO_NOT_SHOW_ACKNOWLEDGMENT_MESSAGES,doNotShowAcknowledgmentMessages,"");
     c.addBoolean(_USR_DO_NOT_SHOW_VIDEO_COMPRESSION_LIBRARY_LOAD_ERROR,doNotShowVideoCompressionLibraryLoadError,"");
     c.addBoolean(_USR_REDIRECT_STATUSBAR_MSG_TO_CONSOLE_IN_HEADLESS_MODE,redirectStatusbarMsgToConsoleInHeadlessMode,"");
+    c.addBoolean(_USR_SUPPRESS_STARTUP_DIALOG,suppressStartupDialogs,"");
+#define _USR_SUPPRESS_STARTUP_DIALOG "suppressStartupDialogs"
+
 
 
     c.addRandomLine("");
@@ -999,6 +1004,7 @@ void CUserSettings::loadUserSettings()
     c.getBoolean(_USR_DO_NOT_SHOW_ACKNOWLEDGMENT_MESSAGES,doNotShowAcknowledgmentMessages);
     c.getBoolean(_USR_DO_NOT_SHOW_VIDEO_COMPRESSION_LIBRARY_LOAD_ERROR,doNotShowVideoCompressionLibraryLoadError);
     c.getBoolean(_USR_REDIRECT_STATUSBAR_MSG_TO_CONSOLE_IN_HEADLESS_MODE,redirectStatusbarMsgToConsoleInHeadlessMode);
+    c.getBoolean(_USR_SUPPRESS_STARTUP_DIALOG,suppressStartupDialogs);
 
 
     // Compatibility section:

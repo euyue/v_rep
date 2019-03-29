@@ -325,7 +325,7 @@ VREP_DLLEXPORT simInt simCutPathCtrlPoints(simInt pathHandle,simInt startIndex,s
 VREP_DLLEXPORT simFloat* simGetIkGroupMatrix(simInt ikGroupHandle,simInt options,simInt* matrixSize);
 VREP_DLLEXPORT simInt simAddGhost(simInt ghostGroup,simInt objectHandle,simInt options,simFloat startTime,simFloat endTime,const simFloat* color);
 VREP_DLLEXPORT simInt simModifyGhost(simInt ghostGroup,simInt ghostId,simInt operation,simFloat floatValue,simInt options,simInt optionsMask,const simFloat* colorOrTransformation);
-VREP_DLLEXPORT simVoid simQuitSimulator(simBool doNotDisplayMessages);
+VREP_DLLEXPORT simVoid simQuitSimulator(simBool ignoredArgument);
 VREP_DLLEXPORT simInt simGetThreadId();
 VREP_DLLEXPORT simInt simLockResources(simInt lockType,simInt reserved);
 VREP_DLLEXPORT simInt simUnlockResources(simInt lockHandle);

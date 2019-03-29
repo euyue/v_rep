@@ -51,8 +51,10 @@ void CAuxLibVideo::loadLibrary(bool headless)
             #else
             cmd.stringParams.push_back("Could not find or correctly load the video compression library.");
             #endif
-            if(!App::userSettings->doNotShowVideoCompressionLibraryLoadError)
+            if ( (!App::userSettings->doNotShowVideoCompressionLibraryLoadError)&&(!App::userSettings->suppressStartupDialogs) )
                 App::appendSimulationThreadCommand(cmd,5000);
+            else
+                App::addStatusbarMessage(cmd.stringParams[1].c_str());
             printf("Could not find or correctly load the video compression library.\n");
             #ifdef LIN_VREP
             printf("Try following:\n");

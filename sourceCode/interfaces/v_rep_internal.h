@@ -315,7 +315,7 @@ simInt simCutPathCtrlPoints_internal(simInt pathHandle,simInt startIndex,simInt 
 simFloat* simGetIkGroupMatrix_internal(simInt ikGroupHandle,simInt options,simInt* matrixSize);
 simInt simAddGhost_internal(simInt ghostGroup,simInt objectHandle,simInt options,simFloat startTime,simFloat endTime,const simFloat* color);
 simInt simModifyGhost_internal(simInt ghostGroup,simInt ghostId,simInt operation,simFloat floatValue,simInt options,simInt optionsMask,const simFloat* colorOrTransformation);
-simVoid simQuitSimulator_internal(simBool doNotDisplayMessages);
+simVoid simQuitSimulator_internal(simBool ignoredArgument);
 simInt simGetThreadId_internal();
 simInt simLockResources_internal(simInt lockType,simInt reserved);
 simInt simUnlockResources_internal(simInt lockHandle);

@@ -57,7 +57,7 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
         { // execute the command only when simulation is not running and not in an edit mode
             if (!VThread::isCurrentThreadTheUiThread())
             { // we are NOT in the UI thread. We execute the command now:
-                createNewScene(true,false);
+                createNewScene(true,true);
             }
             else
                 App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
@@ -102,19 +102,10 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                 std::string filenameAndPath=CFileOperationsBase::handleVerSpec_openScenePhase2();
                 if (filenameAndPath.length()!=0)
                 {
-                    bool useNewInstance=(App::ct->undoBufferContainer->isSceneSaveMaybeNeededFlagSet()||(App::ct->mainSettings->getScenePathAndName()!=""))&&(!App::ct->environment->getSceneCanBeDiscardedWhenNewSceneOpened());
                     App::setRebuildHierarchyFlag();
                     App::setDefaultMouseMode();
-                    if (useNewInstance)
-                    {
-                        App::ct->createNewInstance();
-                        createNewScene(true,false);
-                    }
-                    else
-                    {
-                        App::ct->simulation->stopSimulation();
-                        App::ct->emptyScene(true);
-                    }
+                    App::ct->createNewInstance();
+                    createNewScene(true,false);
                     if (loadScene(filenameAndPath.c_str(),true,true,true))
                         addToRecentlyOpenedScenes(filenameAndPath);
                     else
@@ -165,18 +156,9 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
 
                 if (VFile::doesFileExist(filenameAndPath))
                 {
-                    bool useNewInstance=(App::ct->undoBufferContainer->isSceneSaveMaybeNeededFlagSet()||(App::ct->mainSettings->getScenePathAndName()!=""))&&(!App::ct->environment->getSceneCanBeDiscardedWhenNewSceneOpened());
                     App::setDefaultMouseMode();
-                    if (useNewInstance)
-                    {
-                        App::ct->createNewInstance();
-                        CFileOperations::createNewScene(true,false);
-                    }
-                    else
-                    {
-                        App::ct->simulation->stopSimulation();
-                        App::ct->emptyScene(true);
-                    }
+                    App::ct->createNewInstance();
+                    CFileOperations::createNewScene(true,false);
 
                     if (loadScene(filenameAndPath.c_str(),true,true,true))
                         addToRecentlyOpenedScenes(filenameAndPath);
@@ -778,11 +760,11 @@ void CFileOperations::createNewScene(bool displayMessages,bool forceForNewInstan
     fullPathAndFilename+=VREP_SCENE_EXTENSION;
     loadScene(fullPathAndFilename.c_str(),false,false,false);
     App::ct->mainSettings->setScenePathAndName("");//savedLoc;
+    App::ct->environment->generateNewUniquePersistentIdString();
     if (displayMessages)
         App::addStatusbarMessage(IDSNS_DEFAULT_SCENE_WAS_SET_UP);
     App::ct->undoBufferContainer->memorizeState(); // so that we can come back to the initial state!
     App::ct->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
-    App::ct->objCont->setDefaultSceneID(App::ct->objCont->computeSceneID());
 }
 
 void CFileOperations::closeScene(bool displayMessages,bool displayDialogs)
@@ -830,11 +812,11 @@ void CFileOperations::closeScene(bool displayMessages,bool displayDialogs)
             fullPathAndFilename+="dfltscn.";
             fullPathAndFilename+=VREP_SCENE_EXTENSION;
             loadScene(fullPathAndFilename.c_str(),false,false,false);
-            App::ct->mainSettings->setScenePathAndName(savedLoc.c_str());
+            App::ct->mainSettings->setScenePathAndName(""); //savedLoc.c_str());
+            App::ct->environment->generateNewUniquePersistentIdString();
             App::addStatusbarMessage(IDSNS_DEFAULT_SCENE_WAS_SET_UP);
             App::ct->undoBufferContainer->memorizeState(); // so that we can come back to the initial state!
             App::ct->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
-            App::ct->objCont->setDefaultSceneID(App::ct->objCont->computeSceneID());
         }
     }
     App::setRebuildHierarchyFlag();
