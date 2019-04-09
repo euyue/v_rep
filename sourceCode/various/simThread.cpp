@@ -215,7 +215,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         debugging|=(CFuncDebug::getDebugMask()!=0);
         debugging|=CEasyLock::getShowActivity();
         debugging|=CThreadPool::getShowThreadSwitches();
-        if (debugging)
+        if ( debugging&&(!App::userSettings->suppressStartupDialogs) )
 #ifdef SIM_WITH_GUI
             App::uiThread->messageBox_information(App::mainWindow,"Debugging","Debugging is turned on: this might lead to drastic performance loss.",VMESSAGEBOX_OKELI);
 #else
@@ -5899,6 +5899,10 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         if (cmd.cmdId==SET_ACTIVEPAGE_GUITRIGGEREDCMD)
         {
             App::ct->pageContainer->setActivePage(cmd.intParams[0]);
+        }
+        if (cmd.cmdId==SET_MOUSEMODE_GUITRIGGEREDCMD)
+        {
+            App::setMouseMode(cmd.intParams[0]);
         }
         if (cmd.cmdId==SELECT_VIEW_GUITRIGGEREDCMD)
         {

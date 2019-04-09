@@ -39,13 +39,15 @@ CQDlgTranslationRotationCont::~CQDlgTranslationRotationCont()
 
 void CQDlgTranslationRotationCont::cancelEvent()
 {
-    App::setMouseMode((App::getMouseMode()&0xff00)|sim_navigation_camerashift);
-//  defaultModalDialogEndRoutine(false);
+    SSimulationThreadCommand cmd;
+    cmd.cmdId=SET_MOUSEMODE_GUITRIGGEREDCMD;
+    cmd.intParams.push_back((App::getMouseMode()&0xff00)|sim_navigation_camerashift);
+    App::appendSimulationThreadCommand(cmd);
+//    App::setMouseMode((App::getMouseMode()&0xff00)|sim_navigation_camerashift);
 }
 
 void CQDlgTranslationRotationCont::okEvent()
 {
-//  defaultModalDialogEndRoutine(true);
 }
 
 void CQDlgTranslationRotationCont::refresh()

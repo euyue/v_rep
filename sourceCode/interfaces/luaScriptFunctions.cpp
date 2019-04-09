@@ -3,6 +3,7 @@
 #include "funcDebug.h"
 #include "v_rep_internal.h"
 #include "luaScriptFunctions.h"
+#include "luaScriptFunctionsBase.h"
 #include "tt.h"
 #include "threadPool.h"
 #include "linMotionRoutines.h"
@@ -1410,6 +1411,9 @@ const SLuaVariables simLuaVariables[]=
     {"sim.stringparam_job",sim_stringparam_job,true},
     {"sim.stringparam_job0",sim_stringparam_job0,true},
     {"sim.stringparam_scene_unique_id",sim_stringparam_scene_unique_id,true},
+    {"sim.stringparam_machine_id",sim_stringparam_machine_id,true},
+    {"sim.stringparam_machine_id_legacy",sim_stringparam_machine_id_legacy,true},
+
     // Rendering attributes:
     {"sim.displayattribute_renderpass",sim_displayattribute_renderpass,true},
     {"sim.displayattribute_depthpass",sim_displayattribute_depthpass,true},
@@ -8432,77 +8436,9 @@ int _simTest(luaWrap_lua_State* L)
 {
     LUA_API_FUNCTION_DEBUG;
     LUA_START("sim.test");
-    if (checkInputArguments(L,&errorString,lua_arg_number,0))
-    {
-        int func=luaWrap_lua_tointeger(L,1);
-        if (func==0)
-        {
-           int r=simDisplayDialog_internal("Hello from title","MainText\nis here!!!\nBye",sim_dlgstyle_ok_cancel,"init text",nullptr,nullptr,nullptr);
-           luaWrap_lua_pushinteger(L,r);
-           LUA_END(1);
-        }
-        if (func==1)
-        {
-           int r=simGetDialogResult_internal(luaWrap_lua_tointeger(L,2));
-           luaWrap_lua_pushinteger(L,r);
-           LUA_END(1);
-        }
-        if (func==2)
-        {
-           char* r=simGetDialogInput_internal(luaWrap_lua_tointeger(L,2));
-           luaWrap_lua_pushstring(L,r);
-           simReleaseBuffer_internal(r);
-           LUA_END(1);
-        }
-        if (func==3)
-        {
-           int r=simEndDialog_internal(luaWrap_lua_tointeger(L,2));
-           luaWrap_lua_pushinteger(L,r);
-           LUA_END(1);
-        }
-#ifdef SIM_WITH_GUI
-        if (App::mainWindow!=nullptr)
-        {
-            if (func==4)
-            {
-                    int r=App::mainWindow->codeEditorContainer->openSimulationScript(luaWrap_lua_tointeger(L,2),getCurrentScriptID(L));
-                    luaWrap_lua_pushinteger(L,r);
-                    LUA_END(1);
-            }
-            if (func==5)
-                App::mainWindow->codeEditorContainer->close(luaWrap_lua_tointeger(L,2),nullptr,nullptr,nullptr);
-        }
-#endif
-    }
-    LUA_END(0);
-}
-
-int _simTestCE_openModal(luaWrap_lua_State* L)
-{
-    LUA_API_FUNCTION_DEBUG;
-    LUA_START("sim.testCE_openModal");
-
-    if (CPluginContainer::isCodeEditorPluginAvailable())
-    {
-        if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_string,0))
-        {
-            const char* arg1=luaWrap_lua_tostring(L,1);
-            const char* arg2=luaWrap_lua_tostring(L,2);
-            int posAndSize[4];
-            std::string text;
-            if (CPluginContainer::codeEditor_openModal(arg1,arg2,text,posAndSize))
-            {
-                luaWrap_lua_pushstring(L,text.c_str());
-                pushIntTableOntoStack(L,2,posAndSize);
-                pushIntTableOntoStack(L,2,posAndSize+2);
-                LUA_END(3);
-            }
-        }
-    }
-    else
-        errorString="Code Editor plugin was not found.";
-
-    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    int r=handleVerSpec_test(L);
+    if (r>=0)
+        LUA_END(r);
     LUA_END(0);
 }
 
