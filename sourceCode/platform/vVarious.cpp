@@ -46,7 +46,6 @@ bool VVarious::executeExternalApplication(const std::string& file,const std::str
     }
     return (reinterpret_cast<long long>(ShellExecuteA(nullptr,"open",cmd.c_str(),arguments.c_str(),nullptr,sh))>32);
 #else // WIN_VREP
-    // Check here: http://stackoverflow.com/questions/859517/osx-equivalent-of-shellexecute
 #ifdef SIM_WITHOUT_QT_AT_ALL
     std::string cmd(file);
     if (file.size()>0)
@@ -65,21 +64,17 @@ bool VVarious::executeExternalApplication(const std::string& file,const std::str
     }
 
     pid_t pid;
-    std::vector<char*> argsp;
     std::vector<std::string> args;
-    for (int i=0;i<10;i++)
-        argsp.push_back(nullptr);
     std::string w;
     std::string argu(arguments);
     while (tt::extractSpaceSeparatedWord2(argu,w,true,true,false,false,false))
-    {
         args.push_back(w);
-        argsp[args.size()-1]=(char*)args[args.size()-1].c_str();
-    }
+    while (args.size()<10)
+    args.push_back("");
     pid=fork();
     if (pid==0)
     {
-        execl(cmd.c_str(),cmd.c_str(),argsp[0],argsp[1],argsp[2],argsp[3],argsp[4],argsp[5],argsp[6],argsp[7],argsp[8],argsp[9],(char*)0);
+        execl(cmd.c_str(),cmd.c_str(),args[0].c_str(),args[1].c_str(),args[2].c_str(),args[3].c_str(),args[4].c_str(),args[5].c_str(),args[6].c_str(),args[7].c_str(),args[8].c_str(),args[9].c_str(),(char*)0);
         exit(0);
     }
     return(true);
