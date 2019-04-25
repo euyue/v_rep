@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "uiThread.h"
@@ -32,10 +31,14 @@ public:
     static void createMainContainer();
     static void deleteMainContainer();
 
-    static void run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)());
+    static void run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(),bool launchSimThread);
     static void postExitRequest();
     static bool getExitRequest();
     static bool isSimulatorRunning();
+
+    static void simulationThreadInit();
+    static void simulationThreadDestroy();
+    static void simulationThreadLoop();
 
     static void setQuitLevel(int l);
     static int getQuitLevel();

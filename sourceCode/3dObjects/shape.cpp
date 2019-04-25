@@ -394,7 +394,8 @@ void CShape::display_extRenderer(CViewableBase* renderingObject,int displayAttri
 {
     if (getShouldObjectBeDisplayed(renderingObject->getObjectHandle(),displayAttrib))
     {
-        if (renderingObject->isObjectInsideView(getCumulativeTransformation(),geomData->getBoundingBoxHalfSizes()))
+        // We need to pass all of the meshes to the external renderer otherwise we wont be able to render shadows correctly
+        //if (renderingObject->isObjectInsideView(getCumulativeTransformation(),geomData->getBoundingBoxHalfSizes()))
         { // the bounding box is inside of the view (at least some part of it!)
             C7Vector tr=getCumulativeTransformationPart1_forDisplay((displayAttrib&sim_displayattribute_forvisionsensor)==0);
             int componentIndex=0;

@@ -17,7 +17,7 @@
     #endif
 #endif
 
-VREP_DLLEXPORT simInt simRunSimulator(const simChar* applicationName,simInt options,simVoid(*initCallBack)(),simVoid(*loopCallBack)(),simVoid(*deinitCallBack)());
+VREP_DLLEXPORT simInt simRunSimulator(const simChar* applicationName,simInt options,simVoid(*initCallBack)(),simVoid(*loopCallBack)(),simVoid(*deinitCallBack)(),simInt stopDelay,const simChar* sceneOrModelToLoad);
 VREP_DLLEXPORT simVoid* simGetMainWindow(simInt type);
 VREP_DLLEXPORT simChar* simGetLastError();
 VREP_DLLEXPORT simInt simSetBooleanParameter(simInt parameter,simBool boolState);
@@ -535,6 +535,24 @@ VREP_DLLEXPORT simInt _simMpHandleIkGroupObject(const simVoid* ikGroup);
 VREP_DLLEXPORT simFloat _simGetPureHollowScaling(const simVoid* geometric);
 VREP_DLLEXPORT simInt _simGetJointCallbackCallOrder(const simVoid* joint);
 VREP_DLLEXPORT simVoid _simDynCallback(const simInt* intData,const simFloat* floatData);
+
+
+// Following courtesy of Stephen James:
+VREP_DLLEXPORT simInt simExtLaunchUIThread(const simChar* applicationName,simInt options,const simChar* sceneOrModelOrUiToLoad,const simChar* applicationDir_);
+VREP_DLLEXPORT simInt simExtSimThreadInit();
+VREP_DLLEXPORT simInt simExtSimThreadDestroy();
+VREP_DLLEXPORT simInt simExtPostExitRequest();
+VREP_DLLEXPORT simInt simExtGetExitRequest();
+VREP_DLLEXPORT simInt simExtStep(simBool stepIfRunning);
+VREP_DLLEXPORT simInt simExtCallScriptFunction(simInt scriptHandleOrType, const simChar* functionNameAtScriptName,
+                                               const simInt* inIntData, simInt inIntCnt,
+                                               const simFloat* inFloatData, simInt inFloatCnt,
+                                               const simChar** inStringData, simInt inStringCnt,
+                                               const simChar* inBufferData, simInt inBufferCnt,
+                                               simInt** outIntData, simInt* outIntCnt,
+                                               simFloat** outFloatData, simInt* outFloatCnt,
+                                               simChar*** outStringData, simInt* outStringCnt,
+                                               simChar** outBufferData, simInt* outBufferSize);
 
 
 // Deprecated begin

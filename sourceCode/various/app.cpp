@@ -1,4 +1,3 @@
-
 #include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "app.h"
@@ -54,7 +53,18 @@ int App::sc=1;
 #endif
 
 
+// Following simulation thread split into 'simThreadInit', 'simThreadDestroy' and 'simStep' is courtesy of Stephen James:
 SIMPLE_VTHREAD_RETURN_TYPE _workThread(SIMPLE_VTHREAD_ARGUMENT_TYPE lpData)
+{
+    App::simulationThreadInit();
+    while (!App::getExitRequest())
+        App::simulationThreadLoop();
+    App::simulationThreadDestroy();
+    return(SIMPLE_VTHREAD_RETURN_VAL);
+}
+
+// Following simulation thread split into 'simulationThreadInit', 'simulationThreadDestroy' and 'simulationThreadLoop' is courtesy of Stephen James:
+void App::simulationThreadInit()
 {
     FUNCTION_DEBUG;
     VThread::setSimulationMainThreadId();
@@ -75,57 +85,11 @@ SIMPLE_VTHREAD_RETURN_TYPE _workThread(SIMPLE_VTHREAD_ARGUMENT_TYPE lpData)
     App::ct->sandboxScript=new CLuaScriptObject(sim_scripttype_sandboxscript);
     App::ct->sandboxScript->setScriptTextFromFile((App::directories->systemDirectory+VREP_SLASH+"sndbxscpt.txt").c_str());
     App::ct->sandboxScript->runSandboxScript(sim_syscb_init,nullptr,nullptr);
+}
 
-    while (!App::getExitRequest())
-    {
-        // Send the "instancePass" message to all plugins:
-        auxData[0]=App::ct->getModificationFlags(true); auxData[1]=0; auxData[2]=0; auxData[3]=0;
-        replyBuffer=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instancepass,auxData,nullptr,nullptr);
-        if (replyBuffer!=nullptr)
-            simReleaseBuffer_internal((simChar*)replyBuffer);
-
-        // Handle customization script execution:
-        if ( App::ct->simulation->isSimulationStopped()&&(App::getEditModeType()==NO_EDIT_MODE) )
-        {
-            App::ct->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_nonsimulation,nullptr,nullptr,nullptr);
-            App::ct->luaScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
-            App::ct->addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_nonsimulation,nullptr,nullptr);
-            if (App::ct->sandboxScript!=nullptr)
-                App::ct->sandboxScript->runSandboxScript(sim_syscb_nonsimulation,nullptr,nullptr);
-        }
-        if (App::ct->simulation->isSimulationPaused())
-        {
-            CLuaScriptObject* mainScript=App::ct->luaScriptContainer->getMainScript();
-            bool suspendedFunctionPresentInMainScript=true;
-            if (mainScript!=nullptr)
-                mainScript->runMainScript(sim_syscb_suspended,nullptr,nullptr,&suspendedFunctionPresentInMainScript);
-            if (!suspendedFunctionPresentInMainScript)
-            { // For backward compatibility for scenes that have customized main script (e.g. BR)
-                App::ct->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_suspended,nullptr,nullptr,nullptr);
-                App::ct->luaScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
-                App::ct->addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_suspended,nullptr,nullptr);
-                if (App::ct->sandboxScript!=nullptr)
-                    App::ct->sandboxScript->runSandboxScript(sim_syscb_suspended,nullptr,nullptr);
-            }
-        }
-
-        // Handle the main loop (one pass):
-        if (_workThreadLoopCallback!=nullptr)
-            _workThreadLoopCallback();
-
-        App::ct->luaScriptContainer->removeDestroyedScripts(sim_scripttype_childscript);
-
-        // Keep for backward compatibility:
-        if (!App::ct->simulation->isSimulationRunning()) // when simulation is running, we handle the add-on scripts after the main script was called
-            App::ct->addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_aos_run,nullptr,nullptr);
-
-        #ifdef SIM_WITH_GUI
-                App::ct->simulation->showAndHandleEmergencyStopButton(false,""); // 10/10/2015
-        #endif
-        App::simThread->executeMessages(); // rendering, queued command execution, etc.
-    }
-
-//    App::ct->luaScriptContainer->killAddOnScriptStates();
+// Following simulation thread split into 'simulationThreadInit', 'simulationThreadDestroy' and 'simulationThreadLoop' is courtesy of Stephen James:
+void App::simulationThreadDestroy()
+{
     App::ct->addOnScriptContainer->removeAllScripts();
     App::ct->sandboxScript->runSandboxScript(sim_syscb_cleanup,nullptr,nullptr);
     delete App::ct->sandboxScript;
@@ -157,7 +121,56 @@ SIMPLE_VTHREAD_RETURN_TYPE _workThread(SIMPLE_VTHREAD_ARGUMENT_TYPE lpData)
     App::setQuitLevel(3); // tell the UI thread that we are done here
 
     VThread::endSimpleThread();
-    return(SIMPLE_VTHREAD_RETURN_VAL);
+}
+
+// Following simulation thread split into 'simulationThreadInit', 'simulationThreadDestroy' and 'simulationThreadLoop' is courtesy of Stephen James:
+void App::simulationThreadLoop()
+{
+    // Send the "instancePass" message to all plugins:
+    int auxData[4]={App::ct->getModificationFlags(true),0,0,0};
+    void* replyBuffer=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instancepass,auxData,nullptr,nullptr);
+    if (replyBuffer!=nullptr)
+        simReleaseBuffer_internal((simChar*)replyBuffer);
+
+    // Handle customization script execution:
+    if ( App::ct->simulation->isSimulationStopped()&&(App::getEditModeType()==NO_EDIT_MODE) )
+    {
+        App::ct->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_nonsimulation,nullptr,nullptr,nullptr);
+        App::ct->luaScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
+        App::ct->addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_nonsimulation,nullptr,nullptr);
+        if (App::ct->sandboxScript!=nullptr)
+            App::ct->sandboxScript->runSandboxScript(sim_syscb_nonsimulation,nullptr,nullptr);
+    }
+    if (App::ct->simulation->isSimulationPaused())
+    {
+        CLuaScriptObject* mainScript=App::ct->luaScriptContainer->getMainScript();
+        bool suspendedFunctionPresentInMainScript=true;
+        if (mainScript!=nullptr)
+            mainScript->runMainScript(sim_syscb_suspended,nullptr,nullptr,&suspendedFunctionPresentInMainScript);
+        if (!suspendedFunctionPresentInMainScript)
+        { // For backward compatibility for scenes that have customized main script (e.g. BR)
+            App::ct->luaScriptContainer->handleCascadedScriptExecution(sim_scripttype_customizationscript,sim_syscb_suspended,nullptr,nullptr,nullptr);
+            App::ct->luaScriptContainer->removeDestroyedScripts(sim_scripttype_customizationscript);
+            App::ct->addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_suspended,nullptr,nullptr);
+            if (App::ct->sandboxScript!=nullptr)
+                App::ct->sandboxScript->runSandboxScript(sim_syscb_suspended,nullptr,nullptr);
+        }
+    }
+
+    // Handle the main loop (one pass):
+    if (_workThreadLoopCallback!=nullptr)
+        _workThreadLoopCallback();
+
+    App::ct->luaScriptContainer->removeDestroyedScripts(sim_scripttype_childscript);
+
+    // Keep for backward compatibility:
+    if (!App::ct->simulation->isSimulationRunning()) // when simulation is running, we handle the add-on scripts after the main script was called
+        App::ct->addOnScriptContainer->handleAddOnScriptExecution(sim_syscb_aos_run,nullptr,nullptr);
+
+    #ifdef SIM_WITH_GUI
+            App::ct->simulation->showAndHandleEmergencyStopButton(false,""); // 10/10/2015
+    #endif
+    App::simThread->executeMessages(); // rendering, queued command execution, etc.
 }
 
 bool App::executeUiThreadCommand(SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut)
@@ -490,7 +503,7 @@ void App::_runDeinitializationCallback(void(*deinitCallBack)())
         deinitCallBack(); // this will unload all plugins!!
 }
 
-void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)())
+void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(),bool launchSimThread)
 { // We arrive here with a single thread: the UI thread!
     FUNCTION_DEBUG;
     _exitRequest=false;
@@ -510,11 +523,14 @@ void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(
     // Now start the main simulation thread (i.e. the "SIM thread", the one that handles a simulation):
     _workThreadLoopCallback=loopCallBack;
 
-#ifdef SIM_WITHOUT_QT_AT_ALL
-    VThread::launchThread(_workThread,false);
-#else
-    VThread::launchSimpleThread(_workThread);
-#endif
+    if (launchSimThread)
+    {
+        #ifdef SIM_WITHOUT_QT_AT_ALL
+            VThread::launchThread(_workThread,false);
+        #else
+            VThread::launchSimpleThread(_workThread);
+        #endif
+    }
 
     while (simThread==nullptr)
         VThread::sleep(1);
@@ -754,19 +770,21 @@ void App::addStatusbarMessage(const std::string& txt,bool scriptErrorMsg/*=false
                     mainWindow->statusBar->ensureCursorVisible();
                 }
             }
-            if ( ((mainWindow==nullptr)&&userSettings->redirectStatusbarMsgToConsoleInHeadlessMode)||CMiscBase::handleVerSpec_statusbarMsgToConsole() )
-            {
-                if (html)
-                {
-                    QTextDocument text;
-                    text.setHtml(str.c_str());
-                    printf("[statusbar]: %s\n",text.toPlainText().toStdString().c_str());
-                }
-                else
-                    printf("[statusbar]: %s\n",str.c_str());
-            }
-            handleVerSpecStatusBarMsg(str.c_str(),html,scriptErrorMsg);
         #endif
+        if ( ((mainWindow==nullptr)&&userSettings->redirectStatusbarMsgToConsoleInHeadlessMode)||CMiscBase::handleVerSpec_statusbarMsgToConsole() )
+        {
+            #ifndef SIM_WITHOUT_QT_AT_ALL
+            if (html)
+            {
+                QTextDocument text;
+                text.setHtml(str.c_str());
+                printf("[statusbar]: %s\n",text.toPlainText().toStdString().c_str());
+            }
+            else
+            #endif
+                printf("[statusbar]: %s\n",str.c_str());
+        }
+        handleVerSpecStatusBarMsg(str.c_str(),html,scriptErrorMsg);
     }
 }
 

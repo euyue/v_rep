@@ -27,6 +27,7 @@
 #include "sigHandler.h"
 #include "luaScriptFunctions.h"
 #include <algorithm>
+#include <iostream>
 #include "v_rep_internalBase.h"
 #ifdef SIM_WITH_GUI
     #include <QSplashScreen>
@@ -52,6 +53,411 @@ bool doNotRunMainScriptFromRosInterface=false;
 
 std::vector<contactCallback> allContactCallbacks;
 std::vector<jointCtrlCallback> allJointCtrlCallbacks;
+
+
+std::vector<int> pluginHandles;
+std::string initialSceneOrModelToLoad;
+std::string applicationDir;
+bool stepSimIfRunning=true;
+bool firstSimulationAutoStart=false;
+int firstSimulationStopDelay=0;
+bool firstSimulationAutoQuit=false;
+
+int loadPlugin(const char* theName,const char* theDirAndName)
+{
+    std::cout << "Plugin '" << theName << "': loading...\n";
+    int pluginHandle=simLoadModule_internal(theDirAndName,theName);
+    if (pluginHandle==-3)
+    #ifdef WIN_VREP
+        std::cout << "Error with plugin '" << theName << "': load failed (could not load). The plugin probably couldn't load dependency libraries. Try rebuilding the plugin.\n";
+    #endif
+    #ifdef MAC_VREP
+        std::cout << "Error with plugin '" << theName << "': load failed (could not load). The plugin probably couldn't load dependency libraries. Try 'otool -L pluginName.dylib' for more infos, or simply rebuild the plugin.\n";
+    #endif
+    #ifdef LIN_VREP
+        std::cout << "Error with plugin '" << theName << "': load failed (could not load). The plugin probably couldn't load dependency libraries. For additional infos, modify the script 'libLoadErrorCheck.sh', run it and inspect the output.\n";
+    #endif
+
+     if (pluginHandle==-2)
+        std::cout << "Error with plugin '" << theName << "': load failed (missing entry points).\n";
+    if (pluginHandle==-1)
+        std::cout << "Error with plugin '" << theName << "': load failed (failed initialization).\n";
+    if (pluginHandle>=0)
+        std::cout << "Plugin '" << theName << "': load succeeded.\n";
+    return(pluginHandle);
+}
+
+void simulatorInit()
+{
+    std::cout << "Simulator launched.\n";
+    std::vector<std::string> theNames;
+    std::vector<std::string> theDirAndNames;
+#ifdef SIM_WITHOUT_QT_AT_ALL
+    char curDirAndFile[2048];
+    #ifdef WIN_VREP
+        GetModuleFileNameA(NULL,curDirAndFile,2000);
+        int i=0;
+        while (true)
+        {
+            if (curDirAndFile[i]==0)
+                break;
+            if (curDirAndFile[i]=='\\')
+                curDirAndFile[i]='/';
+            i++;
+        }
+        std::string theDir(curDirAndFile);
+        while ( (theDir.size()>0)&&(theDir[theDir.size()-1]!='/') )
+            theDir.erase(theDir.end()-1);
+        if (theDir.size()>0)
+            theDir.erase(theDir.end()-1);
+    #else
+        getcwd(curDirAndFile,2000);
+        std::string theDir(curDirAndFile);
+    #endif
+
+    DIR* dir;
+    struct dirent* ent;
+    if ( (dir=opendir(theDir.c_str()))!=NULL )
+    {
+        while ( (ent=readdir(dir))!=NULL )
+        {
+            if ( (ent->d_type==DT_LNK)||(ent->d_type==DT_REG) )
+            {
+                std::string nm(ent->d_name);
+                std::transform(nm.begin(),nm.end(),nm.begin(),::tolower);
+                int pre=0;
+                int po=0;
+                #ifdef WIN_VREP
+                    pre=8;
+                    po=4;
+                    if ( (nm.compare(0,8,"v_repext")==0)&&(nm.compare(nm.size()-4,4,".dll")==0) )
+                #endif
+                #ifdef LIN_VREP
+                    pre=11;
+                    po=3;
+                    if ( (nm.compare(0,11,"libv_repext")==0)&&(nm.compare(nm.size()-3,3,".so")==0) )
+                #endif
+                #ifdef MAC_VREP
+                    pre=11;
+                    po=6;
+                    if ( (nm.compare(0,11,"libv_repext")==0)&&(nm.compare(nm.size()-6,6,".dylib")==0) )
+                #endif
+                {
+                    if (nm.find('_',6)==std::string::npos)
+                    {
+                        nm=ent->d_name;
+                        nm.assign(nm.begin()+pre,nm.end()-po);
+                        theNames.push_back(nm);
+                        theDirAndNames.push_back(theDir+'/'+ent->d_name);
+                    }
+                }
+            }
+        }
+        closedir(dir);
+    }
+#else // SIM_WITHOUT_QT_AT_ALL
+
+    QDir dir(applicationDir.c_str());
+    dir.setFilter(QDir::Files|QDir::Hidden);
+    dir.setSorting(QDir::Name);
+    QStringList filters;
+    int bnl=8;
+    #ifdef WIN_VREP
+        std::string tmp("v_repExt*.dll");
+    #endif
+    #ifdef MAC_VREP
+        std::string tmp("libv_repExt*.dylib");
+        bnl=11;
+    #endif
+    #ifdef LIN_VREP
+        std::string tmp("libv_repExt*.so");
+        bnl=11;
+    #endif
+    filters << tmp.c_str();
+    dir.setNameFilters(filters);
+    QFileInfoList list=dir.entryInfoList();
+    for (int i=0;i<list.size();++i)
+    {
+        QFileInfo fileInfo=list.at(i);
+        std::string bla(fileInfo.baseName().toLocal8Bit());
+        std::string tmp;
+        tmp.assign(bla.begin()+bnl,bla.end());
+        if (tmp.find('_')==std::string::npos)
+        {
+            theNames.push_back(tmp);
+            theDirAndNames.push_back(fileInfo.absoluteFilePath().toLocal8Bit().data());
+        }
+    }
+#endif // SIM_WITHOUT_QT_AT_ALL
+
+     // Load the system plugins first:
+    for (size_t i=0;i<theNames.size();i++)
+    {
+        if ( (theNames[i].compare("MeshCalc")==0)||(theNames[i].compare("Dynamics")==0) )
+        {
+            int pluginHandle=loadPlugin(theNames[i].c_str(),theDirAndNames[i].c_str());
+            if (pluginHandle>=0)
+                pluginHandles.push_back(pluginHandle);
+            theDirAndNames[i]=""; // mark as 'already loaded'
+        }
+    }
+    simLoadModule_internal("",""); // indicate that we are done with the system plugins
+
+     // Now load the other plugins too:
+    for (size_t i=0;i<theNames.size();i++)
+    {
+        if (theDirAndNames[i].compare("")!=0)
+        { // not yet loaded
+            int pluginHandle=loadPlugin(theNames[i].c_str(),theDirAndNames[i].c_str());
+            if (pluginHandle>=0)
+                pluginHandles.push_back(pluginHandle);
+        }
+    }
+
+    if (initialSceneOrModelToLoad.length()!=0)
+    { // Here we double-clicked a V-REP file or dragged-and-dropped it onto this application
+        int l=int(initialSceneOrModelToLoad.length());
+        if ( (l>4)&&(initialSceneOrModelToLoad[l-4]=='.')&&(initialSceneOrModelToLoad[l-3]=='t')&&(initialSceneOrModelToLoad[l-2]=='t') )
+        {
+            simSetBoolParameter_internal(sim_boolparam_scene_and_model_load_messages,1);
+            if (initialSceneOrModelToLoad[l-1]=='t') // trying to load a scene?
+            {
+                if (simLoadScene_internal(initialSceneOrModelToLoad.c_str())==-1)
+                    simAddStatusbarMessage_internal("Scene could not be opened.");
+            }
+            if (initialSceneOrModelToLoad[l-1]=='m') // trying to load a model?
+            {
+                if (simLoadModel_internal(initialSceneOrModelToLoad.c_str())==-1)
+                    simAddStatusbarMessage_internal("Model could not be loaded.");
+            }
+            simSetBoolParameter_internal(sim_boolparam_scene_and_model_load_messages,0);
+        }
+    }
+}
+
+void simulatorDeinit()
+{
+    // Unload all plugins:
+    for (int i=0;i<int(pluginHandles.size());i++)
+        simUnloadModule_internal(pluginHandles[i]);
+    pluginHandles.clear();
+    std::cout << "Simulator ended.\n";
+}
+
+void simulatorLoop()
+{   // The main simulation loop
+    static bool wasRunning=false;
+    int auxValues[4];
+    int messageID=0;
+    int dataSize;
+    if (firstSimulationAutoStart)
+    {
+        simStartSimulation_internal();
+        firstSimulationAutoStart=false;
+    }
+    while (messageID!=-1)
+    {
+        simChar* data=simGetSimulatorMessage_internal(&messageID,auxValues,&dataSize);
+        if (messageID!=-1)
+        {
+            if (messageID==sim_message_simulation_start_resume_request)
+                simStartSimulation_internal();
+            if (messageID==sim_message_simulation_pause_request)
+                simPauseSimulation_internal();
+            if (messageID==sim_message_simulation_stop_request)
+                simStopSimulation_internal();
+            if (data!=NULL)
+                simReleaseBuffer_internal(data);
+        }
+    }
+
+     // Handle a running simulation:
+    if ( stepSimIfRunning && (simGetSimulationState_internal()&sim_simulation_advancing)!=0 )
+    {
+        wasRunning=true;
+        if ( (simGetRealTimeSimulation_internal()!=1)||(simIsRealTimeSimulationStepNeeded_internal()==1) )
+        {
+            if ((simHandleMainScript_internal()&sim_script_main_script_not_called)==0)
+                simAdvanceSimulationByOneStep_internal();
+            if ((firstSimulationStopDelay>0)&&(simGetSimulationTime_internal()>=float(firstSimulationStopDelay)/1000.0f))
+            {
+                firstSimulationStopDelay=0;
+                simStopSimulation_internal();
+            }
+        }
+    }
+    if ( (simGetSimulationState_internal()==sim_simulation_stopped)&&wasRunning&&firstSimulationAutoQuit )
+    {
+        wasRunning=false;
+        simQuitSimulator_internal(true); // will post the quit command
+    }
+    stepSimIfRunning = true;
+}
+
+//********************************************
+// Following courtesy of Stephen James:
+simInt simExtLaunchUIThread_internal(const simChar* applicationName,simInt options,const simChar* sceneOrModelToLoad_,const simChar* applicationDir_)
+{
+    std::string applicationDir__(applicationDir_);
+    applicationDir = applicationDir__;
+    simRunSimulator_internal(applicationName,options,simulatorInit,simulatorLoop,simulatorDeinit,0,sceneOrModelToLoad_,false);
+}
+
+simInt simExtGetExitRequest_internal()
+{
+    return(App::getExitRequest());
+}
+
+simInt simExtStep_internal(simBool stepIfRunning)
+{
+    stepSimIfRunning = stepIfRunning;
+    App::simulationThreadLoop();
+    return(1);
+}
+
+simInt simExtSimThreadInit_internal()
+{
+    App::simulationThreadInit();
+    return(1);
+}
+
+simInt simExtSimThreadDestroy_internal()
+{
+    // If already called, then means we closed from the UI and dont need to post another request
+    if(!App::getExitRequest())
+        App::postExitRequest();
+    App::simulationThreadDestroy();
+    return(1);
+}
+
+simInt simExtPostExitRequest_internal()
+{
+    // If already called, then means we closed from the UI and dont need to post another request
+    if(!App::getExitRequest())
+        App::postExitRequest();
+    return (1);
+}
+
+simInt simExtCallScriptFunction_internal(simInt scriptHandleOrType, const simChar* functionNameAtScriptName,
+                                         const simInt* inIntData, simInt inIntCnt,
+                                         const simFloat* inFloatData, simInt inFloatCnt,
+                                         const simChar** inStringData, simInt inStringCnt,
+                                         const simChar* inBufferData, simInt inBufferCnt,
+                                         simInt** outIntData, simInt* outIntCnt,
+                                         simFloat** outFloatData, simInt* outFloatCnt,
+                                         simChar*** outStringData, simInt* outStringCnt,
+                                         simChar** outBufferData, simInt* outBufferSize)
+{
+    int stack=simCreateStack_internal();
+    simPushInt32TableOntoStack_internal(stack,inIntData,inIntCnt);
+    simPushFloatTableOntoStack_internal(stack,inFloatData,inFloatCnt);
+    simPushTableOntoStack_internal(stack);
+    for (int i=0;i<inStringCnt;i++)
+    {
+        simPushInt32OntoStack_internal(stack,i+1);
+        simPushStringOntoStack_internal(stack,inStringData[i],0);
+        simInsertDataIntoStackTable_internal(stack);
+    }
+    simPushStringOntoStack_internal(stack,inBufferData,inBufferCnt);
+
+    int ret = simCallScriptFunctionEx_internal(scriptHandleOrType,functionNameAtScriptName,stack);
+    if (ret!=-1)
+    { // success!
+        // Get the return arguments. Make sure we have 4 or less:
+        while (simGetStackSize_internal(stack)>4)
+            simPopStackItem_internal(stack,1);
+        // at pos 4 we are expecting a string (i.e. a buffer):
+        outBufferSize[0]=-1;
+        if (simGetStackSize_internal(stack)==4)
+        {
+            int bs;
+            char* buffer=simGetStackStringValue_internal(stack,&bs);
+            if ( (buffer!=nullptr)&&(bs>0) )
+            {
+                outBufferSize[0]=bs;
+                outBufferData[0]=buffer;
+            }
+            simPopStackItem_internal(stack,1);
+        }
+        if (outBufferSize[0]==-1)
+        {
+            outBufferSize[0]=0;
+            outBufferData[0]=new char[0];
+        }
+        // at pos 3 we are expecting a string table:
+        outStringCnt[0]=-1;
+        if (simGetStackSize_internal(stack)==3)
+        {
+            int tableSize=simGetStackTableInfo_internal(stack,0);
+            if (tableSize>0)
+            {
+                int info=simGetStackTableInfo_internal(stack,4);
+                if (info==1)
+                {
+                    outStringCnt[0]=tableSize;
+                    outStringData[0]=new char*[tableSize];
+                    simUnfoldStackTable_internal(stack);
+                    for (int i=0;i<tableSize;i++)
+                    {
+                        int l;
+                        char* str=simGetStackStringValue_internal(stack,&l);
+                        outStringData[0][i]=str;
+                        simPopStackItem_internal(stack,2);
+                    }
+                }
+                else
+                    simPopStackItem_internal(stack,1);
+            }
+            else
+                simPopStackItem_internal(stack,1);
+        }
+        if (outStringCnt[0]==-1)
+        {
+            outStringCnt[0]=0;
+            outStringData[0]=new char*[0];
+        }
+        // at pos 2 we are expecting a float table:
+        outFloatCnt[0]=-1;
+        if (simGetStackSize_internal(stack)==2)
+        {
+            int tableSize=simGetStackTableInfo_internal(stack,0);
+            if (tableSize>0)
+            {
+                outFloatCnt[0]=tableSize;
+                outFloatData[0]=new float[tableSize];
+                simGetStackFloatTable_internal(stack,outFloatData[0],tableSize);
+            }
+            simPopStackItem_internal(stack,1);
+        }
+        if (outFloatCnt[0]==-1)
+        {
+            outFloatCnt[0]=0;
+            outFloatData[0]=new float[0];
+        }
+        // at pos 1 we are expecting an int32 table:
+        outIntCnt[0]=-1;
+        if (simGetStackSize_internal(stack)==1)
+        {
+            int tableSize=simGetStackTableInfo_internal(stack,0);
+            if (tableSize>0)
+            {
+                outIntCnt[0]=tableSize;
+                outIntData[0]=new int[tableSize];
+                simGetStackInt32Table_internal(stack,outIntData[0],tableSize);
+            }
+            simPopStackItem_internal(stack,1);
+        }
+        if (outIntCnt[0]==-1)
+        {
+            outIntCnt[0]=0;
+            outIntData[0]=new int[0];
+        }
+    }
+    simReleaseStack_internal(stack);
+    return ret;
+}
+//********************************************
+
 
 std::vector<contactCallback>& getAllContactCallbacks()
 {
@@ -552,8 +958,21 @@ void _segHandler(int sig)
     exit(1);
 }
 #endif
-simInt simRunSimulator_internal(const simChar* applicationName,simInt options,simVoid(*initCallBack)(),simVoid(*loopCallBack)(),simVoid(*deinitCallBack)())
+simInt simRunSimulator_internal(const simChar* applicationName,simInt options,simVoid(*initCallBack)(),simVoid(*loopCallBack)(),simVoid(*deinitCallBack)(),simInt stopDelay,const simChar* sceneOrModelToLoad,bool launchSimThread)
 {
+    firstSimulationStopDelay=stopDelay;
+    initialSceneOrModelToLoad=sceneOrModelToLoad;
+    if ( (options&sim_autostart)!=0 )
+        firstSimulationAutoStart=true;
+    if ( (options&sim_autoquit)!=0 )
+        firstSimulationAutoQuit=true;
+    if (initCallBack==nullptr)
+        initCallBack=simulatorInit;
+    if (loopCallBack==nullptr)
+        loopCallBack=simulatorLoop;
+    if (deinitCallBack==nullptr)
+        deinitCallBack=simulatorDeinit;
+
 #ifdef WIN_VREP
     SetUnhandledExceptionFilter(_winExceptionHandler);
 #else
@@ -585,6 +1004,10 @@ simInt simRunSimulator_internal(const simChar* applicationName,simInt options,si
     App applicationBasicInitialization((App::operationalUIParts&sim_gui_headless)!=0);
     if (!applicationBasicInitialization.wasInitSuccessful())
         return(0);
+#ifndef SIM_WITHOUT_QT_AT_ALL
+    QFileInfo pathInfo(QCoreApplication::applicationFilePath());
+    applicationDir=pathInfo.path().toStdString();
+#endif
 
 #ifdef SIM_WITH_GUI
     // Browser and hierarchy visibility is set in userset.txt. We can override it here:
@@ -621,7 +1044,7 @@ simInt simRunSimulator_internal(const simChar* applicationName,simInt options,si
     }
 #endif
 
-    App::run(initCallBack,loopCallBack,deinitCallBack); // We stay in here until we quit the application!
+    App::run(initCallBack,loopCallBack,deinitCallBack,launchSimThread); // We stay in here until we quit the application!
     printf(".");
 #ifdef SIM_WITH_GUI
     App::deleteMainWindow();
@@ -6537,6 +6960,7 @@ simInt simAddStatusbarMessage_internal(const simChar* message)
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
+        /*
 #ifdef SIM_WITH_GUI
         if (App::mainWindow==nullptr)
         {
@@ -6544,6 +6968,7 @@ simInt simAddStatusbarMessage_internal(const simChar* message)
             return(-1);
         }
 #endif
+*/
         if (message!=nullptr)
         {
             bool scriptErrorMsg=(std::string(message).compare(0,18,"Lua runtime error:")==0);
@@ -21689,3 +22114,4 @@ simInt simCallScriptFunction_internal(simInt scriptHandleOrType,const simChar* f
 
     return(-1);
 }
+

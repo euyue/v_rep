@@ -6979,7 +6979,6 @@ int _simAddStatusbarMessage(luaWrap_lua_State* L)
     LUA_START("sim.addStatusbarMessage");
 
     int retVal=-1; // means error
-
     if (luaWrap_lua_gettop(L)==0)
     {
         App::clearStatusbar();

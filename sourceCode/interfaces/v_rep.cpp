@@ -1,11 +1,10 @@
-
 #include "vrepMainHeader.h"
 #include "v_rep.h"
 #include "v_rep_internal.h"
 
-VREP_DLLEXPORT simInt simRunSimulator(const simChar* applicationName,simInt options,simVoid(*initCallBack)(),simVoid(*loopCallBack)(),simVoid(*deinitCallBack)())
+VREP_DLLEXPORT simInt simRunSimulator(const simChar* applicationName,simInt options,simVoid(*initCallBack)(),simVoid(*loopCallBack)(),simVoid(*deinitCallBack)(),simInt stopDelay,const simChar* sceneOrModelToLoad)
 {
-    return(simRunSimulator_internal(applicationName,options,initCallBack,loopCallBack,deinitCallBack));
+    return(simRunSimulator_internal(applicationName,options,initCallBack,loopCallBack,deinitCallBack,stopDelay,sceneOrModelToLoad,true));
 }
 VREP_DLLEXPORT simVoid* simGetMainWindow(simInt type)
 {
@@ -2062,6 +2061,48 @@ VREP_DLLEXPORT simVoid _simDynCallback(const simInt* intData,const simFloat* flo
     _simDynCallback_internal(intData,floatData);
 }
 
+// Following courtesy of Stephen James:
+// Functions to allow an external application to have control of vrep's thread loop
+VREP_DLLEXPORT simInt simExtLaunchUIThread(const simChar* applicationName,simInt options,const simChar* sceneOrModelOrUiToLoad, const simChar* applicationDir_)
+{
+    return(simExtLaunchUIThread_internal(applicationName,options,sceneOrModelOrUiToLoad,applicationDir_));
+}
+VREP_DLLEXPORT simInt simExtPostExitRequest()
+{
+    return(simExtPostExitRequest_internal());
+}
+VREP_DLLEXPORT simInt simExtGetExitRequest()
+{
+    return(simExtGetExitRequest_internal());
+}
+VREP_DLLEXPORT simInt simExtStep(simBool stepIfRunning)
+{
+    return(simExtStep_internal(stepIfRunning));
+}
+VREP_DLLEXPORT simInt simExtSimThreadInit()
+{
+    return(simExtSimThreadInit_internal());
+}
+VREP_DLLEXPORT simInt simExtSimThreadDestroy()
+{
+    return(simExtSimThreadDestroy_internal());
+}
+VREP_DLLEXPORT simInt simExtCallScriptFunction(simInt scriptHandleOrType, const simChar* functionNameAtScriptName,
+                                               const simInt* inIntData, simInt inIntCnt,
+                                               const simFloat* inFloatData, simInt inFloatCnt,
+                                               const simChar** inStringData, simInt inStringCnt,
+                                               const simChar* inBufferData, simInt inBufferCnt,
+                                               simInt** outIntData, simInt* outIntCnt,
+                                               simFloat** outFloatData, simInt* outFloatCnt,
+                                               simChar*** outStringData, simInt* outStringCnt,
+                                               simChar** outBufferData, simInt* outBufferSize)
+{
+    return(simExtCallScriptFunction_internal(scriptHandleOrType, functionNameAtScriptName,
+                                             inIntData, inIntCnt, inFloatData, inFloatCnt,
+                                             inStringData, inStringCnt, inBufferData, inBufferCnt,
+                                             outIntData, outIntCnt, outFloatData, outFloatCnt,
+                                             outStringData, outStringCnt, outBufferData, outBufferSize));
+}
 
 
 // Deprecated begin

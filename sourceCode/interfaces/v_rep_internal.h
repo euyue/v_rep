@@ -15,7 +15,7 @@ std::string getCNameSuffixAdjustedName(const char* name);
 void setCNameSuffixNumber(int number);
 int getCNameSuffixNumber();
 
-simInt simRunSimulator_internal(const simChar* applicationName,simInt options,simVoid(*initCallBack)(),simVoid(*loopCallBack)(),simVoid(*deinitCallBack)());
+simInt simRunSimulator_internal(const simChar* applicationName,simInt options,simVoid(*initCallBack)(),simVoid(*loopCallBack)(),simVoid(*deinitCallBack)(),simInt stopDelay,const simChar* sceneOrModelToLoad,bool launchSimThread);
 simVoid* simGetMainWindow_internal(simInt type);
 simChar* simGetLastError_internal();
 simInt simSetBoolParameter_internal(simInt parameter,simBool boolState);
@@ -525,6 +525,22 @@ simFloat _simGetPureHollowScaling_internal(const simVoid* geometric);
 simVoid _simDynCallback_internal(const simInt* intData,const simFloat* floatData);
 
 
+// Following courtesy of Stephen James:
+simInt simExtLaunchUIThread_internal(const simChar* applicationName,simInt options,const simChar* sceneOrModelToLoad_,const simChar* applicationDir_);
+simInt simExtSimThreadInit_internal();
+simInt simExtSimThreadDestroy_internal();
+simInt simExtPostExitRequest_internal();
+simInt simExtGetExitRequest_internal();
+simInt simExtStep_internal(simBool stepIfRunning);
+simInt simExtCallScriptFunction_internal(simInt scriptHandleOrType, const simChar* functionNameAtScriptName,
+                                         const simInt* inIntData, simInt inIntCnt,
+                                         const simFloat* inFloatData, simInt inFloatCnt,
+                                         const simChar** inStringData, simInt inStringCnt,
+                                         const simChar* inBufferData, simInt inBufferCnt,
+                                         simInt** outIntData, simInt* outIntCnt,
+                                         simFloat** outFloatData, simInt* outFloatCnt,
+                                         simChar*** outStringData, simInt* outStringCnt,
+                                         simChar** outBufferData, simInt* outBufferSize);
 
 // Deprecated
 simInt simGetMaterialId_internal(const simChar* materialName);
