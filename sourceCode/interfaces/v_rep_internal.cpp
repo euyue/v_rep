@@ -315,6 +315,13 @@ simInt simExtStep_internal(simBool stepIfRunning)
     return(1);
 }
 
+simInt simExtCanInitSimThread_internal()
+{
+    if (App::canInitSimThread())
+        return(1);
+    return(0);
+}
+
 simInt simExtSimThreadInit_internal()
 {
     App::simulationThreadInit();
@@ -1005,8 +1012,11 @@ simInt simRunSimulator_internal(const simChar* applicationName,simInt options,si
     if (!applicationBasicInitialization.wasInitSuccessful())
         return(0);
 #ifndef SIM_WITHOUT_QT_AT_ALL
-    QFileInfo pathInfo(QCoreApplication::applicationFilePath());
-    applicationDir=pathInfo.path().toStdString();
+    if (launchSimThread)
+    {
+        QFileInfo pathInfo(QCoreApplication::applicationFilePath());
+        applicationDir=pathInfo.path().toStdString();
+    }
 #endif
 
 #ifdef SIM_WITH_GUI

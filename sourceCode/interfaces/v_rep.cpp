@@ -2079,6 +2079,10 @@ VREP_DLLEXPORT simInt simExtStep(simBool stepIfRunning)
 {
     return(simExtStep_internal(stepIfRunning));
 }
+VREP_DLLEXPORT simInt simExtCanInitSimThread()
+{
+    return(simExtCanInitSimThread_internal());
+}
 VREP_DLLEXPORT simInt simExtSimThreadInit()
 {
     return(simExtSimThreadInit_internal());

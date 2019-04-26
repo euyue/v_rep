@@ -527,6 +527,7 @@ simVoid _simDynCallback_internal(const simInt* intData,const simFloat* floatData
 
 // Following courtesy of Stephen James:
 simInt simExtLaunchUIThread_internal(const simChar* applicationName,simInt options,const simChar* sceneOrModelToLoad_,const simChar* applicationDir_);
+simInt simExtCanInitSimThread_internal();
 simInt simExtSimThreadInit_internal();
 simInt simExtSimThreadDestroy_internal();
 simInt simExtPostExitRequest_internal();

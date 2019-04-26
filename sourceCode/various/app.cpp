@@ -36,6 +36,7 @@ std::string App::_applicationName="V-REP (Customized)";
 CMainContainer* App::ct=nullptr;
 bool App::_exitRequest=false;
 bool App::_browserEnabled=true;
+bool App::_canInitSimThread=false;
 
 bool App::_simulatorIsRunning=false;
 std::vector<std::string> App::_applicationArguments;
@@ -52,6 +53,10 @@ int App::sc=1;
     CMainWindow* App::mainWindow=nullptr;
 #endif
 
+bool App::canInitSimThread()
+{
+    return(_canInitSimThread);
+}
 
 // Following simulation thread split into 'simThreadInit', 'simThreadDestroy' and 'simStep' is courtesy of Stephen James:
 SIMPLE_VTHREAD_RETURN_TYPE _workThread(SIMPLE_VTHREAD_ARGUMENT_TYPE lpData)
@@ -67,6 +72,7 @@ SIMPLE_VTHREAD_RETURN_TYPE _workThread(SIMPLE_VTHREAD_ARGUMENT_TYPE lpData)
 void App::simulationThreadInit()
 {
     FUNCTION_DEBUG;
+    _canInitSimThread=false;
     VThread::setSimulationMainThreadId();
     CApiErrors::addNewThreadForErrorReporting(1);
     srand(VDateTime::getTimeInMs());    // Important so that the computer ID has some "true" random component!
@@ -531,6 +537,8 @@ void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(
             VThread::launchSimpleThread(_workThread);
         #endif
     }
+    else
+        _canInitSimThread=true;
 
     while (simThread==nullptr)
         VThread::sleep(1);

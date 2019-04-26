@@ -539,6 +539,7 @@ VREP_DLLEXPORT simVoid _simDynCallback(const simInt* intData,const simFloat* flo
 
 // Following courtesy of Stephen James:
 VREP_DLLEXPORT simInt simExtLaunchUIThread(const simChar* applicationName,simInt options,const simChar* sceneOrModelOrUiToLoad,const simChar* applicationDir_);
+VREP_DLLEXPORT simInt simExtCanInitSimThread();
 VREP_DLLEXPORT simInt simExtSimThreadInit();
 VREP_DLLEXPORT simInt simExtSimThreadDestroy();
 VREP_DLLEXPORT simInt simExtPostExitRequest();

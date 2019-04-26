@@ -39,6 +39,7 @@ public:
     static void simulationThreadInit();
     static void simulationThreadDestroy();
     static void simulationThreadLoop();
+    static bool canInitSimThread();
 
     static void setQuitLevel(int l);
     static int getQuitLevel();
@@ -83,6 +84,7 @@ public:
 private:
     bool _initSuccessful;
     static bool _browserEnabled;
+    static bool _canInitSimThread;
 
     static void _runInitializationCallback(void(*initCallBack)());
     static void _runDeinitializationCallback(void(*deinitCallBack)());
