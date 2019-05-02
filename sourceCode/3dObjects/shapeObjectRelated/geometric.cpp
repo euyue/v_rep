@@ -1929,33 +1929,6 @@ void CGeometric::serialize(CSer& ar)
                     ar.loadUnknownData();
             }
         }
-//***********************
-        if ( (!App::ct->undoBufferContainer->isUndoSavingOrRestoringUnderWay()) && (ar.getVrepVersionThatWroteThisFile()<30003) )
-        {
-            checkIfConvex();
-            if ( (fabs(__bulletNonDefaultCollisionMarginFactor-0.002f)<0.0001f) && ( (ar.getVrepVersionThatWroteThisFile()==30002)||(ar.getVrepVersionThatWroteThisFile()==30001) ) )
-            { // Here we very probably correct a bug that affected version 3.0.2! (some people might have reverted to version 3.0.1, but the bug then was saved in 3.0.1, so we also check that version)
-                __bulletNonDefaultCollisionMarginFactor=0.1f;
-                __bulletNonDefaultCollisionMargin=false; // !!!!
-                __bulletNonDefaultCollisionMarginFactor_forConvexAndNonPureShape=0.002f;
-                __bulletNonDefaultCollisionMargin_forConvexAndNonPureShape=true;
-            }
-        }
-
-        if (App::userSettings->forceBugFix_rel30002)
-        {
-            __bulletNonDefaultCollisionMarginFactor=0.1f;
-            __bulletNonDefaultCollisionMargin=false;
-            __bulletNonDefaultCollisionMarginFactor_forConvexAndNonPureShape=0.002f;
-            __bulletNonDefaultCollisionMargin_forConvexAndNonPureShape=true;
-        }
-//***********************
-        if (ar.getSerializationVersionThatWroteThisFile()<17)
-        { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
-            CTTUtil::scaleColorUp_(color.colors);
-            CTTUtil::scaleColorUp_(insideColor_DEPRECATED.colors);
-            CTTUtil::scaleColorUp_(edgeColor_DEPRECATED.colors);
-        }
     }
 }
 

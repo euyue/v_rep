@@ -145,6 +145,11 @@ void VThread::setSimulationMainThreadId()
     _simulationMainThreadIdSet=true;
 }
 
+void VThread::unsetSimulationMainThreadId()
+{
+    _simulationMainThreadIdSet=false;
+}
+
 bool VThread::isUiThreadIdSet()
 {
     return(_uiThreadIdSet);
@@ -154,6 +159,11 @@ void VThread::setUiThreadId()
 {
     _uiThreadId=getCurrentThreadId();
     _uiThreadIdSet=true;
+}
+
+void VThread::unsetUiThreadId()
+{
+    _uiThreadIdSet=false;
 }
 
 bool VThread::isCurrentThreadTheUiThread()

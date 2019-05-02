@@ -126,6 +126,7 @@ void App::simulationThreadDestroy()
 
     App::setQuitLevel(3); // tell the UI thread that we are done here
 
+    VThread::unsetSimulationMainThreadId();
     VThread::endSimpleThread();
 }
 
@@ -253,6 +254,7 @@ App::App(bool headless)
     userSettings=new CUserSettings();
     directories=new CDirectoryPaths();
 
+    _applicationArguments.clear();
     for (int i=0;i<9;i++)
         _applicationArguments.push_back("");
 
@@ -368,6 +370,7 @@ App::App(bool headless)
 App::~App()
 {
     FUNCTION_DEBUG;
+    VThread::unsetUiThreadId();
     delete uiThread;
 
     // Clear the TAG that V-REP crashed! (because if we arrived here, we didn't crash!)
@@ -540,8 +543,10 @@ void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(
     else
         _canInitSimThread=true;
 
+    // Wait for the simulation thread to be running:
     while (simThread==nullptr)
         VThread::sleep(1);
+    _canInitSimThread=false;
 
 #ifdef SIM_WITH_GUI
     // Prepare a few initial triggers:
@@ -571,20 +576,17 @@ void App::run(void(*initCallBack)(),void(*loopCallBack)(),void(*deinitCallBack)(
 
     handleVerSpecRun2();
 
-    // App::qtApp->quit() was called from the SIM thread.
-    _quitLevel=2; // indicate to the SIM thread that the UI thread has left its exec
-
     // Wait until the SIM thread ended:
+    _quitLevel=2; // indicate to the SIM thread that the UI thread has left its exec
     while (_quitLevel==2)
         VThread::sleep(1);
 
-    // Ok, we unload the plugins. This happens with the UI thread.
+    // Ok, we unload the plugins. This happens with the UI thread!
     _runDeinitializationCallback(deinitCallBack);
 
     CApiErrors::removeThreadFromErrorReporting();
 
     deinitGl_ifNeeded();
-
     _simulatorIsRunning=false;
 }
 

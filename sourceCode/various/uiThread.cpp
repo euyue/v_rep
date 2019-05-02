@@ -852,14 +852,15 @@ bool CUiThread::messageBox_checkbox(void* parentWidget,const std::string& title,
     return(retVal);
 }
 
-void CUiThread::getOpenFileNames(std::vector<std::string>& files,void* parentWidget,unsigned short option,const std::string& title,const std::string& startPath,const std::string& initFilename,bool allowAnyFile,const std::string& extensionName,const std::string& extension1,const std::string& extension2,const std::string& extension3,const std::string& extension4,const std::string& extension5,const std::string& extension6,const std::string& extension7,const std::string& extension8,const std::string& extension9,const std::string& extension10)
+bool CUiThread::getOpenFileNames(std::vector<std::string>& files,void* parentWidget,unsigned short option,const std::string& title,const std::string& startPath,const std::string& initFilename,bool allowAnyFile,const std::string& extensionName,const std::string& extension1,const std::string& extension2,const std::string& extension3,const std::string& extension4,const std::string& extension5,const std::string& extension6,const std::string& extension7,const std::string& extension8,const std::string& extension9,const std::string& extension10)
 {
     FUNCTION_DEBUG;
+    bool retVal=false;
     if ( (App::mainWindow!=nullptr)&&(!App::isFullScreen()) )
     { // make sure we are not in headless mode
         if (VThread::isCurrentThreadTheUiThread())
         { // we are in the UI thread. We execute the command now:
-            VFileDialog::getOpenFileNames(files,(QWidget*)parentWidget,option,title,startPath,initFilename,allowAnyFile,extensionName,extension1,extension2,extension3,extension4,extension5,extension6,extension7,extension8,extension9,extension10);
+            retVal=VFileDialog::getOpenFileNames(files,(QWidget*)parentWidget,option,title,startPath,initFilename,allowAnyFile,extensionName,extension1,extension2,extension3,extension4,extension5,extension6,extension7,extension8,extension9,extension10);
         }
         else
         { // We are NOT in the UI thread. We execute the command via the UI thread:
@@ -885,10 +886,12 @@ void CUiThread::getOpenFileNames(std::vector<std::string>& files,void* parentWid
             cmdIn.stringParams.push_back(extension10);
             executeCommandViaUiThread(&cmdIn,&cmdOut);
             files.clear();
-            for (int i=0;i<int(cmdOut.stringParams.size());i++)
+            for (size_t i=0;i<cmdOut.stringParams.size();i++)
                 files.push_back(cmdOut.stringParams[i]);
+            retVal=(files.size()>0);
         }
     }
+    return(retVal);
 }
 
 void CUiThread::setFileDialogsNative(int n)

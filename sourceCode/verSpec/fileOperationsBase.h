@@ -16,10 +16,22 @@ public:
     static void handleVerSpec_loadModel1(){}
 
 #ifdef SIM_WITH_GUI
-    static bool handleVerSpec_saveSceneAsWithDialogAndEverything1(){return(true);}
-    static std::string handleVerSpec_saveSceneAsWithDialogAndEverything2(bool vrepFormat,const std::string& initPath)
+    static bool handleVerSpec_saveSceneAsWithDialogAndEverything1(){return(0);}
+    static std::string handleVerSpec_saveSceneAsWithDialogAndEverything2(int format,const std::string& initPath)
     {
-        std::string retStr=App::uiThread->getSaveFileName(App::mainWindow,0,tt::decorateString("",strTranslate(IDSN_SAVING_SCENE),"..."),initPath,App::ct->mainSettings->getScenePathAndName(),false,"V-REP Scene",VREP_SCENE_EXTENSION);
+        std::string retStr;
+        std::string sceneName(App::ct->mainSettings->getScenePathAndName());
+        sceneName=VVarious::splitPath_fileBaseAndExtension(sceneName);
+        std::string ext=VVarious::splitPath_fileExtension(sceneName);
+        std::transform(ext.begin(),ext.end(),ext.begin(),::tolower);
+        if ( (format==0)&&(ext.compare(VREP_SCENE_EXTENSION)!=0) )
+            sceneName="";
+        if ( (format==1)&&(ext.compare(VREP_XML_SCENE_EXTENSION)!=0) )
+            sceneName="";
+        if (format==0)
+            retStr=App::uiThread->getSaveFileName(App::mainWindow,0,tt::decorateString("",strTranslate(IDSN_SAVING_SCENE),"..."),initPath,sceneName,false,"V-REP Scene",VREP_SCENE_EXTENSION);
+        if (format==1)
+            retStr=App::uiThread->getSaveFileName(App::mainWindow,0,tt::decorateString("",strTranslate(IDSN_SAVING_SCENE),"..."),initPath,sceneName,false,"V-REP XML Scene","xml");
         return(retStr);
     }
     static std::string handleVerSpec_openScenePhase2()

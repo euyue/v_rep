@@ -3,23 +3,26 @@
 #include "serBase.h"
 #include "vrepMainHeader.h"
 #include "vArchive.h"
+#include "tinyxml2.h"
 
 #define SER_VREP_HEADER "VREP" // The file header since 03/07/2009
 #define SER_END_OF_OBJECT "EOO"
 #define SER_NEXT_STEP "NXT"
 #define SER_END_OF_FILE "EOF"
+typedef tinyxml2::XMLElement xmlNode;
 
 class CSer : public CSerBase
 {
 public:
     CSer(VArchive& ar);
     CSer(std::vector<char>& bufferArchive);
+    CSer(const char* xmlFilename);
     virtual ~CSer();
 
-    void writeOpen();
-    void writeClose(bool compress,char filetype);
+    void writeOpen(bool compress,char filetype);
+    void writeClose();
 
-    int readOpen(int& serializationVersion,unsigned short& vrepVersionThatWroteThis,int& licenseTypeThatWroteThis,char& revNumber);
+    int readOpen(int& serializationVersion,unsigned short& vrepVersionThatWroteThis,int& licenseTypeThatWroteThis,char& revNumber,bool ignoreTooOldSerializationVersion);
     void readClose();
 
     CSer& operator<< (const int& v);
@@ -47,6 +50,7 @@ public:
     void flush(bool writeNbOfBytes=true);
     
     bool isStoring();
+    bool isBinary();
     void setCountingMode(bool force=false);
     bool setWritingMode(bool force=false);
     void disableCountingModeExceptForExceptions();
@@ -67,18 +71,47 @@ public:
     int readBytesButKeepPointerUnchanged(unsigned char* buffer,int desiredCount);
     VArchive& getArchive();
 
+    xmlNode* xmlGetCurrentNode();
+    void xmlSetCurrentNode(xmlNode* node);
+    xmlNode* xmlCreateNode(const char* name);
+    xmlNode* xmlCreateNode(const char* name,const char* nameAttribute);
+    xmlNode* xmlCreateNode(const char* name,int idAttribute);
+    void xmlAddNode(xmlNode* parentNode,xmlNode* node);
+    void xmlAddNode_string(xmlNode* parentNode,const char* name,const char* str);
+    void xmlAddNode_int(xmlNode* parentNode,const char* name,int val);
+    void xmlAddNode_2int(xmlNode* parentNode,const char* name,int val1,int val2);
+    void xmlAddNode_3int(xmlNode* parentNode,const char* name,int val1,int val2,int val3);
+
+    xmlNode* xmlGetNode_fromParent(xmlNode* parentNode,const char* name);
+    xmlNode* xmlGetNode_fromSibling(xmlNode* siblingNode,const char* name);
+    bool xmlGetNode_nameAttribute(xmlNode* node,std::string& val);
+    bool xmlGetNode_idAttribute(xmlNode* node,int& val);
+    bool xmlGetNode_string(xmlNode* parentNode,const char* name,std::string& val);
+    bool xmlGetNode_int(xmlNode* parentNode,const char* name,int& val);
+    bool xmlGetNode_2int(xmlNode* parentNode,const char* name,int& val1,int& val2);
+    bool xmlGetNode_3int(xmlNode* parentNode,const char* name,int& val1,int& val2,int& val3);
+
     static char getFileTypeFromName(const char* filename);
 
     static int SER_SERIALIZATION_VERSION;
     static int SER_MIN_SERIALIZATION_VERSION_THAT_CAN_READ_THIS;
     static int SER_MIN_SERIALIZATION_VERSION_THAT_THIS_CAN_READ;
+    static int XML_SERIALIZATION_VERSION;
 
 private:
-
     void _commonInit();
+    void _writeBinaryHeader();
+    void _writeXmlHeader();
+    void _writeXmlFooter();
+    int _readXmlHeader(int& serializationVersion,unsigned short& vrepVersionThatWroteThis,char& revNumber);
+    void _readXmlHeader();
     VArchive* theArchive;
     std::vector<char>* _bufferArchive;
-
+    tinyxml2::XMLDocument _xmlDocument;
+    xmlNode* _xmlCurrentNode;
+    bool _compress;
+    char _filetype;
+    std::string _xmlFilename;
     int counter;
     int countingMode;
     bool _coutingModeDisabledExceptForExceptions;

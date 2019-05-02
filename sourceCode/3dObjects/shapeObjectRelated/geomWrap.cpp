@@ -15,78 +15,6 @@ CGeomWrap::CGeomWrap()
 
     _dynMaterialId_OLD=-1; // not used anymore since V3.4.0
 
-    __bulletStickyContact=false;
-    __bulletRestitution=0.0f;
-    __bulletFriction=1.0f;
-    __bulletLinearDamping=0.0f;
-    __bulletAngularDamping=0.0f;
-    __bulletNonDefaultCollisionMarginFactor=0.1f;
-    __bulletNonDefaultCollisionMargin=false;
-    __bulletNonDefaultCollisionMarginFactor_forConvexAndNonPureShape=0.002f;
-    __bulletNonDefaultCollisionMargin_forConvexAndNonPureShape=true;
-    __bulletAutoShrinkConvexMesh=false;
-
-    __odeMaxContacts=8;
-    __odeFriction=1.0f;
-    __odeSoftERP=0.2f;
-    __odeSoftCFM=0.0f;
-    __odeLinearDamping=0.0f;
-    __odeAngularDamping=0.0f;
-
-    /*
-    // Vortex parameters:
-    // ----------------------------------------------------
-    _vortexFloatParams.push_back(0.5f); // friction coeff., linear axis, primary
-    _vortexFloatParams.push_back(0.5f); // friction coeff., linear axis, secondary
-    _vortexFloatParams.push_back(0.0f); // friction coeff., angular axis, primary
-    _vortexFloatParams.push_back(0.0f); // friction coeff., angular axis, secondary
-    _vortexFloatParams.push_back(0.0f); // friction coeff., angular axis, normal
-
-    _vortexFloatParams.push_back(1.1f); // static friction scale, linear axis, primary (was 1.0f)
-    _vortexFloatParams.push_back(1.1f); // static friction scale, linear axis, secondary (was 1.0f)
-    _vortexFloatParams.push_back(1.0f); // static friction scale, angular axis, primary
-    _vortexFloatParams.push_back(1.0f); // static friction scale, angular axis, secondary
-    _vortexFloatParams.push_back(1.0f); // static friction scale, angular axis, normal
-
-    _vortexFloatParams.push_back(0.00000001f); // compliance (was 0.000005f)
-    _vortexFloatParams.push_back(10000000.0f); // damping (was 0.0f)
-    _vortexFloatParams.push_back(0.0f); // restitution
-    _vortexFloatParams.push_back(0.5f); // restitution threshold
-    _vortexFloatParams.push_back(0.0f); // adhesive force
-    _vortexFloatParams.push_back(0.0f); // linear velocity damping
-    _vortexFloatParams.push_back(0.0f); // angular velocity damping
-
-    _vortexFloatParams.push_back(0.0f); // slide, linear axis, primary
-    _vortexFloatParams.push_back(0.0f); // slide, linear axis, secondary
-    _vortexFloatParams.push_back(0.0f); // slide, angular axis, primary
-    _vortexFloatParams.push_back(0.0f); // slide, angular axis, secondary
-    _vortexFloatParams.push_back(0.0f); // slide, angular axis, normal
-
-    _vortexFloatParams.push_back(0.0f); // slip, linear axis, primary (was 0.0001f)
-    _vortexFloatParams.push_back(0.0f); // slip, linear axis, secondary (was 0.0001f)
-    _vortexFloatParams.push_back(0.0f); // slip, angular axis, primary
-    _vortexFloatParams.push_back(0.0f); // slip, angular axis, secondary
-    _vortexFloatParams.push_back(0.0f); // slip, angular axis, normal
-
-    _vortexFloatParams.push_back(0.14f); // autosleep linear speed threshold
-    _vortexFloatParams.push_back(0.045f); // autosleep linear accel threshold
-    _vortexFloatParams.push_back(0.03f); // autosleep angular speed threshold
-    _vortexFloatParams.push_back(0.045f); // autosleep angular accel threshold
-
-    _vortexFloatParams.push_back(0.002); // skin thickness
-
-    _vortexIntParams.push_back(4); // friction model, linear axis, primary (0=box, 1=scaledBox, 2=proportionalLow, 3=proportionalHigh, 4=scaledBoxFast, 5=neutral, 6=none)
-    _vortexIntParams.push_back(4); // friction model, linear axis, secondary
-    _vortexIntParams.push_back(6); // friction model, angular axis, primary
-    _vortexIntParams.push_back(6); // friction model, angular axis, secondary
-    _vortexIntParams.push_back(6); // friction model, angular axis, none
-
-    _vortexIntParams.push_back(8+16+32+64+128); // bit coded: 0set=treat pure shapes as convex shapes, 1set=treat convex shapes as random shapes, 2set=threat random shapes as terrain, 3set=fast moving, 4set=auto-slip, 
-                                                // 5set=sec. lin. axis uses same values as prim. lin. axis, 6set=sec. ang. axis uses same values as prim. ang. axis, 7set=norm. ang. axis uses same values as prim. ang. axis (bits 5-7 are not taken into account on the plugin side: they just serve as setting memory
-    _vortexIntParams.push_back(10); // autosleep step live threshold
-    // ----------------------------------------------------
-*/
-
     _convex=false;
 
     setDefaultInertiaParams();
@@ -303,57 +231,6 @@ int CGeomWrap::getDynMaterialId_OLD()
 void CGeomWrap::setDynMaterialId_OLD(int id)
 {
     _dynMaterialId_OLD=id;
-}
-
-CDynMaterialObject* CGeomWrap::createDynMaterialObject_OLD()
-{ // needed for backward compatibility (12/9/2013)
-    CDynMaterialObject* mat=new CDynMaterialObject();
-
-    mat->setEngineFloatParam(sim_bullet_body_restitution,__bulletRestitution);
-    mat->setEngineFloatParam(sim_bullet_body_oldfriction,__bulletFriction);
-    if (__bulletStickyContact)
-        mat->setEngineFloatParam(sim_bullet_body_friction,0.25f);
-    else
-        mat->setEngineFloatParam(sim_bullet_body_friction,tt::getLimitedFloat(0.0f,1.0f,__bulletFriction));
-    mat->setEngineFloatParam(sim_bullet_body_lineardamping,__bulletLinearDamping);
-    mat->setEngineFloatParam(sim_bullet_body_angulardamping,__bulletAngularDamping);
-    mat->setEngineFloatParam(sim_bullet_body_nondefaultcollisionmargingfactor,__bulletNonDefaultCollisionMarginFactor);
-    mat->setEngineFloatParam(sim_bullet_body_nondefaultcollisionmargingfactorconvex,__bulletNonDefaultCollisionMarginFactor_forConvexAndNonPureShape);
-    mat->setEngineBoolParam(sim_bullet_body_sticky,__bulletStickyContact);
-    mat->setEngineBoolParam(sim_bullet_body_usenondefaultcollisionmargin,__bulletNonDefaultCollisionMargin);
-    mat->setEngineBoolParam(sim_bullet_body_usenondefaultcollisionmarginconvex,__bulletNonDefaultCollisionMargin_forConvexAndNonPureShape);
-    mat->setEngineBoolParam(sim_bullet_body_autoshrinkconvex,__bulletAutoShrinkConvexMesh);
-
-    mat->setEngineFloatParam(sim_ode_body_friction,__odeFriction);
-    mat->setEngineFloatParam(sim_ode_body_softerp,__odeSoftERP);
-    mat->setEngineFloatParam(sim_ode_body_softcfm,__odeSoftCFM);
-    mat->setEngineFloatParam(sim_ode_body_lineardamping,__odeLinearDamping);
-    mat->setEngineFloatParam(sim_ode_body_angulardamping,__odeAngularDamping);
-    mat->setEngineIntParam(sim_ode_body_maxcontacts,__odeMaxContacts);
-
-    // Try to guess the friction we would need for Vortex:
-    float averageFriction=0.0f;
-    if (__bulletFriction>1.0f)
-        averageFriction+=1.0f;
-    else
-        averageFriction+=__bulletFriction;
-    if (__odeFriction>1.0f)
-        averageFriction+=1.0f;
-    else
-        averageFriction+=__odeFriction;
-    averageFriction*=0.5f;
-    if (averageFriction<0.01f)
-    {
-        mat->setEngineIntParam(sim_vortex_body_primlinearaxisfrictionmodel,sim_vortex_bodyfrictionmodel_none);
-        mat->setEngineIntParam(sim_vortex_body_seclinearaxisfrictionmodel,sim_vortex_bodyfrictionmodel_none);
-    }
-    else
-    {
-        mat->setEngineFloatParam(sim_vortex_body_primlinearaxisfriction,averageFriction);
-        mat->setEngineFloatParam(sim_vortex_body_seclinearaxisfriction,averageFriction);
-    }
-
-    return(mat);
 }
 
 C7Vector CGeomWrap::getLocalInertiaFrame()
@@ -605,7 +482,6 @@ void CGeomWrap::serializeWrapperInfos(CSer& ar)
     {       // Loading
         int byteQuantity;
         std::string theName="";
-        bool doBugCorrection_untilVrep3_0_2=false;
         while (theName.compare(SER_END_OF_OBJECT)!=0)
         {
             theName=ar.readDataName();
@@ -632,28 +508,6 @@ void CGeomWrap::serializeWrapperInfos(CSer& ar)
                     ar >> byteQuantity;
                     ar >> _dynMaterialId_OLD;
                 }
-                if (theName.compare("Bul")==0)
-                { // keep for backward compatibilitiy (24/3/2013)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> __bulletRestitution >> __bulletFriction >> __bulletLinearDamping >> __bulletAngularDamping >> __bulletNonDefaultCollisionMarginFactor;
-                    doBugCorrection_untilVrep3_0_2=true; // until V-REP 3.0.2
-                    _dynMaterialId_OLD=-2; // -2 means: we have to insert this material
-                }
-                if (theName.compare("Bu2")==0)
-                { // keep for backward compatibilitiy (12/9/2013)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> __bulletRestitution >> __bulletFriction >> __bulletLinearDamping >> __bulletAngularDamping >> __bulletNonDefaultCollisionMarginFactor >> __bulletNonDefaultCollisionMarginFactor_forConvexAndNonPureShape;
-                    _dynMaterialId_OLD=-2; // -2 means: we have to insert this material
-                }
-                if (theName.compare("Ode")==0)
-                { // keep for backward compatibilitiy (12/9/2013)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> __odeMaxContacts >> __odeFriction >> __odeSoftERP >> __odeSoftCFM >> __odeLinearDamping >> __odeAngularDamping;
-                    _dynMaterialId_OLD=-2; // -2 means: we have to insert this material
-                }
                 if (theName.compare("Ine")==0)
                 {
                     noHit=false;
@@ -677,12 +531,12 @@ void CGeomWrap::serializeWrapperInfos(CSer& ar)
                     ar >> byteQuantity;
                     unsigned char nothing;
                     ar >> nothing;
-                    __bulletNonDefaultCollisionMargin=SIM_IS_BIT_SET(nothing,0); // keep for backward compatibility (12/9/2013)
-                    __bulletStickyContact=SIM_IS_BIT_SET(nothing,1); // keep for backward compatibility (12/9/2013)
+                    // 0 reserved
+                    // 1 reserved
                     _convex=SIM_IS_BIT_SET(nothing,2);
-                    __bulletAutoShrinkConvexMesh=!SIM_IS_BIT_SET(nothing,3); // keep for backward compatibility (12/9/2013)
-                    __bulletNonDefaultCollisionMargin_forConvexAndNonPureShape=SIM_IS_BIT_SET(nothing,4); // keep for backward compatibility (12/9/2013)
-                    // reserved doTheConvectivityTest=!SIM_IS_BIT_SET(nothing,5); // since version 3.0.2 (version 3.0.1 was buggy)
+                    // 3 reserved
+                    // 4 reserved
+                    // 5 reserved
                 }
                 if (theName.compare("Geo")==0)
                 {
@@ -704,29 +558,6 @@ void CGeomWrap::serializeWrapperInfos(CSer& ar)
                     ar.loadUnknownData();
             }
         }
-//**************************************
-        if (!isGeometric())
-        {
-            if ((!App::ct->undoBufferContainer->isUndoSavingOrRestoringUnderWay())&&doBugCorrection_untilVrep3_0_2)
-            {
-                checkIfConvex();
-                if ( (fabs(__bulletNonDefaultCollisionMarginFactor-0.002f)<0.0001f) && ( (ar.getVrepVersionThatWroteThisFile()==30002)||(ar.getVrepVersionThatWroteThisFile()==30001) ) )
-                { // Here we very probably correct a bug that affected version 3.0.2! (some people might have reverted to version 3.0.1, but the bug then was saved in 3.0.1, so we also check that version)
-                    __bulletNonDefaultCollisionMarginFactor=0.1f;
-                    __bulletNonDefaultCollisionMargin=false; // !!!!
-                    __bulletNonDefaultCollisionMarginFactor_forConvexAndNonPureShape=0.002f;
-                    __bulletNonDefaultCollisionMargin_forConvexAndNonPureShape=true;
-                }
-            }
-        }
-        if (App::userSettings->forceBugFix_rel30002)
-        {
-            __bulletNonDefaultCollisionMarginFactor=0.1f;
-            __bulletNonDefaultCollisionMargin=false;
-            __bulletNonDefaultCollisionMarginFactor_forConvexAndNonPureShape=0.002f;
-            __bulletNonDefaultCollisionMargin_forConvexAndNonPureShape=true;
-        }
-//**************************************
     }
 }
 

@@ -57,13 +57,12 @@ void initGl_ifNeeded()
 
     std::string glVer("OpenGL: ");
     glVer+=(char*)glGetString(GL_VENDOR);
-//  FUNCTION_INSIDE_DEBUG(glVer.c_str());
-    glVer="OpenGL: ";
+    glVer+=", Renderer: ";
     glVer+=(char*)glGetString(GL_RENDERER);
-//  FUNCTION_INSIDE_DEBUG(glVer.c_str());
-    glVer="OpenGL: ";
+    glVer+=", Version: ";
     glVer+=(char*)glGetString(GL_VERSION);
-//  FUNCTION_INSIDE_DEBUG(glVer.c_str());
+    glVer+="\n";
+    printf(glVer.c_str());
 }
 
 void deinitGl_ifNeeded()

@@ -73,7 +73,6 @@ public:
 
     int getDynMaterialId_OLD();
     void setDynMaterialId_OLD(int id);
-    CDynMaterialObject* createDynMaterialObject_OLD();
     // ---------------------
 
 
@@ -89,27 +88,6 @@ public:
     static C3X3Matrix getNewTensor(const C3Vector& principalMoments,const C7Vector& newFrame);
 
     std::vector<CGeomWrap*> childList;
-
-    // For backward compatibility (12/9/2013):
-    // ---------------------------------------
-    bool __bulletStickyContact;
-    float __bulletRestitution;
-    float __bulletFriction;
-    float __bulletLinearDamping;
-    float __bulletAngularDamping;
-    float __bulletNonDefaultCollisionMarginFactor;
-    bool __bulletNonDefaultCollisionMargin;
-    float __bulletNonDefaultCollisionMarginFactor_forConvexAndNonPureShape;
-    bool __bulletNonDefaultCollisionMargin_forConvexAndNonPureShape;
-    bool __bulletAutoShrinkConvexMesh;
-
-    int __odeMaxContacts;
-    float __odeFriction;
-    float __odeSoftERP;
-    float __odeSoftCFM;
-    float __odeLinearDamping;
-    float __odeAngularDamping;
-    // ---------------------------------------
 
 protected:
     static float _getTensorNonDiagonalMeasure(const C3X3Matrix& tensor);

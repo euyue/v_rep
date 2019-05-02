@@ -1,4 +1,3 @@
-
 #ifndef VREP_CONFIG_INCLUDED
 #define VREP_CONFIG_INCLUDED
 

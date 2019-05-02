@@ -1221,7 +1221,7 @@ CButtonBlockContainer* CButtonBlockContainer::loadSystemButtonBlocks(std::string
             unsigned short dum0;
             int dum1;
             char dum2;
-            int result=ar.readOpen(serializationVersion,dum0,dum1,dum2);
+            int result=ar.readOpen(serializationVersion,dum0,dum1,dum2,false);
             CButtonBlockContainer* cont=new CButtonBlockContainer(false);
             if (result==1)
             {

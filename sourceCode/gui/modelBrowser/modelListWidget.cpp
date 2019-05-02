@@ -116,7 +116,7 @@ CThumbnail* CModelListWidget::loadModelThumbnail(const char* pathAndFilename,int
         unsigned short vrepVersionThatWroteThis;
         int licenseTypeThatWroteThis;
         char revisionNumber;
-        result=serObj.readOpen(serializationVersion,vrepVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber);
+        result=serObj.readOpen(serializationVersion,vrepVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber,true);
         if (result==1)
         {
             result=0;
@@ -195,7 +195,7 @@ void CModelListWidget::setFolder(const char* folderPath)
             unsigned short vrepVersionThatWroteThis;
             int licenseTypeThatWroteThis;
             char revisionNumber;
-            int result=serObj.readOpen(serializationVersion,vrepVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber);
+            int result=serObj.readOpen(serializationVersion,vrepVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber,false);
             if (result==1)
             {
                 thumbnailFileExistsAndWasLoaded=true;
@@ -254,7 +254,8 @@ void CModelListWidget::setFolder(const char* folderPath)
                     C3Vector modelBBs;
                     float ndss;
                     CThumbnail* thumbnail=loadModelThumbnail(nameAndPath.c_str(),result,modelTr,modelBBs,ndss);
-                    addThumbnail(thumbnail,allModelNames[i].c_str(),allModelCreationTimes[i],1,result>=0,&modelTr,&modelBBs,&ndss);
+                    if (thumbnail!=nullptr)
+                        addThumbnail(thumbnail,allModelNames[i].c_str(),allModelCreationTimes[i],1,result>=0,&modelTr,&modelBBs,&ndss);
                 }
                 else
                 { // we have a folder here!
@@ -274,10 +275,10 @@ void CModelListWidget::setFolder(const char* folderPath)
             VFile myFile(thmbFile.c_str(),VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE);
             VArchive archive(&myFile,VArchive::STORE);
             CSer serObj(archive);
-            serObj.writeOpen();
+            serObj.writeOpen(App::userSettings->compressFiles,3);
             serializePart1(serObj);
             serializePart2(serObj);
-            serObj.writeClose(App::userSettings->compressFiles,3);
+            serObj.writeClose();
             archive.close();
             myFile.close();
         }

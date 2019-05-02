@@ -26,8 +26,10 @@ public:
     static int getCoreCount();
     static bool isSimulationMainThreadIdSet();
     static void setSimulationMainThreadId();
+    static void unsetSimulationMainThreadId();
     static bool isUiThreadIdSet();
     static void setUiThreadId();
+    static void unsetUiThreadId();
     static bool isCurrentThreadTheMainSimulationThread();
     static bool isCurrentThreadTheUiThread();
     static bool areThreadIDsSame(VTHREAD_ID_TYPE threadA,VTHREAD_ID_TYPE threadB);

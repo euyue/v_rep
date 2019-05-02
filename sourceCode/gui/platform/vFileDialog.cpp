@@ -148,7 +148,7 @@ std::string VFileDialog::_getOpenOrSaveFileName(bool open,QWidget* parent,unsign
 }
 
 
-void VFileDialog::getOpenFileNames(std::vector<std::string>& files,QWidget* parent,unsigned short option,const std::string& title,const std::string& startPath,const std::string& initFilename,bool allowAnyFile,const std::string& extensionName,const std::string& extension1,const std::string& extension2,const std::string& extension3,const std::string& extension4,const std::string& extension5,const std::string& extension6,const std::string& extension7,const std::string& extension8,const std::string& extension9,const std::string& extension10)
+bool VFileDialog::getOpenFileNames(std::vector<std::string>& files,QWidget* parent,unsigned short option,const std::string& title,const std::string& startPath,const std::string& initFilename,bool allowAnyFile,const std::string& extensionName,const std::string& extension1,const std::string& extension2,const std::string& extension3,const std::string& extension4,const std::string& extension5,const std::string& extension6,const std::string& extension7,const std::string& extension8,const std::string& extension9,const std::string& extension10)
 {
     files.clear();
     QString pathAndOptionalFilename(QString::fromLocal8Bit(startPath.c_str()));
@@ -211,8 +211,9 @@ void VFileDialog::getOpenFileNames(std::vector<std::string>& files,QWidget* pare
         qfiles=QFileDialog::getOpenFileNames(parent,title.c_str(),pathAndOptionalFilename,filter.c_str());
 #endif
 
-    for (int i=0;i<int(qfiles.size());i++)
+    for (size_t i=0;i<qfiles.size();i++)
         files.push_back(qfiles.at(i).toLocal8Bit().data());
+    return(files.size()>0);
 }
 
 std::string VFileDialog::getExistingFolder(QWidget* parent,const std::string& title,const std::string& startPath)

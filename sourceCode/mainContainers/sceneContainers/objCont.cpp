@@ -441,11 +441,6 @@ void CObjCont::addObjectsToSceneAndPerformMappings(std::vector<C3DObject*>* load
                     }
                 }
             }
-            if (matId==-2)
-            { // Backward compatibility (12/9/2013): before V-REP 3.0.5, each shape had individual material properties. Then until V3.3.2, they had shared mat. prop. Then again individual prop.!!!
-                CDynMaterialObject* mat=shape->geomData->geomInfo->createDynMaterialObject_OLD();
-                shape->setDynMaterial(mat);
-            }
             if (fileVrepVersion<30301)
             { // Following for backward compatibility (09/03/2016)
                 CDynMaterialObject* mat=shape->getDynMaterial();

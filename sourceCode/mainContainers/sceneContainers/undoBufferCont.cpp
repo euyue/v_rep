@@ -175,14 +175,14 @@ bool CUndoBufferCont::memorizeState()
     CSer serObj(newBuff);
     serObj.disableCountingModeExceptForExceptions();
 
-    serObj.writeOpen();
+    serObj.writeOpen(false,0); // we don't wanna compression
     _undoPointSavingOrRestoringUnderWay=true;
     CUndoBufferCameras* cameraBuffers=new CUndoBufferCameras();
     cameraBuffers->storeCameras();
     App::ct->objCont->saveScene(serObj); // This takes the 90% of time of the whole routine
     cameraBuffers->restoreCameras();
     _undoPointSavingOrRestoringUnderWay=false;
-    serObj.writeClose(false,0); // We don't wanna compression
+    serObj.writeClose();
 
     CUndoBuffer* it=new CUndoBuffer(newBuff,_nextBufferId++,cameraBuffers);
     if (_currentStateIndex==-1)
@@ -353,7 +353,7 @@ void CUndoBufferCont::undo()
     unsigned short dum0;
     int dum1;
     char dum2;
-    serObj.readOpen(serializationVersion,dum0,dum1,dum2);
+    serObj.readOpen(serializationVersion,dum0,dum1,dum2,false);
     _undoPointSavingOrRestoringUnderWay=true;
 
     App::ct->objCont->loadScene(serObj,true);
@@ -414,7 +414,7 @@ void CUndoBufferCont::redo()
     unsigned short dum0;
     int dum1;
     char dum2;
-    serObj.readOpen(serializationVersion,dum0,dum1,dum2);
+    serObj.readOpen(serializationVersion,dum0,dum1,dum2,false);
     _undoPointSavingOrRestoringUnderWay=true;
 
     App::ct->objCont->loadScene(serObj,true);

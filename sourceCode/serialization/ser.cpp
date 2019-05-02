@@ -1,11 +1,12 @@
-
 #include "vrepMainHeader.h"
 #include "ser.h"
 #include "huffman.h"
 #include "v_repStrings.h"
 #include "app.h"
+#include <boost/format.hpp>
+#include <boost/lexical_cast.hpp>
 
-int CSer::SER_SERIALIZATION_VERSION=21; // 9 since 2008/09/01,
+int CSer::SER_SERIALIZATION_VERSION=22; // 9 since 2008/09/01,
                                         // 10 since 2009/02/14,
                                         // 11 since 2009/05/15,
                                         // 12 since 2009/07/03,
@@ -18,9 +19,11 @@ int CSer::SER_SERIALIZATION_VERSION=21; // 9 since 2008/09/01,
                                         // 19 since 2016/10/29 (Materials are now part of the shapes, and are not shared anymore. This version still supports older V-REP versions (material data is redundant for a while)
                                         // 20 since 2017/03/08 (small detail)
                                         // 21 since 2017/05/26 (New API notation)
+                                        // 22 since 2019/04/29 (Striped away some backward compatibility features)
 
 int CSer::SER_MIN_SERIALIZATION_VERSION_THAT_CAN_READ_THIS=18; // means: files written with this can be read by older v-rep with serialization THE_NUMBER
-int CSer::SER_MIN_SERIALIZATION_VERSION_THAT_THIS_CAN_READ=16; // means: this executable can read versions >=THE_NUMBER
+int CSer::SER_MIN_SERIALIZATION_VERSION_THAT_THIS_CAN_READ=18; // means: this executable can read versions >=THE_NUMBER
+int CSer::XML_SERIALIZATION_VERSION=1;
 
 char CSer::getFileTypeFromName(const char* filename)
 {
@@ -41,6 +44,11 @@ CSer::CSer(std::vector<char>& bufferArchive)
     handleVerSpecConstructor2(this);
 }
 
+CSer::CSer(const char* xmlFilename)
+{
+    _xmlFilename=xmlFilename;
+}
+
 CSer::~CSer()
 {
 }
@@ -59,12 +67,62 @@ void CSer::_commonInit()
     _foundUnknownCommands=false;
 }
 
-void CSer::writeOpen()
+void CSer::writeOpen(bool compress,char filetype)
 {
+    _compress=compress;
+    _filetype=filetype;
+    if (_xmlFilename.size()>0)
+        _writeXmlHeader();
 }
 
-void CSer::writeClose(bool compress,char filetype)
-{ // we write the whole file from the fileBuffer:
+void CSer::writeClose()
+{
+    if (_xmlFilename.size()>0)
+        _writeXmlFooter();
+    else
+    { // we write the whole file from the fileBuffer:
+        _writeBinaryHeader();
+
+        // Now we write all the data:
+        if (_compress)
+        { // compressed. When changing compression method, then serialization version has to be incremented and older version won't be able to read newer versions anymore!
+            handleVerSpecWriteClose2(this,_filetype);
+            // Hufmann:
+            unsigned char* writeBuff=new unsigned char[_fileBuffer.size()+400]; // actually 384
+            int outSize=Huffman_Compress(&_fileBuffer[0],writeBuff,(int)_fileBuffer.size());
+            if (theArchive!=nullptr)
+            {
+                for (int i=0;i<outSize;i++)
+                    (*theArchive) << writeBuff[i];
+            }
+            else
+            {
+                for (int i=0;i<outSize;i++)
+                    (*_bufferArchive).push_back(writeBuff[i]);
+            }
+            delete[] writeBuff;
+        }
+        else
+        { // no compression
+            int l=int(_fileBuffer.size());
+            if (theArchive!=nullptr)
+            {
+                for (int i=0;i<l;i++)
+                    (*theArchive) << _fileBuffer[i];
+            }
+            else
+            {
+                for (int i=0;i<l;i++)
+                    (*_bufferArchive).push_back(_fileBuffer[i]);
+            }
+        }
+        _fileBuffer.clear();
+    }
+}
+
+
+void CSer::_writeBinaryHeader()
+{
     // We write the header:
     for (size_t i=0;i<strlen(SER_VREP_HEADER);i++)
     {
@@ -106,7 +164,7 @@ void CSer::writeClose(bool compress,char filetype)
     }
     // We write the compression method:
     char compressionMethod=0; 
-    if (compress)
+    if (_compress)
         compressionMethod=1; // 1 for Huffman
     if (theArchive!=nullptr)
         (*theArchive) << char(compressionMethod); 
@@ -132,7 +190,6 @@ void CSer::writeClose(bool compress,char filetype)
 
     // We write the compilation version: (since ser ver 13 (2009/07/21))
     int compilVer=VREP_COMPILATION_VERSION;
-
     if (theArchive!=nullptr)
     {
         (*theArchive) << ((char*)&compilVer)[0];
@@ -185,9 +242,9 @@ void CSer::writeClose(bool compress,char filetype)
 
     // File type:
     if (theArchive!=nullptr)
-        (*theArchive) << filetype;
+        (*theArchive) << _filetype;
     else
-        (*_bufferArchive).push_back(filetype);
+        (*_bufferArchive).push_back(_filetype);
 
     // We write 1000-8 bytes for future use:
     for (int i=0;i<992;i++)
@@ -198,51 +255,69 @@ void CSer::writeClose(bool compress,char filetype)
             (*_bufferArchive).push_back((char)0);
     }
 
-    compress=handleVerSpecWriteClose1(compress,filetype);
-
-    // Now we write all the data:
-    if (compress)
-    { // compressed. When changing compression method, then serialization version has to be incremented and older version won't be able to read newer versions anymore!
-        handleVerSpecWriteClose2(this,filetype);
-
-        // Hufmann:
-        unsigned char* writeBuff=new unsigned char[_fileBuffer.size()+400]; // actually 384
-        int outSize=Huffman_Compress(&_fileBuffer[0],writeBuff,(int)_fileBuffer.size());
-        if (theArchive!=nullptr)
-        {
-            for (int i=0;i<outSize;i++)
-                (*theArchive) << writeBuff[i];
-        }
-        else
-        {
-            for (int i=0;i<outSize;i++)
-                (*_bufferArchive).push_back(writeBuff[i]);
-        }
-        delete[] writeBuff;
-    }
-    else
-    { // no compression
-        int l=int(_fileBuffer.size());
-        if (theArchive!=nullptr)
-        {
-            for (int i=0;i<l;i++)
-                (*theArchive) << _fileBuffer[i];
-        }
-        else
-        {
-            for (int i=0;i<l;i++)
-                (*_bufferArchive).push_back(_fileBuffer[i]);
-        }
-    }
-    _fileBuffer.clear();
+    _compress=handleVerSpecWriteClose1(_compress,_filetype);
 }
 
-int CSer::readOpen(int& serializationVersion,unsigned short& vrepVersionThatWroteThis,int& licenseTypeThatWroteThis,char& revNumber)
+void CSer::_writeXmlHeader()
+{
+    xmlNode* mainNode=xmlCreateNode("V-REP");
+    xmlAddNode(nullptr,mainNode);
+    xmlSetCurrentNode(mainNode);
+    std::string str("unknown");
+    if (_filetype==9)
+        str="scene";
+    xmlAddNode_string(mainNode,"filetype",str.c_str());
+    xmlAddNode_int(mainNode,"xmlSerializationNb",XML_SERIALIZATION_VERSION);
+    xmlAddNode_int(mainNode,"prgCompilVer",VREP_COMPILATION_VERSION);
+    xmlAddNode_int(mainNode,"prgVer",VREP_PROGRAM_VERSION_NB);
+    xmlAddNode_int(mainNode,"prgRev",VREP_PROGRAM_REVISION_NB);
+    xmlAddNode_2int(mainNode,"2ints",59,57);
+    xmlNode* shape=xmlCreateNode("shape","cuboid1");
+    xmlAddNode(mainNode,shape);
+    shape=xmlCreateNode("shape","cylinder");
+    xmlAddNode(mainNode,shape);
+    xmlNode* color=xmlCreateNode("color",21);
+    xmlAddNode(mainNode,color);
+    color=xmlCreateNode("color",18);
+    xmlAddNode(mainNode,color);
+}
+
+void CSer::_writeXmlFooter()
+{
+    _xmlDocument.SaveFile(_xmlFilename.c_str(),false);
+}
+
+int CSer::_readXmlHeader(int& serializationVersion,unsigned short& vrepVersionThatWroteThis,char& revNumber)
+{
+    if (_xmlDocument.LoadFile(_xmlFilename.c_str())==tinyxml2::XML_NO_ERROR)
+    {
+        xmlNode* mainNode=xmlGetNode_fromParent(nullptr,"V-REP");
+        if (mainNode!=nullptr)
+        {
+            xmlSetCurrentNode(mainNode);
+            std::string str;
+            int prgVer,prgRev;
+            if ( xmlGetNode_string(mainNode,"filetype",str) && xmlGetNode_int(mainNode,"xmlSerializationNb",serializationVersion) &&
+                 xmlGetNode_int(mainNode,"prgVer",prgVer) && xmlGetNode_int(mainNode,"prgRev",prgRev) )
+            {
+                vrepVersionThatWroteThis=prgVer;
+                revNumber=prgRev;
+                if (str.compare("scene")==0)
+                    return(1);
+            }
+        }
+    }
+    return(-3);
+}
+
+int CSer::readOpen(int& serializationVersion,unsigned short& vrepVersionThatWroteThis,int& licenseTypeThatWroteThis,char& revNumber,bool ignoreTooOldSerializationVersion)
 { // return values: -3=wrong fileformat, -2=format too old, -1=format too new, 0=compressor unknown, 1=alright!
     vrepVersionThatWroteThis=0; // means: not yet supported
     licenseTypeThatWroteThis=-1; // means: not yet supported
     serializationVersion=-1; // error
     _serializationVersionThatWroteThisFile=serializationVersion;
+    if (_xmlFilename.size()>0)
+        return(_readXmlHeader(serializationVersion,vrepVersionThatWroteThis,revNumber));
     int minSerializationVersionThatCanReadThis=-1; // error
     int compilationVersion=-1;
 
@@ -391,8 +466,11 @@ int CSer::readOpen(int& serializationVersion,unsigned short& vrepVersionThatWrot
     _vrepVersionThatWroteThis=vrepVersionThatWroteThis;
     _licenseTypeThatWroteThis=licenseTypeThatWroteThis;
 
-    if (serializationVersion<SER_MIN_SERIALIZATION_VERSION_THAT_THIS_CAN_READ)
-        return(-2); // This file is too old
+    if (!ignoreTooOldSerializationVersion) // we can most of the time ignore a too old serialization number, if we only want to load the thumbnail
+    {
+        if (serializationVersion<SER_MIN_SERIALIZATION_VERSION_THAT_THIS_CAN_READ)
+            return(-2); // This file is too old
+    }
     if (minSerializationVersionThatCanReadThis>SER_SERIALIZATION_VERSION)
         return(-1); // This file is too new
     if (serializationVersion>SER_SERIALIZATION_VERSION)
@@ -451,6 +529,11 @@ bool CSer::isStoring()
         return(theArchive->isStoring()!=0);
     else
         return(_bufferArchive->size()==0);
+}
+
+bool CSer::isBinary()
+{
+    return(_xmlFilename.size()==0);
 }
 
 void CSer::disableCountingModeExceptForExceptions()
@@ -762,4 +845,199 @@ int CSer::getLicenseTypeThatWroteThisFile()
 int CSer::getSerializationVersionThatWroteThisFile()
 {
     return(_serializationVersionThatWroteThisFile);
+}
+
+xmlNode* CSer::xmlCreateNode(const char* name)
+{
+    xmlNode* node=_xmlDocument.NewElement(name);
+    return(node);
+}
+
+xmlNode* CSer::xmlCreateNode(const char* name,const char* nameAttribute)
+{
+    xmlNode* node=xmlCreateNode(name);
+    node->SetAttribute("name",nameAttribute);
+    return(node);
+}
+
+xmlNode* CSer::xmlCreateNode(const char* name,int idAttribute)
+{
+    xmlNode* node=xmlCreateNode(name);
+    node->SetAttribute("id",idAttribute);
+    return(node);
+}
+
+void CSer::xmlAddNode(xmlNode* parentNode,xmlNode* node)
+{
+    if (parentNode==nullptr)
+        _xmlDocument.InsertFirstChild(node);
+    else
+        parentNode->InsertEndChild(node);
+}
+
+xmlNode* CSer::xmlGetCurrentNode()
+{
+    return(_xmlCurrentNode);
+}
+
+void CSer::xmlSetCurrentNode(xmlNode* node)
+{
+    _xmlCurrentNode=node;
+}
+
+void CSer::xmlAddNode_string(xmlNode* parentNode,const char* name,const char* str)
+{
+    xmlNode* node=_xmlDocument.NewElement(name);
+    parentNode->InsertEndChild(node);
+    tinyxml2::XMLText* txt=_xmlDocument.NewText(str);
+    node->InsertEndChild(txt);
+}
+
+void CSer::xmlAddNode_int(xmlNode* parentNode,const char* name,int val)
+{
+    xmlNode* node=_xmlDocument.NewElement(name);
+    parentNode->InsertEndChild(node);
+    tinyxml2::XMLText* txt=_xmlDocument.NewText(boost::str(boost::format("%i") % val).c_str());
+    node->InsertEndChild(txt);
+}
+
+void CSer::xmlAddNode_2int(xmlNode* parentNode,const char* name,int val1,int val2)
+{
+    xmlNode* node=_xmlDocument.NewElement(name);
+    parentNode->InsertEndChild(node);
+    tinyxml2::XMLText* txt=_xmlDocument.NewText(boost::str(boost::format("%i %i") % val1 % val2).c_str());
+    node->InsertEndChild(txt);
+}
+
+void CSer::xmlAddNode_3int(xmlNode* parentNode,const char* name,int val1,int val2,int val3)
+{
+    xmlNode* node=_xmlDocument.NewElement(name);
+    parentNode->InsertEndChild(node);
+    tinyxml2::XMLText* txt=_xmlDocument.NewText(boost::str(boost::format("%i %i %i") % val1 % val2 %val3).c_str());
+    node->InsertEndChild(txt);
+}
+
+
+xmlNode* CSer::xmlGetNode_fromParent(xmlNode* parentNode,const char* name)
+{
+    if (parentNode==nullptr)
+        return(_xmlDocument.FirstChildElement(name));
+    else
+        return(parentNode->FirstChildElement(name));
+}
+
+xmlNode* CSer::xmlGetNode_fromSibling(xmlNode* siblingNode,const char* name)
+{
+    return(siblingNode->NextSiblingElement(name));
+}
+
+bool CSer::xmlGetNode_nameAttribute(xmlNode* node,std::string& val)
+{
+    const char* nm=node->Attribute("name");
+    if (nm!=nullptr)
+        val=nm;
+    return(nm!=nullptr);
+}
+
+bool CSer::xmlGetNode_idAttribute(xmlNode* node,int& val)
+{
+    val=node->IntAttribute("id");
+    return(true);
+}
+
+bool CSer::xmlGetNode_string(xmlNode* parentNode,const char* name,std::string& val)
+{
+    const xmlNode* node=parentNode->FirstChildElement(name);
+    if (node!=nullptr)
+    {
+        val=node->GetText();
+        return(true);
+    }
+    return(false);
+}
+
+bool CSer::xmlGetNode_int(xmlNode* parentNode,const char* name,int& val)
+{
+    const xmlNode* node=parentNode->FirstChildElement(name);
+    if (node!=nullptr)
+    {
+        std::string str(node->GetText());
+        std::string buff;
+        std::stringstream ss(str);
+        if (ss >> buff)
+        {
+            try
+            {
+                val=boost::lexical_cast<int>(buff);
+            }
+            catch (boost::bad_lexical_cast &)
+            {
+                return(false);
+            }
+        }
+        else
+            return(false);
+        return(true);
+    }
+    return(false);
+}
+
+bool CSer::xmlGetNode_2int(xmlNode* parentNode,const char* name,int& val1,int& val2)
+{
+    int* vals[2]={&val1,&val2};
+    const xmlNode* node=parentNode->FirstChildElement(name);
+    if (node!=nullptr)
+    {
+        std::string str(node->GetText());
+        std::string buff;
+        std::stringstream ss(str);
+        for (int i=0;i<2;i++)
+        {
+            if (ss >> buff)
+            {
+                try
+                {
+                    vals[i][0]=boost::lexical_cast<int>(buff);
+                }
+                catch (boost::bad_lexical_cast &)
+                {
+                    return(false);
+                }
+            }
+            else
+                return(false);
+        }
+        return(true);
+    }
+    return(false);
+}
+
+bool CSer::xmlGetNode_3int(xmlNode* parentNode,const char* name,int& val1,int& val2,int& val3)
+{
+    int* vals[3]={&val1,&val2,&val3};
+    const xmlNode* node=parentNode->FirstChildElement(name);
+    if (node!=nullptr)
+    {
+        std::string str(node->GetText());
+        std::string buff;
+        std::stringstream ss(str);
+        for (int i=0;i<3;i++)
+        {
+            if (ss >> buff)
+            {
+                try
+                {
+                    vals[i][0]=boost::lexical_cast<int>(buff);
+                }
+                catch (boost::bad_lexical_cast &)
+                {
+                    return(false);
+                }
+            }
+            else
+                return(false);
+        }
+        return(true);
+    }
+    return(false);
 }
