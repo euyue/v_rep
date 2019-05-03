@@ -641,6 +641,8 @@
 #define IDS_OPEN_RECENT_SCENE_MENU_ITEM "Open recent scene"
 #define IDS_LOAD_MODEL___MENU_ITEM "Load model..."
 #define IDS_SAVE_SCENE_MENU_ITEM "Save scene"
+#define IDS_SAVE_SCENE_AS___MENU_ITEM "Save scene as..."
+#define IDS_SAVE_MODEL_AS___MENU_ITEM "Save model as..."
 #define IDS_SAVE_SCENE_AS_BLUEREALITY___MENU_ITEM "Save scene as Blue REALITY scene..."
 #define IDS_SAVE_MODEL_AS_BLUEREALITY___MENU_ITEM "Save model as Blue REALITY model..."
 #define IDS_SAVE_SCENE_AS_VREP___MENU_ITEM "Save scene as V-REP scene..."

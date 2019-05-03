@@ -39,7 +39,13 @@
     #include <signal.h>
 #endif
 
-#ifndef SIM_WITHOUT_QT_AT_ALL
+#ifdef SIM_WITHOUT_QT_AT_ALL
+    #ifdef WIN_VREP
+        #include "_dirent.h"
+    #else
+        #include <dirent.h>
+    #endif
+#else
     VMutex _lockForExtLockList;
     std::vector<CSimAndUiThreadSync*> _extLockList;
 #endif // SIM_WITHOUT_QT_AT_ALL

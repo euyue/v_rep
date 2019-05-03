@@ -784,20 +784,27 @@ void App::addStatusbarMessage(const std::string& txt,bool scriptErrorMsg/*=false
                 }
             }
         #endif
-        if ( ((mainWindow==nullptr)&&userSettings->redirectStatusbarMsgToConsoleInHeadlessMode)||CMiscBase::handleVerSpec_statusbarMsgToConsole() )
+        if ( userSettings->redirectStatusbarMsgToConsoleInHeadlessMode||CMiscBase::handleVerSpec_statusbarMsgToConsole() )
         {
-            #ifndef SIM_WITHOUT_QT_AT_ALL
-            if (html)
+#ifdef SIM_WITH_GUI
+            if ( (mainWindow==nullptr)||CMiscBase::handleVerSpec_statusbarMsgToConsole() )
+#endif
             {
-                QTextDocument text;
-                text.setHtml(str.c_str());
-                printf("[statusbar]: %s\n",text.toPlainText().toStdString().c_str());
+                #ifndef SIM_WITHOUT_QT_AT_ALL
+                if (html)
+                {
+                    QTextDocument text;
+                    text.setHtml(str.c_str());
+                    printf("[statusbar]: %s\n",text.toPlainText().toStdString().c_str());
+                }
+                else
+                #endif
+                    printf("[statusbar]: %s\n",txt.c_str());
             }
-            else
-            #endif
-                printf("[statusbar]: %s\n",str.c_str());
         }
-        handleVerSpecStatusBarMsg(str.c_str(),html,scriptErrorMsg);
+#ifdef SIM_WITH_GUI
+        handleVerSpecStatusBarMsg(txt.c_str(),html,scriptErrorMsg);
+#endif
     }
 }
 
