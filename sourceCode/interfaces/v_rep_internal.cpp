@@ -300,7 +300,7 @@ simInt simExtLaunchUIThread_internal(const simChar* applicationName,simInt optio
 {
     std::string applicationDir__(applicationDir_);
     applicationDir = applicationDir__;
-    simRunSimulator_internal(applicationName,options,simulatorInit,simulatorLoop,simulatorDeinit,0,sceneOrModelToLoad_,false);
+    return(simRunSimulator_internal(applicationName,options,simulatorInit,simulatorLoop,simulatorDeinit,0,sceneOrModelToLoad_,false));
 }
 
 simInt simExtGetExitRequest_internal()
@@ -1034,7 +1034,7 @@ simInt simRunSimulator_internal(const simChar* applicationName,simInt options,si
 
     handleVerSpecRunSimulator3();
 
-    App::setApplicationName(applicationName); // Make sure you mention in the name that it is a customized V-REP version (i.e. something like: "BenderSimulator (based on the V-REP platform)")
+    App::setApplicationName(handleVerSpec_getAppName().c_str()); // Make sure you mention in the name that it is a customized V-REP version (i.e. something like: "BenderSimulator (based on the V-REP platform)")
 
 #ifdef SIM_WITH_GUI
     if ((App::operationalUIParts&sim_gui_headless)==0)

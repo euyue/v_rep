@@ -34,6 +34,25 @@ void* CThreadPool::_tmpData=nullptr;
 int CThreadPool::_tmpRetData=0;
 int CThreadPool::_inInterceptRoutine=0;
 
+void CThreadPool::init()
+{
+    _threadToIntercept=0;
+    _threadInterceptCallback=nullptr;
+    _threadInterceptIndex=0;
+    _processorCoreAffinity=0;
+    _lockStage=0;
+    _threadShouldNotSwitch_override=false;
+    _allThreadData.clear();
+    _threadQueue.clear();
+    _threadStartTime.clear();
+    _simulationStopRequest=false;
+    _simulationEmergencyStopRequest=false;
+    _threadStartAdd=nullptr;
+    _showThreadSwitches=false;
+    _tmpData=nullptr;
+    _tmpRetData=0;
+    _inInterceptRoutine=0;
+}
 
 VTHREAD_ID_TYPE CThreadPool::createNewThread(VTHREAD_START_ADDRESS threadStartAddress)
 {

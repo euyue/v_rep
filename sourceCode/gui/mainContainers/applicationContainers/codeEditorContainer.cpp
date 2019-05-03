@@ -337,7 +337,6 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
             {
                 if (it->getThreadedExecution())
                 {
-                    xml+=" title=\"Main script\"";
                     xml+=getXmlColorString("background-col",App::userSettings->threadedChildScriptColor_background);
                     xml+=getXmlColorString("selection-col",App::userSettings->threadedChildScriptColor_selection);
                     xml+=getXmlColorString("comment-col",App::userSettings->threadedChildScriptColor_comment);

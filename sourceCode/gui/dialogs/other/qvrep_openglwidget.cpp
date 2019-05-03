@@ -41,6 +41,13 @@ COpenglWidget::COpenglWidget(QWidget *parent) : QGLWidget(QGLFormat((App::userSe
         setFormat(s);
     }
 #endif
+    _bufferedMouseOrKeyboardOrResizeEvents.clear();
+    disableWheelRotateForOne500ms=-1;
+    disableMouseMoveFor200ms=-1;
+    ignoreLeftMouseUp=false;
+    ignoreMiddleMouseUp=false;
+    ignoreRightMouseUp=false;
+
     setMouseTracking(true);
     setFocusPolicy(Qt::WheelFocus);
 

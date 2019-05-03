@@ -64,6 +64,12 @@ CMainWindow::CMainWindow() : QMainWindow()
     _proxSensorClickSelectUp=0;
     _prepareSceneThumbnailCmd.cmdId=-1;
 
+    lastInstance=-1;
+    timeCounter=VDateTime::getTimeInMs();
+    lastTimeRenderingStarted=VDateTime::getTimeInMs();
+    previousDisplayWasEnabled=0;
+    previousCursor=-1;
+
     _lightDialogRefreshFlag=false;
     _fullDialogRefreshFlag=false;
     _dialogRefreshDontPublishFlag=false;
@@ -103,8 +109,11 @@ CMainWindow::CMainWindow() : QMainWindow()
     _keyDownState=0;
 
     resize(1024,768);
-    setWindowTitle(App::getApplicationName().c_str()); // somehow it is important for Linux. Even if this title gets later overwritten, Linux keeps this text to display the app name when minimized
 
+    // setWindowTitle adds multiple app icons on Linux somehow..
+#ifndef LIN_VREP
+    setWindowTitle(App::getApplicationName().c_str()); // somehow it is important for Linux. Even if this title gets later overwritten, Linux keeps this text to display the app name when minimized
+#endif
 
 
 
@@ -679,7 +688,6 @@ void CMainWindow::refreshDialogs_uiThread()
 
     // We refresh dialogs and the toolbar here:
     //----------------------------------------------------------------------------------
-    static int lastInstance=-1;
     if (App::ct->getCurrentInstanceIndex()!=lastInstance)
     {
         App::setFullDialogRefreshFlag();
@@ -717,8 +725,9 @@ void CMainWindow::refreshDialogs_uiThread()
     _toolbarRefreshFlag=false;
     //----------------------------------------------------------------------------------
 
+#ifndef LIN_VREP
+    // setWindowTitle somehow adds multiple app icons on Linux...
     int ct=VDateTime::getTimeInMs();
-    static int timeCounter=ct;
     if ( (VDateTime::getTimeDiffInMs(timeCounter)>1000)||((VDateTime::getTimeDiffInMs(timeCounter)>100)&&(!getOpenGlDisplayEnabled())) )
     { // Refresh the main window text every 1/4 seconds:
         timeCounter=ct;
@@ -764,6 +773,7 @@ void CMainWindow::refreshDialogs_uiThread()
         title=App::getApplicationName()+" - "+title;
         setWindowTitle(title.c_str());
     }
+#endif
 
     if (VDateTime::getTimeDiffInMs(_mouseWheelEventTime)>300)
         _mouseButtonsState&=0xffff-2; // We clear the mouse wheel event
@@ -772,7 +782,6 @@ void CMainWindow::refreshDialogs_uiThread()
 int CMainWindow::_renderOpenGlContent_callFromRenderingThreadOnly()
 { // Called only from the rendering thread!!!
     FUNCTION_DEBUG;
-    static int lastTimeRenderingStarted=VDateTime::getTimeInMs();
     int startTime=VDateTime::getTimeInMs();
     _fps=1.0f/(float(VDateTime::getTimeDiffInMs(lastTimeRenderingStarted,startTime))/1000.0f);
     lastTimeRenderingStarted=startTime;
@@ -795,7 +804,6 @@ int CMainWindow::_renderOpenGlContent_callFromRenderingThreadOnly()
     if ( (!getOpenGlDisplayEnabled())&&(App::ct->simulation!=nullptr)&&(App::ct->simulation->isSimulationStopped()) )
         setOpenGlDisplayEnabled(true);
 
-    static int previousDisplayWasEnabled=0;
     if (getOpenGlDisplayEnabled())
     {
         swapTheBuffers=true;
@@ -1711,7 +1719,6 @@ void CMainWindow::setCurrentCursor(int cur)
         _currentCursor=cur;
     else
         _currentCursor=sim_cursor_arrow;
-    static int previousCursor=-1;
     if (previousCursor!=_currentCursor)
     {
         setCursor(Qt::PointingHandCursor);

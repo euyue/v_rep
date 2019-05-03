@@ -305,6 +305,12 @@ private:
     bool _toolbarButtonObjPropEnabled;
     bool _toolbarButtonCalcModulesEnabled;
 
+    int lastInstance;
+    int timeCounter;
+    int lastTimeRenderingStarted;
+    int previousDisplayWasEnabled;
+    int previousCursor;
+
 public slots:
     void _engineSelectedViaToolbar(int index);
     void _enginePrecisionViaToolbar(int index);

@@ -44,6 +44,7 @@ public:
 class CThreadPool  
 {
 public:
+    static void init();
     static VTHREAD_ID_TYPE createNewThread(VTHREAD_START_ADDRESS threadStartAddress);
     static void switchToThread(VTHREAD_ID_TYPE threadID);
     static bool setThreadSwitchTiming(int timeInMs);

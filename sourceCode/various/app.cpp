@@ -15,6 +15,7 @@
 #include "geometric.h"
 #include "rendering.h"
 #include "miscBase.h"
+#include "threadPool.h"
 #ifdef SIM_WITH_GUI
     #include "auxLibVideo.h"
     #include "vMessageBox.h"
@@ -72,6 +73,7 @@ SIMPLE_VTHREAD_RETURN_TYPE _workThread(SIMPLE_VTHREAD_ARGUMENT_TYPE lpData)
 void App::simulationThreadInit()
 {
     FUNCTION_DEBUG;
+    CThreadPool::init();
     _canInitSimThread=false;
     VThread::setSimulationMainThreadId();
     CApiErrors::addNewThreadForErrorReporting(1);
@@ -116,6 +118,7 @@ void App::simulationThreadDestroy()
 
     // Ok, the UI thread has left its exec and is waiting for us
     delete App::simThread;
+    App::simThread=nullptr;
 
     CApiErrors::removeThreadFromErrorReporting();
     App::ct->copyBuffer->clearBuffer(); // important, some objects in the buffer might still call the mesh plugin or similar
