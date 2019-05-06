@@ -98,6 +98,12 @@ void App::simulationThreadInit()
 // Following simulation thread split into 'simulationThreadInit', 'simulationThreadDestroy' and 'simulationThreadLoop' is courtesy of Stephen James:
 void App::simulationThreadDestroy()
 {
+    // Send the last "instancePass" message to all plugins:
+    int auxData[4]={0,0,0,0};
+    void* replyBuffer=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_lastinstancepass,auxData,nullptr,nullptr);
+    if (replyBuffer!=nullptr)
+        simReleaseBuffer_internal((simChar*)replyBuffer);
+
     App::ct->addOnScriptContainer->removeAllScripts();
     App::ct->sandboxScript->runSandboxScript(sim_syscb_cleanup,nullptr,nullptr);
     delete App::ct->sandboxScript;
