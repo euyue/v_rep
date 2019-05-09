@@ -17,7 +17,8 @@
     #endif
 #endif
 
-VREP_DLLEXPORT simInt simRunSimulator(const simChar* applicationName,simInt options,simVoid(*initCallBack)(),simVoid(*loopCallBack)(),simVoid(*deinitCallBack)(),simInt stopDelay,const simChar* sceneOrModelToLoad);
+VREP_DLLEXPORT simInt simRunSimulator(const simChar* applicationName,simInt options,simVoid(*initCallBack)(),simVoid(*loopCallBack)(),simVoid(*deinitCallBack)());
+VREP_DLLEXPORT simInt simRunSimulatorEx(const simChar* applicationName,simInt options,simVoid(*initCallBack)(),simVoid(*loopCallBack)(),simVoid(*deinitCallBack)(),simInt stopDelay,const simChar* sceneOrModelToLoad);
 VREP_DLLEXPORT simVoid* simGetMainWindow(simInt type);
 VREP_DLLEXPORT simChar* simGetLastError();
 VREP_DLLEXPORT simInt simSetBooleanParameter(simInt parameter,simBool boolState);
