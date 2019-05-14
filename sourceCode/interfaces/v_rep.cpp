@@ -1710,6 +1710,14 @@ VREP_DLLEXPORT simInt simSetJointDependency(simInt jointHandle,simInt masterJoin
 {
     return(simSetJointDependency_internal(jointHandle,masterJointHandle,offset,coeff));
 }
+VREP_DLLEXPORT simInt simSetStringNamedParam(const simChar* paramName,const simChar* stringParam,simInt paramLength)
+{
+    return(simSetStringNamedParam_internal(paramName,stringParam,paramLength));
+}
+VREP_DLLEXPORT simChar* simGetStringNamedParam(const simChar* paramName,simInt* paramLength)
+{
+    return(simGetStringNamedParam_internal(paramName,paramLength));
+}
 
 
 VREP_DLLEXPORT simInt _simGetContactCallbackCount()

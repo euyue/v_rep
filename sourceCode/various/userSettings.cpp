@@ -96,7 +96,6 @@
 #define _USR_DIRECTORY_FOR_MODELS "defaultDirectoryForModels"
 #define _USR_DIRECTORY_FOR_CAD "defaultDirectoryForCadFiles"
 #define _USR_DIRECTORY_FOR_MISC "defaultDirectoryForMiscFiles"
-#define _USR_DIRECTORY_FOR_SCRIPT_EDITOR "defaultDirectoryForExternalScriptEditor"
 #define _USR_DIRECTORY_FOR_REMOTE_API "defaultDirectoryForRemoteApiFiles"
 
 
@@ -310,7 +309,6 @@ CUserSettings::CUserSettings()
     defaultDirectoryForModels="";
     defaultDirectoryForCadFiles="";
     defaultDirectoryForMiscFiles="";
-    defaultDirectoryForExternalScriptEditor="";
     defaultDirectoryForRemoteApiFiles="";
 
 
@@ -676,7 +674,6 @@ void CUserSettings::saveUserSettings()
     c.addString(_USR_DIRECTORY_FOR_MODELS,defaultDirectoryForModels,"absolute path, e.g. d:/myModels (or leave empty for default path)");
     c.addString(_USR_DIRECTORY_FOR_CAD,defaultDirectoryForCadFiles,"absolute path, e.g. d:/myCadFiles (or leave empty for default path)");
     c.addString(_USR_DIRECTORY_FOR_MISC,defaultDirectoryForMiscFiles,"absolute path, e.g. d:/myMiscFiles (or leave empty for default path)");
-    c.addString(_USR_DIRECTORY_FOR_SCRIPT_EDITOR,defaultDirectoryForExternalScriptEditor,"absolute path, e.g. d:/myScriptTempFiles (or leave empty for default path)");
     c.addString(_USR_DIRECTORY_FOR_REMOTE_API,defaultDirectoryForRemoteApiFiles,"absolute path, e.g. d:/myRemoteApiTransfers (or leave empty for default path)");
 
 
@@ -970,7 +967,6 @@ void CUserSettings::loadUserSettings()
     c.getString(_USR_DIRECTORY_FOR_MODELS,defaultDirectoryForModels);
     c.getString(_USR_DIRECTORY_FOR_CAD,defaultDirectoryForCadFiles);
     c.getString(_USR_DIRECTORY_FOR_MISC,defaultDirectoryForMiscFiles);
-    c.getString(_USR_DIRECTORY_FOR_SCRIPT_EDITOR,defaultDirectoryForExternalScriptEditor);
     c.getString(_USR_DIRECTORY_FOR_REMOTE_API,defaultDirectoryForRemoteApiFiles);
 
     // Serialization section:

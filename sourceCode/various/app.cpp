@@ -41,6 +41,7 @@ bool App::_canInitSimThread=false;
 
 bool App::_simulatorIsRunning=false;
 std::vector<std::string> App::_applicationArguments;
+std::map<std::string,std::string> App::_applicationNamedParams;
 volatile int App::_quitLevel=0;
 
 int App::sc=1;
@@ -263,10 +264,6 @@ App::App(bool headless)
     userSettings=new CUserSettings();
     directories=new CDirectoryPaths();
 
-    _applicationArguments.clear();
-    for (int i=0;i<9;i++)
-        _applicationArguments.push_back("");
-
 #ifdef SIM_WITH_OPENGL
     // Following strange construction is to have a work-around for a bug
     // on Qt5.5 (at least on Windows) where the application would only
@@ -422,6 +419,7 @@ App::~App()
     }
 #endif // SIM_WITHOUT_QT_AT_ALL
     _applicationArguments.clear();
+    _applicationNamedParams.clear();
 }
 
 bool App::wasInitSuccessful()
@@ -639,6 +637,34 @@ void App::setApplicationArgument(int index,std::string arg)
     }
     if (index<9)
         _applicationArguments[index]=arg;
+}
+
+std::string App::getApplicationNamedParam(const char* paramName)
+{
+    std::map<std::string,std::string>::iterator it=_applicationNamedParams.find(paramName);
+    if (it!=_applicationNamedParams.end())
+        return(it->second);
+    return("");
+}
+
+int App::setApplicationNamedParam(const char* paramName,const char* param,int paramLength)
+{
+    int retVal=-1;
+    if (strlen(paramName)>0)
+    {
+        retVal=0;
+        if (getApplicationNamedParam(paramName).size()==0)
+            retVal=1;
+        if (paramLength!=0)
+            _applicationNamedParams[paramName]=std::string(param,param+paramLength);
+        else
+        {
+            std::map<std::string,std::string>::iterator it=_applicationNamedParams.find(paramName);
+            if (it!=_applicationNamedParams.end())
+                _applicationNamedParams.erase(it);
+        }
+    }
+    return(retVal);
 }
 
 int App::getEditModeType()

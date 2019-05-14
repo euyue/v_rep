@@ -241,7 +241,7 @@ void CVisionSensor::commonInit()
     _ignoreRGBInfo=false;
     _ignoreDepthInfo=false;
     _computeImageBasicStats=true;
-    _renderMode=0; // visible
+    _renderMode=sim_rendermode_opengl; // visible
     _attributesForRendering=DEFAULT_RENDERING_ATTRIBUTES;
 
     _initialValuesInitialized=false;
@@ -316,12 +316,12 @@ bool CVisionSensor::getUseExternalImage()
 
 bool CVisionSensor::getInternalRendering()
 {
-    return(_renderMode<3);
+    return(_renderMode<sim_rendermode_povray);
 }
 
 bool CVisionSensor::getApplyExternalRenderedImage()
 {
-    return( (_renderMode==3)||(_renderMode==4)||(_renderMode==5) );
+    return( (_renderMode==sim_rendermode_povray)||(_renderMode==sim_rendermode_extrenderer)||(_renderMode==sim_rendermode_opengl3) );
 }
 
 CComposedFilter* CVisionSensor::getComposedFilter()
@@ -591,7 +591,7 @@ void CVisionSensor::setRenderMode(int mode)
     if (_renderMode!=mode)
         _attributesForRendering=DEFAULT_RENDERING_ATTRIBUTES;
     _renderMode=mode;
-    if ((mode==3)||(mode==4))
+    if (mode==sim_rendermode_povray)
     {
         _ignoreDepthInfo=true;
         _attributesForRendering=DEFAULT_RAYTRACING_ATTRIBUTES;
@@ -1002,11 +1002,12 @@ void CVisionSensor::_extRenderer_prepareView(int extRendererIndex)
     CPluginContainer::selectExtRenderer(extRendererIndex);
 
     void* data[30];
-    if ((_renderMode!=6)&&(_renderMode!=8))
+    if ((_renderMode!=sim_rendermode_extrendererwindowed)&&(_renderMode!=sim_rendermode_opengl3windowed))
     { // When the view is not windowed:
         _extWindowedViewSize[0]=_resolutionX;
         _extWindowedViewSize[1]=_resolutionY;
     }
+
     data[0]=_extWindowedViewSize; // for windowed views, this value is also a return value
     data[1]=_extWindowedViewSize+1; // for windowed views, this value is also a return value
     if (_useSameBackgroundAsEnvironment)
@@ -1223,7 +1224,7 @@ void CVisionSensor::renderForDetection(int entityID,bool detectAll,bool entityIs
         int currentWinSize[2]={_resolutionX,_resolutionY};
         glViewport(0,0,_resolutionX,_resolutionY);
 
-        if (_renderMode!=2)
+        if (_renderMode!=sim_rendermode_colorcoded)
         {
             if (_useSameBackgroundAsEnvironment)
                 glClearColor(App::ct->environment->fogBackgroundColor[0],App::ct->environment->fogBackgroundColor[1],App::ct->environment->fogBackgroundColor[2],0.0f);
@@ -1270,7 +1271,7 @@ void CVisionSensor::renderForDetection(int entityID,bool detectAll,bool entityIs
         CMeshManip::transposeMatrix_4x4Array(m4_);
         glLoadMatrixf((float*)m4_);
 
-        if (_renderMode==0)
+        if (_renderMode==sim_rendermode_opengl)
         { // visible
             App::ct->environment->activateAmbientLight(true);
             App::ct->environment->activateFogIfEnabled(this,false);
@@ -1289,7 +1290,7 @@ void CVisionSensor::renderForDetection(int entityID,bool detectAll,bool entityIs
 
         glShadeModel(GL_SMOOTH);
 
-        if (_renderMode!=2)
+        if (_renderMode!=sim_rendermode_colorcoded)
         { // visible & aux channels
             glEnable(GL_DITHER);
         }
@@ -1304,7 +1305,7 @@ void CVisionSensor::renderForDetection(int entityID,bool detectAll,bool entityIs
     }
     else
     {
-        _extRenderer_prepareView(_renderMode-3);
+        _extRenderer_prepareView(_renderMode-sim_rendermode_povray);
         _extRenderer_prepareLights();
         _extRenderer_prepareMirrors();
     }
@@ -1313,25 +1314,25 @@ void CVisionSensor::renderForDetection(int entityID,bool detectAll,bool entityIs
     _planesCalculated=false;
     _currentViewSize[0]=_resolutionX;
     _currentViewSize[1]=_resolutionY;
-    if ((_renderMode==6)||(_renderMode==8))
+    if ((_renderMode==sim_rendermode_extrendererwindowed)||(_renderMode==sim_rendermode_opengl3windowed))
     { // We have a windowed view (the window's size is different from the vision sensor's resolution)
         _currentViewSize[0]=_extWindowedViewSize[0];
         _currentViewSize[1]=_extWindowedViewSize[1];
     }
 
-    if ((_renderMode==3)||(_renderMode==4))
+    if (_renderMode==sim_rendermode_povray)
         setFrustumCullingTemporarilyDisabled(true); // important with ray-tracers
 
     // Draw objects:
     _drawObjects(entityID,detectAll,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,hideEdgesIfModel,overrideRenderableFlagsForNonCollections);
 
-    if ((_renderMode==3)||(_renderMode==4))
+    if (_renderMode==sim_rendermode_povray)
         setFrustumCullingTemporarilyDisabled(false); // important with ray-tracers
 
 #ifdef SIM_WITH_OPENGL
     if (getInternalRendering())
     {
-        if (_renderMode==2)
+        if (_renderMode==sim_rendermode_colorcoded)
         { // reset to default
             ogl::enableLighting_useWithCare();
             glEnable(GL_DITHER);
@@ -1349,9 +1350,9 @@ void CVisionSensor::_drawObjects(int entityID,bool detectAll,bool entityIsModelA
     // Very unelegant routine. Needs badly refactoring!
 
     int rendAttrib=_attributesForRendering;
-    if (_renderMode==2)
+    if (_renderMode==sim_rendermode_colorcoded)
         rendAttrib|=sim_displayattribute_colorcoded;
-    if (_renderMode==1)
+    if (_renderMode==sim_rendermode_auxchannels)
         rendAttrib|=sim_displayattribute_useauxcomponent;
 
     std::vector<C3DObject*> toRender;
@@ -1692,7 +1693,7 @@ int CVisionSensor::_getActiveMirrors(int entityID,bool detectAll,bool entityIsMo
         return(0);
     if (App::ct->mainSettings->mirrorsDisabled)
         return(0);
-    if (_renderMode!=0)
+    if (_renderMode!=sim_rendermode_opengl)
         return(0);
 
     C3DObject* object=App::ct->objCont->getObjectFromHandle(entityID);
@@ -2018,7 +2019,7 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
     sensorResult.sensorResultIsValid=true;
     sensorResult.sensorWasTriggered=false;
 
-    if (_computeImageBasicStats&&(_renderMode!=2))
+    if (_computeImageBasicStats&&(_renderMode!=sim_rendermode_colorcoded))
     {
         unsigned int cumulRed=0;
         unsigned int cumulGreen=0;
@@ -2116,7 +2117,7 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
             sensorResult.sensorDataIntensity[i]=0;
             sensorResult.sensorDataDepth[i]=0.0f;
         }
-        if (_renderMode!=2)
+        if (_renderMode!=sim_rendermode_colorcoded)
         {
             std::vector<float> defaultResults(0.0f,15);
             sensorAuxiliaryResult.push_back(defaultResults);

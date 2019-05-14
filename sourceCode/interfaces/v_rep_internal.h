@@ -432,6 +432,8 @@ simChar* simGetPersistentDataTags_internal(simInt* tagCount);
 simInt simEventNotification_internal(const simChar* event);
 simInt simApplyTexture_internal(simInt shapeHandle,const simFloat* textureCoordinates,simInt textCoordSize,const simUChar* texture,const simInt* textureResolution,simInt options);
 simInt simSetJointDependency_internal(simInt jointHandle,simInt masterJointHandle,simFloat offset,simFloat coeff);
+simInt simSetStringNamedParam_internal(const simChar* paramName,const simChar* stringParam,simInt paramLength);
+simChar* simGetStringNamedParam_internal(const simChar* paramName,simInt* paramLength);
 
 
 

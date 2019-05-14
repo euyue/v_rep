@@ -443,7 +443,8 @@ VREP_DLLEXPORT simChar* simGetPersistentDataTags(simInt* tagCount);
 VREP_DLLEXPORT simInt simEventNotification(const simChar* event);
 VREP_DLLEXPORT simInt simApplyTexture(simInt shapeHandle,const simFloat* textureCoordinates,simInt textCoordSize,const simUChar* texture,const simInt* textureResolution,simInt options);
 VREP_DLLEXPORT simInt simSetJointDependency(simInt jointHandle,simInt masterJointHandle,simFloat offset,simFloat coeff);
-
+VREP_DLLEXPORT simInt simSetStringNamedParam(const simChar* paramName,const simChar* stringParam,simInt paramLength);
+VREP_DLLEXPORT simChar* simGetStringNamedParam(const simChar* paramName,simInt* paramLength);
 
 
 

@@ -48,11 +48,10 @@ int CPlugin::load()
             pluginVersion=startAddress(nullptr,0);
 
             ptrExtRenderer pov=(ptrExtRenderer)(VVarious::resolveLibraryFuncName(lib,"v_repPovRay"));
-            ptrExtRenderer rayTracer2=(ptrExtRenderer)(VVarious::resolveLibraryFuncName(lib,"v_repRayTracer2"));
             ptrExtRenderer extRenderer=(ptrExtRenderer)(VVarious::resolveLibraryFuncName(lib,"v_repExtRenderer"));
             ptrExtRenderer extRendererWindowed=(ptrExtRenderer)(VVarious::resolveLibraryFuncName(lib,"v_repExtRendererWindowed"));
-            ptrExtRenderer oculus=(ptrExtRenderer)(VVarious::resolveLibraryFuncName(lib,"v_repOculus"));
-            ptrExtRenderer oculusWindowed=(ptrExtRenderer)(VVarious::resolveLibraryFuncName(lib,"v_repOculusWindowed"));
+            ptrExtRenderer openGl3=(ptrExtRenderer)(VVarious::resolveLibraryFuncName(lib,"v_repOpenGL3Renderer"));
+            ptrExtRenderer openGl3Windowed=(ptrExtRenderer)(VVarious::resolveLibraryFuncName(lib,"v_repOpenGL3RendererWindowed"));
 
             ptrQhull qhull=(ptrQhull)(VVarious::resolveLibraryFuncName(lib,"v_repQhull"));
             ptrHACD hacd=(ptrHACD)(VVarious::resolveLibraryFuncName(lib,"v_repHACD"));
@@ -198,16 +197,14 @@ int CPlugin::load()
                 // For other specific plugins:
                 if (pov!=nullptr)
                     CPluginContainer::_povRayAddress=pov;
-                if (rayTracer2!=nullptr)
-                    CPluginContainer::_rayTracer2Address=rayTracer2;
                 if (extRenderer!=nullptr)
                     CPluginContainer::_extRendererAddress=extRenderer;
                 if (extRendererWindowed!=nullptr)
                     CPluginContainer::_extRendererWindowedAddress=extRendererWindowed;
-                if (oculus!=nullptr)
-                    CPluginContainer::_oculusAddress=oculus;
-                if (oculusWindowed!=nullptr)
-                    CPluginContainer::_oculusWindowedAddress=oculusWindowed;
+                if (openGl3!=nullptr)
+                    CPluginContainer::_openGl3Address=openGl3;
+                if (openGl3Windowed!=nullptr)
+                    CPluginContainer::_openGl3WindowedAddress=openGl3Windowed;
 
                 if (qhull!=nullptr)
                     CPluginContainer::_qhullAddress=qhull;
@@ -250,11 +247,10 @@ std::vector<std::string> CPluginContainer::_openglframe_eventEnabledPluginNames;
 std::vector<std::string> CPluginContainer::_openglcameraview_eventEnabledPluginNames;
 
 ptrExtRenderer CPluginContainer::_povRayAddress=nullptr;
-ptrExtRenderer CPluginContainer::_rayTracer2Address=nullptr;
 ptrExtRenderer CPluginContainer::_extRendererAddress=nullptr;
 ptrExtRenderer CPluginContainer::_extRendererWindowedAddress=nullptr;
-ptrExtRenderer CPluginContainer::_oculusAddress=nullptr;
-ptrExtRenderer CPluginContainer::_oculusWindowedAddress=nullptr;
+ptrExtRenderer CPluginContainer::_openGl3Address=nullptr;
+ptrExtRenderer CPluginContainer::_openGl3WindowedAddress=nullptr;
 ptrExtRenderer CPluginContainer::_activeExtRendererAddress=nullptr;
 //int CPluginContainer::_extRendererIndex=0;
 
@@ -497,19 +493,16 @@ void CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(int msg,int*
 void CPluginContainer::selectExtRenderer(int index)
 {
     _activeExtRendererAddress=nullptr;
-//  _extRendererIndex=index;
-    if (index==0)
+    if (index==sim_rendermode_povray-sim_rendermode_povray)
         _activeExtRendererAddress=_povRayAddress;
-    if (index==1)
-        _activeExtRendererAddress=_rayTracer2Address;
-    if (index==2)
+    if (index==sim_rendermode_extrenderer-sim_rendermode_povray)
         _activeExtRendererAddress=_extRendererAddress;
-    if (index==3)
+    if (index==sim_rendermode_extrendererwindowed-sim_rendermode_povray)
         _activeExtRendererAddress=_extRendererWindowedAddress;
-    if (index==4)
-        _activeExtRendererAddress=_oculusAddress;
-    if (index==5)
-        _activeExtRendererAddress=_oculusWindowedAddress;
+    if (index==sim_rendermode_opengl3-sim_rendermode_povray)
+        _activeExtRendererAddress=_openGl3Address;
+    if (index==sim_rendermode_opengl3windowed-sim_rendermode_povray)
+        _activeExtRendererAddress=_openGl3WindowedAddress;
 }
 
 bool CPluginContainer::extRenderer(int msg,void* data)

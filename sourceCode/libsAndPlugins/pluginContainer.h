@@ -454,11 +454,10 @@ public:
     static bool shouldSend_openglcameraview_msg();
 
     static ptrExtRenderer _povRayAddress;
-    static ptrExtRenderer _rayTracer2Address;
     static ptrExtRenderer _extRendererAddress;
     static ptrExtRenderer _extRendererWindowedAddress;
-    static ptrExtRenderer _oculusAddress;
-    static ptrExtRenderer _oculusWindowedAddress;
+    static ptrExtRenderer _openGl3Address;
+    static ptrExtRenderer _openGl3WindowedAddress;
     static ptrExtRenderer _activeExtRendererAddress;
 
     static ptrQhull _qhullAddress;

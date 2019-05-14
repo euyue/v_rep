@@ -467,7 +467,8 @@ const SLuaCommands simLuaCommands[]=
     {"sim.textEditorGetInfo",_simTextEditorGetInfo,              "string text,table_2 pos,table_2 size,boolean visible=sim.textEditorGetInfo(number handle)",true},
     {"sim.setJointDependency",_simSetJointDependency,            "number res=sim.setJointDependency(number jointHandle,number masterJointHandle,number offset,number coefficient)",true},
     {"sim.getStackTraceback",_simGetStackTraceback,              "string stacktraceback=sim.getStackTraceback()",true},
-
+    {"sim.setStringNamedParam",_simSetStringNamedParam,          "number result=sim.setStringNamedParam(string paramName,string stringParam)",true},
+    {"sim.getStringNamedParam",_simGetStringNamedParam,          "string stringParam=sim.getStringNamedParam(string paramName)",true},
 
 
     {"sim.test",_simTest,                                        "test function - shouldn't be used",true},
@@ -8593,6 +8594,48 @@ int _simGetStackTraceback(luaWrap_lua_State* L)
     LUA_END(1);
 }
 
+int _simSetStringNamedParam(luaWrap_lua_State* L)
+{
+    LUA_API_FUNCTION_DEBUG;
+    LUA_START("sim.setStringNamedParam");
+    int retVal=-1;
+    if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_string,0))
+    {
+        std::string paramName(luaWrap_lua_tostring(L,1));
+        size_t l;
+        const char* data=((char*)luaWrap_lua_tolstring(L,2,&l));
+        retVal=simSetStringNamedParam_internal(paramName.c_str(),data,l);
+        if (retVal>=0)
+        {
+            luaWrap_lua_pushinteger(L,retVal);
+            LUA_END(1);
+        }
+    }
+    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    luaWrap_lua_pushinteger(L,retVal);
+    LUA_END(1);
+}
+
+int _simGetStringNamedParam(luaWrap_lua_State* L)
+{
+    LUA_API_FUNCTION_DEBUG;
+    LUA_START("sim.getStringNamedParam");
+    if (checkInputArguments(L,&errorString,lua_arg_string,0))
+    {
+        std::string paramName(luaWrap_lua_tostring(L,1));
+        int l;
+        char* stringParam=simGetStringNamedParam_internal(paramName.c_str(),&l);
+        if (stringParam!=nullptr)
+        {
+            luaWrap_lua_pushlstring(L,stringParam,l);
+            delete[] stringParam;
+            LUA_END(1);
+        }
+        LUA_END(0);
+    }
+    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_END(0);
+}
 
 int _simSetNavigationMode(luaWrap_lua_State* L)
 {

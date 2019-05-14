@@ -66,7 +66,7 @@ void CQDlgVisionSensors::refresh()
     ui->qqShowDetecting->setEnabled(isSensor&&noEditModeAndNoSim);
 
     ui->qqIgnoreRGB->setEnabled(isSensor&&noEditModeAndNoSim);
-    ui->qqIgnoreDepth->setEnabled(isSensor&&noEditModeAndNoSim&&(it->getRenderMode()!=3));
+    ui->qqIgnoreDepth->setEnabled(isSensor&&noEditModeAndNoSim&&(it->getRenderMode()!=sim_rendermode_povray));
     ui->qqIgnorePacket1->setEnabled(isSensor&&noEditModeAndNoSim);
 
     ui->qqCasingColorPassive->setEnabled(isSensor&&noEditModeAndNoSim);
@@ -123,15 +123,15 @@ void CQDlgVisionSensors::refresh()
         ui->qqIgnoreDepth->setChecked(s->getIgnoreDepthInfo());
         ui->qqIgnorePacket1->setChecked(!s->getComputeImageBasicStats());
 
-        ui->qqRenderModeCombo->addItem(strTranslate(IDS_VISIBLE_COMPONENTS),QVariant(0));
-        ui->qqRenderModeCombo->addItem(strTranslate(IDS_AUXILIARY_CHANNELS),QVariant(1));
-        ui->qqRenderModeCombo->addItem(strTranslate(IDS_COLOR_CODED_IDS),QVariant(2));
-        ui->qqRenderModeCombo->addItem(strTranslate(IDS_RAY_TRACING),QVariant(3));
-        ui->qqRenderModeCombo->addItem(strTranslate(IDS_RAY_TRACING2),QVariant(4));
-        ui->qqRenderModeCombo->addItem(strTranslate(IDS_EXTERNAL_RENDERER),QVariant(5));
-        ui->qqRenderModeCombo->addItem(strTranslate(IDS_EXTERNAL_RENDERER_WINDOWED),QVariant(6));
-        ui->qqRenderModeCombo->addItem(strTranslate(IDS_OCULUS),QVariant(7));
-        ui->qqRenderModeCombo->addItem(strTranslate(IDS_OCULUS_WINDOWED),QVariant(8));
+        ui->qqRenderModeCombo->addItem(strTranslate(IDS_VISIBLE_COMPONENTS),QVariant(sim_rendermode_opengl));
+        ui->qqRenderModeCombo->addItem(strTranslate(IDS_AUXILIARY_CHANNELS),QVariant(sim_rendermode_auxchannels));
+        ui->qqRenderModeCombo->addItem(strTranslate(IDS_COLOR_CODED_IDS),QVariant(sim_rendermode_colorcoded));
+        ui->qqRenderModeCombo->addItem(strTranslate(IDS_RAY_TRACING),QVariant(sim_rendermode_povray));
+//        ui->qqRenderModeCombo->addItem(strTranslate(IDS_RAY_TRACING2),QVariant(4));
+        ui->qqRenderModeCombo->addItem(strTranslate(IDS_EXTERNAL_RENDERER),QVariant(sim_rendermode_extrenderer));
+        ui->qqRenderModeCombo->addItem(strTranslate(IDS_EXTERNAL_RENDERER_WINDOWED),QVariant(sim_rendermode_extrendererwindowed));
+        ui->qqRenderModeCombo->addItem(strTranslate(IDS_OPENGL3),QVariant(sim_rendermode_opengl3));
+        ui->qqRenderModeCombo->addItem(strTranslate(IDS_OPENGL3_WINDOWED),QVariant(sim_rendermode_opengl3windowed));
 
         // Select current item:
         for (int i=0;i<ui->qqRenderModeCombo->count();i++)

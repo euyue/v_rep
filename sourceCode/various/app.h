@@ -46,6 +46,8 @@ public:
 
     static std::string getApplicationArgument(int index);
     static void setApplicationArgument(int index,std::string arg);
+    static std::string getApplicationNamedParam(const char* paramName);
+    static int setApplicationNamedParam(const char* paramName,const char* param,int paramLength);
 
     static bool executeUiThreadCommand(SUIThreadCommand* cmdIn,SUIThreadCommand* cmdOut);
     static void appendSimulationThreadCommand(int cmdId,int intP1=-1,int intP2=-1,float floatP1=0.0,float floatP2=0.0,const char* stringP1=nullptr,const char* stringP2=nullptr,int executionDelay=0);
@@ -95,6 +97,8 @@ private:
     static bool _simulatorIsRunning;
     static std::string _applicationName;
     static std::vector<std::string> _applicationArguments;
+    static std::map<std::string,std::string> _applicationNamedParams;
+
     static volatile int _quitLevel;
 
 #ifndef SIM_WITHOUT_QT_AT_ALL

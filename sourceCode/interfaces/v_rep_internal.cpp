@@ -19106,6 +19106,44 @@ simInt simSetJointDependency_internal(simInt jointHandle,simInt masterJointHandl
     return(retVal);
 }
 
+simInt simSetStringNamedParam_internal(const simChar* paramName,const simChar* stringParam,simInt paramLength)
+{
+    C_API_FUNCTION_DEBUG;
+    int retVal=-1;
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        retVal=App::setApplicationNamedParam(paramName,stringParam,paramLength);
+        if (retVal>=0)
+            return(retVal);
+        CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_INVALID_ARGUMENT);
+        return(retVal);
+    }
+    CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(retVal);
+}
+
+simChar* simGetStringNamedParam_internal(const simChar* paramName,simInt* paramLength)
+{
+    C_API_FUNCTION_DEBUG;
+    char* retVal=nullptr;
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        std::string val=App::getApplicationNamedParam(paramName);
+        if (val.size()>0)
+        {
+            retVal=new char[val.size()+1];
+            for (size_t i=0;i<val.size();i++)
+                retVal[i]=val[i];
+            retVal[val.size()]=0;
+            if (paramLength!=nullptr)
+                paramLength[0]=val.size();
+        }
+        return(retVal);
+    }
+    CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(retVal);
+}
+
 //************************************************************************************************************
 //************************************************************************************************************
 // FOLLOWING FUNCTIONS ARE VERY FAST, BUT NO SPECIFIC CHECKING IS DONE. ALSO, MANY OPERATE ON OBJECT POINTERS!
