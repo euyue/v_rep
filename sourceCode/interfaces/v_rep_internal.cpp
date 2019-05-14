@@ -6533,7 +6533,7 @@ simChar* simCreateBuffer_internal(simInt size)
     return(retVal);
 }
 
-simInt simReleaseBuffer_internal(simChar* buffer)
+simInt simReleaseBuffer_internal(const simChar* buffer)
 {
     C_API_FUNCTION_DEBUG;
 

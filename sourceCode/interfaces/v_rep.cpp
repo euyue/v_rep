@@ -494,7 +494,7 @@ VREP_DLLEXPORT simChar* simCreateBuffer(simInt size)
 {
     return(simCreateBuffer_internal(size));
 }
-VREP_DLLEXPORT simInt simReleaseBuffer(simChar* buffer)
+VREP_DLLEXPORT simInt simReleaseBuffer(const simChar* buffer)
 {
     return(simReleaseBuffer_internal(buffer));
 }

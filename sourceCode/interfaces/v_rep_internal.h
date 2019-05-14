@@ -131,7 +131,7 @@ simInt simCheckProximitySensor_internal(simInt sensorHandle,simInt entityHandle,
 simInt simCheckProximitySensorEx_internal(simInt sensorHandle,simInt entityHandle,simInt detectionMode,simFloat detectionThreshold,simFloat maxAngle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector);
 simInt simCheckProximitySensorEx2_internal(simInt sensorHandle,simFloat* vertexPointer,simInt itemType,simInt itemCount,simInt detectionMode,simFloat detectionThreshold,simFloat maxAngle,simFloat* detectedPoint,simFloat* normalVector);
 simChar* simCreateBuffer_internal(simInt size);
-simInt simReleaseBuffer_internal(simChar* buffer);
+simInt simReleaseBuffer_internal(const simChar* buffer);
 simInt simCheckCollision_internal(simInt entity1Handle,simInt entity2Handle);
 simInt simCheckCollisionEx_internal(simInt entity1Handle,simInt entity2Handle,simFloat** intersectionSegments);
 simInt simCheckDistance_internal(simInt entity1Handle,simInt entity2Handle,simFloat threshold,simFloat* distanceData);

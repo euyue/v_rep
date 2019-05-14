@@ -140,7 +140,7 @@ VREP_DLLEXPORT simInt simCheckProximitySensor(simInt sensorHandle,simInt entityH
 VREP_DLLEXPORT simInt simCheckProximitySensorEx(simInt sensorHandle,simInt entityHandle,simInt detectionMode,simFloat detectionThreshold,simFloat maxAngle,simFloat* detectedPoint,simInt* detectedObjectHandle,simFloat* normalVector);
 VREP_DLLEXPORT simInt simCheckProximitySensorEx2(simInt sensorHandle,simFloat* vertexPointer,simInt itemType,simInt itemCount,simInt detectionMode,simFloat detectionThreshold,simFloat maxAngle,simFloat* detectedPoint,simFloat* normalVector);
 VREP_DLLEXPORT simChar* simCreateBuffer(simInt size);
-VREP_DLLEXPORT simInt simReleaseBuffer(simChar* buffer);
+VREP_DLLEXPORT simInt simReleaseBuffer(const simChar* buffer);
 VREP_DLLEXPORT simInt simCheckCollision(simInt entity1Handle,simInt entity2Handle);
 VREP_DLLEXPORT simInt simCheckCollisionEx(simInt entity1Handle,simInt entity2Handle,simFloat** intersectionSegments);
 VREP_DLLEXPORT simInt simCheckDistance(simInt entity1Handle,simInt entity2Handle,simFloat threshold,simFloat* distanceData);
