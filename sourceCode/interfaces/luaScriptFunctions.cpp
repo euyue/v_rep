@@ -1709,6 +1709,12 @@ const SLuaVariables simLuaVariables[]=
     {"sim.forcefloatparam_error_angle",sim_forcefloatparam_error_angle,true},
     // lights
     {"sim.lightintparam_pov_casts_shadows",sim_lightintparam_pov_casts_shadows,true},
+    {"sim.lightfloatparam_spot_exponent",sim_lightfloatparam_spot_exponent,true},
+    {"sim.lightfloatparam_spot_cutoff",sim_lightfloatparam_spot_cutoff,true},
+    {"sim.lightfloatparam_const_attenuation",sim_lightfloatparam_const_attenuation,true},
+    {"sim.lightfloatparam_lin_attenuation",sim_lightfloatparam_lin_attenuation,true},
+    {"sim.lightfloatparam_quad_attenuation",sim_lightfloatparam_quad_attenuation,true},
+
     // cameras
     {"sim.cameraintparam_disabled_light_components",sim_cameraintparam_disabled_light_components,true},
     {"sim.camerafloatparam_perspective_angle",sim_camerafloatparam_perspective_angle,true},

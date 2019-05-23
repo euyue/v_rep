@@ -11664,6 +11664,7 @@ simInt simGetObjectFloatParameter_internal(simInt objectHandle,simInt parameterI
         CJoint* joint=App::ct->objCont->getJoint(objectHandle);
         CForceSensor* forceSensor=App::ct->objCont->getForceSensor(objectHandle);
         CShape* shape=App::ct->objCont->getShape(objectHandle);
+        CLight* light=App::ct->objCont->getLight(objectHandle);
         CMirror* mirror=App::ct->objCont->getMirror(objectHandle);
         CPathPlanningTask* pathPlanningObject=App::ct->pathPlanning->getObject(objectHandle);
         CCamera* camera=App::ct->objCont->getCamera(objectHandle);
@@ -11719,6 +11720,34 @@ simInt simGetObjectFloatParameter_internal(simInt objectHandle,simInt parameterI
                     parameter[0]=it->getSizeFactor();
                     retVal=1;
                 }
+            }
+        }
+        if (light!=nullptr)
+        {
+            if (parameterID==sim_lightfloatparam_spot_exponent)
+            {
+                parameter[0]=float(light->getSpotExponent());
+                retVal=1;
+            }
+            if (parameterID==sim_lightfloatparam_spot_cutoff)
+            {
+                parameter[0]=light->getSpotCutoffAngle();
+                retVal=1;
+            }
+            if (parameterID==sim_lightfloatparam_const_attenuation)
+            {
+                parameter[0]=light->getAttenuationFactor(CONSTANT_ATTENUATION);
+                retVal=1;
+            }
+            if (parameterID==sim_lightfloatparam_lin_attenuation)
+            {
+                parameter[0]=light->getAttenuationFactor(LINEAR_ATTENUATION);
+                retVal=1;
+            }
+            if (parameterID==sim_lightfloatparam_quad_attenuation)
+            {
+                parameter[0]=light->getAttenuationFactor(QUADRATIC_ATTENUATION);
+                retVal=1;
             }
         }
         if (rendSens!=nullptr)
@@ -12094,9 +12123,7 @@ simInt simSetObjectFloatParameter_internal(simInt objectHandle,simInt parameterI
     C_API_FUNCTION_DEBUG;
 
     if (!isSimulatorInitialized(__func__))
-    {
         return(-1);
-    }
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
@@ -12104,6 +12131,7 @@ simInt simSetObjectFloatParameter_internal(simInt objectHandle,simInt parameterI
         CVisionSensor* rendSens=App::ct->objCont->getVisionSensor(objectHandle);
         CJoint* joint=App::ct->objCont->getJoint(objectHandle);
         CShape* shape=App::ct->objCont->getShape(objectHandle);
+        CLight* light=App::ct->objCont->getLight(objectHandle);
         CMirror* mirror=App::ct->objCont->getMirror(objectHandle);
         CPathPlanningTask* pathPlanningObject=App::ct->pathPlanning->getObject(objectHandle);
         CCamera* camera=App::ct->objCont->getCamera(objectHandle);
@@ -12123,6 +12151,34 @@ simInt simSetObjectFloatParameter_internal(simInt objectHandle,simInt parameterI
                     it->setSizeFactor(parameter);
                     retVal=1;
                 }
+            }
+        }
+        if (light!=nullptr)
+        {
+            if (parameterID==sim_lightfloatparam_spot_exponent)
+            {
+                light->setSpotExponent(int(parameter+0.5f));
+                retVal=1;
+            }
+            if (parameterID==sim_lightfloatparam_spot_cutoff)
+            {
+                light->setSpotCutoffAngle(parameter);
+                retVal=1;
+            }
+            if (parameterID==sim_lightfloatparam_const_attenuation)
+            {
+                light->setAttenuationFactor(CONSTANT_ATTENUATION,parameter);
+                retVal=1;
+            }
+            if (parameterID==sim_lightfloatparam_lin_attenuation)
+            {
+                light->setAttenuationFactor(LINEAR_ATTENUATION,parameter);
+                retVal=1;
+            }
+            if (parameterID==sim_lightfloatparam_quad_attenuation)
+            {
+                light->setAttenuationFactor(QUADRATIC_ATTENUATION,parameter);
+                retVal=1;
             }
         }
         if (rendSens!=nullptr)
