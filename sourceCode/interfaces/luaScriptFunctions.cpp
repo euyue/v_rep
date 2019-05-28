@@ -269,6 +269,9 @@ const SLuaCommands simLuaCommands[]=
     {"sim.setFloatSignal",_simSetFloatSignal,                    "number result=sim.setFloatSignal(string signalName,number signalValue)",true},
     {"sim.getFloatSignal",_simGetFloatSignal,                    "number signalValue=sim.getFloatSignal(string signalName)",true},
     {"sim.clearFloatSignal",_simClearFloatSignal,                "number clearCount=sim.clearFloatSignal(string signalName)",true},
+    {"sim.setDoubleSignal",_simSetDoubleSignal,                  "number result=sim.setDoubleSignal(string signalName,number signalValue)",true},
+    {"sim.getDoubleSignal",_simGetDoubleSignal,                  "number signalValue=sim.getDoubleSignal(string signalName)",true},
+    {"sim.clearDoubleSignal",_simClearDoubleSignal,              "number clearCount=sim.clearDoubleSignal(string signalName)",true},
     {"sim.setStringSignal",_simSetStringSignal,                  "number result=sim.setStringSignal(string signalName,string signalValue)",true},
     {"sim.getStringSignal",_simGetStringSignal,                  "string signalValue=sim.getStringSignal(string signalName)",true},
     {"sim.clearStringSignal",_simClearStringSignal,              "number clearCount=sim.clearStringSignal(string signalName)",true},
@@ -11291,6 +11294,68 @@ int _simClearFloatSignal(luaWrap_lua_State* L)
         }
         else
             retVal=simClearFloatSignal_internal(std::string(luaWrap_lua_tostring(L,1)).c_str());
+    }
+
+    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+
+int _simSetDoubleSignal(luaWrap_lua_State* L)
+{
+    LUA_API_FUNCTION_DEBUG;
+    LUA_START("sim.setDoubleSignal");
+
+    int retVal=-1; //error
+    if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0))
+    {
+        int currentScriptID=getCurrentScriptID(L);
+        CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
+        App::ct->signalContainer->setDoubleSignal(std::string(luaWrap_lua_tostring(L,1)).c_str(),luaToDouble(L,2),(it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript));
+        retVal=1;
+    }
+
+    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    luaWrap_lua_pushnumber(L,retVal);
+    LUA_END(1);
+}
+
+int _simGetDoubleSignal(luaWrap_lua_State* L)
+{
+    LUA_API_FUNCTION_DEBUG;
+    LUA_START("sim.getDoubleSignal");
+
+    if (checkInputArguments(L,&errorString,lua_arg_string,0))
+    {
+        double doubleVal;
+        if (simGetDoubleSignal_internal(std::string(luaWrap_lua_tostring(L,1)).c_str(),&doubleVal)==1)
+        {
+            luaWrap_lua_pushnumber(L,doubleVal);
+            LUA_END(1);
+        }
+    }
+
+    LUA_SET_OR_RAISE_ERROR(); // we might never return from this!
+    LUA_END(0);
+}
+
+int _simClearDoubleSignal(luaWrap_lua_State* L)
+{
+    LUA_API_FUNCTION_DEBUG;
+    LUA_START("sim.clearDoubleSignal");
+
+    int retVal=-1; //error
+    int res=checkOneGeneralInputArgument(L,1,lua_arg_string,0,true,true,&errorString);
+    if (res>=0)
+    {
+        if (res!=2)
+        {
+            int currentScriptID=getCurrentScriptID(L);
+            CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(currentScriptID);
+            retVal=App::ct->signalContainer->clearAllDoubleSignals((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript));
+        }
+        else
+            retVal=simClearDoubleSignal_internal(std::string(luaWrap_lua_tostring(L,1)).c_str());
     }
 
     LUA_SET_OR_RAISE_ERROR(); // we might never return from this!

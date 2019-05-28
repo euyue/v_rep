@@ -28,6 +28,11 @@ public:
     int clearFloatSignal(const char* signalName);
     int clearAllFloatSignals(bool onlyThoseFromEmbeddedScripts);
 
+    void setDoubleSignal(const char* signalName,double value,bool fromEmbeddedScript);
+    bool getDoubleSignal(const char* signalName,double& value);
+    bool getDoubleSignalNameAtIndex(int index,std::string& signalName);
+    int clearDoubleSignal(const char* signalName);
+    int clearAllDoubleSignals(bool onlyThoseFromEmbeddedScripts);
 
     void setStringSignal(const char* signalName,const std::string& value,bool fromEmbeddedScript);
     bool getStringSignal(const char* signalName,std::string& value);
@@ -38,6 +43,7 @@ public:
 protected:
     int _getIntegerSignalIndex(const char* signalName);
     int _getFloatSignalIndex(const char* signalName);
+    int _getDoubleSignalIndex(const char* signalName);
     int _getStringSignalIndex(const char* signalName);
 
     std::vector<std::string> _intSignalNames;
@@ -47,6 +53,10 @@ protected:
     std::vector<std::string> _floatSignalNames;
     std::vector<float> _floatSignalValues;
     std::vector<bool> _floatSignalEmbScriptCreated;
+
+    std::vector<std::string> _doubleSignalNames;
+    std::vector<double> _doubleSignalValues;
+    std::vector<bool> _doubleSignalEmbScriptCreated;
 
     std::vector<std::string> _stringSignalNames;
     std::vector<std::string> _stringSignalValues;

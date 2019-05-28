@@ -13,9 +13,9 @@
 #include "apiErrors.h"
 #include "pluginContainer.h"
 
-int CLuaScriptObject::_nextIdForExternalScriptEditor=-1;
 int CLuaScriptObject::_scriptUniqueCounter=-1;
 bool CLuaScriptObject::emergencyStopButtonPressed=false;
+int CLuaScriptObject::_nextIdForExternalScriptEditor=-1;
 VMutex CLuaScriptObject::_globalMutex;
 std::vector<CLuaScriptObject*> CLuaScriptObject::toBeCalledByThread;
 
@@ -83,6 +83,7 @@ CLuaScriptObject::CLuaScriptObject(int scriptTypeOrMinusOneForSerialization)
     { // new since 10/9/2014, otherwise there can be conflicts between simultaneously opened V-REP instances
         _nextIdForExternalScriptEditor=(VDateTime::getOSTimeInMs()&0xffff)*1000;
     }
+    _filenameForExternalScriptEditor="embScript_"+tt::FNb(_nextIdForExternalScriptEditor++)+".lua";
 
     if (_scriptType==sim_scripttype_sandboxscript)
     {
@@ -105,6 +106,68 @@ CLuaScriptObject::~CLuaScriptObject()
     delete _outsideCommandQueue;
     delete _customObjectData;
     delete _customObjectData_tempData;
+    if (App::userSettings->externalScriptEditor.length()>0)
+    {
+        // destroy file
+        std::string fname=App::directories->extScriptEditorTempFileDirectory+VREP_SLASH;
+        fname.append(_filenameForExternalScriptEditor);
+        if (VFile::doesFileExist(fname))
+            VFile::eraseFile(fname);
+    }
+}
+
+std::string CLuaScriptObject::getFilenameForExternalScriptEditor() const
+{
+    std::string fname=App::directories->extScriptEditorTempFileDirectory+VREP_SLASH;
+    fname.append(_filenameForExternalScriptEditor);
+    return(fname);
+}
+
+void CLuaScriptObject::fromFileToBuffer()
+{
+    if (App::userSettings->externalScriptEditor.size()>0)
+    { // read file
+        std::string fname=App::directories->extScriptEditorTempFileDirectory+VREP_SLASH;
+        fname.append(_filenameForExternalScriptEditor);
+
+        VFile myFile(fname.c_str(),VFile::READ|VFile::SHARE_DENY_NONE,true);
+        if (myFile.getFile()!=NULL)
+        {
+            VArchive arW(&myFile,VArchive::LOAD);
+            unsigned int archiveLength=(unsigned int)myFile.getLength();
+
+            _scriptText.resize(archiveLength,' ');
+            for (unsigned int i=0;i<archiveLength;i++)
+                arW >> _scriptText[i];
+            arW.close();
+            myFile.close();
+        }
+    }
+}
+
+void CLuaScriptObject::fromBufferToFile() const
+{
+    if (App::userSettings->externalScriptEditor.size()>0)
+    { // write file
+        if ((App::ct->environment==NULL)||(!App::ct->environment->getSceneLocked()))
+        {
+            std::string fname=App::directories->extScriptEditorTempFileDirectory+VREP_SLASH;
+            fname.append(_filenameForExternalScriptEditor);
+
+            VFile myFile(fname.c_str(),VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE,true);
+            if (myFile.getFile()!=NULL)
+            {
+                VArchive arW(&myFile,VArchive::STORE);
+                if (_scriptText.size()>0)
+                {
+                    for (size_t i=0;i<_scriptText.size();i++)
+                        arW << _scriptText[i];
+                }
+                arW.close();
+                myFile.close();
+            }
+        }
+    }
 }
 
 std::string CLuaScriptObject::getSystemCallbackString(int calltype,bool callTips)
@@ -981,10 +1044,12 @@ void CLuaScriptObject::setScriptText(const char* scriptTxt)
     _scriptText="";
     if (scriptTxt!=nullptr)
         _scriptText=scriptTxt;
+    fromBufferToFile();
 }
 
 const char* CLuaScriptObject::getScriptText()
 {
+    fromFileToBuffer();
     return(_scriptText.c_str());
 }
 
@@ -1012,6 +1077,12 @@ std::string CLuaScriptObject::getDescriptiveName() const
 { // Cannot put following strings to resources since they are also used in openGL!!!
     std::string pref;
 
+    if (App::userSettings->externalScriptEditor.size()>0)
+    {
+        pref="[";
+        pref+=_filenameForExternalScriptEditor;
+        pref+="] ";
+    }
     if (_scriptType==sim_scripttype_mainscript)
     {
         if (_mainScriptIsDefaultMainScript)
@@ -1081,6 +1152,12 @@ std::string CLuaScriptObject::getShortDescriptiveName() const
 { // since 2/10/2012 (because if the name is too long, it is truncated when an error message mentions it)
     std::string pref;
 
+    if (App::userSettings->externalScriptEditor.size()>0)
+    {
+        pref="[";
+        pref+=_filenameForExternalScriptEditor;
+        pref+="] ";
+    }
     if (_scriptType==sim_scripttype_mainscript)
         return(strTranslate(pref+"MAIN SCRIPT"));
     if (_scriptType==sim_scripttype_childscript)
@@ -1315,8 +1392,11 @@ int CLuaScriptObject::runMainScript(int optionalCallType,const CInterfaceStack* 
         return(retVal); // this is important in the case where we pressed the emergency stop (the stop button in the middle of the screen)
     }
 
-    if (_scriptTextExec.size()==0)
-        _scriptTextExec.assign(_scriptText.begin(),_scriptText.end());
+//    if (_scriptTextExec.size()==0)
+//    {
+//        fromFileToBuffer();
+//        _scriptTextExec.assign(_scriptText.begin(),_scriptText.end());
+//    }
     int startT=VDateTime::getTimeInMs();
     retVal=_runMainScript(optionalCallType,inStack,outStack,functionPresent);
     App::ct->calcInfo->setMainScriptExecutionTime(VDateTime::getTimeInMs()-startT);
@@ -1385,16 +1465,6 @@ int CLuaScriptObject::_runMainScriptNow(int callType,const CInterfaceStack* inSt
 }
 
 int CLuaScriptObject::runNonThreadedChildScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack)
-{ // retval: -2: compil error, -1: runtimeError, 0: function not there or script not executed, 1: ok
-    FUNCTION_DEBUG;
-
-    if (_scriptTextExec.size()==0)
-        _scriptTextExec.assign(_scriptText.begin(),_scriptText.end());
-
-    return(_runNonThreadedChildScript(callType,inStack,outStack));
-}
-
-int CLuaScriptObject::_runNonThreadedChildScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack)
 { // retval: -2: compil error, -1: runtimeError, 0: function not there, 1: ok
     FUNCTION_DEBUG;
 
@@ -1434,7 +1504,10 @@ bool CLuaScriptObject::launchThreadedChildScript()
         return(false); // this script is being executed by another thread!
 
     if (_scriptTextExec.size()==0)
+    {
+        fromFileToBuffer();
         _scriptTextExec.assign(_scriptText.begin(),_scriptText.end());
+    }
 
     if (_executeJustOnce&&(_numberOfPasses>0))
         return(false);
@@ -1627,7 +1700,10 @@ int CLuaScriptObject::_runScriptOrCallScriptFunction(int callType,const CInterfa
         errorMsg->clear();
     CApiErrors::pushLocation(scriptID); // for correct error handling (i.e. assignement to the correct script and output)
     if (_scriptTextExec.size()==0)
+    {
+        fromFileToBuffer();
         _scriptTextExec.assign(_scriptText.begin(),_scriptText.end());
+    }
     if (L==nullptr)
     {
         _errorReportMode=sim_api_error_output|sim_api_warning_output;
@@ -1794,8 +1870,6 @@ int CLuaScriptObject::runSandboxScript(int callType,const CInterfaceStack* inSta
         if (errorMsg.size()>0)
             _displayScriptError(errorMsg.c_str(),retVal+2); // 0=compilError, 1=runtimeError
     }
-//    if (L!=nullptr)
-//        return(_runScriptOrCallScriptFunction(callType,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr));
     return(-1);
 }
 
@@ -2801,6 +2875,7 @@ void CLuaScriptObject::serialize(CSer& ar)
         handleVerSpec_adjustScriptText8(this,App::userSettings->changeScriptCodeForNewApiNotation);
         handleVerSpec_adjustScriptText9(this);
         handleVerSpec_adjustScriptText10(this,ar.getVrepVersionThatWroteThisFile()<30401);
+        fromBufferToFile();
     }
 }
 

@@ -174,6 +174,10 @@ public:
     bool checkAndSetWarning_simGetMpConfigForTipPose_oldCompatibility_21_1_2016();
     bool checkAndSetWarning_simFindIkPath_oldCompatibility_2_2_2016();
 
+    std::string CLuaScriptObject::getFilenameForExternalScriptEditor() const;
+    void fromFileToBuffer(); // when using an external editor
+    void fromBufferToFile() const;
+
     static bool canCallSystemCallback(int scriptType,bool threaded,int callType);
     static std::string getSystemCallbackString(int calltype,bool callTips);
     static std::string getSystemCallbackExString(int calltype);
@@ -185,7 +189,6 @@ protected:
 
     int _runMainScript(int optionalCallType,const CInterfaceStack* inStack,CInterfaceStack* outStack,bool* functionPresent);
     int _runMainScriptNow(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack,bool* functionPresent);
-    int _runNonThreadedChildScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     int _runNonThreadedChildScriptNow(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     void _launchThreadedChildScriptNow();
     int _runCustomizationScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
@@ -266,6 +269,8 @@ protected:
     bool _warning_simGetMpConfigForTipPose_oldCompatibility_21_1_2016;
     bool _warning_simFindIkPath_oldCompatibility_2_2_2016;
     bool _automaticCascadingCallsDisabled_OLD; // reset to false at simulation start!
+
+    std::string _filenameForExternalScriptEditor;
 
     static int _nextIdForExternalScriptEditor;
     static int _scriptUniqueCounter;

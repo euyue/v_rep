@@ -8273,6 +8273,64 @@ simInt simClearFloatSignal_internal(const simChar* signalName)
     return(-1);
 }
 
+simInt simSetDoubleSignal_internal(const simChar* signalName,simDouble signalValue)
+{
+    C_API_FUNCTION_DEBUG;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        App::ct->signalContainer->setDoubleSignal(signalName,signalValue,false);
+        return(1);
+    }
+    CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simGetDoubleSignal_internal(const simChar* signalName,simDouble* signalValue)
+{
+    C_API_FUNCTION_DEBUG;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal=0;
+
+        if (App::ct->signalContainer->getDoubleSignal(signalName,signalValue[0]))
+            retVal=1;
+
+        return(retVal);
+    }
+    CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
+simInt simClearDoubleSignal_internal(const simChar* signalName)
+{
+    C_API_FUNCTION_DEBUG;
+
+    if (!isSimulatorInitialized(__func__))
+        return(-1);
+
+    IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
+    {
+        int retVal;
+
+        if (signalName==nullptr)
+            retVal=App::ct->signalContainer->clearAllDoubleSignals(false);
+        else
+            retVal=App::ct->signalContainer->clearDoubleSignal(signalName);
+
+        return(retVal);
+    }
+    CApiErrors::setApiCallErrorMessage(__func__,SIM_ERROR_COULD_NOT_LOCK_RESOURCES_FOR_READ);
+    return(-1);
+}
+
 simInt simSetStringSignal_internal(const simChar* signalName,const simChar* signalValue,simInt stringLength)
 {
     C_API_FUNCTION_DEBUG;

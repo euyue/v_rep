@@ -17,6 +17,7 @@ void CSignalContainer::removeAllSignals(bool onlyThoseFromEmbeddedScripts)
 {
     clearAllIntegerSignals(onlyThoseFromEmbeddedScripts);
     clearAllFloatSignals(onlyThoseFromEmbeddedScripts);
+    clearAllDoubleSignals(onlyThoseFromEmbeddedScripts);
     clearAllStringSignals(onlyThoseFromEmbeddedScripts);
 }
 
@@ -185,6 +186,80 @@ int CSignalContainer::clearAllFloatSignals(bool onlyThoseFromEmbeddedScripts)
     return(retVal);
 }
 
+void CSignalContainer::setDoubleSignal(const char* signalName,double value,bool fromEmbeddedScript)
+{
+    if ((signalName==nullptr)||(strlen(signalName)==0))
+        return;
+    int index=_getDoubleSignalIndex(signalName);
+    if (index==-1)
+    {
+        _doubleSignalNames.push_back(signalName);
+        _doubleSignalValues.push_back(value);
+        _doubleSignalEmbScriptCreated.push_back(fromEmbeddedScript);
+    }
+    else
+        _doubleSignalValues[index]=value;
+}
+
+bool CSignalContainer::getDoubleSignal(const char* signalName,double& value)
+{
+    if ((signalName==nullptr)||(strlen(signalName)==0))
+        return(false);
+    int index=_getDoubleSignalIndex(signalName);
+    if (index==-1)
+        return(false);
+    value=_doubleSignalValues[index];
+    return(true);
+}
+
+bool CSignalContainer::getDoubleSignalNameAtIndex(int index,std::string& signalName)
+{
+    if ( (index<0)||(index>=int(_doubleSignalNames.size())) )
+        return(false);
+    signalName=_doubleSignalNames[index];
+    return(true);
+}
+
+int CSignalContainer::clearDoubleSignal(const char* signalName)
+{
+    if ((signalName==nullptr)||(strlen(signalName)==0))
+        return(0);
+    int index=_getDoubleSignalIndex(signalName);
+    if (index!=-1)
+    {
+        _doubleSignalNames.erase(_doubleSignalNames.begin()+index);
+        _doubleSignalValues.erase(_doubleSignalValues.begin()+index);
+        _doubleSignalEmbScriptCreated.erase(_doubleSignalEmbScriptCreated.begin()+index);
+        return(1);
+    }
+    return(0);
+}
+
+int CSignalContainer::clearAllDoubleSignals(bool onlyThoseFromEmbeddedScripts)
+{
+    int retVal=0;
+    if (!onlyThoseFromEmbeddedScripts)
+    {
+        retVal=int(_doubleSignalNames.size());
+        _doubleSignalNames.clear();
+        _doubleSignalValues.clear();
+        _doubleSignalEmbScriptCreated.clear();
+    }
+    else
+    {
+        for (int i=0;i<int(_doubleSignalNames.size());i++)
+        {
+            if (_doubleSignalEmbScriptCreated[i])
+            {
+                clearDoubleSignal(_doubleSignalNames[i].c_str());
+                retVal++;
+                i=-1; // ordering might have changed
+            }
+        }
+    }
+    return(retVal);
+}
+
 void CSignalContainer::setStringSignal(const char* signalName,const std::string& value,bool fromEmbeddedScript)
 {
     if ((signalName==nullptr)||(strlen(signalName)==0))
@@ -275,6 +350,16 @@ int CSignalContainer::_getFloatSignalIndex(const char* signalName)
     for (int i=0;i<int(_floatSignalNames.size());i++)
     {
         if (_floatSignalNames[i].compare(signalName)==0)
+            return(i);
+    }
+    return(-1);
+}
+
+int CSignalContainer::_getDoubleSignalIndex(const char* signalName)
+{
+    for (int i=0;i<int(_doubleSignalNames.size());i++)
+    {
+        if (_doubleSignalNames[i].compare(signalName)==0)
             return(i);
     }
     return(-1);

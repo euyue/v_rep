@@ -786,6 +786,18 @@ VREP_DLLEXPORT simInt simClearFloatSignal(const simChar* signalName)
 {
     return(simClearFloatSignal_internal(signalName));
 }
+VREP_DLLEXPORT simInt simSetDoubleSignal(const simChar* signalName,simDouble signalValue)
+{
+    return(simSetDoubleSignal_internal(signalName,signalValue));
+}
+VREP_DLLEXPORT simInt simGetDoubleSignal(const simChar* signalName,simDouble* signalValue)
+{
+    return(simGetDoubleSignal_internal(signalName,signalValue));
+}
+VREP_DLLEXPORT simInt simClearDoubleSignal(const simChar* signalName)
+{
+    return(simClearDoubleSignal_internal(signalName));
+}
 VREP_DLLEXPORT simInt simSetStringSignal(const simChar* signalName,const simChar* signalValue,simInt stringLength)
 {
     return(simSetStringSignal_internal(signalName,signalValue,stringLength));

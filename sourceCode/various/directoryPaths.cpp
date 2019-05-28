@@ -9,6 +9,7 @@ CDirectoryPaths::CDirectoryPaths()
 {
     static std::string currentDir(VVarious::getModulePath());
     executableDirectory=currentDir;
+    extScriptEditorTempFileDirectory=currentDir;
     remoteApiFileTransferDirectory=currentDir;
     systemDirectory=executableDirectory+VREP_SLASH+V_REP_SYSTEM_DIRECTORY_NAME;
 #ifdef MAC_VREP
@@ -38,6 +39,8 @@ CDirectoryPaths::CDirectoryPaths()
         cadFormatDirectory=App::userSettings->defaultDirectoryForCadFiles;
     if (App::userSettings->defaultDirectoryForMiscFiles.length()!=0)
         otherFilesDirectory=App::userSettings->defaultDirectoryForMiscFiles;
+    if (App::userSettings->defaultDirectoryForExternalScriptEditor.length()!=0)
+        extScriptEditorTempFileDirectory=App::userSettings->defaultDirectoryForExternalScriptEditor;
     if (App::userSettings->defaultDirectoryForRemoteApiFiles.length()!=0)
         remoteApiFileTransferDirectory=App::userSettings->defaultDirectoryForRemoteApiFiles;
 
@@ -45,6 +48,7 @@ CDirectoryPaths::CDirectoryPaths()
     VVarious::removePathFinalSlashOrBackslash(modelDirectory);
     VVarious::removePathFinalSlashOrBackslash(cadFormatDirectory);
     VVarious::removePathFinalSlashOrBackslash(otherFilesDirectory);
+    VVarious::removePathFinalSlashOrBackslash(extScriptEditorTempFileDirectory);
     VVarious::removePathFinalSlashOrBackslash(remoteApiFileTransferDirectory);
 }
 

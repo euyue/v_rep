@@ -55,6 +55,8 @@
 #define _USR_RAISE_ERROR_WITH_API_SCRIPT_FUNCTIONS "raiseErrorWithApiScriptFunctions"
 #define _USR_DESKTOP_RECORDING_INDEX "desktopRecordingIndex"
 #define _USR_DESKTOP_RECORDING_WIDTH "desktopRecordingWidth"
+#define _USR_DIRECTORY_FOR_SCRIPT_EDITOR "defaultDirectoryForExternalScriptEditor"
+#define _USR_EXTERNAL_SCRIPT_EDITOR "externalScriptEditor"
 
 
 #define _USR_IDLE_FPS "idleFps"
@@ -309,6 +311,7 @@ CUserSettings::CUserSettings()
     defaultDirectoryForModels="";
     defaultDirectoryForCadFiles="";
     defaultDirectoryForMiscFiles="";
+    defaultDirectoryForExternalScriptEditor="";
     defaultDirectoryForRemoteApiFiles="";
 
 
@@ -386,6 +389,7 @@ CUserSettings::CUserSettings()
     additionalLuaPath="";
     desktopRecordingIndex=0;
     desktopRecordingWidth=-1;
+    externalScriptEditor="";
 
     forceBugFix_rel30002=false;
 
@@ -674,6 +678,7 @@ void CUserSettings::saveUserSettings()
     c.addString(_USR_DIRECTORY_FOR_MODELS,defaultDirectoryForModels,"absolute path, e.g. d:/myModels (or leave empty for default path)");
     c.addString(_USR_DIRECTORY_FOR_CAD,defaultDirectoryForCadFiles,"absolute path, e.g. d:/myCadFiles (or leave empty for default path)");
     c.addString(_USR_DIRECTORY_FOR_MISC,defaultDirectoryForMiscFiles,"absolute path, e.g. d:/myMiscFiles (or leave empty for default path)");
+    c.addString(_USR_DIRECTORY_FOR_SCRIPT_EDITOR,defaultDirectoryForExternalScriptEditor,"absolute path, e.g. d:/myScriptTempFiles (or leave empty for default path)");
     c.addString(_USR_DIRECTORY_FOR_REMOTE_API,defaultDirectoryForRemoteApiFiles,"absolute path, e.g. d:/myRemoteApiTransfers (or leave empty for default path)");
 
 
@@ -767,6 +772,7 @@ void CUserSettings::saveUserSettings()
     c.addString(_USR_ADDITIONAL_LUA_PATH,additionalLuaPath,"e.g. d:/myLuaRoutines");
     c.addInteger(_USR_DESKTOP_RECORDING_INDEX,desktopRecordingIndex,"");
     c.addInteger(_USR_DESKTOP_RECORDING_WIDTH,desktopRecordingWidth,"-1=default.");
+    c.addString(_USR_EXTERNAL_SCRIPT_EDITOR,externalScriptEditor,"");
 
     handleVerSpecSaveUserSettings1(c);
 
@@ -967,6 +973,7 @@ void CUserSettings::loadUserSettings()
     c.getString(_USR_DIRECTORY_FOR_MODELS,defaultDirectoryForModels);
     c.getString(_USR_DIRECTORY_FOR_CAD,defaultDirectoryForCadFiles);
     c.getString(_USR_DIRECTORY_FOR_MISC,defaultDirectoryForMiscFiles);
+    c.getString(_USR_DIRECTORY_FOR_SCRIPT_EDITOR,defaultDirectoryForExternalScriptEditor);
     c.getString(_USR_DIRECTORY_FOR_REMOTE_API,defaultDirectoryForRemoteApiFiles);
 
     // Serialization section:
@@ -1061,6 +1068,7 @@ void CUserSettings::loadUserSettings()
     c.getInteger(_USR_DESKTOP_RECORDING_INDEX,desktopRecordingIndex);
     c.getInteger(_USR_DESKTOP_RECORDING_WIDTH,desktopRecordingWidth);
     c.getBoolean(_USR_FORCE_BUG_FIX_REL_30002,forceBugFix_rel30002);
+    c.getString(_USR_EXTERNAL_SCRIPT_EDITOR,externalScriptEditor);
 
     handleVerSpecLoadUserSettings1(c);
 }

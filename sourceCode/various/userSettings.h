@@ -129,6 +129,7 @@ public:
     std::string defaultDirectoryForModels;
     std::string defaultDirectoryForCadFiles;
     std::string defaultDirectoryForMiscFiles;
+    std::string defaultDirectoryForExternalScriptEditor;
     std::string defaultDirectoryForRemoteApiFiles;
 
     int threadedChildScriptColor_background[3];
@@ -194,6 +195,7 @@ public:
     int hierarchyRefreshCnt;
     int desktopRecordingIndex;
     int desktopRecordingWidth;
+    std::string externalScriptEditor;
 
 private:
     bool _supportOldApiNotation;

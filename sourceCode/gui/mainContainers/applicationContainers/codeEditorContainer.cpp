@@ -4,6 +4,7 @@
 #include "luaScriptFunctions.h"
 #include "v_rep_internal.h"
 #include "v_repStrings.h"
+#include "vVarious.h"
 #include "app.h"
 
 int CCodeEditorContainer::_nextUniqueId=0;
@@ -239,6 +240,19 @@ CCodeEditorContainer::~CCodeEditorContainer()
 {
 }
 
+int CCodeEditorContainer::openScriptWithExternalEditor(int scriptHandle)
+{
+    int retVal=-1;
+    CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(scriptHandle);
+    if (it!=nullptr)
+    {
+        std::string fname(it->getFilenameForExternalScriptEditor());
+        VVarious::executeExternalApplication(App::userSettings->externalScriptEditor,fname.c_str(),App::directories->executableDirectory,VVARIOUS_SHOWNORMAL); // executable directory needed because otherwise the shellExecute command might switch directories!
+        retVal=scriptHandle;
+    }
+    return(retVal);
+}
+
 int CCodeEditorContainer::open(const char* initText,const char* xml,int callingScriptHandle)
 {
     CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(callingScriptHandle);
@@ -271,17 +285,128 @@ int CCodeEditorContainer::open(const char* initText,const char* xml,int callingS
 
 int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScriptHandle)
 {
-    int sceneId=App::ct->environment->getSceneUniqueID();
-    for (size_t i=0;i<_allEditors.size();i++)
-    {
-        if ( (_allEditors[i].scriptHandle==scriptHandle)&&(_allEditors[i].sceneUniqueId==sceneId) )
-            return(_allEditors[i].handle);
-    }
-    CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(scriptHandle);
     int retVal=-1;
-    if (CPluginContainer::isCodeEditorPluginAvailable())
+    CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(scriptHandle);
+    if (it!=nullptr)
     {
-        if (it!=nullptr)
+        if (App::userSettings->externalScriptEditor.size()==0)
+        {
+            int sceneId=App::ct->environment->getSceneUniqueID();
+            for (size_t i=0;i<_allEditors.size();i++)
+            {
+                if ( (_allEditors[i].scriptHandle==scriptHandle)&&(_allEditors[i].sceneUniqueId==sceneId) )
+                    return(_allEditors[i].handle);
+            }
+            if (CPluginContainer::isCodeEditorPluginAvailable())
+            {
+                if (it->getScriptType()==sim_scripttype_mainscript)
+                {
+                    if (it->isDefaultMainScript())
+                    { // Display warning
+                        if (VMESSAGEBOX_REPLY_YES!=App::uiThread->messageBox_warning(App::mainWindow,strTranslate("Main script"),strTranslate(IDS_MAINSCRIPT_EDITION_WARNING),VMESSAGEBOX_YES_NO))
+                            return(-1);
+                        it->setCustomizedMainScript(true);
+                        POST_SCENE_CHANGED_ANNOUNCEMENT(""); // **************** UNDO THINGY ****************
+                    }
+                }
+                int posAndSize[4];
+                it->getPreviousEditionWindowPosAndSize(posAndSize);
+                QString xml;
+                xml+=QString("<editor title=\"%1\"").arg(it->getDescriptiveName().c_str());
+                xml+=QString(" position=\"%1 %2\" size=\"%3 %4\"").arg(posAndSize[0]).arg(posAndSize[1]).arg(posAndSize[2]).arg(posAndSize[3]);
+                xml+=" resizable=\"true\" closeable=\"true\" placement=\"absolute\" font=\"Courier\" toolbar=\"true\" statusbar=\"false\" wrap-word=\"false\"";
+                if ( (it->getScriptType()==sim_scripttype_mainscript)||it->getThreadedExecution() )
+                    xml+=" can-restart=\"false\"";
+                else
+                    xml+=" can-restart=\"true\"";
+                xml+=" max-lines=\"0\" activate=\"true\" editable=\"true\" searchable=\"true\" line-numbers=\"true\" tab-width=\"4\" is-lua=\"true\"";
+                xml+=QString(" lua-search-paths=\"%1\"").arg(it->getLuaSearchPath().c_str());
+                int fontSize=12;
+                #ifdef MAC_VREP
+                    fontSize=16; // bigger fonts here
+                #endif
+                if (App::userSettings->scriptEditorFontSize!=-1)
+                    fontSize=App::userSettings->scriptEditorFontSize;
+                #ifndef MAC_VREP
+                if (App::sc>1)
+                    fontSize*=2;
+                #endif
+                xml+=QString(" font-size=\"%1\"").arg(fontSize);
+                xml+=getXmlColorString("text-col",0,0,0);
+                if (it->getScriptType()==sim_scripttype_mainscript)
+                {
+                    xml+=getXmlColorString("background-col",App::userSettings->mainScriptColor_background);
+                    xml+=getXmlColorString("selection-col",App::userSettings->mainScriptColor_selection);
+                    xml+=getXmlColorString("comment-col",App::userSettings->mainScriptColor_comment);
+                    xml+=getXmlColorString("number-col",App::userSettings->mainScriptColor_number);
+                    xml+=getXmlColorString("string-col",App::userSettings->mainScriptColor_string);
+                    xml+=getXmlColorString("character-col",App::userSettings->mainScriptColor_character);
+                    xml+=getXmlColorString("operator-col",App::userSettings->mainScriptColor_operator);
+                    xml+=getXmlColorString("identifier-col",App::userSettings->mainScriptColor_identifier);
+                    xml+=getXmlColorString("preprocessor-col",App::userSettings->mainScriptColor_preprocessor);
+                    xml+=getXmlColorString("keyword1-col",App::userSettings->mainScriptColor_word2);
+                    xml+=getXmlColorString("keyword2-col",App::userSettings->mainScriptColor_word3);
+                    xml+=getXmlColorString("keyword3-col",App::userSettings->mainScriptColor_word);
+                    xml+=getXmlColorString("keyword4-col",App::userSettings->mainScriptColor_word4);
+                }
+                if (it->getScriptType()==sim_scripttype_childscript)
+                {
+                    if (it->getThreadedExecution())
+                    {
+                        xml+=getXmlColorString("background-col",App::userSettings->threadedChildScriptColor_background);
+                        xml+=getXmlColorString("selection-col",App::userSettings->threadedChildScriptColor_selection);
+                        xml+=getXmlColorString("comment-col",App::userSettings->threadedChildScriptColor_comment);
+                        xml+=getXmlColorString("number-col",App::userSettings->threadedChildScriptColor_number);
+                        xml+=getXmlColorString("string-col",App::userSettings->threadedChildScriptColor_string);
+                        xml+=getXmlColorString("character-col",App::userSettings->threadedChildScriptColor_character);
+                        xml+=getXmlColorString("operator-col",App::userSettings->threadedChildScriptColor_operator);
+                        xml+=getXmlColorString("identifier-col",App::userSettings->threadedChildScriptColor_identifier);
+                        xml+=getXmlColorString("preprocessor-col",App::userSettings->threadedChildScriptColor_preprocessor);
+                        xml+=getXmlColorString("keyword1-col",App::userSettings->threadedChildScriptColor_word2);
+                        xml+=getXmlColorString("keyword2-col",App::userSettings->threadedChildScriptColor_word3);
+                        xml+=getXmlColorString("keyword3-col",App::userSettings->threadedChildScriptColor_word);
+                        xml+=getXmlColorString("keyword4-col",App::userSettings->threadedChildScriptColor_word4);
+                    }
+                    else
+                    {
+                        xml+=getXmlColorString("background-col",App::userSettings->nonThreadedChildScriptColor_background);
+                        xml+=getXmlColorString("selection-col",App::userSettings->nonThreadedChildScriptColor_selection);
+                        xml+=getXmlColorString("comment-col",App::userSettings->nonThreadedChildScriptColor_comment);
+                        xml+=getXmlColorString("number-col",App::userSettings->nonThreadedChildScriptColor_number);
+                        xml+=getXmlColorString("string-col",App::userSettings->nonThreadedChildScriptColor_string);
+                        xml+=getXmlColorString("character-col",App::userSettings->nonThreadedChildScriptColor_character);
+                        xml+=getXmlColorString("operator-col",App::userSettings->nonThreadedChildScriptColor_operator);
+                        xml+=getXmlColorString("identifier-col",App::userSettings->nonThreadedChildScriptColor_identifier);
+                        xml+=getXmlColorString("preprocessor-col",App::userSettings->nonThreadedChildScriptColor_preprocessor);
+                        xml+=getXmlColorString("keyword1-col",App::userSettings->nonThreadedChildScriptColor_word2);
+                        xml+=getXmlColorString("keyword2-col",App::userSettings->nonThreadedChildScriptColor_word3);
+                        xml+=getXmlColorString("keyword3-col",App::userSettings->nonThreadedChildScriptColor_word);
+                        xml+=getXmlColorString("keyword4-col",App::userSettings->nonThreadedChildScriptColor_word4);
+                    }
+                }
+                xml+=">";
+                xml+=getKeywords(it->getScriptType(),it->getThreadedExecution());
+                xml+"</editor>";
+                retVal=CPluginContainer::codeEditor_open(it->getScriptText(),xml.toStdString().c_str());
+                SCodeEditor inf;
+                inf.handle=retVal;
+                inf.scriptHandle=scriptHandle;
+                inf.callingScriptHandle=callingScriptHandle;
+                inf.sceneUniqueId=App::ct->environment->getSceneUniqueID();
+                inf.openAcrossScenes=false;
+                inf.closeAtSimulationEnd=false;
+                inf.systemVisibility=true;
+                inf.userVisibility=true;
+                inf.closeAfterCallbackCalled=false;
+                inf.restartScriptWhenClosing=false;
+                inf.callbackFunction="";
+                inf.uniqueId=_nextUniqueId++;
+                _allEditors.push_back(inf);
+            }
+            else
+                printf("Code Editor plugin was not found.\n");
+        }
+        else
         {
             if (it->getScriptType()==sim_scripttype_mainscript)
             {
@@ -293,177 +418,88 @@ int CCodeEditorContainer::openSimulationScript(int scriptHandle,int callingScrip
                     POST_SCENE_CHANGED_ANNOUNCEMENT(""); // **************** UNDO THINGY ****************
                 }
             }
-            int posAndSize[4];
-            it->getPreviousEditionWindowPosAndSize(posAndSize);
-            QString xml;
-            xml+=QString("<editor title=\"%1\"").arg(it->getDescriptiveName().c_str());
-            xml+=QString(" position=\"%1 %2\" size=\"%3 %4\"").arg(posAndSize[0]).arg(posAndSize[1]).arg(posAndSize[2]).arg(posAndSize[3]);
-            xml+=" resizable=\"true\" closeable=\"true\" placement=\"absolute\" font=\"Courier\" toolbar=\"true\" statusbar=\"false\" wrap-word=\"false\"";
-            if ( (it->getScriptType()==sim_scripttype_mainscript)||it->getThreadedExecution() )
-                xml+=" can-restart=\"false\"";
-            else
-                xml+=" can-restart=\"true\"";
-            xml+=" max-lines=\"0\" activate=\"true\" editable=\"true\" searchable=\"true\" line-numbers=\"true\" tab-width=\"4\" is-lua=\"true\"";
-            xml+=QString(" lua-search-paths=\"%1\"").arg(it->getLuaSearchPath().c_str());
-            int fontSize=12;
-            #ifdef MAC_VREP
-                fontSize=16; // bigger fonts here
-            #endif
-            if (App::userSettings->scriptEditorFontSize!=-1)
-                fontSize=App::userSettings->scriptEditorFontSize;
-            #ifndef MAC_VREP
-            if (App::sc>1)
-                fontSize*=2;
-            #endif
-            xml+=QString(" font-size=\"%1\"").arg(fontSize);
-            xml+=getXmlColorString("text-col",0,0,0);
-            if (it->getScriptType()==sim_scripttype_mainscript)
-            {
-                xml+=getXmlColorString("background-col",App::userSettings->mainScriptColor_background);
-                xml+=getXmlColorString("selection-col",App::userSettings->mainScriptColor_selection);
-                xml+=getXmlColorString("comment-col",App::userSettings->mainScriptColor_comment);
-                xml+=getXmlColorString("number-col",App::userSettings->mainScriptColor_number);
-                xml+=getXmlColorString("string-col",App::userSettings->mainScriptColor_string);
-                xml+=getXmlColorString("character-col",App::userSettings->mainScriptColor_character);
-                xml+=getXmlColorString("operator-col",App::userSettings->mainScriptColor_operator);
-                xml+=getXmlColorString("identifier-col",App::userSettings->mainScriptColor_identifier);
-                xml+=getXmlColorString("preprocessor-col",App::userSettings->mainScriptColor_preprocessor);
-                xml+=getXmlColorString("keyword1-col",App::userSettings->mainScriptColor_word2);
-                xml+=getXmlColorString("keyword2-col",App::userSettings->mainScriptColor_word3);
-                xml+=getXmlColorString("keyword3-col",App::userSettings->mainScriptColor_word);
-                xml+=getXmlColorString("keyword4-col",App::userSettings->mainScriptColor_word4);
-            }
-            if (it->getScriptType()==sim_scripttype_childscript)
-            {
-                if (it->getThreadedExecution())
-                {
-                    xml+=getXmlColorString("background-col",App::userSettings->threadedChildScriptColor_background);
-                    xml+=getXmlColorString("selection-col",App::userSettings->threadedChildScriptColor_selection);
-                    xml+=getXmlColorString("comment-col",App::userSettings->threadedChildScriptColor_comment);
-                    xml+=getXmlColorString("number-col",App::userSettings->threadedChildScriptColor_number);
-                    xml+=getXmlColorString("string-col",App::userSettings->threadedChildScriptColor_string);
-                    xml+=getXmlColorString("character-col",App::userSettings->threadedChildScriptColor_character);
-                    xml+=getXmlColorString("operator-col",App::userSettings->threadedChildScriptColor_operator);
-                    xml+=getXmlColorString("identifier-col",App::userSettings->threadedChildScriptColor_identifier);
-                    xml+=getXmlColorString("preprocessor-col",App::userSettings->threadedChildScriptColor_preprocessor);
-                    xml+=getXmlColorString("keyword1-col",App::userSettings->threadedChildScriptColor_word2);
-                    xml+=getXmlColorString("keyword2-col",App::userSettings->threadedChildScriptColor_word3);
-                    xml+=getXmlColorString("keyword3-col",App::userSettings->threadedChildScriptColor_word);
-                    xml+=getXmlColorString("keyword4-col",App::userSettings->threadedChildScriptColor_word4);
-                }
-                else
-                {
-                    xml+=getXmlColorString("background-col",App::userSettings->nonThreadedChildScriptColor_background);
-                    xml+=getXmlColorString("selection-col",App::userSettings->nonThreadedChildScriptColor_selection);
-                    xml+=getXmlColorString("comment-col",App::userSettings->nonThreadedChildScriptColor_comment);
-                    xml+=getXmlColorString("number-col",App::userSettings->nonThreadedChildScriptColor_number);
-                    xml+=getXmlColorString("string-col",App::userSettings->nonThreadedChildScriptColor_string);
-                    xml+=getXmlColorString("character-col",App::userSettings->nonThreadedChildScriptColor_character);
-                    xml+=getXmlColorString("operator-col",App::userSettings->nonThreadedChildScriptColor_operator);
-                    xml+=getXmlColorString("identifier-col",App::userSettings->nonThreadedChildScriptColor_identifier);
-                    xml+=getXmlColorString("preprocessor-col",App::userSettings->nonThreadedChildScriptColor_preprocessor);
-                    xml+=getXmlColorString("keyword1-col",App::userSettings->nonThreadedChildScriptColor_word2);
-                    xml+=getXmlColorString("keyword2-col",App::userSettings->nonThreadedChildScriptColor_word3);
-                    xml+=getXmlColorString("keyword3-col",App::userSettings->nonThreadedChildScriptColor_word);
-                    xml+=getXmlColorString("keyword4-col",App::userSettings->nonThreadedChildScriptColor_word4);
-                }
-            }
-            xml+=">";
-            xml+=getKeywords(it->getScriptType(),it->getThreadedExecution());
-            xml+"</editor>";
-            retVal=CPluginContainer::codeEditor_open(it->getScriptText(),xml.toStdString().c_str());
-            SCodeEditor inf;
-            inf.handle=retVal;
-            inf.scriptHandle=scriptHandle;
-            inf.callingScriptHandle=callingScriptHandle;
-            inf.sceneUniqueId=App::ct->environment->getSceneUniqueID();
-            inf.openAcrossScenes=false;
-            inf.closeAtSimulationEnd=false;
-            inf.systemVisibility=true;
-            inf.userVisibility=true;
-            inf.closeAfterCallbackCalled=false;
-            inf.restartScriptWhenClosing=false;
-            inf.callbackFunction="";
-            inf.uniqueId=_nextUniqueId++;
-            _allEditors.push_back(inf);
+            retVal=openScriptWithExternalEditor(scriptHandle);
         }
     }
-    else
-        printf("Code Editor plugin was not found.\n");
     return(retVal);
 }
 
 int CCodeEditorContainer::openCustomizationScript(int scriptHandle,int callingScriptHandle)
 {
-    int sceneId=App::ct->environment->getSceneUniqueID();
-    for (size_t i=0;i<_allEditors.size();i++)
-    {
-        if ( (_allEditors[i].scriptHandle==scriptHandle)&&(_allEditors[i].sceneUniqueId==sceneId) )
-            return(_allEditors[i].handle);
-    }
-    CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(scriptHandle);
     int retVal=-1;
-    if (CPluginContainer::isCodeEditorPluginAvailable())
+    if (App::userSettings->externalScriptEditor.size()==0)
     {
-        if (it!=nullptr)
+        int sceneId=App::ct->environment->getSceneUniqueID();
+        for (size_t i=0;i<_allEditors.size();i++)
         {
-            int posAndSize[4];
-            it->getPreviousEditionWindowPosAndSize(posAndSize);
-            QString xml;
-            xml+=QString("<editor title=\"%1\"").arg(it->getDescriptiveName().c_str());
-            xml+=QString(" position=\"%1 %2\" size=\"%3 %4\"").arg(posAndSize[0]).arg(posAndSize[1]).arg(posAndSize[2]).arg(posAndSize[3]);
-            xml+=" resizable=\"true\" closeable=\"true\" placement=\"absolute\" font=\"Courier\" toolbar=\"true\" statusbar=\"false\" wrap-word=\"false\"";
-            xml+=" max-lines=\"0\" can-restart=\"true\"";
-            xml+=" activate=\"true\" editable=\"true\" searchable=\"true\" line-numbers=\"true\" tab-width=\"4\" is-lua=\"true\"";
-            int fontSize=12;
-            #ifdef MAC_VREP
-                fontSize=16; // bigger fonts here
-            #endif
-            if (App::userSettings->scriptEditorFontSize!=-1)
-                fontSize=App::userSettings->scriptEditorFontSize;
-            #ifndef MAC_VREP
-            if (App::sc>1)
-                fontSize*=2;
-            #endif
-            xml+=QString(" lua-search-paths=\"%1\"").arg(it->getLuaSearchPath().c_str());
-            xml+=QString(" font-size=\"%1\"").arg(fontSize);
-            xml+=getXmlColorString("text-col",0,0,0);
-            xml+=getXmlColorString("background-col",App::userSettings->customizationScriptColor_background);
-            xml+=getXmlColorString("selection-col",App::userSettings->customizationScriptColor_selection);
-            xml+=getXmlColorString("comment-col",App::userSettings->customizationScriptColor_comment);
-            xml+=getXmlColorString("number-col",App::userSettings->customizationScriptColor_number);
-            xml+=getXmlColorString("string-col",App::userSettings->customizationScriptColor_string);
-            xml+=getXmlColorString("character-col",App::userSettings->customizationScriptColor_character);
-            xml+=getXmlColorString("operator-col",App::userSettings->customizationScriptColor_operator);
-            xml+=getXmlColorString("identifier-col",App::userSettings->customizationScriptColor_identifier);
-            xml+=getXmlColorString("preprocessor-col",App::userSettings->customizationScriptColor_preprocessor);
-            xml+=getXmlColorString("keyword1-col",App::userSettings->customizationScriptColor_word2);
-            xml+=getXmlColorString("keyword2-col",App::userSettings->customizationScriptColor_word3);
-            xml+=getXmlColorString("keyword3-col",App::userSettings->customizationScriptColor_word);
-            xml+=getXmlColorString("keyword4-col",App::userSettings->customizationScriptColor_word4);
-
-            xml+=">";
-            xml+=getKeywords(it->getScriptType(),it->getThreadedExecution());
-            xml+"</editor>";
-            retVal=CPluginContainer::codeEditor_open(it->getScriptText(),xml.toStdString().c_str());
-            SCodeEditor inf;
-            inf.handle=retVal;
-            inf.scriptHandle=scriptHandle;
-            inf.callingScriptHandle=callingScriptHandle;
-            inf.sceneUniqueId=App::ct->environment->getSceneUniqueID();
-            inf.openAcrossScenes=false;
-            inf.closeAtSimulationEnd=false;
-            inf.systemVisibility=true;
-            inf.userVisibility=true;
-            inf.closeAfterCallbackCalled=false;
-            inf.restartScriptWhenClosing=true;
-            inf.callbackFunction="";
-            inf.uniqueId=_nextUniqueId++;
-            _allEditors.push_back(inf);
+            if ( (_allEditors[i].scriptHandle==scriptHandle)&&(_allEditors[i].sceneUniqueId==sceneId) )
+                return(_allEditors[i].handle);
         }
+        CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(scriptHandle);
+        if (CPluginContainer::isCodeEditorPluginAvailable())
+        {
+            if (it!=nullptr)
+            {
+                int posAndSize[4];
+                it->getPreviousEditionWindowPosAndSize(posAndSize);
+                QString xml;
+                xml+=QString("<editor title=\"%1\"").arg(it->getDescriptiveName().c_str());
+                xml+=QString(" position=\"%1 %2\" size=\"%3 %4\"").arg(posAndSize[0]).arg(posAndSize[1]).arg(posAndSize[2]).arg(posAndSize[3]);
+                xml+=" resizable=\"true\" closeable=\"true\" placement=\"absolute\" font=\"Courier\" toolbar=\"true\" statusbar=\"false\" wrap-word=\"false\"";
+                xml+=" max-lines=\"0\" can-restart=\"true\"";
+                xml+=" activate=\"true\" editable=\"true\" searchable=\"true\" line-numbers=\"true\" tab-width=\"4\" is-lua=\"true\"";
+                int fontSize=12;
+                #ifdef MAC_VREP
+                    fontSize=16; // bigger fonts here
+                #endif
+                if (App::userSettings->scriptEditorFontSize!=-1)
+                    fontSize=App::userSettings->scriptEditorFontSize;
+                #ifndef MAC_VREP
+                if (App::sc>1)
+                    fontSize*=2;
+                #endif
+                xml+=QString(" lua-search-paths=\"%1\"").arg(it->getLuaSearchPath().c_str());
+                xml+=QString(" font-size=\"%1\"").arg(fontSize);
+                xml+=getXmlColorString("text-col",0,0,0);
+                xml+=getXmlColorString("background-col",App::userSettings->customizationScriptColor_background);
+                xml+=getXmlColorString("selection-col",App::userSettings->customizationScriptColor_selection);
+                xml+=getXmlColorString("comment-col",App::userSettings->customizationScriptColor_comment);
+                xml+=getXmlColorString("number-col",App::userSettings->customizationScriptColor_number);
+                xml+=getXmlColorString("string-col",App::userSettings->customizationScriptColor_string);
+                xml+=getXmlColorString("character-col",App::userSettings->customizationScriptColor_character);
+                xml+=getXmlColorString("operator-col",App::userSettings->customizationScriptColor_operator);
+                xml+=getXmlColorString("identifier-col",App::userSettings->customizationScriptColor_identifier);
+                xml+=getXmlColorString("preprocessor-col",App::userSettings->customizationScriptColor_preprocessor);
+                xml+=getXmlColorString("keyword1-col",App::userSettings->customizationScriptColor_word2);
+                xml+=getXmlColorString("keyword2-col",App::userSettings->customizationScriptColor_word3);
+                xml+=getXmlColorString("keyword3-col",App::userSettings->customizationScriptColor_word);
+                xml+=getXmlColorString("keyword4-col",App::userSettings->customizationScriptColor_word4);
+
+                xml+=">";
+                xml+=getKeywords(it->getScriptType(),it->getThreadedExecution());
+                xml+"</editor>";
+                retVal=CPluginContainer::codeEditor_open(it->getScriptText(),xml.toStdString().c_str());
+                SCodeEditor inf;
+                inf.handle=retVal;
+                inf.scriptHandle=scriptHandle;
+                inf.callingScriptHandle=callingScriptHandle;
+                inf.sceneUniqueId=App::ct->environment->getSceneUniqueID();
+                inf.openAcrossScenes=false;
+                inf.closeAtSimulationEnd=false;
+                inf.systemVisibility=true;
+                inf.userVisibility=true;
+                inf.closeAfterCallbackCalled=false;
+                inf.restartScriptWhenClosing=true;
+                inf.callbackFunction="";
+                inf.uniqueId=_nextUniqueId++;
+                _allEditors.push_back(inf);
+            }
+        }
+        else
+            printf("Code Editor plugin was not found.\n");
     }
     else
-        printf("Code Editor plugin was not found.\n");
+        retVal=openScriptWithExternalEditor(scriptHandle);
     return(retVal);
 }
 
@@ -631,6 +667,11 @@ bool CCodeEditorContainer::close(int handle,int posAndSize[4],std::string* txt,s
 
 void CCodeEditorContainer::applyChanges(int handle) const
 {
+    if (App::userSettings->externalScriptEditor.size()>0)
+    {
+        for (size_t i=0;i<App::ct->luaScriptContainer->allScripts.size();i++)
+            App::ct->luaScriptContainer->allScripts[i]->fromFileToBuffer();
+    }
     int sceneId=App::ct->environment->getSceneUniqueID();
     for (size_t i=0;i<_allEditors.size();i++)
     {
@@ -652,26 +693,34 @@ void CCodeEditorContainer::applyChanges(int handle) const
 
 bool CCodeEditorContainer::closeFromScriptHandle(int scriptHandle,int posAndSize[4],bool ignoreChange)
 {
-    for (size_t i=0;i<_allEditors.size();i++)
+    if (App::userSettings->externalScriptEditor.size()==0)
     {
-        if (_allEditors[i].scriptHandle==scriptHandle)
+        for (size_t i=0;i<_allEditors.size();i++)
         {
-            std::string txt;
-            CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptHandle);
-            if (!ignoreChange)
-                applyChanges(_allEditors[i].handle);
-            int pas[4];
-            CPluginContainer::codeEditor_close(_allEditors[i].handle,pas);
-            if (it!=nullptr)
-                it->setPreviousEditionWindowPosAndSize(pas);
-            if (posAndSize!=nullptr)
+            if (_allEditors[i].scriptHandle==scriptHandle)
             {
-                for (size_t j=0;j<4;j++)
-                    posAndSize[j]=pas[j];
+                std::string txt;
+                CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_alsoAddOnsAndSandbox(scriptHandle);
+                if (!ignoreChange)
+                    applyChanges(_allEditors[i].handle);
+                int pas[4];
+                CPluginContainer::codeEditor_close(_allEditors[i].handle,pas);
+                if (it!=nullptr)
+                    it->setPreviousEditionWindowPosAndSize(pas);
+                if (posAndSize!=nullptr)
+                {
+                    for (size_t j=0;j<4;j++)
+                        posAndSize[j]=pas[j];
+                }
+                _allEditors.erase(_allEditors.begin()+i);
+                return(true);
             }
-            _allEditors.erase(_allEditors.begin()+i);
-            return(true);
         }
+    }
+    else
+    {
+        applyChanges(-1);
+        return(true);
     }
     return(false);
 }
@@ -787,16 +836,21 @@ bool CCodeEditorContainer::getCloseAfterCallbackCalled(int handle) const
 
 void CCodeEditorContainer::simulationAboutToStart() const
 {
-    int sceneId=App::ct->environment->getSceneUniqueID();
-    for (size_t i=0;i<_allEditors.size();i++)
+    if (App::userSettings->externalScriptEditor.size()==0)
     {
-        if ( (_allEditors[i].sceneUniqueId==sceneId)&&(_allEditors[i].scriptHandle>=0) )
+        int sceneId=App::ct->environment->getSceneUniqueID();
+        for (size_t i=0;i<_allEditors.size();i++)
         {
-            CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(_allEditors[i].scriptHandle);
-            if ( (it!=nullptr)&&((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript)) )
-                applyChanges(_allEditors[i].handle);
+            if ( (_allEditors[i].sceneUniqueId==sceneId)&&(_allEditors[i].scriptHandle>=0) )
+            {
+                CLuaScriptObject* it=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(_allEditors[i].scriptHandle);
+                if ( (it!=nullptr)&&((it->getScriptType()==sim_scripttype_mainscript)||(it->getScriptType()==sim_scripttype_childscript)) )
+                    applyChanges(_allEditors[i].handle);
+            }
         }
     }
+    else
+        applyChanges(-1);
 }
 
 void CCodeEditorContainer::simulationAboutToEnd()

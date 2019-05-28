@@ -801,11 +801,12 @@ void App::addStatusbarMessage(const std::string& txt,bool scriptErrorMsg/*=false
 
             if (mainWindow!=nullptr)
             {
+                std::string txtCol(mainWindow->palette().windowText().color().name().toStdString());
                 if ((operationalUIParts&sim_gui_statusbar)&&(mainWindow->statusBar!=nullptr) )
                 {
                     if (html)
                     {
-                        str+="<font color='black'> </font>"; // color is otherwise not reset
+                        str+="<font color="+txtCol+">"+" </font>"; // color is otherwise not reset
                         mainWindow->statusBar->appendHtml(str.c_str());
                     }
                     else
