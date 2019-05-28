@@ -174,7 +174,7 @@ public:
     bool checkAndSetWarning_simGetMpConfigForTipPose_oldCompatibility_21_1_2016();
     bool checkAndSetWarning_simFindIkPath_oldCompatibility_2_2_2016();
 
-    std::string CLuaScriptObject::getFilenameForExternalScriptEditor() const;
+    std::string getFilenameForExternalScriptEditor() const;
     void fromFileToBuffer(); // when using an external editor
     void fromBufferToFile() const;
 
