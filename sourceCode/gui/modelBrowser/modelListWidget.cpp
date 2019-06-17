@@ -108,15 +108,13 @@ CThumbnail* CModelListWidget::loadModelThumbnail(const char* pathAndFilename,int
     CThumbnail* retThumbnail=nullptr;
     if (VFile::doesFileExist(pathAndFilename))
     {
-        VFile file(pathAndFilename,VFile::READ|VFile::SHARE_DENY_NONE);
-        VArchive archive(&file,VArchive::LOAD);
-        CSer serObj(archive);
+        CSer serObj(pathAndFilename,CSer::getFileTypeFromName(pathAndFilename));
 
         int serializationVersion;
         unsigned short vrepVersionThatWroteThis;
         int licenseTypeThatWroteThis;
         char revisionNumber;
-        result=serObj.readOpen(serializationVersion,vrepVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber,true);
+        result=serObj.readOpenBinary(serializationVersion,vrepVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber,true);
         if (result==1)
         {
             result=0;
@@ -133,8 +131,6 @@ CThumbnail* CModelListWidget::loadModelThumbnail(const char* pathAndFilename,int
                 result=1;
             serObj.readClose();
         }
-        archive.close();
-        file.close();
     }
     return(retThumbnail);
 }
@@ -188,14 +184,12 @@ void CModelListWidget::setFolder(const char* folderPath)
         bool thumbnailFileExistsAndWasLoaded=false;
         if (VFile::doesFileExist(thmbFile))
         {
-            VFile file(thmbFile.c_str(),VFile::READ|VFile::SHARE_DENY_NONE);
-            VArchive archive(&file,VArchive::LOAD);
-            CSer serObj(archive);
+            CSer serObj(thmbFile.c_str(),CSer::filetype_vrep_bin_thumbnails_file);
             int serializationVersion;
             unsigned short vrepVersionThatWroteThis;
             int licenseTypeThatWroteThis;
             char revisionNumber;
-            int result=serObj.readOpen(serializationVersion,vrepVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber,false);
+            int result=serObj.readOpenBinary(serializationVersion,vrepVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber,false);
             if (result==1)
             {
                 thumbnailFileExistsAndWasLoaded=true;
@@ -233,8 +227,6 @@ void CModelListWidget::setFolder(const char* folderPath)
                         thumbnailFileExistsAndWasLoaded=false;
                 }
                 serObj.readClose();
-                archive.close();
-                file.close();
             }
         }
         // 3. Now load all thumbnails freshly (if needed):
@@ -272,15 +264,11 @@ void CModelListWidget::setFolder(const char* folderPath)
             std::string thmbFile(_folderPath);
             thmbFile+=VREP_SLASH;
             thmbFile+=VREP_MODEL_THUMBNAILFILE_NAME;
-            VFile myFile(thmbFile.c_str(),VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE);
-            VArchive archive(&myFile,VArchive::STORE);
-            CSer serObj(archive);
-            serObj.writeOpen(App::userSettings->compressFiles,3);
+            CSer serObj(thmbFile.c_str(),CSer::filetype_vrep_bin_thumbnails_file);
+            serObj.writeOpenBinary(App::userSettings->compressFiles);
             serializePart1(serObj);
             serializePart2(serObj);
             serObj.writeClose();
-            archive.close();
-            myFile.close();
         }
     }
     // Now restore previous object selection state:

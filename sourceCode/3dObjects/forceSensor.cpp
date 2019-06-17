@@ -583,102 +583,105 @@ void CForceSensor::bufferedMainDisplayStateVariablesToDisplay()
 void CForceSensor::serialize(CSer& ar)
 {
     serializeMain(ar);
-    if (ar.isStoring())
-    {   // Storing.
-        ar.storeDataName("Siz");
-        ar << _forceSensorSize;
-        ar.flush();
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {   // Storing.
+            ar.storeDataName("Siz");
+            ar << _forceSensorSize;
+            ar.flush();
 
-        ar.storeDataName("Vab");
-        unsigned char dummy=0;
-        SIM_SET_CLEAR_BIT(dummy,0,_forceThresholdEnabled);
-        SIM_SET_CLEAR_BIT(dummy,1,_torqueThresholdEnabled);
-//      SIM_SET_CLEAR_BIT(dummy,2,_breaksPositionConstraints); // removed on 2010/02/06
-//      SIM_SET_CLEAR_BIT(dummy,3,_breaksOrientationConstraints); // removed on 2010/02/06
-        ar << dummy;
-        ar.flush();
+            ar.storeDataName("Vab");
+            unsigned char dummy=0;
+            SIM_SET_CLEAR_BIT(dummy,0,_forceThresholdEnabled);
+            SIM_SET_CLEAR_BIT(dummy,1,_torqueThresholdEnabled);
+    //      SIM_SET_CLEAR_BIT(dummy,2,_breaksPositionConstraints); // removed on 2010/02/06
+    //      SIM_SET_CLEAR_BIT(dummy,3,_breaksOrientationConstraints); // removed on 2010/02/06
+            ar << dummy;
+            ar.flush();
 
-        ar.storeDataName("Tre");
-        ar << _forceThreshold << _torqueThreshold << _consecutiveThresholdViolationsForBreaking;
-        ar.flush();
+            ar.storeDataName("Tre");
+            ar << _forceThreshold << _torqueThreshold << _consecutiveThresholdViolationsForBreaking;
+            ar.flush();
 
-        ar.storeDataName("Fil");
-        ar << _valueCountForFilter << _filterType;
-        ar.flush();
+            ar.storeDataName("Fil");
+            ar << _valueCountForFilter << _filterType;
+            ar.flush();
 
-// "Bus" is reserved keyword since 2010/10/09       ar.storeDataName("Bus");
+    // "Bus" is reserved keyword since 2010/10/09       ar.storeDataName("Bus");
 
-        ar.storeDataName("Cl1");
-        ar.setCountingMode();
-        colorPart1.serialize(ar,0);
-        if (ar.setWritingMode())
+            ar.storeDataName("Cl1");
+            ar.setCountingMode();
             colorPart1.serialize(ar,0);
+            if (ar.setWritingMode())
+                colorPart1.serialize(ar,0);
 
-        ar.storeDataName("Cl2");
-        ar.setCountingMode();
-        colorPart2.serialize(ar,0);
-        if (ar.setWritingMode())
+            ar.storeDataName("Cl2");
+            ar.setCountingMode();
             colorPart2.serialize(ar,0);
+            if (ar.setWritingMode())
+                colorPart2.serialize(ar,0);
 
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
-            {
-                bool noHit=true;
-                if (theName.compare("Siz")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _forceSensorSize;
-                }
-                if (theName.compare("Cl1")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    colorPart1.serialize(ar,0);
-                }
-                if (theName.compare("Cl2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    colorPart2.serialize(ar,0);
-                }
-                if (theName.compare("Vab")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char dummy;
-                    ar >> dummy;
-                    _forceThresholdEnabled=SIM_IS_BIT_SET(dummy,0);
-                    _torqueThresholdEnabled=SIM_IS_BIT_SET(dummy,1);
-                }
-                if (theName.compare("Tre")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _forceThreshold >> _torqueThreshold >> _consecutiveThresholdViolationsForBreaking;
-                }
-                if (theName.compare("Fil")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _valueCountForFilter >> _filterType;
-                }
-                if (noHit)
-                    ar.loadUnknownData();
-            }
+            ar.storeDataName(SER_END_OF_OBJECT);
         }
-        if (ar.getSerializationVersionThatWroteThisFile()<17)
-        { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
-            CTTUtil::scaleColorUp_(colorPart1.colors);
-            CTTUtil::scaleColorUp_(colorPart2.colors);
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
+            {
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
+                {
+                    bool noHit=true;
+                    if (theName.compare("Siz")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _forceSensorSize;
+                    }
+                    if (theName.compare("Cl1")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        colorPart1.serialize(ar,0);
+                    }
+                    if (theName.compare("Cl2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        colorPart2.serialize(ar,0);
+                    }
+                    if (theName.compare("Vab")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char dummy;
+                        ar >> dummy;
+                        _forceThresholdEnabled=SIM_IS_BIT_SET(dummy,0);
+                        _torqueThresholdEnabled=SIM_IS_BIT_SET(dummy,1);
+                    }
+                    if (theName.compare("Tre")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _forceThreshold >> _torqueThreshold >> _consecutiveThresholdViolationsForBreaking;
+                    }
+                    if (theName.compare("Fil")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _valueCountForFilter >> _filterType;
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
+                }
+            }
+            if (ar.getSerializationVersionThatWroteThisFile()<17)
+            { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
+                CTTUtil::scaleColorUp_(colorPart1.colors);
+                CTTUtil::scaleColorUp_(colorPart2.colors);
+            }
         }
     }
 }

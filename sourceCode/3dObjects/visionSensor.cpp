@@ -280,7 +280,9 @@ void CVisionSensor::commonInit()
     _size(1)=_size(0);
     _size(2)=_size(0)*3.0f;
     _perspectiveOperation=false;
-    _extensionString="povray {focalBlur {false} focalDist {2.00} aperture{0.05} blurSamples{10}}";
+    if (_extensionString.size()!=0)
+        _extensionString+=" ";
+    _extensionString+="povray {focalBlur {false} focalDist {2.00} aperture{0.05} blurSamples{10}}";
 
     // Following means full-size for windowed external renderings:
     _extWindowedViewSize[0]=0;
@@ -2183,230 +2185,233 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
 void CVisionSensor::serialize(CSer& ar)
 {
     serializeMain(ar);
-    if (ar.isStoring())
-    { // Storing
-        ar.storeDataName("Ccp");
-        ar << _orthoViewSize << _viewAngle;
-        ar << _nearClippingPlane << _farClippingPlane;
-        ar.flush();
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        { // Storing
+            ar.storeDataName("Ccp");
+            ar << _orthoViewSize << _viewAngle;
+            ar << _nearClippingPlane << _farClippingPlane;
+            ar.flush();
 
-        ar.storeDataName("Res");
-        ar << _desiredResolution[0] << _desiredResolution[1];
-        ar.flush();
+            ar.storeDataName("Res");
+            ar << _desiredResolution[0] << _desiredResolution[1];
+            ar.flush();
 
-        ar.storeDataName("Dox");
-        ar << _detectableEntityID;
-        ar.flush();
+            ar.storeDataName("Dox");
+            ar << _detectableEntityID;
+            ar.flush();
 
-        ar.storeDataName("Db2");
-        ar << _defaultBufferValues[0] << _defaultBufferValues[1] << _defaultBufferValues[2];
-        ar.flush();
+            ar.storeDataName("Db2");
+            ar << _defaultBufferValues[0] << _defaultBufferValues[1] << _defaultBufferValues[2];
+            ar.flush();
 
-        ar.storeDataName("Siz");
-        ar << _size(0) << _size(1) << _size(2);
-        ar.flush();
+            ar.storeDataName("Siz");
+            ar << _size(0) << _size(1) << _size(2);
+            ar.flush();
 
-        ar.storeDataName("Rmd");
-        ar << _renderMode;
-        ar.flush();
+            ar.storeDataName("Rmd");
+            ar << _renderMode;
+            ar.flush();
 
-        ar.storeDataName("Afr");
-        ar << _attributesForRendering;
-        ar.flush();
+            ar.storeDataName("Afr");
+            ar << _attributesForRendering;
+            ar.flush();
 
-        ar.storeDataName("Va3");
-        unsigned char nothing=0;
-        SIM_SET_CLEAR_BIT(nothing,0,_perspectiveOperation);
-        SIM_SET_CLEAR_BIT(nothing,1,_explicitHandling);
-        SIM_SET_CLEAR_BIT(nothing,2,!_showFogIfAvailable);
-//12/12/2011        SIM_SET_CLEAR_BIT(nothing,3,_detectAllDetectable);
-        SIM_SET_CLEAR_BIT(nothing,4,_showVolumeWhenNotDetecting);
-        SIM_SET_CLEAR_BIT(nothing,5,_showVolumeWhenDetecting);
-        SIM_SET_CLEAR_BIT(nothing,6,_useLocalLights);
-        SIM_SET_CLEAR_BIT(nothing,7,_useSameBackgroundAsEnvironment);
-        ar << nothing;
-        ar.flush();
+            ar.storeDataName("Va3");
+            unsigned char nothing=0;
+            SIM_SET_CLEAR_BIT(nothing,0,_perspectiveOperation);
+            SIM_SET_CLEAR_BIT(nothing,1,_explicitHandling);
+            SIM_SET_CLEAR_BIT(nothing,2,!_showFogIfAvailable);
+    //12/12/2011        SIM_SET_CLEAR_BIT(nothing,3,_detectAllDetectable);
+            SIM_SET_CLEAR_BIT(nothing,4,_showVolumeWhenNotDetecting);
+            SIM_SET_CLEAR_BIT(nothing,5,_showVolumeWhenDetecting);
+            SIM_SET_CLEAR_BIT(nothing,6,_useLocalLights);
+            SIM_SET_CLEAR_BIT(nothing,7,_useSameBackgroundAsEnvironment);
+            ar << nothing;
+            ar.flush();
 
-        ar.storeDataName("Va2");
-        nothing=0;
-        SIM_SET_CLEAR_BIT(nothing,0,_useExternalImage);
-        SIM_SET_CLEAR_BIT(nothing,1,_ignoreRGBInfo);
-        SIM_SET_CLEAR_BIT(nothing,2,_ignoreDepthInfo);
-        // RESERVED SIM_SET_CLEAR_BIT(nothing,3,_povFocalBlurEnabled);
-        SIM_SET_CLEAR_BIT(nothing,4,!_computeImageBasicStats);
-        ar << nothing;
-        ar.flush();
+            ar.storeDataName("Va2");
+            nothing=0;
+            SIM_SET_CLEAR_BIT(nothing,0,_useExternalImage);
+            SIM_SET_CLEAR_BIT(nothing,1,_ignoreRGBInfo);
+            SIM_SET_CLEAR_BIT(nothing,2,_ignoreDepthInfo);
+            // RESERVED SIM_SET_CLEAR_BIT(nothing,3,_povFocalBlurEnabled);
+            SIM_SET_CLEAR_BIT(nothing,4,!_computeImageBasicStats);
+            ar << nothing;
+            ar.flush();
 
-        ar.storeDataName("Cl1");
-        ar.setCountingMode();
-        color.serialize(ar,0);
-        if (ar.setWritingMode())
+            ar.storeDataName("Cl1");
+            ar.setCountingMode();
             color.serialize(ar,0);
+            if (ar.setWritingMode())
+                color.serialize(ar,0);
 
-        ar.storeDataName("Cl2");
-        ar.setCountingMode();
-        activeColor.serialize(ar,0);
-        if (ar.setWritingMode())
+            ar.storeDataName("Cl2");
+            ar.setCountingMode();
             activeColor.serialize(ar,0);
+            if (ar.setWritingMode())
+                activeColor.serialize(ar,0);
 
-// RESERVED     ar.storeDataName("Cl3");
+    // RESERVED     ar.storeDataName("Cl3");
 
-// RESERVED     ar.storeDataName("Cl4");
+    // RESERVED     ar.storeDataName("Cl4");
 
-        ar.storeDataName("Cfr");
-        ar.setCountingMode();
-        _composedFilter->serialize(ar);
-        if (ar.setWritingMode())
+            ar.storeDataName("Cfr");
+            ar.setCountingMode();
             _composedFilter->serialize(ar);
+            if (ar.setWritingMode())
+                _composedFilter->serialize(ar);
 
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        bool povFocalBlurEnabled_backwardCompatibility_3_2_2016=false;
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
-            {
-                bool noHit=true;
-                if (theName.compare("Ccp")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _orthoViewSize >> _viewAngle;
-                    ar >> _nearClippingPlane >> _farClippingPlane;
-                }
-                if (theName.compare("Res")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _desiredResolution[0] >> _desiredResolution[1];
-                    setDesiredResolution(_desiredResolution); // we need to set the real resolution!
-                }
-                if (theName.compare("Dox")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _detectableEntityID;
-                }
-                if (theName.compare("Db2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _defaultBufferValues[0] >> _defaultBufferValues[1] >> _defaultBufferValues[2];
-                }
-                if (theName.compare("Siz")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _size(0) >> _size(1) >> _size(2);
-                }
-                if (theName.compare("Rmd")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _renderMode;
-                }
-                if (theName.compare("Afr")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _attributesForRendering;
-                }
-                if (theName=="Var")
-                { // keep a while for backward compatibility (2010/07/17)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-                    _perspectiveOperation=SIM_IS_BIT_SET(nothing,0);
-                    _explicitHandling=SIM_IS_BIT_SET(nothing,1);
-                    bool hideDetectionVolume=SIM_IS_BIT_SET(nothing,2);
-                    _useSameBackgroundAsEnvironment=SIM_IS_BIT_SET(nothing,7);
-                    if (hideDetectionVolume)
-                    {
-                        _showVolumeWhenNotDetecting=false;
-                        _showVolumeWhenDetecting=false;
-                    }
-                }
-                if (theName=="Va3")
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-                    _perspectiveOperation=SIM_IS_BIT_SET(nothing,0);
-                    _explicitHandling=SIM_IS_BIT_SET(nothing,1);
-                    _showFogIfAvailable=!SIM_IS_BIT_SET(nothing,2);
-                    _showVolumeWhenNotDetecting=SIM_IS_BIT_SET(nothing,4);
-                    _showVolumeWhenDetecting=SIM_IS_BIT_SET(nothing,5);
-                    _useLocalLights=SIM_IS_BIT_SET(nothing,6);
-                    _useSameBackgroundAsEnvironment=SIM_IS_BIT_SET(nothing,7);
-                }
-                if (theName=="Va2")
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-                    _useExternalImage=SIM_IS_BIT_SET(nothing,0);
-                    _ignoreRGBInfo=SIM_IS_BIT_SET(nothing,1);
-                    _ignoreDepthInfo=SIM_IS_BIT_SET(nothing,2);
-                    povFocalBlurEnabled_backwardCompatibility_3_2_2016=SIM_IS_BIT_SET(nothing,3);
-                    _computeImageBasicStats=!SIM_IS_BIT_SET(nothing,4);
-                }
-                if (theName.compare("Pv1")==0)
-                { // Keep for backward compatibility (3/2/2016)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    float povFocalDistance, povAperture;
-                    int povBlurSamples;
-                    ar >> povFocalDistance >> povAperture >> povBlurSamples;
-                    _extensionString="povray {focalBlur {";
-                    if (povFocalBlurEnabled_backwardCompatibility_3_2_2016)
-                        _extensionString+="true} focalDist {";
-                    else
-                        _extensionString+="false} focalDist {";
-                    _extensionString+=tt::FNb(0,povFocalDistance,3,false);
-                    _extensionString+="} aperture {";
-                    _extensionString+=tt::FNb(0,povAperture,3,false);
-                    _extensionString+="} blurSamples {";
-                    _extensionString+=tt::FNb(0,povBlurSamples,false);
-                    _extensionString+="}}";
-                }
-                if (theName.compare("Cl1")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    color.serialize(ar,0);
-                }
-                if (theName.compare("Cl2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    activeColor.serialize(ar,0);
-                }
-                if (theName.compare("Cfr")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    delete _composedFilter;
-                    _composedFilter=new CComposedFilter();
-                    _composedFilter->serialize(ar);
-                }
-                if (noHit)
-                    ar.loadUnknownData();
-            }
+            ar.storeDataName(SER_END_OF_OBJECT);
         }
-        _reserveBuffers();
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            bool povFocalBlurEnabled_backwardCompatibility_3_2_2016=false;
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
+            {
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
+                {
+                    bool noHit=true;
+                    if (theName.compare("Ccp")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _orthoViewSize >> _viewAngle;
+                        ar >> _nearClippingPlane >> _farClippingPlane;
+                    }
+                    if (theName.compare("Res")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _desiredResolution[0] >> _desiredResolution[1];
+                        setDesiredResolution(_desiredResolution); // we need to set the real resolution!
+                    }
+                    if (theName.compare("Dox")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _detectableEntityID;
+                    }
+                    if (theName.compare("Db2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _defaultBufferValues[0] >> _defaultBufferValues[1] >> _defaultBufferValues[2];
+                    }
+                    if (theName.compare("Siz")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _size(0) >> _size(1) >> _size(2);
+                    }
+                    if (theName.compare("Rmd")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _renderMode;
+                    }
+                    if (theName.compare("Afr")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _attributesForRendering;
+                    }
+                    if (theName=="Var")
+                    { // keep a while for backward compatibility (2010/07/17)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        _perspectiveOperation=SIM_IS_BIT_SET(nothing,0);
+                        _explicitHandling=SIM_IS_BIT_SET(nothing,1);
+                        bool hideDetectionVolume=SIM_IS_BIT_SET(nothing,2);
+                        _useSameBackgroundAsEnvironment=SIM_IS_BIT_SET(nothing,7);
+                        if (hideDetectionVolume)
+                        {
+                            _showVolumeWhenNotDetecting=false;
+                            _showVolumeWhenDetecting=false;
+                        }
+                    }
+                    if (theName=="Va3")
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        _perspectiveOperation=SIM_IS_BIT_SET(nothing,0);
+                        _explicitHandling=SIM_IS_BIT_SET(nothing,1);
+                        _showFogIfAvailable=!SIM_IS_BIT_SET(nothing,2);
+                        _showVolumeWhenNotDetecting=SIM_IS_BIT_SET(nothing,4);
+                        _showVolumeWhenDetecting=SIM_IS_BIT_SET(nothing,5);
+                        _useLocalLights=SIM_IS_BIT_SET(nothing,6);
+                        _useSameBackgroundAsEnvironment=SIM_IS_BIT_SET(nothing,7);
+                    }
+                    if (theName=="Va2")
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        _useExternalImage=SIM_IS_BIT_SET(nothing,0);
+                        _ignoreRGBInfo=SIM_IS_BIT_SET(nothing,1);
+                        _ignoreDepthInfo=SIM_IS_BIT_SET(nothing,2);
+                        povFocalBlurEnabled_backwardCompatibility_3_2_2016=SIM_IS_BIT_SET(nothing,3);
+                        _computeImageBasicStats=!SIM_IS_BIT_SET(nothing,4);
+                    }
+                    if (theName.compare("Pv1")==0)
+                    { // Keep for backward compatibility (3/2/2016)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        float povFocalDistance, povAperture;
+                        int povBlurSamples;
+                        ar >> povFocalDistance >> povAperture >> povBlurSamples;
+                        _extensionString="povray {focalBlur {";
+                        if (povFocalBlurEnabled_backwardCompatibility_3_2_2016)
+                            _extensionString+="true} focalDist {";
+                        else
+                            _extensionString+="false} focalDist {";
+                        _extensionString+=tt::FNb(0,povFocalDistance,3,false);
+                        _extensionString+="} aperture {";
+                        _extensionString+=tt::FNb(0,povAperture,3,false);
+                        _extensionString+="} blurSamples {";
+                        _extensionString+=tt::FNb(0,povBlurSamples,false);
+                        _extensionString+="}}";
+                    }
+                    if (theName.compare("Cl1")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        color.serialize(ar,0);
+                    }
+                    if (theName.compare("Cl2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        activeColor.serialize(ar,0);
+                    }
+                    if (theName.compare("Cfr")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        delete _composedFilter;
+                        _composedFilter=new CComposedFilter();
+                        _composedFilter->serialize(ar);
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
+                }
+            }
+            _reserveBuffers();
 
-        if (ar.getSerializationVersionThatWroteThisFile()<17)
-        { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
-            CTTUtil::scaleColorUp_(color.colors);
-            CTTUtil::scaleColorUp_(activeColor.colors);
+            if (ar.getSerializationVersionThatWroteThisFile()<17)
+            { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
+                CTTUtil::scaleColorUp_(color.colors);
+                CTTUtil::scaleColorUp_(activeColor.colors);
+            }
         }
     }
 }

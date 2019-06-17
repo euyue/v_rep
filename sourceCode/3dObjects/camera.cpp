@@ -752,7 +752,9 @@ void CCamera::commonInit()
     _showFogIfAvailable=true;
     _useLocalLights=false;
     _allowPicking=true;
-    _extensionString="povray {focalBlur {false} focalDist {2.00} aperture{0.05} blurSamples{10}}";
+    if (_extensionString.size()!=0)
+        _extensionString+=" ";
+    _extensionString+="povray {focalBlur {false} focalDist {2.00} aperture{0.05} blurSamples{10}}";
     hitForMouseUpProcessing_minus2MeansIgnore=-2;
     _attributesForRendering=sim_displayattribute_renderpass;
     _textureNameForExtGeneratedView=(unsigned int)-1;
@@ -1217,172 +1219,175 @@ void CCamera::simulationEnded()
 void CCamera::serialize(CSer& ar)
 {
     serializeMain(ar);
-    if (ar.isStoring())
-    { // Storing
-        int trck=-1;
-        if (trackedObjectIdentifier_NeverDirectlyTouch!=-1)
-            trck=trackedObjectIdentifier_NeverDirectlyTouch;
-        ar.storeDataName("Cp4");
-        ar << trck << cameraSize;
-        ar.flush();
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        { // Storing
+            int trck=-1;
+            if (trackedObjectIdentifier_NeverDirectlyTouch!=-1)
+                trck=trackedObjectIdentifier_NeverDirectlyTouch;
+            ar.storeDataName("Cp4");
+            ar << trck << cameraSize;
+            ar.flush();
 
-        ar.storeDataName("Cp3");
-        ar << _orthoViewSize << _viewAngle;
-        ar.flush();
+            ar.storeDataName("Cp3");
+            ar << _orthoViewSize << _viewAngle;
+            ar.flush();
 
-        ar.storeDataName("Ccp"); 
-        ar << _nearClippingPlane << _farClippingPlane;
-        ar.flush();
+            ar.storeDataName("Ccp");
+            ar << _nearClippingPlane << _farClippingPlane;
+            ar.flush();
 
-        ar.storeDataName("Cmp"); 
-        ar << _cameraManipulationModePermissions;
-        ar.flush();
+            ar.storeDataName("Cmp");
+            ar << _cameraManipulationModePermissions;
+            ar.flush();
 
-        ar.storeDataName("Rmd");
-        ar << _renderMode;
-        ar.flush();
+            ar.storeDataName("Rmd");
+            ar << _renderMode;
+            ar.flush();
 
-        ar.storeDataName("Ca2");
-        unsigned char nothing=0;
-        SIM_SET_CLEAR_BIT(nothing,0,_useParentObjectAsManipulationProxy);
-        SIM_SET_CLEAR_BIT(nothing,1,!_showFogIfAvailable);
-        SIM_SET_CLEAR_BIT(nothing,2,_useLocalLights);
-        SIM_SET_CLEAR_BIT(nothing,3,!_allowPicking);
-        // RESERVED SIM_SET_CLEAR_BIT(nothing,4,_povFocalBlurEnabled);
-        ar << nothing;
-        ar.flush();
+            ar.storeDataName("Ca2");
+            unsigned char nothing=0;
+            SIM_SET_CLEAR_BIT(nothing,0,_useParentObjectAsManipulationProxy);
+            SIM_SET_CLEAR_BIT(nothing,1,!_showFogIfAvailable);
+            SIM_SET_CLEAR_BIT(nothing,2,_useLocalLights);
+            SIM_SET_CLEAR_BIT(nothing,3,!_allowPicking);
+            // RESERVED SIM_SET_CLEAR_BIT(nothing,4,_povFocalBlurEnabled);
+            ar << nothing;
+            ar.flush();
 
-        ar.storeDataName("Cl1");
-        ar.setCountingMode();
-        colorPart1.serialize(ar,0);
-        if (ar.setWritingMode())
+            ar.storeDataName("Cl1");
+            ar.setCountingMode();
             colorPart1.serialize(ar,0);
+            if (ar.setWritingMode())
+                colorPart1.serialize(ar,0);
 
-        ar.storeDataName("Cl2");
-        ar.setCountingMode();
-        colorPart2.serialize(ar,0);
-        if (ar.setWritingMode())
+            ar.storeDataName("Cl2");
+            ar.setCountingMode();
             colorPart2.serialize(ar,0);
+            if (ar.setWritingMode())
+                colorPart2.serialize(ar,0);
 
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        bool povFocalBlurEnabled_backwardCompatibility_3_2_2016=false;
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
+            ar.storeDataName(SER_END_OF_OBJECT);
+        }
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            bool povFocalBlurEnabled_backwardCompatibility_3_2_2016=false;
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
             {
-                bool noHit=true;
-                if (theName.compare("Cp4")==0)
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
                 {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> trackedObjectIdentifier_NeverDirectlyTouch >> cameraSize;
+                    bool noHit=true;
+                    if (theName.compare("Cp4")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> trackedObjectIdentifier_NeverDirectlyTouch >> cameraSize;
+                    }
+                    if (theName.compare("Cp3")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _orthoViewSize >> _viewAngle;
+                    }
+                    if (theName.compare("Ccp")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _nearClippingPlane >> _farClippingPlane;
+                    }
+                    if (theName=="Caz")
+                    { // keep for backward compatibility (2010/07/13)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        _useParentObjectAsManipulationProxy=SIM_IS_BIT_SET(nothing,0);
+                        bool headUp=SIM_IS_BIT_SET(nothing,1);
+                        bool keepHeadAlwaysUp=SIM_IS_BIT_SET(nothing,2);
+                        if (headUp)
+                            _cameraManipulationModePermissions&=0x02f;
+                        else
+                            _cameraManipulationModePermissions|=0x010;
+                        if (keepHeadAlwaysUp)
+                            _cameraManipulationModePermissions|=0x020;
+                        else
+                            _cameraManipulationModePermissions&=0x01f;
+                    }
+                    if (theName=="Ca2")
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        _useParentObjectAsManipulationProxy=SIM_IS_BIT_SET(nothing,0);
+                        _showFogIfAvailable=!SIM_IS_BIT_SET(nothing,1);
+                        _useLocalLights=SIM_IS_BIT_SET(nothing,2);
+                        _allowPicking=!SIM_IS_BIT_SET(nothing,3);
+                        povFocalBlurEnabled_backwardCompatibility_3_2_2016=SIM_IS_BIT_SET(nothing,4);
+                    }
+                    if (theName.compare("Rmd")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _renderMode;
+                    }
+                    if (theName.compare("Pv1")==0)
+                    { // Keep for backward compatibility (3/2/2016)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        float povFocalDistance, povAperture;
+                        int povBlurSamples;
+                        ar >> povFocalDistance >> povAperture >> povBlurSamples;
+                        _extensionString="povray {focalBlur {";
+                        if (povFocalBlurEnabled_backwardCompatibility_3_2_2016)
+                            _extensionString+="true} focalDist {";
+                        else
+                            _extensionString+="false} focalDist {";
+                        _extensionString+=tt::FNb(0,povFocalDistance,3,false);
+                        _extensionString+="} aperture {";
+                        _extensionString+=tt::FNb(0,povAperture,3,false);
+                        _extensionString+="} blurSamples {";
+                        _extensionString+=tt::FNb(0,povBlurSamples,false);
+                        _extensionString+="}}";
+                    }
+                    if (theName.compare("Cl1")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        colorPart1.serialize(ar,0);
+                    }
+                    if (theName.compare("Cl2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        colorPart2.serialize(ar,0);
+                    }
+                    if (theName.compare("Cmp")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _cameraManipulationModePermissions;
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
                 }
-                if (theName.compare("Cp3")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _orthoViewSize >> _viewAngle;
-                }
-                if (theName.compare("Ccp")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _nearClippingPlane >> _farClippingPlane;
-                }
-                if (theName=="Caz")
-                { // keep for backward compatibility (2010/07/13)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-                    _useParentObjectAsManipulationProxy=SIM_IS_BIT_SET(nothing,0);
-                    bool headUp=SIM_IS_BIT_SET(nothing,1);
-                    bool keepHeadAlwaysUp=SIM_IS_BIT_SET(nothing,2);
-                    if (headUp)
-                        _cameraManipulationModePermissions&=0x02f;
-                    else
-                        _cameraManipulationModePermissions|=0x010;
-                    if (keepHeadAlwaysUp)
-                        _cameraManipulationModePermissions|=0x020;
-                    else
-                        _cameraManipulationModePermissions&=0x01f;
-                }
-                if (theName=="Ca2")
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-                    _useParentObjectAsManipulationProxy=SIM_IS_BIT_SET(nothing,0);
-                    _showFogIfAvailable=!SIM_IS_BIT_SET(nothing,1);
-                    _useLocalLights=SIM_IS_BIT_SET(nothing,2);
-                    _allowPicking=!SIM_IS_BIT_SET(nothing,3);
-                    povFocalBlurEnabled_backwardCompatibility_3_2_2016=SIM_IS_BIT_SET(nothing,4);
-                }
-                if (theName.compare("Rmd")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _renderMode;
-                }
-                if (theName.compare("Pv1")==0)
-                { // Keep for backward compatibility (3/2/2016)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    float povFocalDistance, povAperture;
-                    int povBlurSamples;
-                    ar >> povFocalDistance >> povAperture >> povBlurSamples;
-                    _extensionString="povray {focalBlur {";
-                    if (povFocalBlurEnabled_backwardCompatibility_3_2_2016)
-                        _extensionString+="true} focalDist {";
-                    else
-                        _extensionString+="false} focalDist {";
-                    _extensionString+=tt::FNb(0,povFocalDistance,3,false);
-                    _extensionString+="} aperture {";
-                    _extensionString+=tt::FNb(0,povAperture,3,false);
-                    _extensionString+="} blurSamples {";
-                    _extensionString+=tt::FNb(0,povBlurSamples,false);
-                    _extensionString+="}}";
-                }
-                if (theName.compare("Cl1")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    colorPart1.serialize(ar,0);
-                }
-                if (theName.compare("Cl2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    colorPart2.serialize(ar,0);
-                }
-                if (theName.compare("Cmp")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _cameraManipulationModePermissions;
-                }
-                if (noHit)
-                    ar.loadUnknownData();
             }
-        }
 
-        if (ar.getVrepVersionThatWroteThisFile()<20509)
-        { // For backward compatibility (27/7/2011)
-            if ( (_objectName.compare("DefaultXViewCamera")==0)||(_objectName.compare("DefaultYViewCamera")==0)||(_objectName.compare("DefaultZViewCamera")==0) )
-                _showFogIfAvailable=false;
-        }
+            if (ar.getVrepVersionThatWroteThisFile()<20509)
+            { // For backward compatibility (27/7/2011)
+                if ( (_objectName.compare("DefaultXViewCamera")==0)||(_objectName.compare("DefaultYViewCamera")==0)||(_objectName.compare("DefaultZViewCamera")==0) )
+                    _showFogIfAvailable=false;
+            }
 
-        if (ar.getSerializationVersionThatWroteThisFile()<17)
-        { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
-            CTTUtil::scaleColorUp_(colorPart1.colors);
-            CTTUtil::scaleColorUp_(colorPart2.colors);
+            if (ar.getSerializationVersionThatWroteThisFile()<17)
+            { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
+                CTTUtil::scaleColorUp_(colorPart1.colors);
+                CTTUtil::scaleColorUp_(colorPart2.colors);
+            }
         }
     }
 }

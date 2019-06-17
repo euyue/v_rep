@@ -84,65 +84,68 @@ CSimplePathPoint* CSimplePathPoint::copyYourself()
 
 void CSimplePathPoint::serialize(CSer& ar)
 {
-    if (ar.isStoring())
-    {       // Storing
-        ar.storeDataName("At2");
-        ar << _transformation(0) << _transformation(1) << _transformation(2) << _transformation(3);
-        ar << _transformation(4) << _transformation(5) << _transformation(6);
-        ar << _bezierFactorBefore << _bezierFactorAfter << _bezierPointCount << _maxRelAbsVelocity;
-        ar.flush();
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            ar.storeDataName("At2");
+            ar << _transformation(0) << _transformation(1) << _transformation(2) << _transformation(3);
+            ar << _transformation(4) << _transformation(5) << _transformation(6);
+            ar << _bezierFactorBefore << _bezierFactorAfter << _bezierPointCount << _maxRelAbsVelocity;
+            ar.flush();
 
-        ar.storeDataName("At3");
-        ar << _onSpotDistance;
-        ar.flush();
+            ar.storeDataName("At3");
+            ar << _onSpotDistance;
+            ar.flush();
 
-        ar.storeDataName("At4");
-        ar << _auxFlags;
-        ar << _auxChannels[0];
-        ar << _auxChannels[1];
-        ar << _auxChannels[2];
-        ar << _auxChannels[3];
-        ar.flush();
+            ar.storeDataName("At4");
+            ar << _auxFlags;
+            ar << _auxChannels[0];
+            ar << _auxChannels[1];
+            ar << _auxChannels[2];
+            ar << _auxChannels[3];
+            ar.flush();
 
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
+            ar.storeDataName(SER_END_OF_OBJECT);
+        }
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
             {
-                bool noHit=true;
-                if (theName.compare("At2")==0)
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
                 {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _transformation(0) >> _transformation(1) >> _transformation(2) >> _transformation(3);
-                    ar >> _transformation(4) >> _transformation(5) >> _transformation(6);
-                    ar >> _bezierFactorBefore >> _bezierFactorAfter >> _bezierPointCount >> _maxRelAbsVelocity;
-                }
-                if (theName.compare("At3")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _onSpotDistance;
-                }
-                if (theName.compare("At4")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _auxFlags;
-                    ar >> _auxChannels[0];
-                    ar >> _auxChannels[1];
-                    ar >> _auxChannels[2];
-                    ar >> _auxChannels[3];
-                }
+                    bool noHit=true;
+                    if (theName.compare("At2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _transformation(0) >> _transformation(1) >> _transformation(2) >> _transformation(3);
+                        ar >> _transformation(4) >> _transformation(5) >> _transformation(6);
+                        ar >> _bezierFactorBefore >> _bezierFactorAfter >> _bezierPointCount >> _maxRelAbsVelocity;
+                    }
+                    if (theName.compare("At3")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _onSpotDistance;
+                    }
+                    if (theName.compare("At4")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _auxFlags;
+                        ar >> _auxChannels[0];
+                        ar >> _auxChannels[1];
+                        ar >> _auxChannels[2];
+                        ar >> _auxChannels[3];
+                    }
 
-                if (noHit)
-                    ar.loadUnknownData();
+                    if (noHit)
+                        ar.loadUnknownData();
+                }
             }
         }
     }

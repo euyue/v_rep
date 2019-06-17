@@ -1,4 +1,3 @@
-
 #include "vrepMainHeader.h"
 #include "v_rep_internal.h"
 #include "tt.h"
@@ -1547,7 +1546,7 @@ void C3DObject::setEnableCustomizationScript(bool c,const char* scriptContent)
         if (scriptContent)
             script->setScriptText(scriptContent);
         App::ct->luaScriptContainer->insertScript(script);
-        script->setObjectIDThatScriptIsAttachedTo_customization(getObjectHandle());
+        script->setObjectIDThatScriptIsAttachedTo(getObjectHandle());
     }
 }
 
@@ -1745,522 +1744,525 @@ void C3DObject::serialize(CSer& ar)
 
 void C3DObject::serializeMain(CSer& ar)
 {
-    if (ar.isStoring())
-    {       // Storing
-        // KEEP FOLLOWING ALWAYS AT THE BEGINNING!!!!!!! (3do)
-        ar.storeDataName("3do"); // 3D object identifier, added on 2009/12/09. Needed for forward compatibility when trying to load an object type that doesn't yet exist!
-        ar << ((unsigned char)57) << ((unsigned char)58) << ((unsigned char)59);
-        ar.flush();
-
-        ar.storeDataName("Cfq");
-        C7Vector tr=getLocalTransformationPart1();
-        ar << tr.Q(0) << tr.Q(1) << tr.Q(2) << tr.Q(3) << tr.X(0) << tr.X(1) << tr.X(2);
-        ar.flush();
-    
-        ar.storeDataName("Alt");
-        ar << _assemblingLocalTransformation.Q(0) << _assemblingLocalTransformation.Q(1) << _assemblingLocalTransformation.Q(2) << _assemblingLocalTransformation.Q(3) << _assemblingLocalTransformation.X(0) << _assemblingLocalTransformation.X(1) << _assemblingLocalTransformation.X(2);
-        ar.flush();
-
-        ar.storeDataName("Am2");
-        ar << int(_assemblyMatchValuesChild.size());
-        for (size_t i=0;i<_assemblyMatchValuesChild.size();i++)
-            ar << _assemblyMatchValuesChild[i];
-        ar << int(_assemblyMatchValuesParent.size());
-        for (size_t i=0;i<_assemblyMatchValuesParent.size();i++)
-            ar << _assemblyMatchValuesParent[i];
-        ar.flush();
-
-        ar.storeDataName("Ids");
-        int parentID=-1;
-        if (getParentObject()!=nullptr)
-            parentID=getParentObject()->getObjectHandle();
-        ar << _objectHandle << parentID;
-        ar.flush();
-
-        ar.storeDataName("Anm"); // keep this before "Nme"
-        ar << _objectAltName;
-        ar.flush();
-
-        ar.storeDataName("Nme");
-        ar << _objectName;
-        ar.flush();
-
-        ar.storeDataName("Hci");
-        ar << _hierarchyColorIndex;
-        ar.flush();
-
-        ar.storeDataName("Sci");
-        ar << _collectionSelfCollisionIndicator;
-        ar.flush();
-
-        ar.storeDataName("Op2");
-        int objProp=_localObjectProperty|sim_objectproperty_reserved5; // Needed for backward compatibility (still in serialization version 15)
-        ar << objProp;
-        ar.flush();
-
-        // Keep a while for backward compatibility (19/4/2017) (in case people want to return to a previous V-REP version):
-        ar.storeDataName("Va2");
-        unsigned char dummy=0;
-        SIM_SET_CLEAR_BIT(dummy,0,_modelBase);
-        SIM_SET_CLEAR_BIT(dummy,1,_objectTranslationDisabledDuringSimulation);
-        SIM_SET_CLEAR_BIT(dummy,2,_objectTranslationDisabledDuringNonSimulation);
-        SIM_SET_CLEAR_BIT(dummy,3,_ignoredByViewFitting);
-        SIM_SET_CLEAR_BIT(dummy,7,_assemblingLocalTransformationIsUsed);
-        ar << dummy;
-        ar.flush();
-
-
-        ar.storeDataName("Va3");
-        dummy=0;
-        SIM_SET_CLEAR_BIT(dummy,0,_modelBase);
-        SIM_SET_CLEAR_BIT(dummy,1,_objectTranslationDisabledDuringSimulation);
-        SIM_SET_CLEAR_BIT(dummy,2,_objectTranslationDisabledDuringNonSimulation);
-        SIM_SET_CLEAR_BIT(dummy,3,_ignoredByViewFitting);
-        SIM_SET_CLEAR_BIT(dummy,4,_objectRotationDisabledDuringSimulation);
-        SIM_SET_CLEAR_BIT(dummy,5,_objectRotationDisabledDuringNonSimulation);
-        SIM_SET_CLEAR_BIT(dummy,7,_assemblingLocalTransformationIsUsed);
-        ar << dummy;
-        ar.flush();
-
-        ar.storeDataName("Va4");
-        dummy=0;
-        SIM_SET_CLEAR_BIT(dummy,0,_objectTranslationSettingsLocked);
-        SIM_SET_CLEAR_BIT(dummy,1,_objectRotationSettingsLocked);
-        ar << dummy;
-        ar.flush();
-
-
-
-        ar.storeDataName("Omp");
-        ar << _localObjectSpecialProperty;
-        ar.flush();
-
-        ar.storeDataName("Mpo");
-        ar << _localModelProperty;
-        ar.flush();
-        
-        ar.storeDataName("Lar");
-        ar << layer;
-        ar.flush();
-
-        ar.storeDataName("Om5");
-        ar << _objectManipulationModePermissions << _objectManipulationTranslationRelativeTo << _objectTranslationNonDefaultStepSize;
-        ar.flush();
-
-        ar.storeDataName("Omr");
-        ar << _objectManipulationRotationRelativeTo << _objectRotationNonDefaultStepSize;
-        ar.flush();
-
-        ar.storeDataName("Sfa");
-        ar << _sizeFactor;
-        ar.flush();
-
-        ar.storeDataName("Sfb");
-        ar << _sizeValues[0] << _sizeValues[1] << _sizeValues[2];
-        ar.flush();
-
-        if (_customObjectData!=nullptr)
-        {
-            ar.storeDataName("Cod");
-            ar.setCountingMode();
-            _customObjectData->serializeData(ar);
-            if (ar.setWritingMode())
-                _customObjectData->serializeData(ar);
-        }
-
-        if (_customReferencedHandles.size()>0)
-        {
-            ar.storeDataName("Crh");
-            ar << int(_customReferencedHandles.size());
-            for (size_t i=0;i<_customReferencedHandles.size();i++)
-            {
-                ar << _customReferencedHandles[i].generalObjectType;
-                ar << _customReferencedHandles[i].generalObjectHandle;
-                ar << int(0);
-            }
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            // KEEP FOLLOWING ALWAYS AT THE BEGINNING!!!!!!! (3do)
+            ar.storeDataName("3do"); // 3D object identifier, added on 2009/12/09. Needed for forward compatibility when trying to load an object type that doesn't yet exist!
+            ar << ((unsigned char)57) << ((unsigned char)58) << ((unsigned char)59);
             ar.flush();
-        }
 
-        if (_customReferencedOriginalHandles.size()>0)
-        {
-            ar.storeDataName("Orh");
-            ar << int(_customReferencedOriginalHandles.size());
-            for (size_t i=0;i<_customReferencedOriginalHandles.size();i++)
-            {
-                ar << _customReferencedOriginalHandles[i].generalObjectType;
-                ar << _customReferencedOriginalHandles[i].generalObjectHandle;
-                if (_customReferencedOriginalHandles[i].generalObjectHandle>=0)
-                    ar << _customReferencedOriginalHandles[i].uniquePersistentIdString;
-            }
+            ar.storeDataName("Cfq");
+            C7Vector tr=getLocalTransformationPart1();
+            ar << tr.Q(0) << tr.Q(1) << tr.Q(2) << tr.Q(3) << tr.X(0) << tr.X(1) << tr.X(2);
             ar.flush();
-        }
 
-        ar.storeDataName("Ack");
-        ar << _modelAcknowledgement;
-        ar.flush();
+            ar.storeDataName("Alt");
+            ar << _assemblingLocalTransformation.Q(0) << _assemblingLocalTransformation.Q(1) << _assemblingLocalTransformation.Q(2) << _assemblingLocalTransformation.Q(3) << _assemblingLocalTransformation.X(0) << _assemblingLocalTransformation.X(1) << _assemblingLocalTransformation.X(2);
+            ar.flush();
 
-        ar.storeDataName("Ups");
-        ar << _dnaString;
-        ar.flush();
+            ar.storeDataName("Am2");
+            ar << int(_assemblyMatchValuesChild.size());
+            for (size_t i=0;i<_assemblyMatchValuesChild.size();i++)
+                ar << _assemblyMatchValuesChild[i];
+            ar << int(_assemblyMatchValuesParent.size());
+            for (size_t i=0;i<_assemblyMatchValuesParent.size();i++)
+                ar << _assemblyMatchValuesParent[i];
+            ar.flush();
 
-        ar.storeDataName("Uis");
-        ar << _uniquePersistentIdString;
-        ar.flush();
+            ar.storeDataName("Ids");
+            int parentID=-1;
+            if (getParentObject()!=nullptr)
+                parentID=getParentObject()->getObjectHandle();
+            ar << _objectHandle << parentID;
+            ar.flush();
 
-        ar.storeDataName("Tdo");
-        ar << _transparentObjectDistanceOffset;
-        ar.flush();
+            ar.storeDataName("Anm"); // keep this before "Nme"
+            ar << _objectAltName;
+            ar.flush();
 
-        ar.storeDataName("Avo");
-        ar << _authorizedViewableObjects;
-        ar.flush();
+            ar.storeDataName("Nme");
+            ar << _objectName;
+            ar.flush();
 
-        ar.storeDataName("Rst");
-        ar << _extensionString;
-        ar.flush();
+            ar.storeDataName("Hci");
+            ar << _hierarchyColorIndex;
+            ar.flush();
 
-        ar.storeDataName(SER_NEXT_STEP);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        bool hasAltName=false;
-        bool _assemblingLocalTransformationIsUsed_compatibility=false;
-        while (theName.compare(SER_NEXT_STEP)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_NEXT_STEP)!=0)
+            ar.storeDataName("Sci");
+            ar << _collectionSelfCollisionIndicator;
+            ar.flush();
+
+            ar.storeDataName("Op2");
+            int objProp=_localObjectProperty|sim_objectproperty_reserved5; // Needed for backward compatibility (still in serialization version 15)
+            ar << objProp;
+            ar.flush();
+
+            // Keep a while for backward compatibility (19/4/2017) (in case people want to return to a previous V-REP version):
+            ar.storeDataName("Va2");
+            unsigned char dummy=0;
+            SIM_SET_CLEAR_BIT(dummy,0,_modelBase);
+            SIM_SET_CLEAR_BIT(dummy,1,_objectTranslationDisabledDuringSimulation);
+            SIM_SET_CLEAR_BIT(dummy,2,_objectTranslationDisabledDuringNonSimulation);
+            SIM_SET_CLEAR_BIT(dummy,3,_ignoredByViewFitting);
+            SIM_SET_CLEAR_BIT(dummy,7,_assemblingLocalTransformationIsUsed);
+            ar << dummy;
+            ar.flush();
+
+
+            ar.storeDataName("Va3");
+            dummy=0;
+            SIM_SET_CLEAR_BIT(dummy,0,_modelBase);
+            SIM_SET_CLEAR_BIT(dummy,1,_objectTranslationDisabledDuringSimulation);
+            SIM_SET_CLEAR_BIT(dummy,2,_objectTranslationDisabledDuringNonSimulation);
+            SIM_SET_CLEAR_BIT(dummy,3,_ignoredByViewFitting);
+            SIM_SET_CLEAR_BIT(dummy,4,_objectRotationDisabledDuringSimulation);
+            SIM_SET_CLEAR_BIT(dummy,5,_objectRotationDisabledDuringNonSimulation);
+            SIM_SET_CLEAR_BIT(dummy,7,_assemblingLocalTransformationIsUsed);
+            ar << dummy;
+            ar.flush();
+
+            ar.storeDataName("Va4");
+            dummy=0;
+            SIM_SET_CLEAR_BIT(dummy,0,_objectTranslationSettingsLocked);
+            SIM_SET_CLEAR_BIT(dummy,1,_objectRotationSettingsLocked);
+            ar << dummy;
+            ar.flush();
+
+
+
+            ar.storeDataName("Omp");
+            ar << _localObjectSpecialProperty;
+            ar.flush();
+
+            ar.storeDataName("Mpo");
+            ar << _localModelProperty;
+            ar.flush();
+
+            ar.storeDataName("Lar");
+            ar << layer;
+            ar.flush();
+
+            ar.storeDataName("Om5");
+            ar << _objectManipulationModePermissions << _objectManipulationTranslationRelativeTo << _objectTranslationNonDefaultStepSize;
+            ar.flush();
+
+            ar.storeDataName("Omr");
+            ar << _objectManipulationRotationRelativeTo << _objectRotationNonDefaultStepSize;
+            ar.flush();
+
+            ar.storeDataName("Sfa");
+            ar << _sizeFactor;
+            ar.flush();
+
+            ar.storeDataName("Sfb");
+            ar << _sizeValues[0] << _sizeValues[1] << _sizeValues[2];
+            ar.flush();
+
+            if (_customObjectData!=nullptr)
             {
-                bool noHit=true;
-                if (theName.compare("3do")==0) 
-                { // 3D object identifier. Needed for forward compatibility when trying to load an object type that doesn't yet exist!
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char dummy;
-                    ar >> dummy >> dummy >> dummy;
-                }
-                if (theName.compare("Cfq")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    C7Vector tr;
-                    ar >> tr.Q(0) >> tr.Q(1) >> tr.Q(2) >> tr.Q(3) >> tr.X(0) >> tr.X(1) >> tr.X(2);
-                    setLocalTransformation(tr);
-                }
-                if (theName.compare("Hci")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _hierarchyColorIndex;
-                }
-                if (theName.compare("Sci")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _collectionSelfCollisionIndicator;
-                }
-                if (theName.compare("Alt")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _assemblingLocalTransformation.Q(0) >> _assemblingLocalTransformation.Q(1) >> _assemblingLocalTransformation.Q(2) >> _assemblingLocalTransformation.Q(3) >> _assemblingLocalTransformation.X(0) >> _assemblingLocalTransformation.X(1) >> _assemblingLocalTransformation.X(2);
-                    if (ar.getSerializationVersionThatWroteThisFile()<20)
-                    {
-                        C3Vector v(_assemblingLocalTransformation.Q(1),_assemblingLocalTransformation.Q(2),_assemblingLocalTransformation.Q(3));
-                        if ( (_assemblingLocalTransformation.X.getLength()>0.0)||(v.getLength()>0.0) )
-                            _assemblingLocalTransformationIsUsed_compatibility=true;
-                    }
-                }
-                if (theName.compare("Amv")==0)
-                { // Keep for backward compatibility (31/3/2017)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int child,parent;
-                    ar >> child >> parent;
-                    _assemblyMatchValuesChild.clear();
-                    if (child==0)
-                        _assemblyMatchValuesChild.push_back("default");
-                    else
-                        _assemblyMatchValuesChild.push_back(tt::intToString(child));
-                    _assemblyMatchValuesParent.clear();
-                    if (parent==0)
-                        _assemblyMatchValuesParent.push_back("default");
-                    else
-                        _assemblyMatchValuesParent.push_back(tt::intToString(parent));
-                }
-                if (theName.compare("Am2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int childCnt,parentCnt;
-                    std::string word;
-                    ar >> childCnt;
-                    _assemblyMatchValuesChild.clear();
-                    for (int i=0;i<childCnt;i++)
-                    {
-                        ar >> word;
-                        _assemblyMatchValuesChild.push_back(word);
-                    }
-                    ar >> parentCnt;
-                    _assemblyMatchValuesParent.clear();
-                    for (int i=0;i<parentCnt;i++)
-                    {
-                        ar >> word;
-                        _assemblyMatchValuesParent.push_back(word);
-                    }
-                }
-                if (theName.compare("Ids")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _objectHandle >> _parentHandle;
-                    _parentObject=nullptr;
-                }
-                if (theName.compare("Anm")==0)
-                {
-                    hasAltName=true;
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _objectAltName;
-                }
-                if (theName.compare("Nme")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _objectName;
-                    if (!hasAltName)
-                        _objectAltName=tt::getObjectAltNameFromObjectName(_objectName);
-                }
-                if (theName.compare("Op2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _localObjectProperty;
-                }
-                if (theName.compare("Var")==0)
-                { // Keep for backward compatibility (31/3/2017)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char dummy;
-                    ar >> dummy;
-                    _modelBase=SIM_IS_BIT_SET(dummy,0);
-                    _objectTranslationDisabledDuringSimulation=SIM_IS_BIT_SET(dummy,1);
-                    _objectTranslationDisabledDuringNonSimulation=SIM_IS_BIT_SET(dummy,2);
-                    _ignoredByViewFitting=SIM_IS_BIT_SET(dummy,3);
-                    // reserved since 9/6/2013   _useSpecialLocalTransformationWhenAssembling=SIM_IS_BIT_SET(dummy,4);
-                    bool assemblyCanHaveChildRole=!SIM_IS_BIT_SET(dummy,5);
-                    bool assemblyCanHaveParentRole=!SIM_IS_BIT_SET(dummy,6);
-                    _assemblingLocalTransformationIsUsed=SIM_IS_BIT_SET(dummy,7);
-
-                    if (ar.getSerializationVersionThatWroteThisFile()<20)
-                        _assemblingLocalTransformationIsUsed=_assemblingLocalTransformationIsUsed_compatibility;
-
-                    if (!assemblyCanHaveChildRole)
-                        _assemblyMatchValuesChild.clear();
-                    if (!assemblyCanHaveParentRole)
-                        _assemblyMatchValuesParent.clear();
-                    _objectRotationDisabledDuringSimulation=_objectTranslationDisabledDuringSimulation;
-                    _objectRotationDisabledDuringNonSimulation=_objectTranslationDisabledDuringNonSimulation;
-                }
-                if (theName.compare("Va2")==0)
-                { // Keep for backward compatibility (19/4/2017)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char dummy;
-                    ar >> dummy;
-                    _modelBase=SIM_IS_BIT_SET(dummy,0);
-                    _objectTranslationDisabledDuringSimulation=SIM_IS_BIT_SET(dummy,1);
-                    _objectTranslationDisabledDuringNonSimulation=SIM_IS_BIT_SET(dummy,2);
-                    _ignoredByViewFitting=SIM_IS_BIT_SET(dummy,3);
-                    _objectRotationDisabledDuringSimulation=_objectTranslationDisabledDuringSimulation;
-                    _objectRotationDisabledDuringNonSimulation=_objectTranslationDisabledDuringNonSimulation;
-                    _assemblingLocalTransformationIsUsed=SIM_IS_BIT_SET(dummy,7);
-                }
-                if (theName.compare("Va3")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char dummy;
-                    ar >> dummy;
-                    _modelBase=SIM_IS_BIT_SET(dummy,0);
-                    _objectTranslationDisabledDuringSimulation=SIM_IS_BIT_SET(dummy,1);
-                    _objectTranslationDisabledDuringNonSimulation=SIM_IS_BIT_SET(dummy,2);
-                    _ignoredByViewFitting=SIM_IS_BIT_SET(dummy,3);
-                    _objectRotationDisabledDuringSimulation=SIM_IS_BIT_SET(dummy,4);
-                    _objectRotationDisabledDuringNonSimulation=SIM_IS_BIT_SET(dummy,5);
-                    _assemblingLocalTransformationIsUsed=SIM_IS_BIT_SET(dummy,7);
-                }
-                if (theName.compare("Va4")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char dummy;
-                    ar >> dummy;
-                    _objectTranslationSettingsLocked=SIM_IS_BIT_SET(dummy,0);
-                    _objectRotationSettingsLocked=SIM_IS_BIT_SET(dummy,1);
-                }
-
-                if (theName.compare("Omp")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _localObjectSpecialProperty;
-                }
-                if (theName.compare("Mpo")==0)
-                { // from 2010/08/06
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _localModelProperty;
-                }
-                if (theName.compare("Lar")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> layer;
-                }
-                if (theName.compare("Om5")==0)
-                { 
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _objectManipulationModePermissions >> _objectManipulationTranslationRelativeTo >> _objectTranslationNonDefaultStepSize;
-                }
-                if (theName.compare("Omr")==0)
-                { 
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _objectManipulationRotationRelativeTo >> _objectRotationNonDefaultStepSize;
-                }
-
-                if (theName.compare("Cod")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    _customObjectData=new CCustomData();
-                    _customObjectData->serializeData(ar);
-                }
-                if (theName.compare("Crh")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int cnt,dummy;
-                    ar >> cnt;
-                    for (int i=0;i<cnt;i++)
-                    {
-                        SCustomRefs r;
-                        ar >> r.generalObjectType;
-                        ar >> r.generalObjectHandle;
-                        ar >> dummy;
-                        _customReferencedHandles.push_back(r);
-                    }
-                }
-                if (theName.compare("Orh")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int cnt;
-                    ar >> cnt;
-                    for (int i=0;i<cnt;i++)
-                    {
-                        SCustomOriginalRefs r;
-                        ar >> r.generalObjectType;
-                        ar >> r.generalObjectHandle;
-                        if (r.generalObjectHandle>=0)
-                            ar >> r.uniquePersistentIdString;
-                        _customReferencedOriginalHandles.push_back(r);
-                    }
-                }
-                if (theName.compare("Sfa")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _sizeFactor;
-                }
-
-                if (theName.compare("Sfb")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _sizeValues[0] >> _sizeValues[1] >> _sizeValues[2];
-                }
-
-                if (theName.compare("Ack")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _modelAcknowledgement;
-                }
-                if (theName.compare("Ups")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _dnaString;
-                    if (_dnaString.size()==0)
-                        generateDnaString();
-                }
-                if (theName.compare("Uis")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _uniquePersistentIdString;
-                }
-                if (theName.compare("Tdo")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _transparentObjectDistanceOffset;
-                }
-                if (theName.compare("Avo")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _authorizedViewableObjects;
-                }
-                if (theName.compare("Rst")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _extensionString;
-                }
-
-                if (noHit)
-                    ar.loadUnknownData();
+                ar.storeDataName("Cod");
+                ar.setCountingMode();
+                _customObjectData->serializeData(ar,nullptr,-1);
+                if (ar.setWritingMode())
+                    _customObjectData->serializeData(ar,nullptr,-1);
             }
-        }
-        //*************************************************************
-        // For backward compatibility 13/09/2011
-        if ((_localObjectProperty&sim_objectproperty_reserved5)==0)
-        { // this used to be the sim_objectproperty_visible property. If it wasn't set in the past, we now try to hide it in a hidden layer:
-            if (layer<256)
-                layer=layer*256;
+
+            if (_customReferencedHandles.size()>0)
+            {
+                ar.storeDataName("Crh");
+                ar << int(_customReferencedHandles.size());
+                for (size_t i=0;i<_customReferencedHandles.size();i++)
+                {
+                    ar << _customReferencedHandles[i].generalObjectType;
+                    ar << _customReferencedHandles[i].generalObjectHandle;
+                    ar << int(0);
+                }
+                ar.flush();
+            }
+
+            if (_customReferencedOriginalHandles.size()>0)
+            {
+                ar.storeDataName("Orh");
+                ar << int(_customReferencedOriginalHandles.size());
+                for (size_t i=0;i<_customReferencedOriginalHandles.size();i++)
+                {
+                    ar << _customReferencedOriginalHandles[i].generalObjectType;
+                    ar << _customReferencedOriginalHandles[i].generalObjectHandle;
+                    if (_customReferencedOriginalHandles[i].generalObjectHandle>=0)
+                        ar << _customReferencedOriginalHandles[i].uniquePersistentIdString;
+                }
+                ar.flush();
+            }
+
+            ar.storeDataName("Ack");
+            ar << _modelAcknowledgement;
+            ar.flush();
+
+            ar.storeDataName("Ups");
+            ar << _dnaString;
+            ar.flush();
+
+            ar.storeDataName("Uis");
+            ar << _uniquePersistentIdString;
+            ar.flush();
+
+            ar.storeDataName("Tdo");
+            ar << _transparentObjectDistanceOffset;
+            ar.flush();
+
+            ar.storeDataName("Avo");
+            ar << _authorizedViewableObjects;
+            ar.flush();
+
+            ar.storeDataName("Rst");
+            ar << _extensionString;
+            ar.flush();
+
+            ar.storeDataName(SER_NEXT_STEP);
         }
         else
-            _localObjectProperty-=sim_objectproperty_reserved5;
-        //*************************************************************
-
-        //*************************************************************
-        // For old models to support the DNA-thing by default:
-        if ( (ar.getVrepVersionThatWroteThisFile()<30003)&&getModelBase() )
-        {
-            _localObjectProperty|=sim_objectproperty_canupdatedna;
-            // We now create a "unique" id, that is always the same for the same file:
-            _dnaString="1234567890123456";
-            std::string a(_objectName);
-            while (a.length()<16)
-                a=a+"*";
-            std::string b("1234567890123456");
-            int fbp=ar.getFileBufferReadPointer();
-            b[2]=((unsigned char*)&fbp)[0];
-            b[3]=((unsigned char*)&fbp)[1];
-            b[4]=((unsigned char*)&fbp)[2];
-            b[5]=((unsigned char*)&fbp)[3];
-            for (int i=0;i<16;i++)
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            bool hasAltName=false;
+            bool _assemblingLocalTransformationIsUsed_compatibility=false;
+            while (theName.compare(SER_NEXT_STEP)!=0)
             {
-                _dnaString[i]+=a[i];
-                _dnaString[i]+=b[i];
+                theName=ar.readDataName();
+                if (theName.compare(SER_NEXT_STEP)!=0)
+                {
+                    bool noHit=true;
+                    if (theName.compare("3do")==0)
+                    { // 3D object identifier. Needed for forward compatibility when trying to load an object type that doesn't yet exist!
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char dummy;
+                        ar >> dummy >> dummy >> dummy;
+                    }
+                    if (theName.compare("Cfq")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        C7Vector tr;
+                        ar >> tr.Q(0) >> tr.Q(1) >> tr.Q(2) >> tr.Q(3) >> tr.X(0) >> tr.X(1) >> tr.X(2);
+                        setLocalTransformation(tr);
+                    }
+                    if (theName.compare("Hci")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _hierarchyColorIndex;
+                    }
+                    if (theName.compare("Sci")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _collectionSelfCollisionIndicator;
+                    }
+                    if (theName.compare("Alt")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _assemblingLocalTransformation.Q(0) >> _assemblingLocalTransformation.Q(1) >> _assemblingLocalTransformation.Q(2) >> _assemblingLocalTransformation.Q(3) >> _assemblingLocalTransformation.X(0) >> _assemblingLocalTransformation.X(1) >> _assemblingLocalTransformation.X(2);
+                        if (ar.getSerializationVersionThatWroteThisFile()<20)
+                        {
+                            C3Vector v(_assemblingLocalTransformation.Q(1),_assemblingLocalTransformation.Q(2),_assemblingLocalTransformation.Q(3));
+                            if ( (_assemblingLocalTransformation.X.getLength()>0.0)||(v.getLength()>0.0) )
+                                _assemblingLocalTransformationIsUsed_compatibility=true;
+                        }
+                    }
+                    if (theName.compare("Amv")==0)
+                    { // Keep for backward compatibility (31/3/2017)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int child,parent;
+                        ar >> child >> parent;
+                        _assemblyMatchValuesChild.clear();
+                        if (child==0)
+                            _assemblyMatchValuesChild.push_back("default");
+                        else
+                            _assemblyMatchValuesChild.push_back(tt::intToString(child));
+                        _assemblyMatchValuesParent.clear();
+                        if (parent==0)
+                            _assemblyMatchValuesParent.push_back("default");
+                        else
+                            _assemblyMatchValuesParent.push_back(tt::intToString(parent));
+                    }
+                    if (theName.compare("Am2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int childCnt,parentCnt;
+                        std::string word;
+                        ar >> childCnt;
+                        _assemblyMatchValuesChild.clear();
+                        for (int i=0;i<childCnt;i++)
+                        {
+                            ar >> word;
+                            _assemblyMatchValuesChild.push_back(word);
+                        }
+                        ar >> parentCnt;
+                        _assemblyMatchValuesParent.clear();
+                        for (int i=0;i<parentCnt;i++)
+                        {
+                            ar >> word;
+                            _assemblyMatchValuesParent.push_back(word);
+                        }
+                    }
+                    if (theName.compare("Ids")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _objectHandle >> _parentHandle;
+                        _parentObject=nullptr;
+                    }
+                    if (theName.compare("Anm")==0)
+                    {
+                        hasAltName=true;
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _objectAltName;
+                    }
+                    if (theName.compare("Nme")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _objectName;
+                        if (!hasAltName)
+                            _objectAltName=tt::getObjectAltNameFromObjectName(_objectName);
+                    }
+                    if (theName.compare("Op2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _localObjectProperty;
+                    }
+                    if (theName.compare("Var")==0)
+                    { // Keep for backward compatibility (31/3/2017)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char dummy;
+                        ar >> dummy;
+                        _modelBase=SIM_IS_BIT_SET(dummy,0);
+                        _objectTranslationDisabledDuringSimulation=SIM_IS_BIT_SET(dummy,1);
+                        _objectTranslationDisabledDuringNonSimulation=SIM_IS_BIT_SET(dummy,2);
+                        _ignoredByViewFitting=SIM_IS_BIT_SET(dummy,3);
+                        // reserved since 9/6/2013   _useSpecialLocalTransformationWhenAssembling=SIM_IS_BIT_SET(dummy,4);
+                        bool assemblyCanHaveChildRole=!SIM_IS_BIT_SET(dummy,5);
+                        bool assemblyCanHaveParentRole=!SIM_IS_BIT_SET(dummy,6);
+                        _assemblingLocalTransformationIsUsed=SIM_IS_BIT_SET(dummy,7);
+
+                        if (ar.getSerializationVersionThatWroteThisFile()<20)
+                            _assemblingLocalTransformationIsUsed=_assemblingLocalTransformationIsUsed_compatibility;
+
+                        if (!assemblyCanHaveChildRole)
+                            _assemblyMatchValuesChild.clear();
+                        if (!assemblyCanHaveParentRole)
+                            _assemblyMatchValuesParent.clear();
+                        _objectRotationDisabledDuringSimulation=_objectTranslationDisabledDuringSimulation;
+                        _objectRotationDisabledDuringNonSimulation=_objectTranslationDisabledDuringNonSimulation;
+                    }
+                    if (theName.compare("Va2")==0)
+                    { // Keep for backward compatibility (19/4/2017)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char dummy;
+                        ar >> dummy;
+                        _modelBase=SIM_IS_BIT_SET(dummy,0);
+                        _objectTranslationDisabledDuringSimulation=SIM_IS_BIT_SET(dummy,1);
+                        _objectTranslationDisabledDuringNonSimulation=SIM_IS_BIT_SET(dummy,2);
+                        _ignoredByViewFitting=SIM_IS_BIT_SET(dummy,3);
+                        _objectRotationDisabledDuringSimulation=_objectTranslationDisabledDuringSimulation;
+                        _objectRotationDisabledDuringNonSimulation=_objectTranslationDisabledDuringNonSimulation;
+                        _assemblingLocalTransformationIsUsed=SIM_IS_BIT_SET(dummy,7);
+                    }
+                    if (theName.compare("Va3")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char dummy;
+                        ar >> dummy;
+                        _modelBase=SIM_IS_BIT_SET(dummy,0);
+                        _objectTranslationDisabledDuringSimulation=SIM_IS_BIT_SET(dummy,1);
+                        _objectTranslationDisabledDuringNonSimulation=SIM_IS_BIT_SET(dummy,2);
+                        _ignoredByViewFitting=SIM_IS_BIT_SET(dummy,3);
+                        _objectRotationDisabledDuringSimulation=SIM_IS_BIT_SET(dummy,4);
+                        _objectRotationDisabledDuringNonSimulation=SIM_IS_BIT_SET(dummy,5);
+                        _assemblingLocalTransformationIsUsed=SIM_IS_BIT_SET(dummy,7);
+                    }
+                    if (theName.compare("Va4")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char dummy;
+                        ar >> dummy;
+                        _objectTranslationSettingsLocked=SIM_IS_BIT_SET(dummy,0);
+                        _objectRotationSettingsLocked=SIM_IS_BIT_SET(dummy,1);
+                    }
+
+                    if (theName.compare("Omp")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _localObjectSpecialProperty;
+                    }
+                    if (theName.compare("Mpo")==0)
+                    { // from 2010/08/06
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _localModelProperty;
+                    }
+                    if (theName.compare("Lar")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> layer;
+                    }
+                    if (theName.compare("Om5")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _objectManipulationModePermissions >> _objectManipulationTranslationRelativeTo >> _objectTranslationNonDefaultStepSize;
+                    }
+                    if (theName.compare("Omr")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _objectManipulationRotationRelativeTo >> _objectRotationNonDefaultStepSize;
+                    }
+
+                    if (theName.compare("Cod")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        _customObjectData=new CCustomData();
+                        _customObjectData->serializeData(ar,nullptr,-1);
+                    }
+                    if (theName.compare("Crh")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int cnt,dummy;
+                        ar >> cnt;
+                        for (int i=0;i<cnt;i++)
+                        {
+                            SCustomRefs r;
+                            ar >> r.generalObjectType;
+                            ar >> r.generalObjectHandle;
+                            ar >> dummy;
+                            _customReferencedHandles.push_back(r);
+                        }
+                    }
+                    if (theName.compare("Orh")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int cnt;
+                        ar >> cnt;
+                        for (int i=0;i<cnt;i++)
+                        {
+                            SCustomOriginalRefs r;
+                            ar >> r.generalObjectType;
+                            ar >> r.generalObjectHandle;
+                            if (r.generalObjectHandle>=0)
+                                ar >> r.uniquePersistentIdString;
+                            _customReferencedOriginalHandles.push_back(r);
+                        }
+                    }
+                    if (theName.compare("Sfa")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _sizeFactor;
+                    }
+
+                    if (theName.compare("Sfb")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _sizeValues[0] >> _sizeValues[1] >> _sizeValues[2];
+                    }
+
+                    if (theName.compare("Ack")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _modelAcknowledgement;
+                    }
+                    if (theName.compare("Ups")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _dnaString;
+                        if (_dnaString.size()==0)
+                            generateDnaString();
+                    }
+                    if (theName.compare("Uis")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _uniquePersistentIdString;
+                    }
+                    if (theName.compare("Tdo")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _transparentObjectDistanceOffset;
+                    }
+                    if (theName.compare("Avo")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _authorizedViewableObjects;
+                    }
+                    if (theName.compare("Rst")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _extensionString;
+                    }
+
+                    if (noHit)
+                        ar.loadUnknownData();
+                }
             }
+            //*************************************************************
+            // For backward compatibility 13/09/2011
+            if ((_localObjectProperty&sim_objectproperty_reserved5)==0)
+            { // this used to be the sim_objectproperty_visible property. If it wasn't set in the past, we now try to hide it in a hidden layer:
+                if (layer<256)
+                    layer=layer*256;
+            }
+            else
+                _localObjectProperty-=sim_objectproperty_reserved5;
+            //*************************************************************
+
+            //*************************************************************
+            // For old models to support the DNA-thing by default:
+            if ( (ar.getVrepVersionThatWroteThisFile()<30003)&&getModelBase() )
+            {
+                _localObjectProperty|=sim_objectproperty_canupdatedna;
+                // We now create a "unique" id, that is always the same for the same file:
+                _dnaString="1234567890123456";
+                std::string a(_objectName);
+                while (a.length()<16)
+                    a=a+"*";
+                std::string b("1234567890123456");
+                int fbp=ar.getFileBufferReadPointer();
+                b[2]=((unsigned char*)&fbp)[0];
+                b[3]=((unsigned char*)&fbp)[1];
+                b[4]=((unsigned char*)&fbp)[2];
+                b[5]=((unsigned char*)&fbp)[3];
+                for (int i=0;i<16;i++)
+                {
+                    _dnaString[i]+=a[i];
+                    _dnaString[i]+=b[i];
+                }
+            }
+            //*************************************************************
         }
-        //*************************************************************
     }
 }
 

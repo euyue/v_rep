@@ -1179,279 +1179,282 @@ C3Vector CDynamicsContainer::getGravity()
 
 void CDynamicsContainer::serialize(CSer& ar)
 {
-    if (ar.isStoring())
-    {       // Storing
-        ar.storeDataName("En2"); // En2 since we have the Vortex option
-        ar << _dynamicEngineToUse << _gravity(0) << _gravity(1) << _gravity(2) << _dynamicDefaultTypeCalculationParameters;
-        ar.flush();
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            ar.storeDataName("En2"); // En2 since we have the Vortex option
+            ar << _dynamicEngineToUse << _gravity(0) << _gravity(1) << _gravity(2) << _dynamicDefaultTypeCalculationParameters;
+            ar.flush();
 
-        ar.storeDataName("Ver");
-        ar << _dynamicEngineVersionToUse;
-        ar.flush();
+            ar.storeDataName("Ver");
+            ar << _dynamicEngineVersionToUse;
+            ar.flush();
 
-        ar.storeDataName("Bul"); // keep a while for file write backw. compatibility (09/03/2016)
-        // ar << _dynamicsBULLETStepSize << _dynamicBULLETInternalScalingFactor << _dynamicBULLETConstraintSolvingIterations << _dynamicBULLETCollisionMarginFactor;
-        ar << _bulletFloatParams[simi_bullet_global_stepsize] << _bulletFloatParams[simi_bullet_global_internalscalingfactor] << _bulletIntParams[simi_bullet_global_constraintsolvingiterations] << _bulletFloatParams[simi_bullet_global_collisionmarginfactor];
-        ar.flush();
+            ar.storeDataName("Bul"); // keep a while for file write backw. compatibility (09/03/2016)
+            // ar << _dynamicsBULLETStepSize << _dynamicBULLETInternalScalingFactor << _dynamicBULLETConstraintSolvingIterations << _dynamicBULLETCollisionMarginFactor;
+            ar << _bulletFloatParams[simi_bullet_global_stepsize] << _bulletFloatParams[simi_bullet_global_internalscalingfactor] << _bulletIntParams[simi_bullet_global_constraintsolvingiterations] << _bulletFloatParams[simi_bullet_global_collisionmarginfactor];
+            ar.flush();
 
-        ar.storeDataName("Ode"); // keep a while for file write backw. compatibility (09/03/2016)
-        // ar << _dynamicsODEStepSize << _dynamicODEInternalScalingFactor << _dynamicODEConstraintSolvingIterations << _dynamicODEGlobalCFM << _dynamicODEGlobalERP;
-        ar << _odeFloatParams[simi_ode_global_stepsize] << _odeFloatParams[simi_ode_global_internalscalingfactor] << _odeIntParams[simi_ode_global_constraintsolvingiterations] << _odeFloatParams[simi_ode_global_cfm] << _odeFloatParams[simi_ode_global_erp];
-        ar.flush();
+            ar.storeDataName("Ode"); // keep a while for file write backw. compatibility (09/03/2016)
+            // ar << _dynamicsODEStepSize << _dynamicODEInternalScalingFactor << _dynamicODEConstraintSolvingIterations << _dynamicODEGlobalCFM << _dynamicODEGlobalERP;
+            ar << _odeFloatParams[simi_ode_global_stepsize] << _odeFloatParams[simi_ode_global_internalscalingfactor] << _odeIntParams[simi_ode_global_constraintsolvingiterations] << _odeFloatParams[simi_ode_global_cfm] << _odeFloatParams[simi_ode_global_erp];
+            ar.flush();
 
-        ar.storeDataName("Vo5"); // vortex params:
-        ar << int(_vortexFloatParams.size()) << int(_vortexIntParams.size());
-        for (int i=0;i<int(_vortexFloatParams.size());i++)
-            ar << _vortexFloatParams[i];
-        for (int i=0;i<int(_vortexIntParams.size());i++)
-            ar << _vortexIntParams[i];
-        ar.flush();
+            ar.storeDataName("Vo5"); // vortex params:
+            ar << int(_vortexFloatParams.size()) << int(_vortexIntParams.size());
+            for (int i=0;i<int(_vortexFloatParams.size());i++)
+                ar << _vortexFloatParams[i];
+            for (int i=0;i<int(_vortexIntParams.size());i++)
+                ar << _vortexIntParams[i];
+            ar.flush();
 
-        ar.storeDataName("Nw1"); // newton params:
-        ar << int(_newtonFloatParams.size()) << int(_newtonIntParams.size());
-        for (int i=0;i<int(_newtonFloatParams.size());i++)
-            ar << _newtonFloatParams[i];
-        for (int i=0;i<int(_newtonIntParams.size());i++)
-            ar << _newtonIntParams[i];
-        ar.flush();
+            ar.storeDataName("Nw1"); // newton params:
+            ar << int(_newtonFloatParams.size()) << int(_newtonIntParams.size());
+            for (int i=0;i<int(_newtonFloatParams.size());i++)
+                ar << _newtonFloatParams[i];
+            for (int i=0;i<int(_newtonIntParams.size());i++)
+                ar << _newtonIntParams[i];
+            ar.flush();
 
-        ar.storeDataName("Var");
-        unsigned char dummy=0;
-        SIM_SET_CLEAR_BIT(dummy,0,_dynamicsEnabled);
-        SIM_SET_CLEAR_BIT(dummy,1,_displayContactPoints);
-        SIM_SET_CLEAR_BIT(dummy,2,(_bulletIntParams[simi_bullet_global_bitcoded]&simi_bullet_global_fullinternalscaling)!=0); // _dynamicBULLETFullInternalScaling, keep a while for file write backw. compatibility (09/03/2016)
-        SIM_SET_CLEAR_BIT(dummy,3,(_odeIntParams[simi_ode_global_bitcoded]&simi_ode_global_fullinternalscaling)!=0); // _dynamicODEFullInternalScaling, keep a while for file write backw. compatibility (09/03/2016)
-        SIM_SET_CLEAR_BIT(dummy,4,(_odeIntParams[simi_ode_global_bitcoded]&simi_ode_global_quickstep)!=0); // _dynamicODEUseQuickStep, keep a while for file write backw. compatibility (09/03/2016)
-        // reserved SIM_SET_CLEAR_BIT(dummy,5,_dynamicVORTEXFullInternalScaling);
-        ar << dummy;
-        ar.flush();
+            ar.storeDataName("Var");
+            unsigned char dummy=0;
+            SIM_SET_CLEAR_BIT(dummy,0,_dynamicsEnabled);
+            SIM_SET_CLEAR_BIT(dummy,1,_displayContactPoints);
+            SIM_SET_CLEAR_BIT(dummy,2,(_bulletIntParams[simi_bullet_global_bitcoded]&simi_bullet_global_fullinternalscaling)!=0); // _dynamicBULLETFullInternalScaling, keep a while for file write backw. compatibility (09/03/2016)
+            SIM_SET_CLEAR_BIT(dummy,3,(_odeIntParams[simi_ode_global_bitcoded]&simi_ode_global_fullinternalscaling)!=0); // _dynamicODEFullInternalScaling, keep a while for file write backw. compatibility (09/03/2016)
+            SIM_SET_CLEAR_BIT(dummy,4,(_odeIntParams[simi_ode_global_bitcoded]&simi_ode_global_quickstep)!=0); // _dynamicODEUseQuickStep, keep a while for file write backw. compatibility (09/03/2016)
+            // reserved SIM_SET_CLEAR_BIT(dummy,5,_dynamicVORTEXFullInternalScaling);
+            ar << dummy;
+            ar.flush();
 
-        ar.storeDataName("BuN"); // Bullet params (keep this after "Bul" and "Var"):
-        ar << int(_bulletFloatParams.size()) << int(_bulletIntParams.size());
-        for (int i=0;i<int(_bulletFloatParams.size());i++)
-            ar << _bulletFloatParams[i];
-        for (int i=0;i<int(_bulletIntParams.size());i++)
-            ar << _bulletIntParams[i];
-        ar.flush();
+            ar.storeDataName("BuN"); // Bullet params (keep this after "Bul" and "Var"):
+            ar << int(_bulletFloatParams.size()) << int(_bulletIntParams.size());
+            for (int i=0;i<int(_bulletFloatParams.size());i++)
+                ar << _bulletFloatParams[i];
+            for (int i=0;i<int(_bulletIntParams.size());i++)
+                ar << _bulletIntParams[i];
+            ar.flush();
 
-        ar.storeDataName("OdN"); // ODE params (keep this after "Ode" and "Var"):
-        ar << int(_odeFloatParams.size()) << int(_odeIntParams.size());
-        for (int i=0;i<int(_odeFloatParams.size());i++)
-            ar << _odeFloatParams[i];
-        for (int i=0;i<int(_odeIntParams.size());i++)
-            ar << _odeIntParams[i];
-        ar.flush();
+            ar.storeDataName("OdN"); // ODE params (keep this after "Ode" and "Var"):
+            ar << int(_odeFloatParams.size()) << int(_odeIntParams.size());
+            for (int i=0;i<int(_odeFloatParams.size());i++)
+                ar << _odeFloatParams[i];
+            for (int i=0;i<int(_odeIntParams.size());i++)
+                ar << _odeIntParams[i];
+            ar.flush();
 
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
+            ar.storeDataName(SER_END_OF_OBJECT);
+        }
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
             {
-                bool noHit=true;
-
-                if (theName.compare("Eng")==0)
-                { // keep for backward compatibility (23/09/2013)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _dynamicEngineToUse >> _gravity(0) >> _gravity(1) >> _gravity(2) >>_dynamicDefaultTypeCalculationParameters;
-                }
-
-                if (theName.compare("En2")==0)
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
                 {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _dynamicEngineToUse >> _gravity(0) >> _gravity(1) >> _gravity(2) >>_dynamicDefaultTypeCalculationParameters;
+                    bool noHit=true;
+
+                    if (theName.compare("Eng")==0)
+                    { // keep for backward compatibility (23/09/2013)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _dynamicEngineToUse >> _gravity(0) >> _gravity(1) >> _gravity(2) >>_dynamicDefaultTypeCalculationParameters;
+                    }
+
+                    if (theName.compare("En2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _dynamicEngineToUse >> _gravity(0) >> _gravity(1) >> _gravity(2) >>_dynamicDefaultTypeCalculationParameters;
+                    }
+
+                    if (theName.compare("Ver")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _dynamicEngineVersionToUse;
+                    }
+
+                    if (theName.compare("Bul")==0)
+                    { // Keep for backward compatibility (09/03/2016)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        // ar >> _dynamicsBULLETStepSize >> _dynamicBULLETInternalScalingFactor >> _dynamicBULLETConstraintSolvingIterations >> _dynamicBULLETCollisionMarginFactor;
+                        ar >> _bulletFloatParams[simi_bullet_global_stepsize] >> _bulletFloatParams[simi_bullet_global_internalscalingfactor] >> _bulletIntParams[simi_bullet_global_constraintsolvingiterations] >> _bulletFloatParams[simi_bullet_global_collisionmarginfactor];
+                    }
+
+                    if (theName.compare("Ode")==0)
+                    { // Keep for backward compatibility (09/03/2016)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        // ar >> _dynamicsODEStepSize >> _dynamicODEInternalScalingFactor >> _dynamicODEConstraintSolvingIterations >> _dynamicODEGlobalCFM >> _dynamicODEGlobalERP;
+                        ar >> _odeFloatParams[simi_ode_global_stepsize] >> _odeFloatParams[simi_ode_global_internalscalingfactor] >> _odeIntParams[simi_ode_global_constraintsolvingiterations] >> _odeFloatParams[simi_ode_global_cfm] >> _odeFloatParams[simi_ode_global_erp];
+                    }
+
+                    if (theName.compare("Vo5")==0)
+                    { // vortex params:
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int cnt1,cnt2;
+                        ar >> cnt1 >> cnt2;
+
+                        int cnt1_b=SIM_MIN(int(_vortexFloatParams.size()),cnt1);
+                        int cnt2_b=SIM_MIN(int(_vortexIntParams.size()),cnt2);
+
+                        float vf;
+                        int vi;
+                        for (int i=0;i<cnt1_b;i++)
+                        { // new versions will always have same or more items in _vortexFloatParams already!
+                            ar >> vf;
+                            _vortexFloatParams[i]=vf;
+                        }
+                        for (int i=0;i<cnt1-cnt1_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vf;
+                        }
+                        for (int i=0;i<cnt2_b;i++)
+                        { // new versions will always have same or more items in _vortexIntParams already!
+                            ar >> vi;
+                            _vortexIntParams[i]=vi;
+                        }
+                        for (int i=0;i<cnt2-cnt2_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vi;
+                        }
+                        if (ar.getVrepVersionThatWroteThisFile()<30400)
+                        { // In Vortex Studio we have some crashes and instability due to multithreading. At the same time, if multithreading is off, it is faster for V-REP scenes
+                            _vortexIntParams[0]|=simi_vortex_global_multithreading;
+                            _vortexIntParams[0]-=simi_vortex_global_multithreading;
+                        }
+                    }
+                    if (theName.compare("Nw1")==0)
+                    { // Newton params:
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int cnt1,cnt2;
+                        ar >> cnt1 >> cnt2;
+
+                        int cnt1_b=SIM_MIN(int(_newtonFloatParams.size()),cnt1);
+                        int cnt2_b=SIM_MIN(int(_newtonIntParams.size()),cnt2);
+
+                        float vf;
+                        int vi;
+                        for (int i=0;i<cnt1_b;i++)
+                        { // new versions will always have same or more items in _newtonFloatParams already!
+                            ar >> vf;
+                            _newtonFloatParams[i]=vf;
+                        }
+                        for (int i=0;i<cnt1-cnt1_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vf;
+                        }
+                        for (int i=0;i<cnt2_b;i++)
+                        { // new versions will always have same or more items in _newtonIntParams already!
+                            ar >> vi;
+                            _newtonIntParams[i]=vi;
+                        }
+                        for (int i=0;i<cnt2-cnt2_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vi;
+                        }
+                    }
+                    if (theName.compare("BuN")==0)
+                    { // Bullet params:
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int cnt1,cnt2;
+                        ar >> cnt1 >> cnt2;
+
+                        int cnt1_b=SIM_MIN(int(_bulletFloatParams.size()),cnt1);
+                        int cnt2_b=SIM_MIN(int(_bulletIntParams.size()),cnt2);
+
+                        float vf;
+                        int vi;
+                        for (int i=0;i<cnt1_b;i++)
+                        { // new versions will always have same or more items in _bulletFloatParams already!
+                            ar >> vf;
+                            _bulletFloatParams[i]=vf;
+                        }
+                        for (int i=0;i<cnt1-cnt1_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vf;
+                        }
+                        for (int i=0;i<cnt2_b;i++)
+                        { // new versions will always have same or more items in _bulletIntParams already!
+                            ar >> vi;
+                            _bulletIntParams[i]=vi;
+                        }
+                        for (int i=0;i<cnt2-cnt2_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vi;
+                        }
+                    }
+                    if (theName.compare("OdN")==0)
+                    { // ODE params:
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int cnt1,cnt2;
+                        ar >> cnt1 >> cnt2;
+
+                        int cnt1_b=SIM_MIN(int(_odeFloatParams.size()),cnt1);
+                        int cnt2_b=SIM_MIN(int(_odeIntParams.size()),cnt2);
+
+                        float vf;
+                        int vi;
+                        for (int i=0;i<cnt1_b;i++)
+                        { // new versions will always have same or more items in _odeFloatParams already!
+                            ar >> vf;
+                            _odeFloatParams[i]=vf;
+                        }
+                        for (int i=0;i<cnt1-cnt1_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vf;
+                        }
+                        for (int i=0;i<cnt2_b;i++)
+                        { // new versions will always have same or more items in _odeIntParams already!
+                            ar >> vi;
+                            _odeIntParams[i]=vi;
+                        }
+                        for (int i=0;i<cnt2-cnt2_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vi;
+                        }
+                    }
+                    if (theName.compare("Var")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char dummy;
+                        ar >> dummy;
+
+                        _dynamicsEnabled=SIM_IS_BIT_SET(dummy,0);
+                        _displayContactPoints=SIM_IS_BIT_SET(dummy,1);
+                        bool dynBULLETFullInternalScaling=SIM_IS_BIT_SET(dummy,2); // keep for backw. compatibility (09/03/2016)
+                        bool dynODEFullInternalScaling=SIM_IS_BIT_SET(dummy,3); // keep for backw. compatibility (09/03/2016)
+                        bool dynODEUseQuickStep=SIM_IS_BIT_SET(dummy,4); // keep for backw. compatibility (09/03/2016)
+                        // reserved _dynamicVORTEXFullInternalScaling=SIM_IS_BIT_SET(dummy,5);
+
+                        // Following for backw. compatibility (09/03/2016)
+                        if (dynBULLETFullInternalScaling)
+                            _bulletIntParams[simi_bullet_global_bitcoded]|=simi_bullet_global_fullinternalscaling;
+                        else
+                            _bulletIntParams[simi_bullet_global_bitcoded]=(_bulletIntParams[simi_bullet_global_bitcoded]|simi_bullet_global_fullinternalscaling)-simi_bullet_global_fullinternalscaling;
+                        if (dynODEFullInternalScaling)
+                            _odeIntParams[simi_ode_global_bitcoded]|=simi_ode_global_fullinternalscaling;
+                        else
+                            _odeIntParams[simi_ode_global_bitcoded]=(_odeIntParams[simi_ode_global_bitcoded]|simi_ode_global_fullinternalscaling)-simi_ode_global_fullinternalscaling;
+                        if (dynODEUseQuickStep)
+                            _odeIntParams[simi_ode_global_bitcoded]|=simi_ode_global_quickstep;
+                        else
+                            _odeIntParams[simi_ode_global_bitcoded]=(_odeIntParams[simi_ode_global_bitcoded]|simi_ode_global_quickstep)-simi_ode_global_quickstep;
+                    }
+
+                    if (noHit)
+                        ar.loadUnknownData();
                 }
-
-                if (theName.compare("Ver")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _dynamicEngineVersionToUse;
-                }
-
-                if (theName.compare("Bul")==0)
-                { // Keep for backward compatibility (09/03/2016)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    // ar >> _dynamicsBULLETStepSize >> _dynamicBULLETInternalScalingFactor >> _dynamicBULLETConstraintSolvingIterations >> _dynamicBULLETCollisionMarginFactor;
-                    ar >> _bulletFloatParams[simi_bullet_global_stepsize] >> _bulletFloatParams[simi_bullet_global_internalscalingfactor] >> _bulletIntParams[simi_bullet_global_constraintsolvingiterations] >> _bulletFloatParams[simi_bullet_global_collisionmarginfactor];
-                }
-
-                if (theName.compare("Ode")==0)
-                { // Keep for backward compatibility (09/03/2016)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    // ar >> _dynamicsODEStepSize >> _dynamicODEInternalScalingFactor >> _dynamicODEConstraintSolvingIterations >> _dynamicODEGlobalCFM >> _dynamicODEGlobalERP;
-                    ar >> _odeFloatParams[simi_ode_global_stepsize] >> _odeFloatParams[simi_ode_global_internalscalingfactor] >> _odeIntParams[simi_ode_global_constraintsolvingiterations] >> _odeFloatParams[simi_ode_global_cfm] >> _odeFloatParams[simi_ode_global_erp];
-                }
-
-                if (theName.compare("Vo5")==0)
-                { // vortex params:
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int cnt1,cnt2;
-                    ar >> cnt1 >> cnt2;
-
-                    int cnt1_b=SIM_MIN(int(_vortexFloatParams.size()),cnt1);
-                    int cnt2_b=SIM_MIN(int(_vortexIntParams.size()),cnt2);
-
-                    float vf;
-                    int vi;
-                    for (int i=0;i<cnt1_b;i++)
-                    { // new versions will always have same or more items in _vortexFloatParams already!
-                        ar >> vf;
-                        _vortexFloatParams[i]=vf;
-                    }
-                    for (int i=0;i<cnt1-cnt1_b;i++)
-                    { // this serialization version is newer than what we know. Discard the unrecognized data:
-                        ar >> vf;
-                    }
-                    for (int i=0;i<cnt2_b;i++)
-                    { // new versions will always have same or more items in _vortexIntParams already!
-                        ar >> vi;
-                        _vortexIntParams[i]=vi;
-                    }
-                    for (int i=0;i<cnt2-cnt2_b;i++)
-                    { // this serialization version is newer than what we know. Discard the unrecognized data:
-                        ar >> vi;
-                    }
-                    if (ar.getVrepVersionThatWroteThisFile()<30400)
-                    { // In Vortex Studio we have some crashes and instability due to multithreading. At the same time, if multithreading is off, it is faster for V-REP scenes
-                        _vortexIntParams[0]|=simi_vortex_global_multithreading;
-                        _vortexIntParams[0]-=simi_vortex_global_multithreading;
-                    }
-                }
-                if (theName.compare("Nw1")==0)
-                { // Newton params:
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int cnt1,cnt2;
-                    ar >> cnt1 >> cnt2;
-
-                    int cnt1_b=SIM_MIN(int(_newtonFloatParams.size()),cnt1);
-                    int cnt2_b=SIM_MIN(int(_newtonIntParams.size()),cnt2);
-
-                    float vf;
-                    int vi;
-                    for (int i=0;i<cnt1_b;i++)
-                    { // new versions will always have same or more items in _newtonFloatParams already!
-                        ar >> vf;
-                        _newtonFloatParams[i]=vf;
-                    }
-                    for (int i=0;i<cnt1-cnt1_b;i++)
-                    { // this serialization version is newer than what we know. Discard the unrecognized data:
-                        ar >> vf;
-                    }
-                    for (int i=0;i<cnt2_b;i++)
-                    { // new versions will always have same or more items in _newtonIntParams already!
-                        ar >> vi;
-                        _newtonIntParams[i]=vi;
-                    }
-                    for (int i=0;i<cnt2-cnt2_b;i++)
-                    { // this serialization version is newer than what we know. Discard the unrecognized data:
-                        ar >> vi;
-                    }
-                }
-                if (theName.compare("BuN")==0)
-                { // Bullet params:
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int cnt1,cnt2;
-                    ar >> cnt1 >> cnt2;
-
-                    int cnt1_b=SIM_MIN(int(_bulletFloatParams.size()),cnt1);
-                    int cnt2_b=SIM_MIN(int(_bulletIntParams.size()),cnt2);
-
-                    float vf;
-                    int vi;
-                    for (int i=0;i<cnt1_b;i++)
-                    { // new versions will always have same or more items in _bulletFloatParams already!
-                        ar >> vf;
-                        _bulletFloatParams[i]=vf;
-                    }
-                    for (int i=0;i<cnt1-cnt1_b;i++)
-                    { // this serialization version is newer than what we know. Discard the unrecognized data:
-                        ar >> vf;
-                    }
-                    for (int i=0;i<cnt2_b;i++)
-                    { // new versions will always have same or more items in _bulletIntParams already!
-                        ar >> vi;
-                        _bulletIntParams[i]=vi;
-                    }
-                    for (int i=0;i<cnt2-cnt2_b;i++)
-                    { // this serialization version is newer than what we know. Discard the unrecognized data:
-                        ar >> vi;
-                    }
-                }
-                if (theName.compare("OdN")==0)
-                { // ODE params:
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int cnt1,cnt2;
-                    ar >> cnt1 >> cnt2;
-
-                    int cnt1_b=SIM_MIN(int(_odeFloatParams.size()),cnt1);
-                    int cnt2_b=SIM_MIN(int(_odeIntParams.size()),cnt2);
-
-                    float vf;
-                    int vi;
-                    for (int i=0;i<cnt1_b;i++)
-                    { // new versions will always have same or more items in _odeFloatParams already!
-                        ar >> vf;
-                        _odeFloatParams[i]=vf;
-                    }
-                    for (int i=0;i<cnt1-cnt1_b;i++)
-                    { // this serialization version is newer than what we know. Discard the unrecognized data:
-                        ar >> vf;
-                    }
-                    for (int i=0;i<cnt2_b;i++)
-                    { // new versions will always have same or more items in _odeIntParams already!
-                        ar >> vi;
-                        _odeIntParams[i]=vi;
-                    }
-                    for (int i=0;i<cnt2-cnt2_b;i++)
-                    { // this serialization version is newer than what we know. Discard the unrecognized data:
-                        ar >> vi;
-                    }
-                }
-                if (theName.compare("Var")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char dummy;
-                    ar >> dummy;
-                    
-                    _dynamicsEnabled=SIM_IS_BIT_SET(dummy,0);
-                    _displayContactPoints=SIM_IS_BIT_SET(dummy,1);
-                    bool dynBULLETFullInternalScaling=SIM_IS_BIT_SET(dummy,2); // keep for backw. compatibility (09/03/2016)
-                    bool dynODEFullInternalScaling=SIM_IS_BIT_SET(dummy,3); // keep for backw. compatibility (09/03/2016)
-                    bool dynODEUseQuickStep=SIM_IS_BIT_SET(dummy,4); // keep for backw. compatibility (09/03/2016)
-                    // reserved _dynamicVORTEXFullInternalScaling=SIM_IS_BIT_SET(dummy,5);
-
-                    // Following for backw. compatibility (09/03/2016)
-                    if (dynBULLETFullInternalScaling)
-                        _bulletIntParams[simi_bullet_global_bitcoded]|=simi_bullet_global_fullinternalscaling;
-                    else
-                        _bulletIntParams[simi_bullet_global_bitcoded]=(_bulletIntParams[simi_bullet_global_bitcoded]|simi_bullet_global_fullinternalscaling)-simi_bullet_global_fullinternalscaling;
-                    if (dynODEFullInternalScaling)
-                        _odeIntParams[simi_ode_global_bitcoded]|=simi_ode_global_fullinternalscaling;
-                    else
-                        _odeIntParams[simi_ode_global_bitcoded]=(_odeIntParams[simi_ode_global_bitcoded]|simi_ode_global_fullinternalscaling)-simi_ode_global_fullinternalscaling;
-                    if (dynODEUseQuickStep)
-                        _odeIntParams[simi_ode_global_bitcoded]|=simi_ode_global_quickstep;
-                    else
-                        _odeIntParams[simi_ode_global_bitcoded]=(_odeIntParams[simi_ode_global_bitcoded]|simi_ode_global_quickstep)-simi_ode_global_quickstep;
-                }
-
-                if (noHit)
-                    ar.loadUnknownData();
             }
         }
     }

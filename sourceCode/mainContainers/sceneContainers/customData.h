@@ -23,7 +23,7 @@ public:
     void removeAllData();
     CCustomData* copyYourself();
 
-    void serializeData(CSer &ar);
+    void serializeData(CSer &ar,const char* objectName,int scriptHandle);
 
 protected:
     std::vector<char*> dat;

@@ -123,58 +123,61 @@ CRegCollectionEl* CRegCollectionEl::copyYourself()
 
 void CRegCollectionEl::serialize(CSer& ar)
 {
-    if (ar.isStoring())
-    {       // Storing
-        ar.storeDataName("Obj");
-        ar << objectID << subGroupID;
-        ar.flush();
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            ar.storeDataName("Obj");
+            ar << objectID << subGroupID;
+            ar.flush();
 
-        ar.storeDataName("Gty");
-        ar << (unsigned char)groupType;
-        ar.flush();
-        
-        ar.storeDataName("Var");
-        unsigned char dummy=0;
-        dummy=dummy+1*additive;
-        ar << dummy;
-        ar.flush();
+            ar.storeDataName("Gty");
+            ar << (unsigned char)groupType;
+            ar.flush();
 
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
+            ar.storeDataName("Var");
+            unsigned char dummy=0;
+            dummy=dummy+1*additive;
+            ar << dummy;
+            ar.flush();
+
+            ar.storeDataName(SER_END_OF_OBJECT);
+        }
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
             {
-                bool noHit=true;
-                if (theName.compare("Obj")==0)
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
                 {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> objectID >> subGroupID;
+                    bool noHit=true;
+                    if (theName.compare("Obj")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> objectID >> subGroupID;
+                    }
+                    if (theName.compare("Gty")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char dummy;
+                        ar >> dummy;
+                        groupType=(int)dummy;
+                    }
+                    if (theName.compare("Var")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char dummy;
+                        ar >> dummy;
+                        additive=(dummy&1)==1;
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
                 }
-                if (theName.compare("Gty")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char dummy;
-                    ar >> dummy;
-                    groupType=(int)dummy;
-                }
-                if (theName.compare("Var")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char dummy;
-                    ar >> dummy;
-                    additive=(dummy&1)==1;
-                }
-                if (noHit)
-                    ar.loadUnknownData();
             }
         }
     }

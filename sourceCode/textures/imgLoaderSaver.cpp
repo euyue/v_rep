@@ -164,29 +164,29 @@ unsigned char* CImageLoaderSaver::getScaledImage(const unsigned char* originalIm
 #endif
 }
 
-bool CImageLoaderSaver::transformImage(unsigned char* img,const int resol[2],int options)
+bool CImageLoaderSaver::transformImage(unsigned char* img,int resX,int resY,int options)
 {
     int comp=3;
     if (options&1)
         comp=4;
-    unsigned char* img2=new unsigned char[resol[0]*resol[1]*comp];
-    for (int i=0;i<resol[0]*resol[1]*comp;i++)
+    unsigned char* img2=new unsigned char[resX*resY*comp];
+    for (int i=0;i<resX*resY*comp;i++)
         img2[i]=img[i];
-    for (int x=0;x<resol[0];x++)
+    for (int x=0;x<resX;x++)
     {
         int x2=x;
         if (options&2)
-            x2=resol[0]-1-x;
-        for (int y=0;y<resol[1];y++)
+            x2=resX-1-x;
+        for (int y=0;y<resY;y++)
         {
             int y2=y;
             if (options&4)
-                y2=resol[1]-1-y;
-            img[comp*(x+y*resol[0])+0]=img2[comp*(x2+y2*resol[0])+0];
-            img[comp*(x+y*resol[0])+1]=img2[comp*(x2+y2*resol[0])+1];
-            img[comp*(x+y*resol[0])+2]=img2[comp*(x2+y2*resol[0])+2];
+                y2=resY-1-y;
+            img[comp*(x+y*resX)+0]=img2[comp*(x2+y2*resX)+0];
+            img[comp*(x+y*resX)+1]=img2[comp*(x2+y2*resX)+1];
+            img[comp*(x+y*resX)+2]=img2[comp*(x2+y2*resX)+2];
             if (comp==4)
-                img[comp*(x+y*resol[0])+3]=img2[comp*(x2+y2*resol[0])+3];
+                img[comp*(x+y*resX)+3]=img2[comp*(x2+y2*resX)+3];
         }
     }
 

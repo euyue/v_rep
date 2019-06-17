@@ -39,6 +39,6 @@ public:
 
 private:
     static bool _saveSceneWithDialogAndEverything();
-    static bool _saveSceneAsWithDialogAndEverything(int format);
+    static bool _saveSceneAsWithDialogAndEverything(int filetype);
 #endif
 };

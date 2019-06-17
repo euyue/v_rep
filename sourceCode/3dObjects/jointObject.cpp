@@ -1980,499 +1980,502 @@ C4Vector CJoint::getSphericalTransformation_forDisplay(bool guiIsRendering) cons
 void CJoint::serialize(CSer& ar)
 {
     serializeMain(ar);
-    if (ar.isStoring())
-    {   // Storing. The order in which we are storing is very important!!!!
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {   // Storing. The order in which we are storing is very important!!!!
 
-        ar.storeDataName("Jtt");
-        ar << _jointType;
-        ar.flush();
+            ar.storeDataName("Jtt");
+            ar << _jointType;
+            ar.flush();
 
-        ar.storeDataName("Jsp");
-        ar << _screwPitch;
-        ar.flush();
+            ar.storeDataName("Jsp");
+            ar << _screwPitch;
+            ar.flush();
 
-        ar.storeDataName("Jst");
-        ar << _sphericalTransformation(0) << _sphericalTransformation(1);
-        ar << _sphericalTransformation(2) << _sphericalTransformation(3);
-        ar.flush();
+            ar.storeDataName("Jst");
+            ar << _sphericalTransformation(0) << _sphericalTransformation(1);
+            ar << _sphericalTransformation(2) << _sphericalTransformation(3);
+            ar.flush();
 
-        ar.storeDataName("Va9");
-        unsigned char dummy=0;
-        SIM_SET_CLEAR_BIT(dummy,0,_positionIsCyclic);
-        SIM_SET_CLEAR_BIT(dummy,1,_explicitHandling_DEPRECATED);
-        SIM_SET_CLEAR_BIT(dummy,2,_unlimitedAcceleration_DEPRECATED);
-        SIM_SET_CLEAR_BIT(dummy,3,_invertTargetVelocityAtLimits_DEPRECATED);
-        SIM_SET_CLEAR_BIT(dummy,4,_dynamicMotorEnabled);
-        SIM_SET_CLEAR_BIT(dummy,5,_dynamicMotorControlLoopEnabled);
-        SIM_SET_CLEAR_BIT(dummy,6,_jointHasHybridFunctionality);
-        SIM_SET_CLEAR_BIT(dummy,7,_dynamicMotorPositionControl_torqueModulation);
-        ar << dummy;
-        ar.flush();
+            ar.storeDataName("Va9");
+            unsigned char dummy=0;
+            SIM_SET_CLEAR_BIT(dummy,0,_positionIsCyclic);
+            SIM_SET_CLEAR_BIT(dummy,1,_explicitHandling_DEPRECATED);
+            SIM_SET_CLEAR_BIT(dummy,2,_unlimitedAcceleration_DEPRECATED);
+            SIM_SET_CLEAR_BIT(dummy,3,_invertTargetVelocityAtLimits_DEPRECATED);
+            SIM_SET_CLEAR_BIT(dummy,4,_dynamicMotorEnabled);
+            SIM_SET_CLEAR_BIT(dummy,5,_dynamicMotorControlLoopEnabled);
+            SIM_SET_CLEAR_BIT(dummy,6,_jointHasHybridFunctionality);
+            SIM_SET_CLEAR_BIT(dummy,7,_dynamicMotorPositionControl_torqueModulation);
+            ar << dummy;
+            ar.flush();
 
-        ar.storeDataName("Vaa");
-        dummy=0;
-        SIM_SET_CLEAR_BIT(dummy,1,_dynamicLockModeWhenInVelocityControl);
-        ar << dummy;
-        ar.flush();
+            ar.storeDataName("Vaa");
+            dummy=0;
+            SIM_SET_CLEAR_BIT(dummy,1,_dynamicLockModeWhenInVelocityControl);
+            ar << dummy;
+            ar.flush();
 
-        ar.storeDataName("Cl1");
-        ar.setCountingMode();
-        colorPart1.serialize(ar,0);
-        if (ar.setWritingMode())
+            ar.storeDataName("Cl1");
+            ar.setCountingMode();
             colorPart1.serialize(ar,0);
+            if (ar.setWritingMode())
+                colorPart1.serialize(ar,0);
 
-        ar.storeDataName("Cl2");
-        ar.setCountingMode();
-        colorPart2.serialize(ar,0);
-        if (ar.setWritingMode())
+            ar.storeDataName("Cl2");
+            ar.setCountingMode();
             colorPart2.serialize(ar,0);
+            if (ar.setWritingMode())
+                colorPart2.serialize(ar,0);
 
-        ar.storeDataName("Pmr");
-        ar << _jointMinPosition << _jointPositionRange;
-        ar.flush();
+            ar.storeDataName("Pmr");
+            ar << _jointMinPosition << _jointPositionRange;
+            ar.flush();
 
-        ar.storeDataName("Prt");
-        ar << _jointPosition;
-        ar.flush();
+            ar.storeDataName("Prt");
+            ar << _jointPosition;
+            ar.flush();
 
-        ar.storeDataName("Mss");
-        ar << _maxStepSize;
-        ar.flush();
+            ar.storeDataName("Mss");
+            ar << _maxStepSize;
+            ar.flush();
 
-        ar.storeDataName("Arg");
-        ar << _length << _diameter;
-        ar.flush();
+            ar.storeDataName("Arg");
+            ar << _length << _diameter;
+            ar.flush();
 
-        ar.storeDataName("Ikw");
-        ar << _ikWeight;
-        ar.flush();
+            ar.storeDataName("Ikw");
+            ar << _ikWeight;
+            ar.flush();
 
-        ar.storeDataName("Jmd");
-        ar << _jointMode;
-        ar.flush();
+            ar.storeDataName("Jmd");
+            ar << _jointMode;
+            ar.flush();
 
-        ar.storeDataName("Jdt");
-        ar << _dependencyJointID << _dependencyJointCoeff << _dependencyJointOffset;
-        ar.flush();
+            ar.storeDataName("Jdt");
+            ar << _dependencyJointID << _dependencyJointCoeff << _dependencyJointOffset;
+            ar.flush();
 
-        ar.storeDataName("Jm2");
-        ar << _maxAcceleration_DEPRECATED << _velocity_DEPRECATED << _targetVelocity_DEPRECATED;
-        ar.flush();
+            ar.storeDataName("Jm2");
+            ar << _maxAcceleration_DEPRECATED << _velocity_DEPRECATED << _targetVelocity_DEPRECATED;
+            ar.flush();
 
-        ar.storeDataName("Dmp");
-        ar << _dynamicMotorTargetVelocity << _dynamicMotorMaximumForce;
-        ar.flush();
+            ar.storeDataName("Dmp");
+            ar << _dynamicMotorTargetVelocity << _dynamicMotorMaximumForce;
+            ar.flush();
 
-        // Following for backward compatibility (7/5/2014):
-        // Keep this before "Dp2"!
-        ar.storeDataName("Dpc");
-        ar << _dynamicMotorPositionControl_P << (_dynamicMotorPositionControl_I*0.005f) << (_dynamicMotorPositionControl_D/0.005f);
-        ar.flush();
+            // Following for backward compatibility (7/5/2014):
+            // Keep this before "Dp2"!
+            ar.storeDataName("Dpc");
+            ar << _dynamicMotorPositionControl_P << (_dynamicMotorPositionControl_I*0.005f) << (_dynamicMotorPositionControl_D/0.005f);
+            ar.flush();
 
-        ar.storeDataName("Dp2");
-        ar << _dynamicMotorPositionControl_P << _dynamicMotorPositionControl_I << _dynamicMotorPositionControl_D;
-        ar.flush();
+            ar.storeDataName("Dp2");
+            ar << _dynamicMotorPositionControl_P << _dynamicMotorPositionControl_I << _dynamicMotorPositionControl_D;
+            ar.flush();
 
-        ar.storeDataName("Spp");
-        ar << _dynamicMotorSpringControl_K << _dynamicMotorSpringControl_C;
-        ar.flush();
+            ar.storeDataName("Spp");
+            ar << _dynamicMotorSpringControl_K << _dynamicMotorSpringControl_C;
+            ar.flush();
 
-        ar.storeDataName("Dtp");
-        ar << _dynamicMotorPositionControl_targetPosition;
-        ar.flush();
+            ar.storeDataName("Dtp");
+            ar << _dynamicMotorPositionControl_targetPosition;
+            ar.flush();
 
-        ar.storeDataName("Od1"); // keep this for file backw. compat. (09/03/2016)
-        // ar << _odeStopERP << _odeStopCFM << _odeBounce << _odeFudgeFactor << _odeNormalCFM;
-        ar << _odeFloatParams[simi_ode_joint_stoperp] << _odeFloatParams[simi_ode_joint_stopcfm] << _odeFloatParams[simi_ode_joint_bounce] << _odeFloatParams[simi_ode_joint_fudgefactor] << _odeFloatParams[simi_ode_joint_normalcfm];
-        ar.flush();
+            ar.storeDataName("Od1"); // keep this for file backw. compat. (09/03/2016)
+            // ar << _odeStopERP << _odeStopCFM << _odeBounce << _odeFudgeFactor << _odeNormalCFM;
+            ar << _odeFloatParams[simi_ode_joint_stoperp] << _odeFloatParams[simi_ode_joint_stopcfm] << _odeFloatParams[simi_ode_joint_bounce] << _odeFloatParams[simi_ode_joint_fudgefactor] << _odeFloatParams[simi_ode_joint_normalcfm];
+            ar.flush();
 
-        ar.storeDataName("Bt1"); // keep this for file backw. compat. (09/03/2016)
-        // ar << _bulletStopERP << _bulletStopCFM << _bulletNormalCFM;
-        ar << _bulletFloatParams[simi_bullet_joint_stoperp] << _bulletFloatParams[simi_bullet_joint_stopcfm] << _bulletFloatParams[simi_bullet_joint_normalcfm];
-        ar.flush();
+            ar.storeDataName("Bt1"); // keep this for file backw. compat. (09/03/2016)
+            // ar << _bulletStopERP << _bulletStopCFM << _bulletNormalCFM;
+            ar << _bulletFloatParams[simi_bullet_joint_stoperp] << _bulletFloatParams[simi_bullet_joint_stopcfm] << _bulletFloatParams[simi_bullet_joint_normalcfm];
+            ar.flush();
 
-        ar.storeDataName("BtN"); // Bullet params, keep this after "Bt1"
-        ar << int(_bulletFloatParams.size()) << int(_bulletIntParams.size());
-        for (int i=0;i<int(_bulletFloatParams.size());i++)
-            ar << _bulletFloatParams[i];
-        for (int i=0;i<int(_bulletIntParams.size());i++)
-            ar << _bulletIntParams[i];
-        ar.flush();
+            ar.storeDataName("BtN"); // Bullet params, keep this after "Bt1"
+            ar << int(_bulletFloatParams.size()) << int(_bulletIntParams.size());
+            for (int i=0;i<int(_bulletFloatParams.size());i++)
+                ar << _bulletFloatParams[i];
+            for (int i=0;i<int(_bulletIntParams.size());i++)
+                ar << _bulletIntParams[i];
+            ar.flush();
 
-        ar.storeDataName("OdN"); // ODE params, keep this after "Od1"
-        ar << int(_odeFloatParams.size()) << int(_odeIntParams.size());
-        for (int i=0;i<int(_odeFloatParams.size());i++)
-            ar << _odeFloatParams[i];
-        for (int i=0;i<int(_odeIntParams.size());i++)
-            ar << _odeIntParams[i];
-        ar.flush();
+            ar.storeDataName("OdN"); // ODE params, keep this after "Od1"
+            ar << int(_odeFloatParams.size()) << int(_odeIntParams.size());
+            for (int i=0;i<int(_odeFloatParams.size());i++)
+                ar << _odeFloatParams[i];
+            for (int i=0;i<int(_odeIntParams.size());i++)
+                ar << _odeIntParams[i];
+            ar.flush();
 
-        ar.storeDataName("Vo2"); // vortex params:
-        ar << int(_vortexFloatParams.size()) << int(_vortexIntParams.size());
-        for (int i=0;i<int(_vortexFloatParams.size());i++)
-            ar << _vortexFloatParams[i];
-        for (int i=0;i<int(_vortexIntParams.size());i++)
-            ar << _vortexIntParams[i];
-        ar.flush();
+            ar.storeDataName("Vo2"); // vortex params:
+            ar << int(_vortexFloatParams.size()) << int(_vortexIntParams.size());
+            for (int i=0;i<int(_vortexFloatParams.size());i++)
+                ar << _vortexFloatParams[i];
+            for (int i=0;i<int(_vortexIntParams.size());i++)
+                ar << _vortexIntParams[i];
+            ar.flush();
 
-        ar.storeDataName("Nw1"); // newton params:
-        ar << int(_newtonFloatParams.size()) << int(_newtonIntParams.size());
-        for (int i=0;i<int(_newtonFloatParams.size());i++)
-            ar << _newtonFloatParams[i];
-        for (int i=0;i<int(_newtonIntParams.size());i++)
-            ar << _newtonIntParams[i];
-        ar.flush();
+            ar.storeDataName("Nw1"); // newton params:
+            ar << int(_newtonFloatParams.size()) << int(_newtonIntParams.size());
+            for (int i=0;i<int(_newtonFloatParams.size());i++)
+                ar << _newtonFloatParams[i];
+            for (int i=0;i<int(_newtonIntParams.size());i++)
+                ar << _newtonIntParams[i];
+            ar.flush();
 
-        ar.storeDataName("Ulv");
-        ar << _dynamicMotorUpperLimitVelocity;
-        ar.flush();
+            ar.storeDataName("Ulv");
+            ar << _dynamicMotorUpperLimitVelocity;
+            ar.flush();
 
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        bool dynamicUpperVelocityLimitPresent=false; // for backward compatibility (2010/11/13)
-        bool kAndCSpringParameterPresent=false; // for backward compatibility (7/5/2014)
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
+            ar.storeDataName(SER_END_OF_OBJECT);
+        }
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            bool dynamicUpperVelocityLimitPresent=false; // for backward compatibility (2010/11/13)
+            bool kAndCSpringParameterPresent=false; // for backward compatibility (7/5/2014)
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
             {
-                bool noHit=true;
-                if (theName.compare("Prt")==0)
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
                 {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _jointPosition;
-                }
-                if (theName.compare("Jsp")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _screwPitch;
-                }
-                if (theName.compare("Jst")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _sphericalTransformation(0) >> _sphericalTransformation(1);
-                    ar >> _sphericalTransformation(2) >> _sphericalTransformation(3);
-                    _sphericalTransformation.normalize();
-                }
-                if (theName.compare("Mss")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _maxStepSize;
-                }
-                if (theName.compare("Ikw")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _ikWeight;
-                }
-                if (theName.compare("Cl1")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    colorPart1.serialize(ar,0);
-                }
-                if (theName.compare("Cl2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    colorPart2.serialize(ar,0);
-                }
-                if (theName.compare("Arg")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _length >> _diameter;
-                }
-                if (theName.compare("Pmr")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _jointMinPosition >> _jointPositionRange;
-                }
-                if (theName.compare("Va9")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char dummy;
-                    ar >> dummy;
-                    _positionIsCyclic=SIM_IS_BIT_SET(dummy,0);
-                    _explicitHandling_DEPRECATED=SIM_IS_BIT_SET(dummy,1);
-                    _unlimitedAcceleration_DEPRECATED=SIM_IS_BIT_SET(dummy,2);
-                    _invertTargetVelocityAtLimits_DEPRECATED=SIM_IS_BIT_SET(dummy,3);
-                    _dynamicMotorEnabled=SIM_IS_BIT_SET(dummy,4);
-                    _dynamicMotorControlLoopEnabled=SIM_IS_BIT_SET(dummy,5);
-                    _jointHasHybridFunctionality=SIM_IS_BIT_SET(dummy,6);
-                    _dynamicMotorPositionControl_torqueModulation=SIM_IS_BIT_SET(dummy,7);
-                }   
-                if (theName.compare("Vaa")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char dummy;
-                    ar >> dummy;
-                    // _dynamicMotorCustomControl_OLD=SIM_IS_BIT_SET(dummy,0);
-                    _dynamicLockModeWhenInVelocityControl=SIM_IS_BIT_SET(dummy,1);
-                }
-                if (theName.compare("Jmd")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _jointMode;
-                    if (_jointMode==sim_jointmode_reserved_previously_ikdependent)
-                        _jointMode=sim_jointmode_dependent; // since 4/7/2014 there is no more an ikdependent mode (ikdependent and dependent are treated as same)
-                }
-                if (theName.compare("Jdt")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _dependencyJointID >> _dependencyJointCoeff >> _dependencyJointOffset;
-                }
-                if (theName.compare("Jtt")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _jointType;
-                }
-                if (theName.compare("Jm2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _maxAcceleration_DEPRECATED >> _velocity_DEPRECATED >> _targetVelocity_DEPRECATED;
-                }
-                if (theName.compare("Dmp")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _dynamicMotorTargetVelocity >> _dynamicMotorMaximumForce;
-                }
-                if (theName.compare("Dpc")==0)
-                { // keep for backward compatibility (7/5/2014)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _dynamicMotorPositionControl_P >> _dynamicMotorPositionControl_I >> _dynamicMotorPositionControl_D;
-                    _dynamicMotorPositionControl_I/=0.005f;
-                    _dynamicMotorPositionControl_D*=0.005f;
-                }
-                if (theName.compare("Dp2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _dynamicMotorPositionControl_P >> _dynamicMotorPositionControl_I >> _dynamicMotorPositionControl_D;
-                }
+                    bool noHit=true;
+                    if (theName.compare("Prt")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _jointPosition;
+                    }
+                    if (theName.compare("Jsp")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _screwPitch;
+                    }
+                    if (theName.compare("Jst")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _sphericalTransformation(0) >> _sphericalTransformation(1);
+                        ar >> _sphericalTransformation(2) >> _sphericalTransformation(3);
+                        _sphericalTransformation.normalize();
+                    }
+                    if (theName.compare("Mss")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _maxStepSize;
+                    }
+                    if (theName.compare("Ikw")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _ikWeight;
+                    }
+                    if (theName.compare("Cl1")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        colorPart1.serialize(ar,0);
+                    }
+                    if (theName.compare("Cl2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        colorPart2.serialize(ar,0);
+                    }
+                    if (theName.compare("Arg")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _length >> _diameter;
+                    }
+                    if (theName.compare("Pmr")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _jointMinPosition >> _jointPositionRange;
+                    }
+                    if (theName.compare("Va9")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char dummy;
+                        ar >> dummy;
+                        _positionIsCyclic=SIM_IS_BIT_SET(dummy,0);
+                        _explicitHandling_DEPRECATED=SIM_IS_BIT_SET(dummy,1);
+                        _unlimitedAcceleration_DEPRECATED=SIM_IS_BIT_SET(dummy,2);
+                        _invertTargetVelocityAtLimits_DEPRECATED=SIM_IS_BIT_SET(dummy,3);
+                        _dynamicMotorEnabled=SIM_IS_BIT_SET(dummy,4);
+                        _dynamicMotorControlLoopEnabled=SIM_IS_BIT_SET(dummy,5);
+                        _jointHasHybridFunctionality=SIM_IS_BIT_SET(dummy,6);
+                        _dynamicMotorPositionControl_torqueModulation=SIM_IS_BIT_SET(dummy,7);
+                    }
+                    if (theName.compare("Vaa")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char dummy;
+                        ar >> dummy;
+                        // _dynamicMotorCustomControl_OLD=SIM_IS_BIT_SET(dummy,0);
+                        _dynamicLockModeWhenInVelocityControl=SIM_IS_BIT_SET(dummy,1);
+                    }
+                    if (theName.compare("Jmd")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _jointMode;
+                        if (_jointMode==sim_jointmode_reserved_previously_ikdependent)
+                            _jointMode=sim_jointmode_dependent; // since 4/7/2014 there is no more an ikdependent mode (ikdependent and dependent are treated as same)
+                    }
+                    if (theName.compare("Jdt")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _dependencyJointID >> _dependencyJointCoeff >> _dependencyJointOffset;
+                    }
+                    if (theName.compare("Jtt")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _jointType;
+                    }
+                    if (theName.compare("Jm2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _maxAcceleration_DEPRECATED >> _velocity_DEPRECATED >> _targetVelocity_DEPRECATED;
+                    }
+                    if (theName.compare("Dmp")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _dynamicMotorTargetVelocity >> _dynamicMotorMaximumForce;
+                    }
+                    if (theName.compare("Dpc")==0)
+                    { // keep for backward compatibility (7/5/2014)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _dynamicMotorPositionControl_P >> _dynamicMotorPositionControl_I >> _dynamicMotorPositionControl_D;
+                        _dynamicMotorPositionControl_I/=0.005f;
+                        _dynamicMotorPositionControl_D*=0.005f;
+                    }
+                    if (theName.compare("Dp2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _dynamicMotorPositionControl_P >> _dynamicMotorPositionControl_I >> _dynamicMotorPositionControl_D;
+                    }
 
-                if (theName.compare("Spp")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _dynamicMotorSpringControl_K >> _dynamicMotorSpringControl_C;
-                    kAndCSpringParameterPresent=true;
-                }
+                    if (theName.compare("Spp")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _dynamicMotorSpringControl_K >> _dynamicMotorSpringControl_C;
+                        kAndCSpringParameterPresent=true;
+                    }
 
-                if (theName.compare("Dtp")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _dynamicMotorPositionControl_targetPosition;
-                }
-                if (theName.compare("Od1")==0)
-                { // keep for backward compat. (09/03/2016)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    // ar >> _odeStopERP >> _odeStopCFM >> _odeBounce >> _odeFudgeFactor >> _odeNormalCFM;
-                    ar >> _odeFloatParams[simi_ode_joint_stoperp] >> _odeFloatParams[simi_ode_joint_stopcfm] >> _odeFloatParams[simi_ode_joint_bounce] >> _odeFloatParams[simi_ode_joint_fudgefactor] >> _odeFloatParams[simi_ode_joint_normalcfm];
-                }
-                if (theName.compare("Bt1")==0)
-                { // keep for backward compat. (09/03/2016)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    // ar >> _bulletStopERP >> _bulletStopCFM >> _bulletNormalCFM;
-                    ar >> _bulletFloatParams[simi_bullet_joint_stoperp] >> _bulletFloatParams[simi_bullet_joint_stopcfm] >> _bulletFloatParams[simi_bullet_joint_normalcfm];
-                }
-                if (theName.compare("BtN")==0)
-                { // Bullet params:
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int cnt1,cnt2;
-                    ar >> cnt1 >> cnt2;
+                    if (theName.compare("Dtp")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _dynamicMotorPositionControl_targetPosition;
+                    }
+                    if (theName.compare("Od1")==0)
+                    { // keep for backward compat. (09/03/2016)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        // ar >> _odeStopERP >> _odeStopCFM >> _odeBounce >> _odeFudgeFactor >> _odeNormalCFM;
+                        ar >> _odeFloatParams[simi_ode_joint_stoperp] >> _odeFloatParams[simi_ode_joint_stopcfm] >> _odeFloatParams[simi_ode_joint_bounce] >> _odeFloatParams[simi_ode_joint_fudgefactor] >> _odeFloatParams[simi_ode_joint_normalcfm];
+                    }
+                    if (theName.compare("Bt1")==0)
+                    { // keep for backward compat. (09/03/2016)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        // ar >> _bulletStopERP >> _bulletStopCFM >> _bulletNormalCFM;
+                        ar >> _bulletFloatParams[simi_bullet_joint_stoperp] >> _bulletFloatParams[simi_bullet_joint_stopcfm] >> _bulletFloatParams[simi_bullet_joint_normalcfm];
+                    }
+                    if (theName.compare("BtN")==0)
+                    { // Bullet params:
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int cnt1,cnt2;
+                        ar >> cnt1 >> cnt2;
 
-                    int cnt1_b=SIM_MIN(int(_bulletFloatParams.size()),cnt1);
-                    int cnt2_b=SIM_MIN(int(_bulletIntParams.size()),cnt2);
+                        int cnt1_b=SIM_MIN(int(_bulletFloatParams.size()),cnt1);
+                        int cnt2_b=SIM_MIN(int(_bulletIntParams.size()),cnt2);
 
-                    float vf;
-                    int vi;
-                    for (int i=0;i<cnt1_b;i++)
-                    { // new versions will always have same or more items in _bulletFloatParams already!
-                        ar >> vf;
-                        _bulletFloatParams[i]=vf;
+                        float vf;
+                        int vi;
+                        for (int i=0;i<cnt1_b;i++)
+                        { // new versions will always have same or more items in _bulletFloatParams already!
+                            ar >> vf;
+                            _bulletFloatParams[i]=vf;
+                        }
+                        for (int i=0;i<cnt1-cnt1_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vf;
+                        }
+                        for (int i=0;i<cnt2_b;i++)
+                        { // new versions will always have same or more items in _bulletIntParams already!
+                            ar >> vi;
+                            _bulletIntParams[i]=vi;
+                        }
+                        for (int i=0;i<cnt2-cnt2_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vi;
+                        }
                     }
-                    for (int i=0;i<cnt1-cnt1_b;i++)
-                    { // this serialization version is newer than what we know. Discard the unrecognized data:
-                        ar >> vf;
+                    if (theName.compare("OdN")==0)
+                    { // ODE params:
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int cnt1,cnt2;
+                        ar >> cnt1 >> cnt2;
+
+                        int cnt1_b=SIM_MIN(int(_odeFloatParams.size()),cnt1);
+                        int cnt2_b=SIM_MIN(int(_odeIntParams.size()),cnt2);
+
+                        float vf;
+                        int vi;
+                        for (int i=0;i<cnt1_b;i++)
+                        { // new versions will always have same or more items in _odeFloatParams already!
+                            ar >> vf;
+                            _odeFloatParams[i]=vf;
+                        }
+                        for (int i=0;i<cnt1-cnt1_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vf;
+                        }
+                        for (int i=0;i<cnt2_b;i++)
+                        { // new versions will always have same or more items in _odeIntParams already!
+                            ar >> vi;
+                            _odeIntParams[i]=vi;
+                        }
+                        for (int i=0;i<cnt2-cnt2_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vi;
+                        }
                     }
-                    for (int i=0;i<cnt2_b;i++)
-                    { // new versions will always have same or more items in _bulletIntParams already!
-                        ar >> vi;
-                        _bulletIntParams[i]=vi;
+                    if (theName.compare("Vo2")==0)
+                    { // vortex params:
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int cnt1,cnt2;
+                        ar >> cnt1 >> cnt2;
+
+                        int cnt1_b=SIM_MIN(int(_vortexFloatParams.size()),cnt1);
+                        int cnt2_b=SIM_MIN(int(_vortexIntParams.size()),cnt2);
+
+                        float vf;
+                        int vi;
+                        for (int i=0;i<cnt1_b;i++)
+                        { // new versions will always have same or more items in _vortexFloatParams already!
+                            ar >> vf;
+                            _vortexFloatParams[i]=vf;
+                        }
+                        for (int i=0;i<cnt1-cnt1_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vf;
+                        }
+                        for (int i=0;i<cnt2_b;i++)
+                        { // new versions will always have same or more items in _vortexIntParams already!
+                            ar >> vi;
+                            _vortexIntParams[i]=vi;
+                        }
+                        for (int i=0;i<cnt2-cnt2_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vi;
+                        }
                     }
-                    for (int i=0;i<cnt2-cnt2_b;i++)
-                    { // this serialization version is newer than what we know. Discard the unrecognized data:
-                        ar >> vi;
+                    if (theName.compare("Nw1")==0)
+                    { // Newton params:
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int cnt1,cnt2;
+                        ar >> cnt1 >> cnt2;
+
+                        int cnt1_b=SIM_MIN(int(_newtonFloatParams.size()),cnt1);
+                        int cnt2_b=SIM_MIN(int(_newtonIntParams.size()),cnt2);
+
+                        float vf;
+                        int vi;
+                        for (int i=0;i<cnt1_b;i++)
+                        { // new versions will always have same or more items in _newtonFloatParams already!
+                            ar >> vf;
+                            _newtonFloatParams[i]=vf;
+                        }
+                        for (int i=0;i<cnt1-cnt1_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vf;
+                        }
+                        for (int i=0;i<cnt2_b;i++)
+                        { // new versions will always have same or more items in _newtonIntParams already!
+                            ar >> vi;
+                            _newtonIntParams[i]=vi;
+                        }
+                        for (int i=0;i<cnt2-cnt2_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vi;
+                        }
                     }
+                    if (theName.compare("Ulv")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _dynamicMotorUpperLimitVelocity;
+                        dynamicUpperVelocityLimitPresent=true;
+                    }
+                    if (theName.compare("Cco")==0)
+                    { // Keep this for backward compatibility (6/8/2014)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _jointCallbackCallOrder_backwardCompatibility;
+                    }
+
+                    if (noHit)
+                        ar.loadUnknownData();
                 }
-                if (theName.compare("OdN")==0)
-                { // ODE params:
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int cnt1,cnt2;
-                    ar >> cnt1 >> cnt2;
-
-                    int cnt1_b=SIM_MIN(int(_odeFloatParams.size()),cnt1);
-                    int cnt2_b=SIM_MIN(int(_odeIntParams.size()),cnt2);
-
-                    float vf;
-                    int vi;
-                    for (int i=0;i<cnt1_b;i++)
-                    { // new versions will always have same or more items in _odeFloatParams already!
-                        ar >> vf;
-                        _odeFloatParams[i]=vf;
-                    }
-                    for (int i=0;i<cnt1-cnt1_b;i++)
-                    { // this serialization version is newer than what we know. Discard the unrecognized data:
-                        ar >> vf;
-                    }
-                    for (int i=0;i<cnt2_b;i++)
-                    { // new versions will always have same or more items in _odeIntParams already!
-                        ar >> vi;
-                        _odeIntParams[i]=vi;
-                    }
-                    for (int i=0;i<cnt2-cnt2_b;i++)
-                    { // this serialization version is newer than what we know. Discard the unrecognized data:
-                        ar >> vi;
-                    }
-                }
-                if (theName.compare("Vo2")==0)
-                { // vortex params:
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int cnt1,cnt2;
-                    ar >> cnt1 >> cnt2;
-
-                    int cnt1_b=SIM_MIN(int(_vortexFloatParams.size()),cnt1);
-                    int cnt2_b=SIM_MIN(int(_vortexIntParams.size()),cnt2);
-
-                    float vf;
-                    int vi;
-                    for (int i=0;i<cnt1_b;i++)
-                    { // new versions will always have same or more items in _vortexFloatParams already!
-                        ar >> vf;
-                        _vortexFloatParams[i]=vf;
-                    }
-                    for (int i=0;i<cnt1-cnt1_b;i++)
-                    { // this serialization version is newer than what we know. Discard the unrecognized data:
-                        ar >> vf;
-                    }
-                    for (int i=0;i<cnt2_b;i++)
-                    { // new versions will always have same or more items in _vortexIntParams already!
-                        ar >> vi;
-                        _vortexIntParams[i]=vi;
-                    }
-                    for (int i=0;i<cnt2-cnt2_b;i++)
-                    { // this serialization version is newer than what we know. Discard the unrecognized data:
-                        ar >> vi;
-                    }
-                }
-                if (theName.compare("Nw1")==0)
-                { // Newton params:
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int cnt1,cnt2;
-                    ar >> cnt1 >> cnt2;
-
-                    int cnt1_b=SIM_MIN(int(_newtonFloatParams.size()),cnt1);
-                    int cnt2_b=SIM_MIN(int(_newtonIntParams.size()),cnt2);
-
-                    float vf;
-                    int vi;
-                    for (int i=0;i<cnt1_b;i++)
-                    { // new versions will always have same or more items in _newtonFloatParams already!
-                        ar >> vf;
-                        _newtonFloatParams[i]=vf;
-                    }
-                    for (int i=0;i<cnt1-cnt1_b;i++)
-                    { // this serialization version is newer than what we know. Discard the unrecognized data:
-                        ar >> vf;
-                    }
-                    for (int i=0;i<cnt2_b;i++)
-                    { // new versions will always have same or more items in _newtonIntParams already!
-                        ar >> vi;
-                        _newtonIntParams[i]=vi;
-                    }
-                    for (int i=0;i<cnt2-cnt2_b;i++)
-                    { // this serialization version is newer than what we know. Discard the unrecognized data:
-                        ar >> vi;
-                    }
-                }
-                if (theName.compare("Ulv")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _dynamicMotorUpperLimitVelocity;
-                    dynamicUpperVelocityLimitPresent=true;
-                }
-                if (theName.compare("Cco")==0)
-                { // Keep this for backward compatibility (6/8/2014)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _jointCallbackCallOrder_backwardCompatibility;
-                }
-
-                if (noHit)
-                    ar.loadUnknownData();
             }
-        }
-        if (!dynamicUpperVelocityLimitPresent)
-        { // for backward compatibility (2010/11/13):
-            if (_jointType==sim_joint_revolute_subtype)
-                _dynamicMotorUpperLimitVelocity=360.0f*degToRad_f;
-            if (_jointType==sim_joint_prismatic_subtype)
-                _dynamicMotorUpperLimitVelocity=10.0f;
-            if (_jointType==sim_joint_spherical_subtype)
-                _dynamicMotorUpperLimitVelocity=0.0; // no meaning here
-        }
-
-        if (!kAndCSpringParameterPresent)
-        { // for backward compatibility (7/5/2014):
-            if (_dynamicMotorEnabled&&_dynamicMotorControlLoopEnabled&&_dynamicMotorPositionControl_torqueModulation)
-            { // we have a joint that behaves as a spring. We need to compute the corresponding K and C parameters, and adjust the max. force/torque (since that was not limited before):
-                _dynamicMotorSpringControl_K=_dynamicMotorMaximumForce*_dynamicMotorPositionControl_P;
-                _dynamicMotorSpringControl_C=_dynamicMotorMaximumForce*_dynamicMotorPositionControl_D;
-                float maxTolerablePorDParam=1.0f;
+            if (!dynamicUpperVelocityLimitPresent)
+            { // for backward compatibility (2010/11/13):
                 if (_jointType==sim_joint_revolute_subtype)
-                    maxTolerablePorDParam=1.0f/piValTimes2_f;
-                float maxPorD=SIM_MAX(fabs(_dynamicMotorPositionControl_P),fabs(_dynamicMotorPositionControl_D));
-                if (maxPorD>maxTolerablePorDParam)
-                { // we shift the limit up
-                    float corr=maxTolerablePorDParam/maxPorD;
-                    _dynamicMotorPositionControl_P*=corr;
-                    _dynamicMotorPositionControl_I*=corr;
-                    _dynamicMotorPositionControl_D*=corr;
-                    _dynamicMotorMaximumForce/=corr;
+                    _dynamicMotorUpperLimitVelocity=360.0f*degToRad_f;
+                if (_jointType==sim_joint_prismatic_subtype)
+                    _dynamicMotorUpperLimitVelocity=10.0f;
+                if (_jointType==sim_joint_spherical_subtype)
+                    _dynamicMotorUpperLimitVelocity=0.0; // no meaning here
+            }
+
+            if (!kAndCSpringParameterPresent)
+            { // for backward compatibility (7/5/2014):
+                if (_dynamicMotorEnabled&&_dynamicMotorControlLoopEnabled&&_dynamicMotorPositionControl_torqueModulation)
+                { // we have a joint that behaves as a spring. We need to compute the corresponding K and C parameters, and adjust the max. force/torque (since that was not limited before):
+                    _dynamicMotorSpringControl_K=_dynamicMotorMaximumForce*_dynamicMotorPositionControl_P;
+                    _dynamicMotorSpringControl_C=_dynamicMotorMaximumForce*_dynamicMotorPositionControl_D;
+                    float maxTolerablePorDParam=1.0f;
+                    if (_jointType==sim_joint_revolute_subtype)
+                        maxTolerablePorDParam=1.0f/piValTimes2_f;
+                    float maxPorD=SIM_MAX(fabs(_dynamicMotorPositionControl_P),fabs(_dynamicMotorPositionControl_D));
+                    if (maxPorD>maxTolerablePorDParam)
+                    { // we shift the limit up
+                        float corr=maxTolerablePorDParam/maxPorD;
+                        _dynamicMotorPositionControl_P*=corr;
+                        _dynamicMotorPositionControl_I*=corr;
+                        _dynamicMotorPositionControl_D*=corr;
+                        _dynamicMotorMaximumForce/=corr;
+                    }
                 }
             }
-        }
 
-        if (ar.getSerializationVersionThatWroteThisFile()<17)
-        { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
-            CTTUtil::scaleColorUp_(colorPart1.colors);
-            CTTUtil::scaleColorUp_(colorPart2.colors);
+            if (ar.getSerializationVersionThatWroteThisFile()<17)
+            { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
+                CTTUtil::scaleColorUp_(colorPart1.colors);
+                CTTUtil::scaleColorUp_(colorPart2.colors);
+            }
         }
     }
 }

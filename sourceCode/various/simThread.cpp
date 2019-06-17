@@ -3770,13 +3770,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         // Check if the object doesn't already have a script attached:
                         if (App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(objID)==nullptr)
                         {
-                            it->setObjectIDThatScriptIsAttachedTo_child(objID);
+                            it->setObjectIDThatScriptIsAttachedTo(objID);
                             App::ct->setModificationFlag(8192); // script added flag
                         }
                     }
                     else
                     {
-                        it->setObjectIDThatScriptIsAttachedTo_child(-1);
+                        it->setObjectIDThatScriptIsAttachedTo(-1);
                         App::ct->setModificationFlag(16384); // script deleted flag
                     }
                 }
@@ -3787,13 +3787,13 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         // Check if the object doesn't already have a script attached:
                         if (App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(objID)==nullptr)
                         {
-                            it->setObjectIDThatScriptIsAttachedTo_customization(objID);
+                            it->setObjectIDThatScriptIsAttachedTo(objID);
                             App::ct->setModificationFlag(8192); // script added flag
                         }
                     }
                     else
                     {
-                        it->setObjectIDThatScriptIsAttachedTo_customization(-1);
+                        it->setObjectIDThatScriptIsAttachedTo(-1);
                         App::ct->setModificationFlag(16384); // script deleted flag
                     }
                 }

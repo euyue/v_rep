@@ -297,7 +297,6 @@ void simulatorLoop()
         wasRunning=false;
         simQuitSimulator_internal(true); // will post the quit command
     }
-    stepSimIfRunning = true;
 }
 
 //********************************************
@@ -5821,10 +5820,7 @@ simInt simAssociateScriptWithObject_internal(simInt scriptHandle,simInt associat
             {
                 if (associatedObjectHandle==-1)
                 { // remove association
-                    if (it->getScriptType()==sim_scripttype_childscript)
-                        it->setObjectIDThatScriptIsAttachedTo_child(-1);
-                    if (it->getScriptType()==sim_scripttype_customizationscript)
-                        it->setObjectIDThatScriptIsAttachedTo_customization(-1);
+                    it->setObjectIDThatScriptIsAttachedTo(-1);
                     App::setLightDialogRefreshFlag();
                     retVal=1;
                 }
@@ -5832,18 +5828,12 @@ simInt simAssociateScriptWithObject_internal(simInt scriptHandle,simInt associat
                 { // set association
                     if (doesObjectExist(__func__,associatedObjectHandle))
                     { // object does exist
-                        if ( (it->getObjectIDThatScriptIsAttachedTo_child()==-1)&&(it->getObjectIDThatScriptIsAttachedTo_customization()==-1) )
+                        if (it->getObjectIDThatScriptIsAttachedTo()==-1)
                         { // script not yet associated
-                            if ( ((it->getScriptType()==sim_scripttype_childscript)&&(App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_child(associatedObjectHandle)==nullptr))||
-                                 ((it->getScriptType()==sim_scripttype_customizationscript)&&(App::ct->luaScriptContainer->getScriptFromObjectAttachedTo_customization(associatedObjectHandle)==nullptr)) )
-                            { // object has no child/customization script yet
-                                if (it->getScriptType()==sim_scripttype_childscript)
-                                    it->setObjectIDThatScriptIsAttachedTo_child(associatedObjectHandle);
-                                if (it->getScriptType()==sim_scripttype_customizationscript)
-                                    it->setObjectIDThatScriptIsAttachedTo_customization(associatedObjectHandle);
-                                App::setLightDialogRefreshFlag();
-                                retVal=1;
-                            }
+                            if (it->getScriptType()==sim_scripttype_childscript)
+                                it->setObjectIDThatScriptIsAttachedTo(associatedObjectHandle);
+                            App::setLightDialogRefreshFlag();
+                            retVal=1;
                         }
                     }
                 }
@@ -10113,7 +10103,6 @@ simInt simExportMesh_internal(simInt fileformat,const simChar* pathAndFilename,s
             return(-1);
         }
         int op=0;
-        printf("format: %s\n",format.c_str());
         CPluginContainer::assimp_exportMeshes(elementCount,vertices,verticesSizes,indices,indicesSizes,pathAndFilename,format.c_str(),scalingFactor,1,op);
         return(1);
     }
@@ -15913,7 +15902,7 @@ simInt simTransformImage_internal(simUChar* image,const simInt* resolution,simIn
 
     IF_C_API_SIM_OR_UI_THREAD_CAN_READ_DATA
     {
-        if (CImageLoaderSaver::transformImage(image,resolution,options))
+        if (CImageLoaderSaver::transformImage(image,resolution[0],resolution[1],options))
             return(1);
         return(-1);
     }

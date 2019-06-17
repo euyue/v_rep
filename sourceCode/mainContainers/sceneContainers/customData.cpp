@@ -1,7 +1,6 @@
-
 #include "vrepMainHeader.h"
 #include "customData.h"
-
+#include "tt.h"
 
 CCustomData::CCustomData()
 {
@@ -27,49 +26,52 @@ void CCustomData::simulationEnded()
 
 }
 
-void CCustomData::serializeData(CSer &ar)
+void CCustomData::serializeData(CSer &ar,const char* objectName,int scriptHandle)
 {
-    if (ar.isStoring())
-    {       // Storing
-        for (unsigned int i=0;i<dat.size();i++)
-        {
-            ar.storeDataName("Dat");
-            ar << head[i];
-            ar << len[i];
-            for (int j=0;j<len[i];j++)
-                ar << dat[i][j];
-            ar.flush();
-        }
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        removeAllData();
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            for (unsigned int i=0;i<dat.size();i++)
             {
-                bool noHit=true;
-                if (theName=="Dat")
+                ar.storeDataName("Dat");
+                ar << head[i];
+                ar << len[i];
+                for (int j=0;j<len[i];j++)
+                    ar << dat[i][j];
+                ar.flush();
+            }
+            ar.storeDataName(SER_END_OF_OBJECT);
+        }
+        else
+        {       // Loading
+            removeAllData();
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
+            {
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
                 {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int e;
-                    int l;
-                    ar >> e;
-                    ar >> l;
-                    char* dd=new char[l];
-                    for (int i=0;i<l;i++)
-                        ar >> dd[i];
-                    dat.push_back(dd);
-                    len.push_back(l);
-                    head.push_back(e);
+                    bool noHit=true;
+                    if (theName=="Dat")
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int e;
+                        int l;
+                        ar >> e;
+                        ar >> l;
+                        char* dd=new char[l];
+                        for (int i=0;i<l;i++)
+                            ar >> dd[i];
+                        dat.push_back(dd);
+                        len.push_back(l);
+                        head.push_back(e);
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
                 }
-                if (noHit)
-                    ar.loadUnknownData();
             }
         }
     }

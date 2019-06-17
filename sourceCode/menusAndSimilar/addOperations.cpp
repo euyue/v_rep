@@ -368,7 +368,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
                 int scriptID=App::ct->luaScriptContainer->insertDefaultScript_mainAndChildScriptsOnly(sim_scripttype_childscript,commandID==ADD_COMMANDS_ADD_AND_ASSOCIATE_THREADED_CHILD_SCRIPT_ACCMD);
                 CLuaScriptObject* script=App::ct->luaScriptContainer->getScriptFromID_noAddOnsNorSandbox(scriptID);
                 if (script!=nullptr)
-                    script->setObjectIDThatScriptIsAttachedTo_child(App::ct->objCont->getSelID(0));
+                    script->setObjectIDThatScriptIsAttachedTo(App::ct->objCont->getSelID(0));
                 POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************
                 App::setFullDialogRefreshFlag();
             }
@@ -484,7 +484,7 @@ bool CAddOperations::processCommand(int commandID,CSView* subView)
             // Following 3 on 24/3/2017
             CLuaScriptObject* scriptObj=new CLuaScriptObject(sim_scripttype_customizationscript);
             App::ct->luaScriptContainer->insertScript(scriptObj);
-            scriptObj->setObjectIDThatScriptIsAttachedTo_customization(newObject->getObjectHandle());
+            scriptObj->setObjectIDThatScriptIsAttachedTo(newObject->getObjectHandle());
             scriptObj->setScriptText("require('graph_customization')");
 
             POST_SCENE_CHANGED_ANNOUNCEMENT(""); // ************************** UNDO thingy **************************

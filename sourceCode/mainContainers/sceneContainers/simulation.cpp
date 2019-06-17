@@ -1087,157 +1087,160 @@ bool CSimulation::getInfo(std::string& txtLeft,std::string& txtRight,int& index)
 
 void CSimulation::serialize(CSer& ar)
 {
-    if (ar.isStoring())
-    {       // Storing
-        ar.storeDataName("Sts"); // for backward compatibility (03/03/2016), keep before St2
-        ar << float(_simulationTimeStep_ns)/1000000.0f;
-        ar.flush();
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            ar.storeDataName("Sts"); // for backward compatibility (03/03/2016), keep before St2
+            ar << float(_simulationTimeStep_ns)/1000000.0f;
+            ar.flush();
 
-        ar.storeDataName("St2");
-        ar << _simulationTimeStep_ns;
-        ar.flush();
+            ar.storeDataName("St2");
+            ar << _simulationTimeStep_ns;
+            ar.flush();
 
-        ar.storeDataName("Spr");
-        ar << _simulationPassesPerRendering;
-        ar.flush();
+            ar.storeDataName("Spr");
+            ar << _simulationPassesPerRendering;
+            ar.flush();
 
-        ar.storeDataName("Spi");
-        ar << _defaultSimulationParameterIndex;
-        ar.flush();
+            ar.storeDataName("Spi");
+            ar << _defaultSimulationParameterIndex;
+            ar.flush();
 
-        ar.storeDataName("Ss2");
-        unsigned char nothing=0;
-        SIM_SET_CLEAR_BIT(nothing,0,_realTimeSimulation);
-        SIM_SET_CLEAR_BIT(nothing,1,_avoidBlocking);
-        SIM_SET_CLEAR_BIT(nothing,2,_pauseAtSpecificTime);
-        SIM_SET_CLEAR_BIT(nothing,3,_pauseAtError);
-        SIM_SET_CLEAR_BIT(nothing,4,_catchUpIfLate);
-        SIM_SET_CLEAR_BIT(nothing,5,_fullscreenAtSimulationStart);
-        SIM_SET_CLEAR_BIT(nothing,6,!_resetSimulationAtEnd);
-        SIM_SET_CLEAR_BIT(nothing,7,!_removeNewObjectsAtSimulationEnd);
+            ar.storeDataName("Ss2");
+            unsigned char nothing=0;
+            SIM_SET_CLEAR_BIT(nothing,0,_realTimeSimulation);
+            SIM_SET_CLEAR_BIT(nothing,1,_avoidBlocking);
+            SIM_SET_CLEAR_BIT(nothing,2,_pauseAtSpecificTime);
+            SIM_SET_CLEAR_BIT(nothing,3,_pauseAtError);
+            SIM_SET_CLEAR_BIT(nothing,4,_catchUpIfLate);
+            SIM_SET_CLEAR_BIT(nothing,5,_fullscreenAtSimulationStart);
+            SIM_SET_CLEAR_BIT(nothing,6,!_resetSimulationAtEnd);
+            SIM_SET_CLEAR_BIT(nothing,7,!_removeNewObjectsAtSimulationEnd);
 
-        ar << nothing;
-        ar.flush();
+            ar << nothing;
+            ar.flush();
 
-        ar.storeDataName("Rtc"); // for backward compatibility (03/03/2016), keep before Rt2
-        ar << float(_realTimeCoefficient);
-        ar.flush();
+            ar.storeDataName("Rtc"); // for backward compatibility (03/03/2016), keep before Rt2
+            ar << float(_realTimeCoefficient);
+            ar.flush();
 
-        ar.storeDataName("Rt2");
-        ar << _realTimeCoefficient;
-        ar.flush();
+            ar.storeDataName("Rt2");
+            ar << _realTimeCoefficient;
+            ar.flush();
 
-        ar.storeDataName("Pat"); // for backward compatibility (03/03/2016), keep before Pa2
-        ar << float(_simulationTimeToPause_ns)/1000000.0f;
-        ar.flush();
+            ar.storeDataName("Pat"); // for backward compatibility (03/03/2016), keep before Pa2
+            ar << float(_simulationTimeToPause_ns)/1000000.0f;
+            ar.flush();
 
-        ar.storeDataName("Pa2");
-        ar << _simulationTimeToPause_ns;
-        ar.flush();
+            ar.storeDataName("Pa2");
+            ar << _simulationTimeToPause_ns;
+            ar.flush();
 
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
+            ar.storeDataName(SER_END_OF_OBJECT);
+        }
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
             {
-                bool noHit=true;
-                if (theName.compare("Sts")==0)
-                { // for backward compatibility (03/03/2016)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    float stp;
-                    ar >> stp;
-                    _simulationTimeStep_ns=quint64(stp*1000000.1f);
-                }
-                if (theName.compare("St2")==0)
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
                 {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _simulationTimeStep_ns;
-                }
-                if (theName.compare("Spr")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _simulationPassesPerRendering;
-                }
-                if (theName.compare("Spi")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _defaultSimulationParameterIndex;
-                }
-                if (theName=="Sst")
-                { // for backward compatibility (still in serialization version 15 or before)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-                    _realTimeSimulation=SIM_IS_BIT_SET(nothing,0);
-                    _avoidBlocking=SIM_IS_BIT_SET(nothing,1);
-                    _pauseAtSpecificTime=SIM_IS_BIT_SET(nothing,2);
-                    _pauseAtError=SIM_IS_BIT_SET(nothing,3);
-                    _catchUpIfLate=SIM_IS_BIT_SET(nothing,4);
-                    bool defaultSimulationTimeStep=SIM_IS_BIT_SET(nothing,5);
-                    _resetSimulationAtEnd=!SIM_IS_BIT_SET(nothing,6);
-                    _removeNewObjectsAtSimulationEnd=!SIM_IS_BIT_SET(nothing,7);
-                    if (defaultSimulationTimeStep)
-                        _defaultSimulationParameterIndex=2; // for default parameters
-                    else
-                        _defaultSimulationParameterIndex=5; // for custom parameters
-                }
-                if (theName=="Ss2")
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-                    _realTimeSimulation=SIM_IS_BIT_SET(nothing,0);
-                    _avoidBlocking=SIM_IS_BIT_SET(nothing,1);
-                    _pauseAtSpecificTime=SIM_IS_BIT_SET(nothing,2);
-                    _pauseAtError=SIM_IS_BIT_SET(nothing,3);
-                    _catchUpIfLate=SIM_IS_BIT_SET(nothing,4);
-                    _fullscreenAtSimulationStart=SIM_IS_BIT_SET(nothing,5);
-                    _resetSimulationAtEnd=!SIM_IS_BIT_SET(nothing,6);
-                    _removeNewObjectsAtSimulationEnd=!SIM_IS_BIT_SET(nothing,7);
-                }
+                    bool noHit=true;
+                    if (theName.compare("Sts")==0)
+                    { // for backward compatibility (03/03/2016)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        float stp;
+                        ar >> stp;
+                        _simulationTimeStep_ns=quint64(stp*1000000.1f);
+                    }
+                    if (theName.compare("St2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _simulationTimeStep_ns;
+                    }
+                    if (theName.compare("Spr")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _simulationPassesPerRendering;
+                    }
+                    if (theName.compare("Spi")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _defaultSimulationParameterIndex;
+                    }
+                    if (theName=="Sst")
+                    { // for backward compatibility (still in serialization version 15 or before)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        _realTimeSimulation=SIM_IS_BIT_SET(nothing,0);
+                        _avoidBlocking=SIM_IS_BIT_SET(nothing,1);
+                        _pauseAtSpecificTime=SIM_IS_BIT_SET(nothing,2);
+                        _pauseAtError=SIM_IS_BIT_SET(nothing,3);
+                        _catchUpIfLate=SIM_IS_BIT_SET(nothing,4);
+                        bool defaultSimulationTimeStep=SIM_IS_BIT_SET(nothing,5);
+                        _resetSimulationAtEnd=!SIM_IS_BIT_SET(nothing,6);
+                        _removeNewObjectsAtSimulationEnd=!SIM_IS_BIT_SET(nothing,7);
+                        if (defaultSimulationTimeStep)
+                            _defaultSimulationParameterIndex=2; // for default parameters
+                        else
+                            _defaultSimulationParameterIndex=5; // for custom parameters
+                    }
+                    if (theName=="Ss2")
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        _realTimeSimulation=SIM_IS_BIT_SET(nothing,0);
+                        _avoidBlocking=SIM_IS_BIT_SET(nothing,1);
+                        _pauseAtSpecificTime=SIM_IS_BIT_SET(nothing,2);
+                        _pauseAtError=SIM_IS_BIT_SET(nothing,3);
+                        _catchUpIfLate=SIM_IS_BIT_SET(nothing,4);
+                        _fullscreenAtSimulationStart=SIM_IS_BIT_SET(nothing,5);
+                        _resetSimulationAtEnd=!SIM_IS_BIT_SET(nothing,6);
+                        _removeNewObjectsAtSimulationEnd=!SIM_IS_BIT_SET(nothing,7);
+                    }
 
-                if (theName.compare("Rt2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _realTimeCoefficient;
+                    if (theName.compare("Rt2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _realTimeCoefficient;
+                    }
+                    if (theName.compare("Rtc")==0)
+                    { // for backward compatibility (03/03/2016)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        float v;
+                        ar >> v;
+                        _realTimeCoefficient=double(v);
+                    }
+                    if (theName.compare("Pat")==0)
+                    { // for backward compatibility (03/03/2016)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        float w;
+                        ar >> w;
+                        _simulationTimeToPause_ns=quint64(w)*1000000;
+                    }
+                    if (theName.compare("Pa2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _simulationTimeToPause_ns;
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
                 }
-                if (theName.compare("Rtc")==0)
-                { // for backward compatibility (03/03/2016)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    float v;
-                    ar >> v;
-                    _realTimeCoefficient=double(v);
-                }
-                if (theName.compare("Pat")==0)
-                { // for backward compatibility (03/03/2016)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    float w;
-                    ar >> w;
-                    _simulationTimeToPause_ns=quint64(w)*1000000;
-                }
-                if (theName.compare("Pa2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _simulationTimeToPause_ns;
-                }
-                if (noHit)
-                    ar.loadUnknownData();
             }
         }
     }

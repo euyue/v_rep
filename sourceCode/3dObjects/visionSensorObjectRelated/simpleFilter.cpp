@@ -330,163 +330,166 @@ CSimpleFilter* CSimpleFilter::copyYourself()
 
 void CSimpleFilter::serialize(CSer& ar)
 {
-    if (ar.isStoring())
-    {       // Storing
-        ar.storeDataName("Sft"); // KEEP THIS FIRST!!!!
-        ar << _filterType << _customFilterHeader << _customFilterID;
-        ar.flush();
-
-        ar.storeDataName("Sfv"); // KEEP THIS SECOND!!!!
-        ar << _filterVersion;
-        ar.flush();
-
-        ar.storeDataName("Cfn");
-        ar << _customFilterName;
-        ar.flush();
-
-        if (_byteParameters.size()!=0)
-        {
-            ar.storeDataName("Pab");
-            ar << int(_byteParameters.size());
-            for (int i=0;i<int(_byteParameters.size());i++)
-                ar << _byteParameters[i];
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            ar.storeDataName("Sft"); // KEEP THIS FIRST!!!!
+            ar << _filterType << _customFilterHeader << _customFilterID;
             ar.flush();
-        }
-        if (_intParameters.size()!=0)
-        {
-            ar.storeDataName("Pai");
-            ar << int(_intParameters.size());
-            for (int i=0;i<int(_intParameters.size());i++)
-                ar << _intParameters[i];
-            ar.flush();
-        }
-        if (_floatParameters.size()!=0)
-        {
-            ar.storeDataName("Paf");
-            ar << int(_floatParameters.size());
-            for (int i=0;i<int(_floatParameters.size());i++)
-                ar << _floatParameters[i];
-            ar.flush();
-        }
-        if (_customFilterParameters.size()!=0)
-        {
-            ar.storeDataName("Cfp");
-            ar << int(_customFilterParameters.size());
-            for (int i=0;i<int(_customFilterParameters.size());i++)
-                ar << _customFilterParameters[i];
-            ar.flush();
-        }
 
-        ar.storeDataName("Sfe");
-        unsigned char nothing=0;
-        SIM_SET_CLEAR_BIT(nothing,0,_enabled);
-        ar << nothing;
-        ar.flush();
+            ar.storeDataName("Sfv"); // KEEP THIS SECOND!!!!
+            ar << _filterVersion;
+            ar.flush();
 
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
+            ar.storeDataName("Cfn");
+            ar << _customFilterName;
+            ar.flush();
+
+            if (_byteParameters.size()!=0)
             {
-                bool noHit=true;
-                if (theName.compare("Sft")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _filterType;
-                    setFilterType(_filterType); // to reserve default space of byte-, int- and float-parameters!
-                    // above command overwrites header, id and name!!
-                    ar >> _customFilterHeader >> _customFilterID;
-                }
-                if (theName.compare("Sfv")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _filterVersion;
-                }
-                if (theName.compare("Cfn")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _customFilterName;
-                }
-                if (theName.compare("Pab")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int s;
-                    ar >> s;
-                    unsigned char ddd;
-                    for (int i=0;i<s;i++)
-                    {
-                        ar >> ddd;
-                        if (i<int(_byteParameters.size())) // make sure we use the latest vector size
-                            _byteParameters[i]=ddd;
-                    }
-                }
-                if (theName.compare("Pai")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int s;
-                    ar >> s;
-                    int ddd;
-                    for (int i=0;i<s;i++)
-                    {
-                        ar >> ddd;
-                        if (i<int(_intParameters.size())) // make sure we use the latest vector size
-                            _intParameters[i]=ddd;
-                    }
-                }
-                if (theName.compare("Paf")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int s;
-                    ar >> s;
-                    float ddd;
-                    for (int i=0;i<s;i++)
-                    {
-                        ar >> ddd;
-                        if (i<int(_floatParameters.size())) // make sure we use the latest vector size
-                            _floatParameters[i]=ddd;
-                    }
-                }
-                if (theName.compare("Cfp")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int s;
-                    ar >> s;
-                    _customFilterParameters.clear();
-                    unsigned char ddd;
-                    for (int i=0;i<s;i++)
-                    {
-                        ar >> ddd;
-                        _customFilterParameters.push_back(ddd);
-                    }
-                }
-                if (theName=="Sfe")
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-                    _enabled=SIM_IS_BIT_SET(nothing,0);
-                }
-                if (noHit)
-                    ar.loadUnknownData();
+                ar.storeDataName("Pab");
+                ar << int(_byteParameters.size());
+                for (int i=0;i<int(_byteParameters.size());i++)
+                    ar << _byteParameters[i];
+                ar.flush();
             }
+            if (_intParameters.size()!=0)
+            {
+                ar.storeDataName("Pai");
+                ar << int(_intParameters.size());
+                for (int i=0;i<int(_intParameters.size());i++)
+                    ar << _intParameters[i];
+                ar.flush();
+            }
+            if (_floatParameters.size()!=0)
+            {
+                ar.storeDataName("Paf");
+                ar << int(_floatParameters.size());
+                for (int i=0;i<int(_floatParameters.size());i++)
+                    ar << _floatParameters[i];
+                ar.flush();
+            }
+            if (_customFilterParameters.size()!=0)
+            {
+                ar.storeDataName("Cfp");
+                ar << int(_customFilterParameters.size());
+                for (int i=0;i<int(_customFilterParameters.size());i++)
+                    ar << _customFilterParameters[i];
+                ar.flush();
+            }
+
+            ar.storeDataName("Sfe");
+            unsigned char nothing=0;
+            SIM_SET_CLEAR_BIT(nothing,0,_enabled);
+            ar << nothing;
+            ar.flush();
+
+            ar.storeDataName(SER_END_OF_OBJECT);
         }
-        // Following is important so that we load the correct name and current filter type according to the extension modules:
-        if ((_filterType<0)||(_filterType>=sim_filtercomponent_customized))
-            _filterType=_getFilterTypeAndNameFromHeaderAndID(_customFilterHeader,_customFilterID,_customFilterName);
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
+            {
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
+                {
+                    bool noHit=true;
+                    if (theName.compare("Sft")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _filterType;
+                        setFilterType(_filterType); // to reserve default space of byte-, int- and float-parameters!
+                        // above command overwrites header, id and name!!
+                        ar >> _customFilterHeader >> _customFilterID;
+                    }
+                    if (theName.compare("Sfv")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _filterVersion;
+                    }
+                    if (theName.compare("Cfn")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _customFilterName;
+                    }
+                    if (theName.compare("Pab")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int s;
+                        ar >> s;
+                        unsigned char ddd;
+                        for (int i=0;i<s;i++)
+                        {
+                            ar >> ddd;
+                            if (i<int(_byteParameters.size())) // make sure we use the latest vector size
+                                _byteParameters[i]=ddd;
+                        }
+                    }
+                    if (theName.compare("Pai")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int s;
+                        ar >> s;
+                        int ddd;
+                        for (int i=0;i<s;i++)
+                        {
+                            ar >> ddd;
+                            if (i<int(_intParameters.size())) // make sure we use the latest vector size
+                                _intParameters[i]=ddd;
+                        }
+                    }
+                    if (theName.compare("Paf")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int s;
+                        ar >> s;
+                        float ddd;
+                        for (int i=0;i<s;i++)
+                        {
+                            ar >> ddd;
+                            if (i<int(_floatParameters.size())) // make sure we use the latest vector size
+                                _floatParameters[i]=ddd;
+                        }
+                    }
+                    if (theName.compare("Cfp")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int s;
+                        ar >> s;
+                        _customFilterParameters.clear();
+                        unsigned char ddd;
+                        for (int i=0;i<s;i++)
+                        {
+                            ar >> ddd;
+                            _customFilterParameters.push_back(ddd);
+                        }
+                    }
+                    if (theName=="Sfe")
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        _enabled=SIM_IS_BIT_SET(nothing,0);
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
+                }
+            }
+            // Following is important so that we load the correct name and current filter type according to the extension modules:
+            if ((_filterType<0)||(_filterType>=sim_filtercomponent_customized))
+                _filterType=_getFilterTypeAndNameFromHeaderAndID(_customFilterHeader,_customFilterID,_customFilterName);
+        }
     }
 }
 

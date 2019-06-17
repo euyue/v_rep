@@ -405,94 +405,97 @@ CRegCollision* CRegCollision::copyYourself()
 
 void CRegCollision::serialize(CSer& ar)
 {
-    if (ar.isStoring())
-    {       // Storing
-        ar.storeDataName("Inx");
-        ar << object1ID << object2ID << objectID;
-        ar.flush();
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            ar.storeDataName("Inx");
+            ar << object1ID << object2ID << objectID;
+            ar.flush();
 
-        ar.storeDataName("Nme");
-        ar << objectName;
-        ar.flush();
+            ar.storeDataName("Nme");
+            ar << objectName;
+            ar.flush();
 
-        ar.storeDataName("Cwt");
-        ar << _countourWidth;
-        ar.flush();
+            ar.storeDataName("Cwt");
+            ar << _countourWidth;
+            ar.flush();
 
-        ar.storeDataName("Col");
-        ar.setCountingMode();
-        contourColor.serialize(ar,1);
-        if (ar.setWritingMode())
+            ar.storeDataName("Col");
+            ar.setCountingMode();
             contourColor.serialize(ar,1);
+            if (ar.setWritingMode())
+                contourColor.serialize(ar,1);
 
-        ar.storeDataName("Par");
-        unsigned char nothing=0;
-        SIM_SET_CLEAR_BIT(nothing,0,colliderChangesColor);
-        SIM_SET_CLEAR_BIT(nothing,1,collideeChangesColor);
-        SIM_SET_CLEAR_BIT(nothing,2,detectAllCollisions);
-        SIM_SET_CLEAR_BIT(nothing,3,explicitHandling);
-        ar << nothing;
-        ar.flush();
+            ar.storeDataName("Par");
+            unsigned char nothing=0;
+            SIM_SET_CLEAR_BIT(nothing,0,colliderChangesColor);
+            SIM_SET_CLEAR_BIT(nothing,1,collideeChangesColor);
+            SIM_SET_CLEAR_BIT(nothing,2,detectAllCollisions);
+            SIM_SET_CLEAR_BIT(nothing,3,explicitHandling);
+            ar << nothing;
+            ar.flush();
 
-        ar.storeDataName("Uis");
-        ar << _uniquePersistentIdString;
-        ar.flush();
+            ar.storeDataName("Uis");
+            ar << _uniquePersistentIdString;
+            ar.flush();
 
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
+            ar.storeDataName(SER_END_OF_OBJECT);
+        }
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
             {
-                bool noHit=true;
-                if (theName.compare("Cwt")==0)
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
                 {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _countourWidth;
+                    bool noHit=true;
+                    if (theName.compare("Cwt")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _countourWidth;
+                    }
+                    if (theName.compare("Col")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        contourColor.serialize(ar,1);
+                    }
+                    if (theName.compare("Inx")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> object1ID >> object2ID >> objectID;
+                    }
+                    if (theName.compare("Nme")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> objectName;
+                    }
+                    if (theName.compare("Uis")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _uniquePersistentIdString;
+                    }
+                    if (theName=="Par")
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        colliderChangesColor=SIM_IS_BIT_SET(nothing,0);
+                        collideeChangesColor=SIM_IS_BIT_SET(nothing,1);
+                        detectAllCollisions=SIM_IS_BIT_SET(nothing,2);
+                        explicitHandling=SIM_IS_BIT_SET(nothing,3);
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
                 }
-                if (theName.compare("Col")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    contourColor.serialize(ar,1);
-                }
-                if (theName.compare("Inx")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> object1ID >> object2ID >> objectID;
-                }
-                if (theName.compare("Nme")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> objectName;
-                }
-                if (theName.compare("Uis")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _uniquePersistentIdString;
-                }
-                if (theName=="Par")
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-                    colliderChangesColor=SIM_IS_BIT_SET(nothing,0);
-                    collideeChangesColor=SIM_IS_BIT_SET(nothing,1);
-                    detectAllCollisions=SIM_IS_BIT_SET(nothing,2);
-                    explicitHandling=SIM_IS_BIT_SET(nothing,3);
-                }
-                if (noHit)
-                    ar.loadUnknownData();
             }
         }
     }

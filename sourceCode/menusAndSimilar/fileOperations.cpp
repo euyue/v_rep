@@ -234,25 +234,25 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
             App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
         return(true);
     }
-    if ( (cmd.cmdId==FILE_OPERATION_SAVE_SCENE_AS_FOCMD)||(cmd.cmdId==FILE_OPERATION_SAVE_SCENE_AS_XML_FOCMD)||(cmd.cmdId==FILE_OPERATION_SAVE_SCENE_AS_BLUEREALITY_FOCMD) )
+    if ( (cmd.cmdId==FILE_OPERATION_SAVE_SCENE_AS_VREP_FOCMD)||(cmd.cmdId==FILE_OPERATION_SAVE_SCENE_AS_BR_FOCMD) )
     {
         if (App::ct->simulation->isSimulationStopped()&&(App::getEditModeType()==NO_EDIT_MODE) )
         { // execute the command only when simulation is not running and not in an edit mode
             if (!VThread::isCurrentThreadTheUiThread())
             { // we are NOT in the UI thread. We execute the command now:
-                int format=0;
-                if (cmd.cmdId==FILE_OPERATION_SAVE_SCENE_AS_XML_FOCMD)
-                    format=1;
-                if (cmd.cmdId==FILE_OPERATION_SAVE_SCENE_AS_BLUEREALITY_FOCMD)
-                    format=2;
-                _saveSceneAsWithDialogAndEverything(format);
+                int filetype=CSer::filetype_unspecified_file;
+                if (cmd.cmdId==FILE_OPERATION_SAVE_SCENE_AS_VREP_FOCMD)
+                    filetype=CSer::filetype_vrep_bin_scene_file;
+                if (cmd.cmdId==FILE_OPERATION_SAVE_SCENE_AS_BR_FOCMD)
+                    filetype=CSer::filetype_br_bin_scene_file;
+                _saveSceneAsWithDialogAndEverything(filetype);
             }
             else
                 App::appendSimulationThreadCommand(cmd); // We are in the UI thread. Execute the command via the main thread
         }
         return(true);
     }
-    if ( (cmd.cmdId==FILE_OPERATION_SAVE_MODEL_FOCMD)||(cmd.cmdId==FILE_OPERATION_SAVE_MODEL_BLUEREALITY_FOCMD) )
+    if ( (cmd.cmdId==FILE_OPERATION_SAVE_MODEL_AS_VREP_FOCMD)||(cmd.cmdId==FILE_OPERATION_SAVE_MODEL_AS_BR_FOCMD) )
     {
         if (App::ct->simulation->isSimulationStopped()&&(App::getEditModeType()==NO_EDIT_MODE) )
         { // execute the command only when simulation is not running and not in an edit mode
@@ -330,9 +330,11 @@ bool CFileOperations::processCommand(const SSimulationThreadCommand& cmd)
                         }
                         if (!operationCancelled)
                         {
-                            std::string filenameAndPath=CFileOperationsBase::handleVerSpec_saveModel(cmd.cmdId);
+                            std::string filenameAndPath=CFileOperationsBase::handleVerSpec_saveModel(cmd.cmdId-FILE_OPERATION_SAVE_MODEL_AS_VREP_FOCMD);
                             if (filenameAndPath.length()!=0)
                             {
+
+
                                 saveModel(modelBase,filenameAndPath.c_str(),true,true,true);
                                 App::ct->objCont->deselectObjects();
                             }
@@ -1081,26 +1083,28 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages
         if (displayDialogs)
             App::uiThread->showOrHideProgressBar(true,-1,"Opening scene...");
 
-        VFile file(pathAndFilename,VFile::READ|VFile::SHARE_DENY_NONE);
-        VArchive archive(&file,VArchive::LOAD);
-        CSer serObj(archive);
-
+        CSer* serObj;
         int serializationVersion;
         unsigned short vrepVersionThatWroteThis;
         int licenseTypeThatWroteThis;
         char revisionNumber;
-        result=serObj.readOpen(serializationVersion,vrepVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber,false);
+        if (CSer::getFileTypeFromName(pathAndFilename)!=CSer::filetype_unspecified_file)
+        {
+            serObj=new CSer(pathAndFilename,CSer::getFileTypeFromName(pathAndFilename));
+            result=serObj->readOpenBinary(serializationVersion,vrepVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber,false);
+        }
+
         std::string infoPrintOut(tt::decorateString("",IDSNS_LOADING_SCENE," ("));
         infoPrintOut+=std::string(pathAndFilename)+"). ";
 #ifdef SIM_WITH_GUI
         if ((result==-3)&&(App::mainWindow!=nullptr))
         {
             if (displayMessages)
-                App::addStatusbarMessage(IDS_NOT_VALID_V_REP_FILE);
+                App::addStatusbarMessage("The file does not seem to be a valid scene file.");
             if (displayDialogs)
             {
                 App::uiThread->showOrHideProgressBar(false);
-                App::uiThread->messageBox_critical(App::mainWindow,strTranslate(IDSN_SERIALIZATION),strTranslate(IDS_NOT_VALID_V_REP_FILE),VMESSAGEBOX_OKELI);
+                App::uiThread->messageBox_critical(App::mainWindow,IDSN_SERIALIZATION,"The file does not seem to be a valid scene file.",VMESSAGEBOX_OKELI);
                 App::uiThread->showOrHideProgressBar(true);
             }
         }
@@ -1151,8 +1155,8 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages
 #endif
         if (result==1)
         {
-            App::ct->objCont->loadScene(serObj,false);
-            serObj.readClose();
+            App::ct->objCont->loadScene(serObj[0],false);
+            serObj->readClose();
 #ifdef SIM_WITH_GUI
             if (App::mainWindow!=nullptr)
                 App::mainWindow->refreshDimensions(); // this is important so that the new pages and views are set to the correct dimensions
@@ -1184,9 +1188,7 @@ bool CFileOperations::loadScene(const char* pathAndFilename,bool displayMessages
             if (displayMessages)
                 App::addStatusbarMessage(IDSNS_SCENE_COULD_NOT_BE_OPENED);
         }
-        archive.close();
-        file.close();
-
+        delete serObj;
         if (displayDialogs)
             App::uiThread->showOrHideProgressBar(false);
         App::ct->undoBufferContainer->memorizeState(); // so that we can come back to the initial state!
@@ -1220,26 +1222,29 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
 
         if (pathAndFilename!=nullptr)
         { // loading from file...
-            VFile file(pathAndFilename,VFile::READ|VFile::SHARE_DENY_NONE);
-            VArchive archive(&file,VArchive::LOAD);
-            CSer serObj(archive);
-
+            CSer* serObj;
             int serializationVersion;
             unsigned short vrepVersionThatWroteThis;
             int licenseTypeThatWroteThis;
             char revisionNumber;
-            result=serObj.readOpen(serializationVersion,vrepVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber,false);
+
+            if (CSer::getFileTypeFromName(pathAndFilename)!=CSer::filetype_unspecified_file)
+            {
+                serObj=new CSer(pathAndFilename,CSer::getFileTypeFromName(pathAndFilename));
+                result=serObj->readOpenBinary(serializationVersion,vrepVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber,false);
+            }
+
             std::string infoPrintOut(tt::decorateString("",IDSNS_LOADING_MODEL," ("));
             infoPrintOut+=std::string(pathAndFilename)+"). ";
     #ifdef SIM_WITH_GUI
             if ((result==-3)&&(App::mainWindow!=nullptr))
             {
                 if (displayMessages)
-                    App::addStatusbarMessage(IDS_NOT_VALID_V_REP_FILE);
+                    App::addStatusbarMessage("The file does not seem to be a valid model file.");
                 if (displayDialogs)
                 {
                     App::uiThread->showOrHideProgressBar(false);
-                    App::uiThread->messageBox_critical(App::mainWindow,strTranslate(IDSN_SERIALIZATION),strTranslate(IDS_NOT_VALID_V_REP_FILE),VMESSAGEBOX_OKELI);
+                    App::uiThread->messageBox_critical(App::mainWindow,IDSN_SERIALIZATION,"The file does not seem to be a valid model file.",VMESSAGEBOX_OKELI);
                     App::uiThread->showOrHideProgressBar(true);
                 }
             }
@@ -1290,8 +1295,8 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
     #endif
             if (result==1)
             {
-                App::ct->objCont->loadModel(serObj,onlyThumbnail,forceModelAsCopy,nullptr,nullptr,nullptr);
-                serObj.readClose();
+                App::ct->objCont->loadModel(serObj[0],onlyThumbnail,forceModelAsCopy,nullptr,nullptr,nullptr);
+                serObj->readClose();
                 if (displayMessages&&(!onlyThumbnail))
                     App::addStatusbarMessage(IDSNS_MODEL_LOADED);
     #ifdef SIM_WITH_GUI
@@ -1338,17 +1343,16 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
                 if (displayMessages)
                     App::addStatusbarMessage(IDSNS_MODEL_COULD_NOT_BE_LOADED);
             }
-            archive.close();
-            file.close();
+            delete serObj;
         }
         else
         { // loading from buffer...
-            CSer serObj(loadBuffer[0]);
+            CSer serObj(loadBuffer[0],CSer::filetype_vrep_bin_model_buff);
             int serializationVersion;
             unsigned short vrepVersionThatWroteThis;
             int licenseTypeThatWroteThis;
             char revisionNumber;
-            result=serObj.readOpen(serializationVersion,vrepVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber,false);
+            result=serObj.readOpenBinary(serializationVersion,vrepVersionThatWroteThis,licenseTypeThatWroteThis,revisionNumber,false);
             if (result==1)
             {
                 App::ct->objCont->loadModel(serObj,onlyThumbnail,forceModelAsCopy,nullptr,nullptr,nullptr);
@@ -1389,6 +1393,7 @@ bool CFileOperations::loadModel(const char* pathAndFilename,bool displayMessages
 
 bool CFileOperations::saveScene(const char* pathAndFilename,bool displayMessages,bool displayDialogs,bool setCurrentDir,bool changeSceneUniqueId)
 { // There is a similar routine in CUndoBuffer!!
+    bool retVal=false;
     if (CFileOperationsBase::handleVerSpec_canSaveScene())
     {
         if (App::isFullScreen())
@@ -1402,64 +1407,16 @@ bool CFileOperations::saveScene(const char* pathAndFilename,bool displayMessages
         void* returnVal=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_scenesave,nullptr,nullptr,nullptr);
         delete[] (char*)returnVal;
 
-        if (!boost::algorithm::ends_with(pathAndFilename,".xml"))
+        CSer* serObj;
+            serObj=new CSer(pathAndFilename,CSer::getFileTypeFromName(pathAndFilename));
+            retVal=serObj->writeOpenBinary(App::userSettings->compressFiles);
+
+        if (retVal)
         {
-            VFile myFile(pathAndFilename,VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE,true);
-            if (myFile.getFile()!=nullptr)
-            {
-                if (displayDialogs)
-                    App::uiThread->showOrHideProgressBar(true,-1,"Saving scene...");
-                App::ct->mainSettings->setScenePathAndName(pathAndFilename);
-
-                App::ct->luaScriptContainer->sceneOrModelAboutToBeSaved(-1);
-
-                if (changeSceneUniqueId)
-                    App::ct->environment->generateNewUniquePersistentIdString();
-
-                if (setCurrentDir)
-                    App::directories->sceneDirectory=App::ct->mainSettings->getScenePath();
-                VArchive archive(&myFile,VArchive::STORE);
-                CSer serObj(archive);
-
-                std::string infoPrintOut(IDSN_SAVING_SCENE);
-                infoPrintOut+=" (";
-                infoPrintOut+=std::string(pathAndFilename)+"). ";
-                infoPrintOut+=IDSNS_SERIALIZATION_VERSION_IS;
-                infoPrintOut+=" ";
-                infoPrintOut+=boost::lexical_cast<std::string>(CSer::SER_SERIALIZATION_VERSION)+".";
-                if (displayMessages)
-                    App::addStatusbarMessage(infoPrintOut.c_str());
-
-                serObj.writeOpen(App::userSettings->compressFiles,CSer::getFileTypeFromName(pathAndFilename));
-                App::ct->objCont->saveScene(serObj);
-                serObj.writeClose();
-
-                if (displayMessages)
-                    App::addStatusbarMessage(IDSNS_SCENE_WAS_SAVED);
-
-                archive.close();
-                myFile.close();
-                if (displayDialogs)
-                    App::uiThread->showOrHideProgressBar(false);
-                App::setRebuildHierarchyFlag(); // we might have saved under a different name, we need to reflect it
-
-                return(true);
-            }
-            else
-            {
-                #ifdef SIM_WITH_GUI
-                    if ((App::mainWindow!=nullptr)&&displayDialogs)
-                    { // to avoid an error when saving a file that was opened while still attached to an email for instance
-                        App::uiThread->messageBox_critical(App::mainWindow,strTranslate(IDSN_FILE_ACCESS),strTranslate(IDSN_ACCESS_TO_FILE_WAS_DENIED),VMESSAGEBOX_OKELI);
-                    }
-                #endif
-            }
-        }
-        else
-        { // exporting to XML:
             if (displayDialogs)
                 App::uiThread->showOrHideProgressBar(true,-1,"Saving scene...");
             App::ct->mainSettings->setScenePathAndName(pathAndFilename);
+
             App::ct->luaScriptContainer->sceneOrModelAboutToBeSaved(-1);
 
             if (changeSceneUniqueId)
@@ -1473,9 +1430,12 @@ bool CFileOperations::saveScene(const char* pathAndFilename,bool displayMessages
             infoPrintOut+=std::string(pathAndFilename)+"). ";
             infoPrintOut+=IDSNS_SERIALIZATION_VERSION_IS;
             infoPrintOut+=" ";
-            infoPrintOut+=boost::lexical_cast<std::string>(CSer::XML_SERIALIZATION_VERSION)+".";
+                infoPrintOut+=boost::lexical_cast<std::string>(CSer::SER_SERIALIZATION_VERSION)+".";
             if (displayMessages)
                 App::addStatusbarMessage(infoPrintOut.c_str());
+
+            App::ct->objCont->saveScene(serObj[0]);
+            serObj->writeClose();
 
             if (displayMessages)
                 App::addStatusbarMessage(IDSNS_SCENE_WAS_SAVED);
@@ -1483,12 +1443,19 @@ bool CFileOperations::saveScene(const char* pathAndFilename,bool displayMessages
             if (displayDialogs)
                 App::uiThread->showOrHideProgressBar(false);
             App::setRebuildHierarchyFlag(); // we might have saved under a different name, we need to reflect it
-
-            return(true);
-
         }
+        else
+        {
+            #ifdef SIM_WITH_GUI
+                if ((App::mainWindow!=nullptr)&&displayDialogs)
+                { // to avoid an error when saving a file that was opened while still attached to an email for instance
+                    App::uiThread->messageBox_critical(App::mainWindow,strTranslate(IDSN_FILE_ACCESS),strTranslate(IDSN_ACCESS_TO_FILE_WAS_DENIED),VMESSAGEBOX_OKELI);
+                }
+            #endif
+        }
+        delete serObj;
     }
-    return(false);
+    return(retVal);
 }
 
 bool CFileOperations::saveModel(int modelBaseDummyID,const char* pathAndFilename,bool displayMessages,bool displayDialogs,bool setCurrentDir,std::vector<char>* saveBuffer/*=nullptr*/)
@@ -1538,21 +1505,20 @@ bool CFileOperations::saveModel(int modelBaseDummyID,const char* pathAndFilename
 
             if (pathAndFilename!=nullptr)
             { // saving to file...
-                VFile myFile(pathAndFilename,VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE);
-                VArchive archive(&myFile,VArchive::STORE);
-                CSer serObj(archive);
-
-                serObj.writeOpen(App::userSettings->compressFiles,CSer::getFileTypeFromName(pathAndFilename));
-                App::ct->copyBuffer->serializeCurrentSelection(serObj,&sel,modelTr,modelBBSize,modelNonDefaultTranslationStepSize);
-                serObj.writeClose();
-                archive.close();
-                myFile.close();
+                CSer* serObj;
+                if (CSer::getFileTypeFromName(pathAndFilename)!=CSer::filetype_unspecified_file)
+                {
+                    serObj=new CSer(pathAndFilename,CSer::getFileTypeFromName(pathAndFilename));
+                    serObj->writeOpenBinary(App::userSettings->compressFiles);
+                }
+                App::ct->copyBuffer->serializeCurrentSelection(serObj[0],&sel,modelTr,modelBBSize,modelNonDefaultTranslationStepSize);
+                serObj->writeClose();
             }
             else
             { // saving to buffer...
-                CSer serObj(saveBuffer[0]);
+                CSer serObj(saveBuffer[0],CSer::filetype_vrep_bin_model_buff);
 
-                serObj.writeOpen(App::userSettings->compressFiles,7);
+                serObj.writeOpenBinary(App::userSettings->compressFiles);
                 App::ct->copyBuffer->serializeCurrentSelection(serObj,&sel,modelTr,modelBBSize,modelNonDefaultTranslationStepSize);
                 serObj.writeClose();
             }
@@ -1935,9 +1901,11 @@ bool CFileOperations::_saveSceneWithDialogAndEverything()
                 std::string infoPrintOut(IDSN_SAVING_SCENE);
                 infoPrintOut+="...";
                 App::addStatusbarMessage(infoPrintOut.c_str());
-                saveScene(App::ct->mainSettings->getScenePathAndName().c_str(),true,true,true,false);
-                addToRecentlyOpenedScenes(App::ct->mainSettings->getScenePathAndName());
-                App::ct->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
+                if (saveScene(App::ct->mainSettings->getScenePathAndName().c_str(),true,true,true,false))
+                {
+                    addToRecentlyOpenedScenes(App::ct->mainSettings->getScenePathAndName());
+                    App::ct->undoBufferContainer->clearSceneSaveMaybeNeededFlag();
+                }
             }
             retVal=true;
         }
@@ -1947,14 +1915,14 @@ bool CFileOperations::_saveSceneWithDialogAndEverything()
     return(retVal);
 }
 
-bool CFileOperations::_saveSceneAsWithDialogAndEverything(int format)
+bool CFileOperations::_saveSceneAsWithDialogAndEverything(int filetype)
 {
     bool retVal=false;
     if (!App::ct->environment->getSceneLocked())
     {
-        if ( ((!App::ct->environment->getRequestFinalSave())||(format==1)) ||(VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_SAVE),strTranslate(IDS_FINAL_SCENE_SAVE_WARNING),VMESSAGEBOX_YES_NO)) )
+        if ( ((!App::ct->environment->getRequestFinalSave())||(filetype==CSer::filetype_vrep_bin_scene_file)) ||(VMESSAGEBOX_REPLY_YES==App::uiThread->messageBox_warning(App::mainWindow,strTranslate(IDSN_SAVE),strTranslate(IDS_FINAL_SCENE_SAVE_WARNING),VMESSAGEBOX_YES_NO)) )
         {
-            if (App::ct->environment->getRequestFinalSave()&&(format!=1))
+            if (App::ct->environment->getRequestFinalSave()&&(filetype!=CSer::filetype_vrep_bin_scene_file))
                 App::ct->environment->setSceneLocked();
 
             std::string infoPrintOut(IDSN_SAVING_SCENE);
@@ -1965,7 +1933,7 @@ bool CFileOperations::_saveSceneAsWithDialogAndEverything(int format)
                 initPath=App::directories->sceneDirectory;
             else
                 initPath=App::ct->mainSettings->getScenePath();
-            std::string filenameAndPath=CFileOperationsBase::handleVerSpec_saveSceneAsWithDialogAndEverything2(format,initPath);
+            std::string filenameAndPath=CFileOperationsBase::handleVerSpec_saveSceneAsWithDialogAndEverything2(filetype,initPath);
 
             if (filenameAndPath.length()!=0)
             {

@@ -1768,190 +1768,193 @@ void CGraph::simulationEnded()
 void CGraph::serialize(CSer& ar)
 {
     serializeMain(ar);
-    if (ar.isStoring())
-    {       // Storing
-        ar.storeDataName("Ghg");
-        ar << size;
-        ar.flush();
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            ar.storeDataName("Ghg");
+            ar << size;
+            ar.flush();
 
-        ar.storeDataName("Cl0"); // Colors
-        ar.setCountingMode();
-        color.serialize(ar,0);
-        if (ar.setWritingMode())
+            ar.storeDataName("Cl0"); // Colors
+            ar.setCountingMode();
             color.serialize(ar,0);
-
-        ar.storeDataName("Cl1");
-        ar << backgroundColor[0] << backgroundColor[1] << backgroundColor[2];
-        ar << textColor[0] << textColor[1] << textColor[2];
-        ar.flush();
-
-        ar.storeDataName("Gbv");
-        ar << bufferSize << numberOfPoints;
-        ar.flush();
-
-        ar.storeDataName("Gtd"); // Should always come after bufferSize!!!
-        for (int i=0;i<numberOfPoints;i++)
-        {
-            int absIndex;
-            getAbsIndexOfPosition(i,absIndex);
-            ar << times[absIndex];
-        }
-        ar.flush();
-
-        for (int i=0;i<int(daten.size());i++)
-        {
-            ar.storeDataName("Ghd");
-            ar.setCountingMode();
-            daten[i]->serialize(ar,this);
             if (ar.setWritingMode())
-                daten[i]->serialize(ar,this);
-        }
-        for (int i=0;i<int(threeDPartners.size());i++)
-        {
-            ar.storeDataName("Gh3");
-            ar.setCountingMode();
-            threeDPartners[i]->serialize(ar);
-            if (ar.setWritingMode())
-                threeDPartners[i]->serialize(ar);
-        }
-        for (int i=0;i<int(twoDPartners.size());i++)
-        {
-            ar.storeDataName("Gh2");
-            ar.setCountingMode();
-            twoDPartners[i]->serialize(ar);
-            if (ar.setWritingMode())
-                twoDPartners[i]->serialize(ar);
-        }
+                color.serialize(ar,0);
 
-        for (int i=0;i<int(_staticCurves.size());i++)
-        {
-            ar.storeDataName("Sta");
-            ar.setCountingMode();
-            _staticCurves[i]->serialize(ar);
-            if (ar.setWritingMode())
-                _staticCurves[i]->serialize(ar);
-        }
+            ar.storeDataName("Cl1");
+            ar << backgroundColor[0] << backgroundColor[1] << backgroundColor[2];
+            ar << textColor[0] << textColor[1] << textColor[2];
+            ar.flush();
 
-        ar.storeDataName("Gps");
-        unsigned char nothing=0;
-        SIM_SET_CLEAR_BIT(nothing,0,cyclic);
-        SIM_SET_CLEAR_BIT(nothing,1,xYZPlanesDisplay);
-        SIM_SET_CLEAR_BIT(nothing,2,graphGrid);
-        SIM_SET_CLEAR_BIT(nothing,3,graphValues);
-        SIM_SET_CLEAR_BIT(nothing,4,_explicitHandling);
-        ar << nothing;
-        ar.flush();
+            ar.storeDataName("Gbv");
+            ar << bufferSize << numberOfPoints;
+            ar.flush();
 
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        startingPoint=0;
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
+            ar.storeDataName("Gtd"); // Should always come after bufferSize!!!
+            for (int i=0;i<numberOfPoints;i++)
             {
-                bool noHit=true;
-                if (theName.compare("Ghg")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> size;
-                }
-                if (theName.compare("Cl0")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    color.serialize(ar,0);
-                }
-                if (theName.compare("Cl1")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> backgroundColor[0] >> backgroundColor[1] >> backgroundColor[2];
-                    ar >> textColor[0] >> textColor[1] >> textColor[2];
-                }
-                if (theName.compare("Gbv")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> bufferSize >> numberOfPoints;
-                }
-                if (theName.compare("Gtd")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    times.reserve(bufferSize);
-                    times.clear();
-                    for (int i=0;i<bufferSize;i++)
-                        times.push_back(0.0f);
-                    for (int i=0;i<byteQuantity/int(sizeof(float));i++)
-                    {
-                        float aVal;
-                        ar >> aVal;
-                        times[i]=aVal;
-                    }
-                }
-                if (theName.compare("Ghd")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    CGraphData* it=new CGraphData();
-                    it->serialize(ar,this);
-                    daten.push_back(it);
-                }
-                if (theName.compare("Gh3")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    CGraphDataComb* it=new CGraphDataComb();
-                    it->serialize(ar);
-                    threeDPartners.push_back(it);
-                }
-                if (theName.compare("Gh2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    CGraphDataComb* it=new CGraphDataComb();
-                    it->serialize(ar);
-                    twoDPartners.push_back(it);
-                }
-                if (theName.compare("Sta")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    CStaticGraphCurve* it=new CStaticGraphCurve();
-                    it->serialize(ar);
-                    // Following 4 on 16/3/2017: duplicate names for static curves can cause problems
-                    std::string nm(it->getName());
-                    while (getStaticCurveFromName(it->getCurveType(),nm)!=nullptr)
-                        nm=tt::generateNewName_noDash(nm);
-                    it->setName(nm);
-                    _staticCurves.push_back(it);
-                }
-                if (theName=="Gps")
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-                    cyclic=SIM_IS_BIT_SET(nothing,0);
-                    xYZPlanesDisplay=SIM_IS_BIT_SET(nothing,1);
-                    graphGrid=SIM_IS_BIT_SET(nothing,2);
-                    graphValues=SIM_IS_BIT_SET(nothing,3);
-                    _explicitHandling=SIM_IS_BIT_SET(nothing,4);
-                }
-
-                if (noHit)
-                    ar.loadUnknownData();
+                int absIndex;
+                getAbsIndexOfPosition(i,absIndex);
+                ar << times[absIndex];
             }
+            ar.flush();
+
+            for (int i=0;i<int(daten.size());i++)
+            {
+                ar.storeDataName("Ghd");
+                ar.setCountingMode();
+                daten[i]->serialize(ar,this);
+                if (ar.setWritingMode())
+                    daten[i]->serialize(ar,this);
+            }
+            for (int i=0;i<int(threeDPartners.size());i++)
+            {
+                ar.storeDataName("Gh3");
+                ar.setCountingMode();
+                threeDPartners[i]->serialize(ar);
+                if (ar.setWritingMode())
+                    threeDPartners[i]->serialize(ar);
+            }
+            for (int i=0;i<int(twoDPartners.size());i++)
+            {
+                ar.storeDataName("Gh2");
+                ar.setCountingMode();
+                twoDPartners[i]->serialize(ar);
+                if (ar.setWritingMode())
+                    twoDPartners[i]->serialize(ar);
+            }
+
+            for (int i=0;i<int(_staticCurves.size());i++)
+            {
+                ar.storeDataName("Sta");
+                ar.setCountingMode();
+                _staticCurves[i]->serialize(ar);
+                if (ar.setWritingMode())
+                    _staticCurves[i]->serialize(ar);
+            }
+
+            ar.storeDataName("Gps");
+            unsigned char nothing=0;
+            SIM_SET_CLEAR_BIT(nothing,0,cyclic);
+            SIM_SET_CLEAR_BIT(nothing,1,xYZPlanesDisplay);
+            SIM_SET_CLEAR_BIT(nothing,2,graphGrid);
+            SIM_SET_CLEAR_BIT(nothing,3,graphValues);
+            SIM_SET_CLEAR_BIT(nothing,4,_explicitHandling);
+            ar << nothing;
+            ar.flush();
+
+            ar.storeDataName(SER_END_OF_OBJECT);
         }
-        if (ar.getSerializationVersionThatWroteThisFile()<17)
-        { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
-            CTTUtil::scaleColorUp_(color.colors);
+        else
+        {       // Loading
+            startingPoint=0;
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
+            {
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
+                {
+                    bool noHit=true;
+                    if (theName.compare("Ghg")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> size;
+                    }
+                    if (theName.compare("Cl0")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        color.serialize(ar,0);
+                    }
+                    if (theName.compare("Cl1")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> backgroundColor[0] >> backgroundColor[1] >> backgroundColor[2];
+                        ar >> textColor[0] >> textColor[1] >> textColor[2];
+                    }
+                    if (theName.compare("Gbv")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> bufferSize >> numberOfPoints;
+                    }
+                    if (theName.compare("Gtd")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        times.reserve(bufferSize);
+                        times.clear();
+                        for (int i=0;i<bufferSize;i++)
+                            times.push_back(0.0f);
+                        for (int i=0;i<byteQuantity/int(sizeof(float));i++)
+                        {
+                            float aVal;
+                            ar >> aVal;
+                            times[i]=aVal;
+                        }
+                    }
+                    if (theName.compare("Ghd")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        CGraphData* it=new CGraphData();
+                        it->serialize(ar,this);
+                        daten.push_back(it);
+                    }
+                    if (theName.compare("Gh3")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        CGraphDataComb* it=new CGraphDataComb();
+                        it->serialize(ar);
+                        threeDPartners.push_back(it);
+                    }
+                    if (theName.compare("Gh2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        CGraphDataComb* it=new CGraphDataComb();
+                        it->serialize(ar);
+                        twoDPartners.push_back(it);
+                    }
+                    if (theName.compare("Sta")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        CStaticGraphCurve* it=new CStaticGraphCurve();
+                        it->serialize(ar);
+                        // Following 4 on 16/3/2017: duplicate names for static curves can cause problems
+                        std::string nm(it->getName());
+                        while (getStaticCurveFromName(it->getCurveType(),nm)!=nullptr)
+                            nm=tt::generateNewName_noDash(nm);
+                        it->setName(nm);
+                        _staticCurves.push_back(it);
+                    }
+                    if (theName=="Gps")
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        cyclic=SIM_IS_BIT_SET(nothing,0);
+                        xYZPlanesDisplay=SIM_IS_BIT_SET(nothing,1);
+                        graphGrid=SIM_IS_BIT_SET(nothing,2);
+                        graphValues=SIM_IS_BIT_SET(nothing,3);
+                        _explicitHandling=SIM_IS_BIT_SET(nothing,4);
+                    }
+
+                    if (noHit)
+                        ar.loadUnknownData();
+                }
+            }
+            if (ar.getSerializationVersionThatWroteThisFile()<17)
+            { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
+                CTTUtil::scaleColorUp_(color.colors);
+            }
         }
     }
 }

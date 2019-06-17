@@ -179,49 +179,52 @@ CLuaScriptParameters* CLuaScriptParameters::copyYourself()
 
 void CLuaScriptParameters::serialize(CSer& ar)
 {
-    if (ar.isStoring())
-    {       // Storing
-        ar.storeDataName("Par");
-        ar << int(scriptParamEntries.size());
-        for (size_t i=0;i<scriptParamEntries.size();i++)
-        {
-            ar << scriptParamEntries[i].name;
-            ar << scriptParamEntries[i].unit;
-            ar << scriptParamEntries[i].value;
-            ar << scriptParamEntries[i].properties;
-        }
-        ar.flush();
-
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            ar.storeDataName("Par");
+            ar << int(scriptParamEntries.size());
+            for (size_t i=0;i<scriptParamEntries.size();i++)
             {
-                bool noHit=true;
-                if (theName.compare("Par")==0)
+                ar << scriptParamEntries[i].name;
+                ar << scriptParamEntries[i].unit;
+                ar << scriptParamEntries[i].value;
+                ar << scriptParamEntries[i].properties;
+            }
+            ar.flush();
+
+            ar.storeDataName(SER_END_OF_OBJECT);
+        }
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
+            {
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
                 {
-                    noHit=false;
-                    int paramCount;
-                    ar >> byteQuantity;
-                    ar >> paramCount;
-                    for (int i=0;i<paramCount;i++)
+                    bool noHit=true;
+                    if (theName.compare("Par")==0)
                     {
-                        SScriptParamEntry e;
-                        ar >> e.name;
-                        ar >> e.unit;
-                        ar >> e.value;
-                        ar >> e.properties;
-                        scriptParamEntries.push_back(e);
+                        noHit=false;
+                        int paramCount;
+                        ar >> byteQuantity;
+                        ar >> paramCount;
+                        for (int i=0;i<paramCount;i++)
+                        {
+                            SScriptParamEntry e;
+                            ar >> e.name;
+                            ar >> e.unit;
+                            ar >> e.value;
+                            ar >> e.properties;
+                            scriptParamEntries.push_back(e);
+                        }
                     }
+                    if (noHit)
+                        ar.loadUnknownData();
                 }
-                if (noHit)
-                    ar.loadUnknownData();
             }
         }
     }

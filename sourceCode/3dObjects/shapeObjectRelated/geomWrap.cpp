@@ -421,141 +421,144 @@ void CGeomWrap::flipFaces()
     checkIfConvex();
 }
 
-void CGeomWrap::serialize(CSer& ar)
+void CGeomWrap::serialize(CSer& ar,const char* shapeName)
 { // function has virtual/non-virtual counterpart!
-    serializeWrapperInfos(ar);
+    serializeWrapperInfos(ar,shapeName);
 }
 
-void CGeomWrap::serializeWrapperInfos(CSer& ar)
+void CGeomWrap::serializeWrapperInfos(CSer& ar,const char* shapeName)
 {
-    if (ar.isStoring())
-    {       // Storing
-        ar.storeDataName("Nme");
-        ar << _name;
-        ar.flush();
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            ar.storeDataName("Nme");
+            ar << _name;
+            ar.flush();
 
-        ar.storeDataName("Mas");
-        ar << _mass;
-        ar.flush();
+            ar.storeDataName("Mas");
+            ar << _mass;
+            ar.flush();
 
-        ar.storeDataName("Dmi");
-        ar << _dynMaterialId_OLD;
-        ar.flush();
+            ar.storeDataName("Dmi");
+            ar << _dynMaterialId_OLD;
+            ar.flush();
 
-        ar.storeDataName("Ine");
-        ar << _localInertiaFrame(0) << _localInertiaFrame(1) << _localInertiaFrame(2) << _localInertiaFrame(3);
-        ar << _localInertiaFrame(4) << _localInertiaFrame(5) << _localInertiaFrame(6);
-        ar << _principalMomentsOfInertia(0) << _principalMomentsOfInertia(1) << _principalMomentsOfInertia(2);
-        ar.flush();
+            ar.storeDataName("Ine");
+            ar << _localInertiaFrame(0) << _localInertiaFrame(1) << _localInertiaFrame(2) << _localInertiaFrame(3);
+            ar << _localInertiaFrame(4) << _localInertiaFrame(5) << _localInertiaFrame(6);
+            ar << _principalMomentsOfInertia(0) << _principalMomentsOfInertia(1) << _principalMomentsOfInertia(2);
+            ar.flush();
 
-        ar.storeDataName("Vtb");
-        ar << _transformationsSinceGrouping(0) << _transformationsSinceGrouping(1) << _transformationsSinceGrouping(2) << _transformationsSinceGrouping(3);
-        ar << _transformationsSinceGrouping(4) << _transformationsSinceGrouping(5) << _transformationsSinceGrouping(6);
-        ar.flush();
+            ar.storeDataName("Vtb");
+            ar << _transformationsSinceGrouping(0) << _transformationsSinceGrouping(1) << _transformationsSinceGrouping(2) << _transformationsSinceGrouping(3);
+            ar << _transformationsSinceGrouping(4) << _transformationsSinceGrouping(5) << _transformationsSinceGrouping(6);
+            ar.flush();
 
-        ar.storeDataName("Var");
-        unsigned char nothing=0;
-        // reserved (12/9/2013) SIM_SET_CLEAR_BIT(nothing,0,_bulletNonDefaultCollisionMargin);
-        // reserved (12/9/2013) SIM_SET_CLEAR_BIT(nothing,1,_bulletStickyContact);
-        SIM_SET_CLEAR_BIT(nothing,2,_convex);
-        // reserved (12/9/2013) SIM_SET_CLEAR_BIT(nothing,3,!_bulletAutoShrinkConvexMesh);
-        // reserved (12/9/2013) SIM_SET_CLEAR_BIT(nothing,4,_bulletNonDefaultCollisionMargin_forConvexAndNonPureShape); // since 24/3/2013
-        SIM_SET_CLEAR_BIT(nothing,5,true); // means: we do not have to make the convectivity test for this shape (was already done). Added this on 28/1/2013
-        ar << nothing;
-        ar.flush();
+            ar.storeDataName("Var");
+            unsigned char nothing=0;
+            // reserved (12/9/2013) SIM_SET_CLEAR_BIT(nothing,0,_bulletNonDefaultCollisionMargin);
+            // reserved (12/9/2013) SIM_SET_CLEAR_BIT(nothing,1,_bulletStickyContact);
+            SIM_SET_CLEAR_BIT(nothing,2,_convex);
+            // reserved (12/9/2013) SIM_SET_CLEAR_BIT(nothing,3,!_bulletAutoShrinkConvexMesh);
+            // reserved (12/9/2013) SIM_SET_CLEAR_BIT(nothing,4,_bulletNonDefaultCollisionMargin_forConvexAndNonPureShape); // since 24/3/2013
+            SIM_SET_CLEAR_BIT(nothing,5,true); // means: we do not have to make the convectivity test for this shape (was already done). Added this on 28/1/2013
+            ar << nothing;
+            ar.flush();
 
-        for (int i=0;i<int(childList.size());i++)
-        {
-            if (childList[i]->isGeometric())
-                ar.storeDataName("Geo");
-            else
-                ar.storeDataName("Wrp");
-            ar.setCountingMode();
-            childList[i]->serialize(ar);
-            if (ar.setWritingMode())
-                childList[i]->serialize(ar);
-        }
-
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
+            for (int i=0;i<int(childList.size());i++)
             {
-                bool noHit=true;
-                if (theName.compare("Nme")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _name;
-                }
-                if (theName.compare("Mas")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _mass;
-                    if (_mass==0.0f) // to catch an old bug
-                        _mass=0.001f;
-                }
-                if (theName.compare("Dmi")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _dynMaterialId_OLD;
-                }
-                if (theName.compare("Ine")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _localInertiaFrame(0) >> _localInertiaFrame(1) >> _localInertiaFrame(2) >> _localInertiaFrame(3);
-                    ar >> _localInertiaFrame(4) >> _localInertiaFrame(5) >> _localInertiaFrame(6);
-                    ar >> _principalMomentsOfInertia(0) >> _principalMomentsOfInertia(1) >> _principalMomentsOfInertia(2);
-                }
+                if (childList[i]->isGeometric())
+                    ar.storeDataName("Geo");
+                else
+                    ar.storeDataName("Wrp");
+                ar.setCountingMode();
+                childList[i]->serialize(ar,shapeName);
+                if (ar.setWritingMode())
+                    childList[i]->serialize(ar,shapeName);
+            }
 
-                if (theName.compare("Vtb")==0)
+            ar.storeDataName(SER_END_OF_OBJECT);
+        }
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
+            {
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
                 {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _transformationsSinceGrouping(0) >> _transformationsSinceGrouping(1) >> _transformationsSinceGrouping(2) >> _transformationsSinceGrouping(3);
-                    ar >> _transformationsSinceGrouping(4) >> _transformationsSinceGrouping(5) >> _transformationsSinceGrouping(6);
-                }
+                    bool noHit=true;
+                    if (theName.compare("Nme")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _name;
+                    }
+                    if (theName.compare("Mas")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _mass;
+                        if (_mass==0.0f) // to catch an old bug
+                            _mass=0.001f;
+                    }
+                    if (theName.compare("Dmi")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _dynMaterialId_OLD;
+                    }
+                    if (theName.compare("Ine")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _localInertiaFrame(0) >> _localInertiaFrame(1) >> _localInertiaFrame(2) >> _localInertiaFrame(3);
+                        ar >> _localInertiaFrame(4) >> _localInertiaFrame(5) >> _localInertiaFrame(6);
+                        ar >> _principalMomentsOfInertia(0) >> _principalMomentsOfInertia(1) >> _principalMomentsOfInertia(2);
+                    }
 
-                if (theName=="Var")
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-                    // 0 reserved
-                    // 1 reserved
-                    _convex=SIM_IS_BIT_SET(nothing,2);
-                    // 3 reserved
-                    // 4 reserved
-                    // 5 reserved
+                    if (theName.compare("Vtb")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _transformationsSinceGrouping(0) >> _transformationsSinceGrouping(1) >> _transformationsSinceGrouping(2) >> _transformationsSinceGrouping(3);
+                        ar >> _transformationsSinceGrouping(4) >> _transformationsSinceGrouping(5) >> _transformationsSinceGrouping(6);
+                    }
+
+                    if (theName=="Var")
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        // 0 reserved
+                        // 1 reserved
+                        _convex=SIM_IS_BIT_SET(nothing,2);
+                        // 3 reserved
+                        // 4 reserved
+                        // 5 reserved
+                    }
+                    if (theName.compare("Geo")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        CGeometric* it=new CGeometric();
+                        it->serialize(ar,shapeName);
+                        childList.push_back(it);
+                    }
+                    if (theName.compare("Wrp")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        CGeomWrap* it=new CGeomWrap();
+                        it->serialize(ar,shapeName);
+                        childList.push_back(it);
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
                 }
-                if (theName.compare("Geo")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    CGeometric* it=new CGeometric();
-                    it->serialize(ar);
-                    childList.push_back(it);
-                }
-                if (theName.compare("Wrp")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    CGeomWrap* it=new CGeomWrap();
-                    it->serialize(ar);
-                    childList.push_back(it);
-                }
-                if (noHit)
-                    ar.loadUnknownData();
             }
         }
     }

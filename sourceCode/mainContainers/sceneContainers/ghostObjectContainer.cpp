@@ -216,86 +216,89 @@ void CGhostObjectContainer::performObjectLoadingMapping(std::vector<int>* map)
 
 void CGhostObjectContainer::serialize(CSer& ar)
 {
-    if (ar.isStoring())
+    if (ar.isBinary())
     {
-        ar.storeDataName("V02");
-        ar << int(_allObjects.size());
-        for (size_t i=0;i<_allObjects.size();i++)
+        if (ar.isStoring())
         {
-            ar << _allObjects[i]->groupId;
-            ar << _allObjects[i]->ghostId;
-            ar << _allObjects[i]->objectHandle;
-            ar << _allObjects[i]->options;
-            ar << _allObjects[i]->startTime;
-            ar << _allObjects[i]->endTime;
-            ar << _allObjects[i]->transparencyFactor;
-            for (int j=0;j<12;j++)
-                ar << _allObjects[i]->color[j];
-            ar << _allObjects[i]->tr.X(0) << _allObjects[i]->tr.X(1) << _allObjects[i]->tr.X(2);
-            ar << _allObjects[i]->tr.Q(0) << _allObjects[i]->tr.Q(1) << _allObjects[i]->tr.Q(2) << _allObjects[i]->tr.Q(3);
-        }
-        ar.flush();
-
-        ar.storeDataName(SER_NEXT_STEP);
-    }
-    else
-    {       // Loading
-        removeGhost(-1,-1);
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_NEXT_STEP)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_NEXT_STEP)!=0)
+            ar.storeDataName("V02");
+            ar << int(_allObjects.size());
+            for (size_t i=0;i<_allObjects.size();i++)
             {
-                bool noHit=true;
-                if (theName.compare("V01")==0)
-                { // for backward compatibility
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int ghostCnt;
-                    ar >> ghostCnt;
-                    for (int i=0;i<ghostCnt;i++)
-                    {
-                        CGhostObject* go=new CGhostObject();
-                        ar >> go->groupId;
-                        ar >> go->ghostId;
-                        ar >> go->objectHandle;
-                        ar >> go->options;
-                        ar >> go->startTime;
-                        ar >> go->endTime;
-                        for (int j=0;j<12;j++)
-                            ar >> go->color[j];
-                        ar >> go->tr.X(0) >> go->tr.X(1) >> go->tr.X(2);
-                        ar >> go->tr.Q(0) >> go->tr.Q(1) >> go->tr.Q(2) >> go->tr.Q(3);
-                        _allObjects.push_back(go);
-                    }
-                }
-                if (theName.compare("V02")==0)
+                ar << _allObjects[i]->groupId;
+                ar << _allObjects[i]->ghostId;
+                ar << _allObjects[i]->objectHandle;
+                ar << _allObjects[i]->options;
+                ar << _allObjects[i]->startTime;
+                ar << _allObjects[i]->endTime;
+                ar << _allObjects[i]->transparencyFactor;
+                for (int j=0;j<12;j++)
+                    ar << _allObjects[i]->color[j];
+                ar << _allObjects[i]->tr.X(0) << _allObjects[i]->tr.X(1) << _allObjects[i]->tr.X(2);
+                ar << _allObjects[i]->tr.Q(0) << _allObjects[i]->tr.Q(1) << _allObjects[i]->tr.Q(2) << _allObjects[i]->tr.Q(3);
+            }
+            ar.flush();
+
+            ar.storeDataName(SER_NEXT_STEP);
+        }
+        else
+        {       // Loading
+            removeGhost(-1,-1);
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_NEXT_STEP)!=0)
+            {
+                theName=ar.readDataName();
+                if (theName.compare(SER_NEXT_STEP)!=0)
                 {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int ghostCnt;
-                    ar >> ghostCnt;
-                    for (int i=0;i<ghostCnt;i++)
-                    {
-                        CGhostObject* go=new CGhostObject();
-                        ar >> go->groupId;
-                        ar >> go->ghostId;
-                        ar >> go->objectHandle;
-                        ar >> go->options;
-                        ar >> go->startTime;
-                        ar >> go->endTime;
-                        ar >> go->transparencyFactor;
-                        for (int j=0;j<12;j++)
-                            ar >> go->color[j];
-                        ar >> go->tr.X(0) >> go->tr.X(1) >> go->tr.X(2);
-                        ar >> go->tr.Q(0) >> go->tr.Q(1) >> go->tr.Q(2) >> go->tr.Q(3);
-                        _allObjects.push_back(go);
+                    bool noHit=true;
+                    if (theName.compare("V01")==0)
+                    { // for backward compatibility
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int ghostCnt;
+                        ar >> ghostCnt;
+                        for (int i=0;i<ghostCnt;i++)
+                        {
+                            CGhostObject* go=new CGhostObject();
+                            ar >> go->groupId;
+                            ar >> go->ghostId;
+                            ar >> go->objectHandle;
+                            ar >> go->options;
+                            ar >> go->startTime;
+                            ar >> go->endTime;
+                            for (int j=0;j<12;j++)
+                                ar >> go->color[j];
+                            ar >> go->tr.X(0) >> go->tr.X(1) >> go->tr.X(2);
+                            ar >> go->tr.Q(0) >> go->tr.Q(1) >> go->tr.Q(2) >> go->tr.Q(3);
+                            _allObjects.push_back(go);
+                        }
                     }
+                    if (theName.compare("V02")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int ghostCnt;
+                        ar >> ghostCnt;
+                        for (int i=0;i<ghostCnt;i++)
+                        {
+                            CGhostObject* go=new CGhostObject();
+                            ar >> go->groupId;
+                            ar >> go->ghostId;
+                            ar >> go->objectHandle;
+                            ar >> go->options;
+                            ar >> go->startTime;
+                            ar >> go->endTime;
+                            ar >> go->transparencyFactor;
+                            for (int j=0;j<12;j++)
+                                ar >> go->color[j];
+                            ar >> go->tr.X(0) >> go->tr.X(1) >> go->tr.X(2);
+                            ar >> go->tr.Q(0) >> go->tr.Q(1) >> go->tr.Q(2) >> go->tr.Q(3);
+                            _allObjects.push_back(go);
+                        }
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
                 }
-                if (noHit)
-                    ar.loadUnknownData();
             }
         }
     }

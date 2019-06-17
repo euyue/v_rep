@@ -108,80 +108,83 @@ CStaticGraphCurve* CStaticGraphCurve::copyYourself()
 
 void CStaticGraphCurve::serialize(CSer& ar)
 {
-    if (ar.isStoring())
-    {       // Storing
-        ar.storeDataName("Ilo");
-        ar << _curveType << ambientColor[0] << ambientColor[1] << ambientColor[2] << _name << _curveWidth;
-        ar.flush();
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            ar.storeDataName("Ilo");
+            ar << _curveType << ambientColor[0] << ambientColor[1] << ambientColor[2] << _name << _curveWidth;
+            ar.flush();
 
-        ar.storeDataName("Il2"); // 7/10/2014
-        ar << emissiveColor[0] << emissiveColor[1] << emissiveColor[2];
-        ar.flush();
+            ar.storeDataName("Il2"); // 7/10/2014
+            ar << emissiveColor[0] << emissiveColor[1] << emissiveColor[2];
+            ar.flush();
 
-        ar.storeDataName("Par");
-        unsigned char nothing=0;
-        SIM_SET_CLEAR_BIT(nothing,0,_linkPoints);
-        SIM_SET_CLEAR_BIT(nothing,1,_label);
-        SIM_SET_CLEAR_BIT(nothing,2,_relativeToWorld);
-        ar << nothing;
-        ar.flush();
+            ar.storeDataName("Par");
+            unsigned char nothing=0;
+            SIM_SET_CLEAR_BIT(nothing,0,_linkPoints);
+            SIM_SET_CLEAR_BIT(nothing,1,_label);
+            SIM_SET_CLEAR_BIT(nothing,2,_relativeToWorld);
+            ar << nothing;
+            ar.flush();
 
-        ar.storeDataName("Val");
-        ar << int(values.size());
-        for (int i=0;i<int(values.size());i++)
-            ar << values[i];
-        ar.flush();
+            ar.storeDataName("Val");
+            ar << int(values.size());
+            for (int i=0;i<int(values.size());i++)
+                ar << values[i];
+            ar.flush();
 
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
+            ar.storeDataName(SER_END_OF_OBJECT);
+        }
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
             {
-                bool noHit=true;
-                if (theName.compare("Ilo")==0)
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
                 {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _curveType >> ambientColor[0] >> ambientColor[1] >> ambientColor[2] >> _name >> _curveWidth;
-                }
-                if (theName.compare("Il2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> emissiveColor[0] >> emissiveColor[1] >> emissiveColor[2];
-                }
-                if (theName=="Par")
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-                    _linkPoints=SIM_IS_BIT_SET(nothing,0);
-                    _label=SIM_IS_BIT_SET(nothing,1);
-                    _relativeToWorld=SIM_IS_BIT_SET(nothing,2);
-                }
-                if (theName=="Val")
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int count;
-                    ar >> count;
-                    values.clear();
-                    for (int i=0;i<count;i++)
+                    bool noHit=true;
+                    if (theName.compare("Ilo")==0)
                     {
-                        float dummy;
-                        ar >> dummy;
-                        values.push_back(dummy);
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _curveType >> ambientColor[0] >> ambientColor[1] >> ambientColor[2] >> _name >> _curveWidth;
                     }
+                    if (theName.compare("Il2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> emissiveColor[0] >> emissiveColor[1] >> emissiveColor[2];
+                    }
+                    if (theName=="Par")
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        _linkPoints=SIM_IS_BIT_SET(nothing,0);
+                        _label=SIM_IS_BIT_SET(nothing,1);
+                        _relativeToWorld=SIM_IS_BIT_SET(nothing,2);
+                    }
+                    if (theName=="Val")
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int count;
+                        ar >> count;
+                        values.clear();
+                        for (int i=0;i<count;i++)
+                        {
+                            float dummy;
+                            ar >> dummy;
+                            values.push_back(dummy);
+                        }
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
                 }
-                if (noHit)
-                    ar.loadUnknownData();
             }
         }
     }

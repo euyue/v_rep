@@ -1,4 +1,3 @@
-
 #include "vrepMainHeader.h"
 #include "v_rep_internal.h"
 #include "environment.h"
@@ -353,283 +352,286 @@ std::string CEnvironment::getAcknowledgement() const
     
 void CEnvironment::serialize(CSer& ar)
 {
-    if (ar.isStoring())
-    {       // Storing
-        ar.storeDataName("Fdn");
-        ar << fogEnd;
-        ar.flush();
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            ar.storeDataName("Fdn");
+            ar << fogEnd;
+            ar.flush();
 
-        ar.storeDataName("Fd2");
-        ar << fogType << fogStart << fogDensity;
-        ar.flush();
+            ar.storeDataName("Fd2");
+            ar << fogType << fogStart << fogDensity;
+            ar.flush();
 
-        ar.storeDataName("Clc");
-        ar << backGroundColor[0] << backGroundColor[1] << backGroundColor[2];
-        ar.flush();
+            ar.storeDataName("Clc");
+            ar << backGroundColor[0] << backGroundColor[1] << backGroundColor[2];
+            ar.flush();
 
-        ar.storeDataName("Cld");
-        ar << backGroundColorDown[0] << backGroundColorDown[1] << backGroundColorDown[2];
-        ar.flush();
+            ar.storeDataName("Cld");
+            ar << backGroundColorDown[0] << backGroundColorDown[1] << backGroundColorDown[2];
+            ar.flush();
 
-        ar.storeDataName("Fbg");
-        ar << fogBackgroundColor[0] << fogBackgroundColor[1] << fogBackgroundColor[2];
-        ar.flush();
+            ar.storeDataName("Fbg");
+            ar << fogBackgroundColor[0] << fogBackgroundColor[1] << fogBackgroundColor[2];
+            ar.flush();
 
-        // Keep for backward/forward compatibility (5/10/2014):
-        ar.storeDataName("Alc");
-        ar << ambientLightColor[0]*0.5f << ambientLightColor[1]*0.5f << ambientLightColor[2]*0.5f;
-        ar.flush();
+            // Keep for backward/forward compatibility (5/10/2014):
+            ar.storeDataName("Alc");
+            ar << ambientLightColor[0]*0.5f << ambientLightColor[1]*0.5f << ambientLightColor[2]*0.5f;
+            ar.flush();
 
-        ar.storeDataName("Al2");
-        ar << ambientLightColor[0] << ambientLightColor[1] << ambientLightColor[2];
-        ar.flush();
+            ar.storeDataName("Al2");
+            ar << ambientLightColor[0] << ambientLightColor[1] << ambientLightColor[2];
+            ar.flush();
 
-        ar.storeDataName("Var");
-        unsigned char dummy=0;
-        SIM_SET_CLEAR_BIT(dummy,0,!_2DElementTexturesEnabled);
-        SIM_SET_CLEAR_BIT(dummy,1,_saveExistingCalculationStructures);
-        SIM_SET_CLEAR_BIT(dummy,2,_visualizeWirelessEmitters);
-        SIM_SET_CLEAR_BIT(dummy,3,!_visualizeWirelessReceivers);
-        SIM_SET_CLEAR_BIT(dummy,4,fogEnabled);
-        SIM_SET_CLEAR_BIT(dummy,5,_sceneIsLocked);
-        SIM_SET_CLEAR_BIT(dummy,6,_requestFinalSave); // needed so that undo/redo works on that item too!
-        SIM_SET_CLEAR_BIT(dummy,7,!_shapeTexturesEnabled);
-        ar << dummy;
-        ar.flush();
+            ar.storeDataName("Var");
+            unsigned char dummy=0;
+            SIM_SET_CLEAR_BIT(dummy,0,!_2DElementTexturesEnabled);
+            SIM_SET_CLEAR_BIT(dummy,1,_saveExistingCalculationStructures);
+            SIM_SET_CLEAR_BIT(dummy,2,_visualizeWirelessEmitters);
+            SIM_SET_CLEAR_BIT(dummy,3,!_visualizeWirelessReceivers);
+            SIM_SET_CLEAR_BIT(dummy,4,fogEnabled);
+            SIM_SET_CLEAR_BIT(dummy,5,_sceneIsLocked);
+            SIM_SET_CLEAR_BIT(dummy,6,_requestFinalSave); // needed so that undo/redo works on that item too!
+            SIM_SET_CLEAR_BIT(dummy,7,!_shapeTexturesEnabled);
+            ar << dummy;
+            ar.flush();
 
-        ar.storeDataName("Va3");
-        dummy=0;
-        // free        SIM_SET_CLEAR_BIT(dummy,0,_showPartRepository);
-        // free       SIM_SET_CLEAR_BIT(dummy,1,_showPalletRepository);
-        ar << dummy;
-        ar.flush();
+            ar.storeDataName("Va3");
+            dummy=0;
+            // free        SIM_SET_CLEAR_BIT(dummy,0,_showPartRepository);
+            // free       SIM_SET_CLEAR_BIT(dummy,1,_showPalletRepository);
+            ar << dummy;
+            ar.flush();
 
-        ar.storeDataName("Ack");
-        ar << _acknowledgement;
-        ar.flush();
+            ar.storeDataName("Ack");
+            ar << _acknowledgement;
+            ar.flush();
 
-        ar.storeDataName("Mt2");
-        ar << _calculationMaxTriangleSize;
-        ar.flush();
+            ar.storeDataName("Mt2");
+            ar << _calculationMaxTriangleSize;
+            ar.flush();
 
-        ar.storeDataName("Mrs");
-        ar << _calculationMinRelTriangleSize;
-        ar.flush();
+            ar.storeDataName("Mrs");
+            ar << _calculationMinRelTriangleSize;
+            ar.flush();
 
-        ar.storeDataName("Rst");
-        ar << _extensionString;
-        ar.flush();
+            ar.storeDataName("Rst");
+            ar << _extensionString;
+            ar.flush();
 
-        ar.storeDataName("Evc");
-        ar.setCountingMode();
-        wirelessEmissionVolumeColor.serialize(ar,1);
-        if (ar.setWritingMode())
+            ar.storeDataName("Evc");
+            ar.setCountingMode();
             wirelessEmissionVolumeColor.serialize(ar,1);
+            if (ar.setWritingMode())
+                wirelessEmissionVolumeColor.serialize(ar,1);
 
-        ar.storeDataName("Wtc");
-        ar.setCountingMode();
-        wirelessReceptionVolumeColor.serialize(ar,1);
-        if (ar.setWritingMode())
+            ar.storeDataName("Wtc");
+            ar.setCountingMode();
             wirelessReceptionVolumeColor.serialize(ar,1);
+            if (ar.setWritingMode())
+                wirelessReceptionVolumeColor.serialize(ar,1);
 
-        ar.storeDataName("Job");
-        ar << _currentJob;
-        ar << int(_jobs.size());
-        for (size_t i=0;i<_jobs.size();i++)
-            ar << _jobs[i];
-        ar.flush();
+            ar.storeDataName("Job");
+            ar << _currentJob;
+            ar << int(_jobs.size());
+            for (size_t i=0;i<_jobs.size();i++)
+                ar << _jobs[i];
+            ar.flush();
 
-        ar.storeDataName("Ups");
-        ar << _sceneUniquePersistentIdString;
-        ar.flush();
+            ar.storeDataName("Ups");
+            ar << _sceneUniquePersistentIdString;
+            ar.flush();
 
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
-            {
-                bool noHit=true;
-                if (theName.compare("Fdn")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> fogEnd;
-                }
-                if (theName.compare("Fd2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> fogType >> fogStart >> fogDensity;
-                }
-                if (theName.compare("Var")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char dummy;
-                    ar >> dummy;
-                    _2DElementTexturesEnabled=!SIM_IS_BIT_SET(dummy,0);
-                    _saveExistingCalculationStructures=SIM_IS_BIT_SET(dummy,1);
-                    _visualizeWirelessEmitters=SIM_IS_BIT_SET(dummy,2);
-                    _visualizeWirelessReceivers=!SIM_IS_BIT_SET(dummy,3);
-                    fogEnabled=SIM_IS_BIT_SET(dummy,4);
-                    _sceneIsLocked=SIM_IS_BIT_SET(dummy,5);
-                    _requestFinalSave=SIM_IS_BIT_SET(dummy,6); // needed so that undo/redo works on that item too!
-                    _shapeTexturesEnabled=!SIM_IS_BIT_SET(dummy,7);
-                }
-                if (theName.compare("Va2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char dummy;
-                    ar >> dummy;
-                }
-                if (theName.compare("Va3")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char dummy;
-                    ar >> dummy;
-// free                    _showPartRepository=SIM_IS_BIT_SET(dummy,0);
-// free                    _showPalletRepository=SIM_IS_BIT_SET(dummy,1);
-                }
-                if (theName.compare("Clc")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> backGroundColor[0] >> backGroundColor[1] >> backGroundColor[2];
-                    backGroundColorDown[0]=backGroundColor[0];
-                    backGroundColorDown[1]=backGroundColor[1];
-                    backGroundColorDown[2]=backGroundColor[2];
-                }
-                if (theName.compare("Cld")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> backGroundColorDown[0] >> backGroundColorDown[1] >> backGroundColorDown[2];
-                }
-                if (theName.compare("Fbg")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> fogBackgroundColor[0] >> fogBackgroundColor[1] >> fogBackgroundColor[2];
-                }
-                if (theName.compare("Alc")==0)
-                { // keep for backward/forward compatibility (5/10/2014)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> ambientLightColor[0] >> ambientLightColor[1] >> ambientLightColor[2];
-                    ambientLightColor[0]*=2.0f;
-                    ambientLightColor[1]*=2.0f;
-                    ambientLightColor[2]*=2.0f;
-                    float mx=SIM_MAX(SIM_MAX(ambientLightColor[0],ambientLightColor[1]),ambientLightColor[2]);
-                    if (mx>0.4f)
-                    {
-                        ambientLightColor[0]=ambientLightColor[0]*0.4f/mx;
-                        ambientLightColor[1]=ambientLightColor[1]*0.4f/mx;
-                        ambientLightColor[2]=ambientLightColor[2]*0.4f/mx;
-                    }
-                }
-                if (theName.compare("Al2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> ambientLightColor[0] >> ambientLightColor[1] >> ambientLightColor[2];
-                }
-                if (theName.compare("Ack")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _acknowledgement;
-                }
-                if (theName.compare("Mts")==0)
-                { // keep for backward compatibility (2010/07/07)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _calculationMaxTriangleSize;
-                    _calculationMaxTriangleSize=0.3f;
-                }
-                if (theName.compare("Mt2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _calculationMaxTriangleSize;
-                }
-                if (theName.compare("Mrs")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _calculationMinRelTriangleSize;
-                }
-                if (theName.compare("Rst")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _extensionString;
-                }
-                if (theName.compare("Pof")==0)
-                { // Keep for backward compatibility (3/2/2016)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    float povDist,povTransp;
-                    ar >> povDist >> povTransp;
-                    _extensionString="povray {fogDist {";
-                    _extensionString+=tt::FNb(0,povDist,3,false);
-                    _extensionString+="} fogTransp {";
-                    _extensionString+=tt::FNb(0,povTransp,3,false);
-                    _extensionString+="}}";
-                }
-                if (theName.compare("Evc")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    wirelessEmissionVolumeColor.serialize(ar,1);
-                }
-                if (theName.compare("Wtc")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    wirelessReceptionVolumeColor.serialize(ar,1);
-                }
-                if (theName.compare("Job")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    ar >> _currentJob;
-                    int cnt;
-                    ar >> cnt;
-                    _jobs.clear();
-                    for (int i=0;i<cnt;i++)
-                    {
-                        std::string job;
-                        ar >> job;
-                        _jobs.push_back(job);
-                    }
-                }
-                if (theName.compare("Ups")==0)
-                {
-                    noHit=false;
-                    std::string s;
-                    ar >> byteQuantity;
-                    ar >> s;
-                    if (s.size()!=0)
-                        _sceneUniquePersistentIdString=s;
-                }
-                if (noHit)
-                    ar.loadUnknownData();
-            }
+            ar.storeDataName(SER_END_OF_OBJECT);
         }
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
+            {
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
+                {
+                    bool noHit=true;
+                    if (theName.compare("Fdn")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> fogEnd;
+                    }
+                    if (theName.compare("Fd2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> fogType >> fogStart >> fogDensity;
+                    }
+                    if (theName.compare("Var")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char dummy;
+                        ar >> dummy;
+                        _2DElementTexturesEnabled=!SIM_IS_BIT_SET(dummy,0);
+                        _saveExistingCalculationStructures=SIM_IS_BIT_SET(dummy,1);
+                        _visualizeWirelessEmitters=SIM_IS_BIT_SET(dummy,2);
+                        _visualizeWirelessReceivers=!SIM_IS_BIT_SET(dummy,3);
+                        fogEnabled=SIM_IS_BIT_SET(dummy,4);
+                        _sceneIsLocked=SIM_IS_BIT_SET(dummy,5);
+                        _requestFinalSave=SIM_IS_BIT_SET(dummy,6); // needed so that undo/redo works on that item too!
+                        _shapeTexturesEnabled=!SIM_IS_BIT_SET(dummy,7);
+                    }
+                    if (theName.compare("Va2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char dummy;
+                        ar >> dummy;
+                    }
+                    if (theName.compare("Va3")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char dummy;
+                        ar >> dummy;
+    // free                    _showPartRepository=SIM_IS_BIT_SET(dummy,0);
+    // free                    _showPalletRepository=SIM_IS_BIT_SET(dummy,1);
+                    }
+                    if (theName.compare("Clc")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> backGroundColor[0] >> backGroundColor[1] >> backGroundColor[2];
+                        backGroundColorDown[0]=backGroundColor[0];
+                        backGroundColorDown[1]=backGroundColor[1];
+                        backGroundColorDown[2]=backGroundColor[2];
+                    }
+                    if (theName.compare("Cld")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> backGroundColorDown[0] >> backGroundColorDown[1] >> backGroundColorDown[2];
+                    }
+                    if (theName.compare("Fbg")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> fogBackgroundColor[0] >> fogBackgroundColor[1] >> fogBackgroundColor[2];
+                    }
+                    if (theName.compare("Alc")==0)
+                    { // keep for backward/forward compatibility (5/10/2014)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> ambientLightColor[0] >> ambientLightColor[1] >> ambientLightColor[2];
+                        ambientLightColor[0]*=2.0f;
+                        ambientLightColor[1]*=2.0f;
+                        ambientLightColor[2]*=2.0f;
+                        float mx=SIM_MAX(SIM_MAX(ambientLightColor[0],ambientLightColor[1]),ambientLightColor[2]);
+                        if (mx>0.4f)
+                        {
+                            ambientLightColor[0]=ambientLightColor[0]*0.4f/mx;
+                            ambientLightColor[1]=ambientLightColor[1]*0.4f/mx;
+                            ambientLightColor[2]=ambientLightColor[2]*0.4f/mx;
+                        }
+                    }
+                    if (theName.compare("Al2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> ambientLightColor[0] >> ambientLightColor[1] >> ambientLightColor[2];
+                    }
+                    if (theName.compare("Ack")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _acknowledgement;
+                    }
+                    if (theName.compare("Mts")==0)
+                    { // keep for backward compatibility (2010/07/07)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _calculationMaxTriangleSize;
+                        _calculationMaxTriangleSize=0.3f;
+                    }
+                    if (theName.compare("Mt2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _calculationMaxTriangleSize;
+                    }
+                    if (theName.compare("Mrs")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _calculationMinRelTriangleSize;
+                    }
+                    if (theName.compare("Rst")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _extensionString;
+                    }
+                    if (theName.compare("Pof")==0)
+                    { // Keep for backward compatibility (3/2/2016)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        float povDist,povTransp;
+                        ar >> povDist >> povTransp;
+                        _extensionString="povray {fogDist {";
+                        _extensionString+=tt::FNb(0,povDist,3,false);
+                        _extensionString+="} fogTransp {";
+                        _extensionString+=tt::FNb(0,povTransp,3,false);
+                        _extensionString+="}}";
+                    }
+                    if (theName.compare("Evc")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        wirelessEmissionVolumeColor.serialize(ar,1);
+                    }
+                    if (theName.compare("Wtc")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        wirelessReceptionVolumeColor.serialize(ar,1);
+                    }
+                    if (theName.compare("Job")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        ar >> _currentJob;
+                        int cnt;
+                        ar >> cnt;
+                        _jobs.clear();
+                        for (int i=0;i<cnt;i++)
+                        {
+                            std::string job;
+                            ar >> job;
+                            _jobs.push_back(job);
+                        }
+                    }
+                    if (theName.compare("Ups")==0)
+                    {
+                        noHit=false;
+                        std::string s;
+                        ar >> byteQuantity;
+                        ar >> s;
+                        if (s.size()!=0)
+                            _sceneUniquePersistentIdString=s;
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
+                }
+            }
 
-        if (ar.getSerializationVersionThatWroteThisFile()<17)
-        { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
-            float avg=(ambientLightColor[0]+ambientLightColor[1]+ambientLightColor[2])/3.0f;
-            if (avg>0.21f)
-                CTTUtil::scaleLightDown_(ambientLightColor);
+            if (ar.getSerializationVersionThatWroteThisFile()<17)
+            { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
+                float avg=(ambientLightColor[0]+ambientLightColor[1]+ambientLightColor[2])/3.0f;
+                if (avg>0.21f)
+                    CTTUtil::scaleLightDown_(ambientLightColor);
+            }
         }
     }
 }

@@ -16,41 +16,40 @@ public:
     static void handleVerSpec_loadModel1(){}
 
 #ifdef SIM_WITH_GUI
-    static bool handleVerSpec_saveSceneAsWithDialogAndEverything1(){return(0);}
-    static std::string handleVerSpec_saveSceneAsWithDialogAndEverything2(int format,const std::string& initPath)
+    static bool handleVerSpec_saveSceneAsWithDialogAndEverything1(){return(CSer::CSer::filetype_vrep_bin_scene_file);}
+    static std::string handleVerSpec_saveSceneAsWithDialogAndEverything2(int fileType,const std::string& initPath)
     {
         std::string retStr;
         std::string sceneName(App::ct->mainSettings->getScenePathAndName());
         sceneName=VVarious::splitPath_fileBaseAndExtension(sceneName);
         std::string ext=VVarious::splitPath_fileExtension(sceneName);
         std::transform(ext.begin(),ext.end(),ext.begin(),::tolower);
-        if ( (format==0)&&(ext.compare(VREP_SCENE_EXTENSION)!=0) )
+        if ( (fileType==CSer::filetype_vrep_bin_scene_file)&&(ext.compare(VREP_SCENE_EXTENSION)!=0) )
             sceneName="";
-        if ( (format==1)&&(ext.compare(VREP_XML_SCENE_EXTENSION)!=0) )
-            sceneName="";
-        if (format==0)
-            retStr=App::uiThread->getSaveFileName(App::mainWindow,0,tt::decorateString("",strTranslate(IDSN_SAVING_SCENE),"..."),initPath,sceneName,false,"V-REP Scene",VREP_SCENE_EXTENSION);
-        if (format==1)
-            retStr=App::uiThread->getSaveFileName(App::mainWindow,0,tt::decorateString("",strTranslate(IDSN_SAVING_SCENE),"..."),initPath,sceneName,false,"V-REP XML Scene","xml");
+
+        if (fileType==CSer::filetype_vrep_bin_scene_file)
+            retStr=App::uiThread->getSaveFileName(App::mainWindow,0,tt::decorateString("",IDSN_SAVING_SCENE,"..."),initPath,sceneName,false,"V-REP Scene",VREP_SCENE_EXTENSION);
         return(retStr);
     }
     static std::string handleVerSpec_openScenePhase2()
     {
         std::string tst(App::directories->sceneDirectory);
-        std::string retStr=App::uiThread->getOpenFileName(App::mainWindow,0,strTranslate(IDSN_LOADING_SCENE),tst,"",false,"V-REP Scenes",VREP_SCENE_EXTENSION);
+        std::string retStr=App::uiThread->getOpenFileName(App::mainWindow,0,IDSN_LOADING_SCENE,tst,"",false,"Scenes",VREP_SCENE_EXTENSION);
         return(retStr);
     }
     static void handleVerSpec_openRecentScene(){}
     static std::string handleVerSpec_loadModel2()
     {
         std::string tst(App::directories->modelDirectory);
-        std::string retStr=App::uiThread->getOpenFileName(App::mainWindow,0,strTranslate(IDSN_LOADING_MODEL),tst,"",false,"V-REP Models",VREP_MODEL_EXTENSION);
+        std::string retStr=App::uiThread->getOpenFileName(App::mainWindow,0,IDSN_LOADING_MODEL,tst,"",false,"Models",VREP_MODEL_EXTENSION);
         return(retStr);
     }
-    static std::string handleVerSpec_saveModel(int cmdId)
+    static std::string handleVerSpec_saveModel(int what)
     {
+        std::string retStr;
         std::string tst(App::directories->modelDirectory);
-        std::string retStr=App::uiThread->getSaveFileName(App::mainWindow,0,strTranslate(IDS_SAVING_MODEL___),tst,"",false,"V-REP Model",VREP_MODEL_EXTENSION);
+        if (what==0)
+            retStr=App::uiThread->getSaveFileName(App::mainWindow,0,IDS_SAVING_MODEL___,tst,"",false,"V-REP Model",VREP_MODEL_EXTENSION);
         return(retStr);
     }
     static void handleVerSpec_addMenu1(VMenu* menu)
@@ -104,8 +103,12 @@ public:
         menu->appendMenuSeparator();
 
         menu->appendMenuItem(fileOpOk,false,FILE_OPERATION_SAVE_SCENE_FOCMD,IDS_SAVE_SCENE_MENU_ITEM);
-        menu->appendMenuItem(fileOpOk,false,FILE_OPERATION_SAVE_SCENE_AS_FOCMD,IDS_SAVE_SCENE_AS___MENU_ITEM);
-        menu->appendMenuItem(fileOpOk&&justModelSelected,false,FILE_OPERATION_SAVE_MODEL_FOCMD,IDS_SAVE_MODEL_AS___MENU_ITEM);
+        VMenu* saveSceneMenu=new VMenu();
+        saveSceneMenu->appendMenuItem(fileOpOk,false,FILE_OPERATION_SAVE_SCENE_AS_VREP_FOCMD,IDS_SCENE_AS_VREP___MENU_ITEM);
+        menu->appendMenuAndDetach(saveSceneMenu,fileOpOk,IDS_SAVE_SCENE_AS_MENU_ITEM);
+        VMenu* saveModelMenu=new VMenu();
+        saveModelMenu->appendMenuItem(fileOpOk&&justModelSelected,false,FILE_OPERATION_SAVE_MODEL_AS_VREP_FOCMD,IDS_MODEL_AS_VREP___MENU_ITEM);
+        menu->appendMenuAndDetach(saveModelMenu,fileOpOk&&justModelSelected,IDS_SAVE_MODEL_AS_MENU_ITEM);
         menu->appendMenuSeparator();
         VMenu* impMenu=new VMenu();
         impMenu->appendMenuItem(fileOpOk,false,FILE_OPERATION_IMPORT_MESH_FOCMD,IDS_IMPORT_MESH___MENU_ITEM);

@@ -6,7 +6,6 @@
 #include "ttUtil.h"
 #include "app.h"
 
-
 CRegCollection::CRegCollection(std::string grName)
 {
     groupName=grName;
@@ -313,84 +312,87 @@ void CRegCollection::emptyCollection()
 
 void CRegCollection::serialize(CSer& ar)
 {
-    if (ar.isStoring())
-    {       // Storing
-        ar.storeDataName("Grn");
-        ar << groupName;
-        ar.flush();
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            ar.storeDataName("Grn");
+            ar << groupName;
+            ar.flush();
 
-        ar.storeDataName("Gix");
-        ar << groupID;
-        ar.flush();
+            ar.storeDataName("Gix");
+            ar << groupID;
+            ar.flush();
 
-        ar.storeDataName("Par");
-        unsigned char nothing=0;
-        SIM_SET_CLEAR_BIT(nothing,0,_overridesObjectMainProperties);
-        ar << nothing;
-        ar.flush();
+            ar.storeDataName("Par");
+            unsigned char nothing=0;
+            SIM_SET_CLEAR_BIT(nothing,0,_overridesObjectMainProperties);
+            ar << nothing;
+            ar.flush();
 
-        ar.storeDataName("Uis");
-        ar << _uniquePersistentIdString;
-        ar.flush();
+            ar.storeDataName("Uis");
+            ar << _uniquePersistentIdString;
+            ar.flush();
 
-        for (int i=0;i<int(subCollectionList.size());i++)
-        {
-            ar.storeDataName("Asg");
-            ar.setCountingMode();
-            subCollectionList[i]->serialize(ar);
-            if (ar.setWritingMode())
-                subCollectionList[i]->serialize(ar);
-        }
-
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {   // Loading
-        subCollectionList.clear();
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
+            for (int i=0;i<int(subCollectionList.size());i++)
             {
-                bool noHit=true;
-                if (theName.compare("Grn")==0)
+                ar.storeDataName("Asg");
+                ar.setCountingMode();
+                subCollectionList[i]->serialize(ar);
+                if (ar.setWritingMode())
+                    subCollectionList[i]->serialize(ar);
+            }
+
+            ar.storeDataName(SER_END_OF_OBJECT);
+        }
+        else
+        {   // Loading
+            subCollectionList.clear();
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
+            {
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
                 {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> groupName;
+                    bool noHit=true;
+                    if (theName.compare("Grn")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> groupName;
+                    }
+                    if (theName.compare("Gix")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> groupID;
+                    }
+                    if (theName.compare("Asg")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        CRegCollectionEl* it=new CRegCollectionEl(0,0,false);
+                        it->serialize(ar);
+                        subCollectionList.push_back(it);
+                    }
+                    if (theName=="Par")
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        _overridesObjectMainProperties=SIM_IS_BIT_SET(nothing,0);
+                    }
+                    if (theName.compare("Uis")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _uniquePersistentIdString;
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
                 }
-                if (theName.compare("Gix")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> groupID;
-                }
-                if (theName.compare("Asg")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    CRegCollectionEl* it=new CRegCollectionEl(0,0,false);
-                    it->serialize(ar);
-                    subCollectionList.push_back(it);
-                }
-                if (theName=="Par")
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-                    _overridesObjectMainProperties=SIM_IS_BIT_SET(nothing,0);
-                }
-                if (theName.compare("Uis")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _uniquePersistentIdString;
-                }
-                if (noHit)
-                    ar.loadUnknownData();
             }
         }
     }

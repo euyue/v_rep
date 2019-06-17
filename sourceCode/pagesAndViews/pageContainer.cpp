@@ -23,13 +23,14 @@
 CPageContainer::CPageContainer()
 {
     _activePageIndex=0;
-    _numberOfPages=0;
     rightMouseCaughtBy=-1;
     leftMouseCaughtBy=-1;
     prepareForPopupMenu=-1;
     rightMouseCaughtSoftDialog=false;
     leftMouseCaughtSoftDialog=false;
     _caughtElements=0;
+    for (int i=0;i<PAGES_COUNT;i++)
+        _allPages[i]=nullptr;
     #ifdef SIM_WITH_GUI
         setFocusObject(FOCUS_ON_PAGE);
     #endif
@@ -49,8 +50,8 @@ void CPageContainer::emptySceneProcedure()
 }
 
 int CPageContainer::getPageCount() const
-{ // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
-    return(_numberOfPages);
+{
+    return(PAGES_COUNT);
 }
 
 void CPageContainer::initializeInitialValues(bool simulationIsRunning,int initializeOnlyForThisNewObject)
@@ -60,7 +61,7 @@ void CPageContainer::initializeInitialValues(bool simulationIsRunning,int initia
     {
         _initialActivePageIndex=_activePageIndex;
     }
-    for (int i=0;i<_numberOfPages;i++)
+    for (int i=0;i<PAGES_COUNT;i++)
     {
         if (_allPages[i]!=nullptr)
             _allPages[i]->initializeInitialValues(simulationIsRunning,initializeOnlyForThisNewObject);
@@ -78,7 +79,7 @@ void CPageContainer::simulationEnded()
     {
         _activePageIndex=_initialActivePageIndex;
     }
-    for (int i=0;i<_numberOfPages;i++)
+    for (int i=0;i<PAGES_COUNT;i++)
     {
         if (_allPages[i]!=nullptr)
             _allPages[i]->simulationEnded();
@@ -89,7 +90,7 @@ void CPageContainer::simulationEnded()
 
 void CPageContainer::removeAllPages()
 {
-    for (int i=0;i<_numberOfPages;i++)
+    for (int i=0;i<PAGES_COUNT;i++)
     {
         if (_allPages[i]!=nullptr)
             delete _allPages[i];
@@ -98,13 +99,7 @@ void CPageContainer::removeAllPages()
 }
 void CPageContainer::setUpDefaultPages(bool createASingleView)
 { // createASingleView is false by default
-    if (_numberOfPages==0)
-    {
-        _numberOfPages=MAX_NUMBER_OF_PAGES;
-        for (int i=0;i<_numberOfPages;i++)
-            _allPages[i]=nullptr;
-    }
-    for (int i=0;i<_numberOfPages;i++)
+    for (int i=0;i<PAGES_COUNT;i++)
     {
         if (_allPages[i]!=nullptr)
         {
@@ -122,14 +117,14 @@ void CPageContainer::setUpDefaultPages(bool createASingleView)
 
 CSPage* CPageContainer::getPage(int pageIndex) const
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
-    if ( (pageIndex<0)||(pageIndex>=_numberOfPages) )
+    if ( (pageIndex<0)||(pageIndex>=PAGES_COUNT) )
         return(nullptr); // Invalid view number
     return(_allPages[pageIndex]);   
 }
 
 void CPageContainer::announceObjectWillBeErased(int objectID)
 { // Never called from copy buffer!
-    for (int i=0;i<_numberOfPages;i++)
+    for (int i=0;i<PAGES_COUNT;i++)
     {
         if (_allPages[i]!=nullptr)
             _allPages[i]->announceObjectWillBeErased(objectID);
@@ -146,7 +141,7 @@ void CPageContainer::setPageSizeAndPosition(int sizeX,int sizeY,int posX,int pos
     if (App::ct->buttonBlockContainer!=nullptr)
         App::ct->buttonBlockContainer->setViewSizeAndPosition(sizeX,sizeY,posX,posY);
     // We set the view position and size for all views:
-    for (int i=0;i<_numberOfPages;i++)
+    for (int i=0;i<PAGES_COUNT;i++)
     {
         if (_allPages[i]!=nullptr)
             _allPages[i]->setPageSizeAndPosition(sizeX,sizeY,posX,posY);
@@ -155,7 +150,7 @@ void CPageContainer::setPageSizeAndPosition(int sizeX,int sizeY,int posX,int pos
 
 void CPageContainer::removePage(int pageIndex)
 {
-    if ( (pageIndex<0)||(pageIndex>=_numberOfPages) )
+    if ( (pageIndex<0)||(pageIndex>=PAGES_COUNT) )
         return;
     if (_allPages[pageIndex]!=nullptr)
     {
@@ -166,70 +161,78 @@ void CPageContainer::removePage(int pageIndex)
 
 void CPageContainer::serialize(CSer& ar)
 {
-    if (ar.isStoring())
-    { // Storing
-        for (int i=0;i<_numberOfPages;i++)
-        {
-            if (_allPages[i]!=nullptr)
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        { // Storing
+            for (int i=0;i<PAGES_COUNT;i++)
             {
-                ar.storeDataName("Vwo");
-                ar.setCountingMode();
-                _allPages[i]->serialize(ar);
-                if (ar.setWritingMode())
+                if (_allPages[i]!=nullptr)
+                {
+                    ar.storeDataName("Vwo");
+                    ar.setCountingMode();
                     _allPages[i]->serialize(ar);
+                    if (ar.setWritingMode())
+                        _allPages[i]->serialize(ar);
+                }
+                else
+                {
+                    ar.storeDataName("Nul");
+                    ar << (int)0;
+                    ar.flush();
+                }
             }
-            else
-            {
-                ar.storeDataName("Nul");
-                ar << (int)0;
-                ar.flush();
-            }
+
+            ar.storeDataName("Avi");
+            ar << _activePageIndex;
+            ar.flush();
+
+            ar.storeDataName(SER_END_OF_OBJECT);
         }
-
-        ar.storeDataName("Avi");
-        ar << _activePageIndex;
-        ar.flush();
-
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        removeAllPages();
-        int viewCounter=0;
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
+        else
+        {       // Loading
+            removeAllPages();
+            int viewCounter=0;
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
             {
-                bool noHit=true;
-                if (theName.compare("Avi")==0)
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
                 {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _activePageIndex;
-                    App::setToolbarRefreshFlag();
+                    bool noHit=true;
+                    if (theName.compare("Avi")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _activePageIndex;
+                        if (_activePageIndex>=PAGES_COUNT)
+                            _activePageIndex=0;
+                        App::setToolbarRefreshFlag();
+                    }
+                    if (theName.compare("Vwo")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        CSPage* theView=new CSPage(0);
+                        theView->serialize(ar);
+                        if (viewCounter<PAGES_COUNT)
+                            _allPages[viewCounter]=theView;
+                        else
+                            delete theView;
+                        viewCounter++;
+                    }
+                    if (theName.compare("Nul")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int tmp;
+                        ar >> tmp;
+                        viewCounter++;
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
                 }
-                if (theName.compare("Vwo")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    CSPage* theView=new CSPage(0);
-                    theView->serialize(ar);
-                    _allPages[viewCounter]=theView;
-                    viewCounter++;
-                }
-                if (theName.compare("Nul")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int tmp;
-                    ar >> tmp;
-                    viewCounter++;
-                }
-                if (noHit)
-                    ar.loadUnknownData();
             }
         }
     }
@@ -237,7 +240,7 @@ void CPageContainer::serialize(CSer& ar)
 
 void CPageContainer::performObjectLoadingMapping(std::vector<int>* map)
 {
-    for (int i=0;i<_numberOfPages;i++)
+    for (int i=0;i<PAGES_COUNT;i++)
     {
         if (_allPages[i]!=nullptr)
             _allPages[i]->performObjectLoadingMapping(map);
@@ -246,7 +249,7 @@ void CPageContainer::performObjectLoadingMapping(std::vector<int>* map)
 
 bool CPageContainer::processCommand(int commandID,int viewIndex)
 { // Return value is true if the command belonged to hierarchy menu and was executed
-    if ( (viewIndex<0)||(viewIndex>=_numberOfPages) )
+    if ( (viewIndex<0)||(viewIndex>=PAGES_COUNT) )
         return(false);
     if (_allPages[viewIndex]!=nullptr)
         return(false);
@@ -319,7 +322,7 @@ void CPageContainer::renderCurrentPage(bool hideWatermark)
 
     // Now we have to clear all mouseJustWentDown and mouseJustWentUp flag in case
     // it was not processed
-    for (int  i=0;i<_numberOfPages;i++)
+    for (int  i=0;i<PAGES_COUNT;i++)
     {
         if (_allPages[i]!=nullptr)
             _allPages[i]->clearAllMouseJustWentDownAndUpFlags();
@@ -340,7 +343,7 @@ int CPageContainer::getActivePageIndex() const
 
 void CPageContainer::setActivePage(int pageIndex)
 {
-    if ( (pageIndex<_numberOfPages)&&(pageIndex>=0) )
+    if ( (pageIndex<PAGES_COUNT)&&(pageIndex>=0) )
     {
         _activePageIndex=pageIndex;
         clearAllLastMouseDownViewIndex(); // foc
@@ -388,7 +391,7 @@ bool CPageContainer::leftMouseButtonDown(int x,int y,int selectionStatus)
     if ( (x<0)||(x>_pageSize[0])||(y<0)||(y>_pageSize[1]) )
         return(false);
     // The mouse went down in this window zone
-    for (int i=0;i<_numberOfPages;i++)
+    for (int i=0;i<PAGES_COUNT;i++)
     {
         if (_allPages[i]!=nullptr)
             _allPages[i]->clearCaughtElements(0xffff-sim_left_button);
@@ -420,7 +423,7 @@ bool CPageContainer::leftMouseButtonDown(int x,int y,int selectionStatus)
 
 void CPageContainer::clearAllLastMouseDownViewIndex()
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
-    for (int i=0;i<_numberOfPages;i++)
+    for (int i=0;i<PAGES_COUNT;i++)
     {
         CSPage* p=_allPages[i];
         if (p!=nullptr)
@@ -474,7 +477,7 @@ void CPageContainer::mouseMove(int x,int y,bool passiveAndFocused)
         else
             App::ct->buttonBlockContainer->mouseMove(mouseRelativePosition[0],mouseRelativePosition[1]);
     }
-    for (int i=0;i<_numberOfPages;i++)
+    for (int i=0;i<PAGES_COUNT;i++)
     {
         if (_allPages[i]!=nullptr)
         {
@@ -604,7 +607,7 @@ bool CPageContainer::rightMouseButtonDown(int x,int y)
 
     if (App::ct->buttonBlockContainer!=nullptr)
         App::ct->buttonBlockContainer->clearCaughtElements(0xffff-sim_right_button);
-    for (int i=0;i<_numberOfPages;i++)
+    for (int i=0;i<PAGES_COUNT;i++)
     {
         if (_allPages[i]!=nullptr)
             _allPages[i]->clearCaughtElements(0xffff-sim_right_button);
@@ -662,7 +665,7 @@ void CPageContainer::rightMouseButtonUp(int x,int y,int absX,int absY,QWidget* m
     {
         if (_caughtElements&sim_right_button)
         {
-            if ( (prepareForPopupMenu>=0)&&(prepareForPopupMenu<_numberOfPages)&&(prepareForPopupMenu==_activePageIndex) )
+            if ( (prepareForPopupMenu>=0)&&(prepareForPopupMenu<PAGES_COUNT)&&(prepareForPopupMenu==_activePageIndex) )
             {
                 // Did the mouse go up in this zone?
                 if ( (x>=0)&&(y>=0)&&(x<=_pageSize[0])&&(y<=_pageSize[1]) )
@@ -693,7 +696,7 @@ bool CPageContainer::middleMouseButtonDown(int x,int y)
     if (App::ct->buttonBlockContainer!=nullptr)
         App::ct->buttonBlockContainer->clearCaughtElements(0xffff-sim_middle_button);
 
-    for (int i=0;i<_numberOfPages;i++)
+    for (int i=0;i<PAGES_COUNT;i++)
     {
         if (_allPages[i]!=nullptr)
             _allPages[i]->clearCaughtElements(0xffff-sim_middle_button);
@@ -764,7 +767,7 @@ bool CPageContainer::leftMouseButtonDoubleClick(int x,int y,int selectionStatus)
 int CPageContainer::getCaughtElements() const
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
     int retVal=0;
-    for (int i=0;i<_numberOfPages;i++)
+    for (int i=0;i<PAGES_COUNT;i++)
     {
         if (_allPages[i]!=nullptr)
             retVal|=_allPages[i]->getCaughtElements();
@@ -777,7 +780,7 @@ int CPageContainer::getCaughtElements() const
 
 void CPageContainer::clearCaughtElements(int keepMask)
 { // YOU ARE ONLY ALLOWED TO MODIFY SIMPLE TYPES. NO OBJECT CREATION/DESTRUCTION HERE!!
-    for (int i=0;i<_numberOfPages;i++)
+    for (int i=0;i<PAGES_COUNT;i++)
     {
         if (_allPages[i]!=nullptr)
             _allPages[i]->clearCaughtElements(keepMask);

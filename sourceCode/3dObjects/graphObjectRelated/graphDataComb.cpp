@@ -124,104 +124,107 @@ CGraphDataComb* CGraphDataComb::copyYourself()
 
 void CGraphDataComb::serialize(CSer& ar)
 {
-    if (ar.isStoring())
-    {       // Storing
-        ar.storeDataName("Nme");
-        ar << name;
-        ar.flush();
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            ar.storeDataName("Nme");
+            ar << name;
+            ar.flush();
 
-        ar.storeDataName("Oid");
-        ar << identifier;
-        ar.flush();
+            ar.storeDataName("Oid");
+            ar << identifier;
+            ar.flush();
 
-        ar.storeDataName("Cl2");
-        ar.setCountingMode();
-        curveColor.serialize(ar,0);
-        if (ar.setWritingMode())
+            ar.storeDataName("Cl2");
+            ar.setCountingMode();
             curveColor.serialize(ar,0);
+            if (ar.setWritingMode())
+                curveColor.serialize(ar,0);
 
-        ar.storeDataName("Did");
-        ar << data[0] << data[1] << data[2];
-        ar.flush();
+            ar.storeDataName("Did");
+            ar << data[0] << data[1] << data[2];
+            ar.flush();
 
-        ar.storeDataName("3dw");
-        ar << threeDCurveWidth;
-        ar.flush();
+            ar.storeDataName("3dw");
+            ar << threeDCurveWidth;
+            ar.flush();
 
 
-        ar.storeDataName("Par");
-        unsigned char nothing=0;
-        SIM_SET_CLEAR_BIT(nothing,0,visible);
-        SIM_SET_CLEAR_BIT(nothing,1,linkPoints);
-        SIM_SET_CLEAR_BIT(nothing,2,label);
-        SIM_SET_CLEAR_BIT(nothing,3,visibleOnTopOfEverything);
-        SIM_SET_CLEAR_BIT(nothing,4,_curveRelativeToWorld);
-        ar << nothing;
-        ar.flush();
+            ar.storeDataName("Par");
+            unsigned char nothing=0;
+            SIM_SET_CLEAR_BIT(nothing,0,visible);
+            SIM_SET_CLEAR_BIT(nothing,1,linkPoints);
+            SIM_SET_CLEAR_BIT(nothing,2,label);
+            SIM_SET_CLEAR_BIT(nothing,3,visibleOnTopOfEverything);
+            SIM_SET_CLEAR_BIT(nothing,4,_curveRelativeToWorld);
+            ar << nothing;
+            ar.flush();
 
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
+            ar.storeDataName(SER_END_OF_OBJECT);
+        }
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
             {
-                bool noHit=true;
-                if (theName.compare("Nme")==0)
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
                 {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> name;
+                    bool noHit=true;
+                    if (theName.compare("Nme")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> name;
+                    }
+                    if (theName.compare("Oid")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> identifier;
+                    }
+                    if (theName.compare("Col")==0)
+                    { // for backward compatibility 11/06/2016
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> curveColor.colors[0] >> curveColor.colors[1] >> curveColor.colors[2];
+                        ar >> curveColor.colors[9] >> curveColor.colors[10] >> curveColor.colors[11];
+                    }
+                    if (theName.compare("Cl2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        curveColor.serialize(ar,0);
+                    }
+                    if (theName.compare("Did")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> data[0] >> data[1] >> data[2];
+                    }
+                    if (theName=="3dw")
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> threeDCurveWidth;
+                    }
+                    if (theName=="Par")
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        visible=SIM_IS_BIT_SET(nothing,0);
+                        linkPoints=SIM_IS_BIT_SET(nothing,1);
+                        label=SIM_IS_BIT_SET(nothing,2);
+                        visibleOnTopOfEverything=SIM_IS_BIT_SET(nothing,3);
+                        _curveRelativeToWorld=SIM_IS_BIT_SET(nothing,4);
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
                 }
-                if (theName.compare("Oid")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> identifier;
-                }
-                if (theName.compare("Col")==0)
-                { // for backward compatibility 11/06/2016
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> curveColor.colors[0] >> curveColor.colors[1] >> curveColor.colors[2];
-                    ar >> curveColor.colors[9] >> curveColor.colors[10] >> curveColor.colors[11];
-                }
-                if (theName.compare("Cl2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    curveColor.serialize(ar,0);
-                }
-                if (theName.compare("Did")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> data[0] >> data[1] >> data[2];
-                }
-                if (theName=="3dw")
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> threeDCurveWidth;
-                }
-                if (theName=="Par")
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-                    visible=SIM_IS_BIT_SET(nothing,0);
-                    linkPoints=SIM_IS_BIT_SET(nothing,1);
-                    label=SIM_IS_BIT_SET(nothing,2);
-                    visibleOnTopOfEverything=SIM_IS_BIT_SET(nothing,3);
-                    _curveRelativeToWorld=SIM_IS_BIT_SET(nothing,4);
-                }
-                if (noHit)
-                    ar.loadUnknownData();
             }
         }
     }

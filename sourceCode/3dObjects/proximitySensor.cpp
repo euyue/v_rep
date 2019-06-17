@@ -413,201 +413,204 @@ void CProxSensor::simulationEnded()
 void CProxSensor::serialize(CSer& ar)
 {
     serializeMain(ar);
-    if (ar.isStoring())
-    {       // Storing
-        ar.storeDataName("Snt");
-        ar << sensorType;
-        ar.flush();
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            ar.storeDataName("Snt");
+            ar << sensorType;
+            ar.flush();
 
-        ar.storeDataName("Vod");
-        ar.setCountingMode();
-        convexVolume->serialize(ar);
-        if (ar.setWritingMode())
+            ar.storeDataName("Vod");
+            ar.setCountingMode();
             convexVolume->serialize(ar);
+            if (ar.setWritingMode())
+                convexVolume->serialize(ar);
 
-        ar.storeDataName("Sns");
-        ar << size;
-        ar.flush();
+            ar.storeDataName("Sns");
+            ar << size;
+            ar.flush();
 
-        ar.storeDataName("Al2");
-        ar << allowedNormal;
-        ar.flush();
+            ar.storeDataName("Al2");
+            ar << allowedNormal;
+            ar.flush();
 
-        ar.storeDataName("Pr4");
-        unsigned char nothing=0;
-        SIM_SET_CLEAR_BIT(nothing,0,_showVolumeWhenNotDetecting);
-        SIM_SET_CLEAR_BIT(nothing,1,closestObjectMode);
-        SIM_SET_CLEAR_BIT(nothing,2,normalCheck);
-// 12/12/2011       SIM_SET_CLEAR_BIT(nothing,3,_detectAllDetectable);
-        SIM_SET_CLEAR_BIT(nothing,4,!frontFaceDetection);
-        SIM_SET_CLEAR_BIT(nothing,5,!backFaceDetection);
-        SIM_SET_CLEAR_BIT(nothing,6,_showVolumeWhenDetecting);
-        SIM_SET_CLEAR_BIT(nothing,7,explicitHandling);
-        ar << nothing;
-        ar.flush();
+            ar.storeDataName("Pr4");
+            unsigned char nothing=0;
+            SIM_SET_CLEAR_BIT(nothing,0,_showVolumeWhenNotDetecting);
+            SIM_SET_CLEAR_BIT(nothing,1,closestObjectMode);
+            SIM_SET_CLEAR_BIT(nothing,2,normalCheck);
+    // 12/12/2011       SIM_SET_CLEAR_BIT(nothing,3,_detectAllDetectable);
+            SIM_SET_CLEAR_BIT(nothing,4,!frontFaceDetection);
+            SIM_SET_CLEAR_BIT(nothing,5,!backFaceDetection);
+            SIM_SET_CLEAR_BIT(nothing,6,_showVolumeWhenDetecting);
+            SIM_SET_CLEAR_BIT(nothing,7,explicitHandling);
+            ar << nothing;
+            ar.flush();
 
-        ar.storeDataName("Pr5");
-        nothing=0;
-        SIM_SET_CLEAR_BIT(nothing,0,_checkOcclusions);
-        SIM_SET_CLEAR_BIT(nothing,1,_randomizedDetection);
-        ar << nothing;
-        ar.flush();
+            ar.storeDataName("Pr5");
+            nothing=0;
+            SIM_SET_CLEAR_BIT(nothing,0,_checkOcclusions);
+            SIM_SET_CLEAR_BIT(nothing,1,_randomizedDetection);
+            ar << nothing;
+            ar.flush();
 
-        ar.storeDataName("Rad");
-        ar << _randomizedDetectionSampleCount << _randomizedDetectionCountForDetection;
-        ar.flush();
+            ar.storeDataName("Rad");
+            ar << _randomizedDetectionSampleCount << _randomizedDetectionCountForDetection;
+            ar.flush();
 
-        ar.storeDataName("Cl1");
-        ar.setCountingMode();
-        passiveVolumeColor.serialize(ar,0);
-        if (ar.setWritingMode())
+            ar.storeDataName("Cl1");
+            ar.setCountingMode();
             passiveVolumeColor.serialize(ar,0);
+            if (ar.setWritingMode())
+                passiveVolumeColor.serialize(ar,0);
 
-        ar.storeDataName("Cl2");
-        ar.setCountingMode();
-        activeVolumeColor.serialize(ar,0);
-        if (ar.setWritingMode())
+            ar.storeDataName("Cl2");
+            ar.setCountingMode();
             activeVolumeColor.serialize(ar,0);
+            if (ar.setWritingMode())
+                activeVolumeColor.serialize(ar,0);
 
-        ar.storeDataName("Cl3");
-        ar.setCountingMode();
-        detectionRayColor.serialize(ar,1);
-        if (ar.setWritingMode())
+            ar.storeDataName("Cl3");
+            ar.setCountingMode();
             detectionRayColor.serialize(ar,1);
+            if (ar.setWritingMode())
+                detectionRayColor.serialize(ar,1);
 
-        ar.storeDataName("Cl4");
-        ar.setCountingMode();
-        closestDistanceVolumeColor.serialize(ar,1);
-        if (ar.setWritingMode())
+            ar.storeDataName("Cl4");
+            ar.setCountingMode();
             closestDistanceVolumeColor.serialize(ar,1);
+            if (ar.setWritingMode())
+                closestDistanceVolumeColor.serialize(ar,1);
 
-        ar.storeDataName("Sox");
-        ar << _sensableObject;
-        ar.flush();
+            ar.storeDataName("Sox");
+            ar << _sensableObject;
+            ar.flush();
 
-        ar.storeDataName("Sst");
-        ar << _sensableType;
-        ar.flush();
+            ar.storeDataName("Sst");
+            ar << _sensableType;
+            ar.flush();
 
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        bool occlusionCheckThingWasLoaded_backwardCompatibility2010_08_09=false;
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
-            {
-                bool noHit=true;
-                if (theName.compare("Snt")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> sensorType;
-                }
-                if (theName.compare("Vod")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    if (convexVolume!=nullptr)
-                        delete convexVolume;
-                    convexVolume=new CConvexVolume();
-                    convexVolume->serialize(ar);
-                }
-                if (theName.compare("Sns")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> size;
-                }
-                if (theName.compare("Sox")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _sensableObject;
-                }
-                if (theName.compare("Sst")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _sensableType;
-                }
-                if (theName.compare("Al2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> allowedNormal;
-                }
-                if (theName=="Pr4")
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-                    _showVolumeWhenNotDetecting=SIM_IS_BIT_SET(nothing,0);
-                    closestObjectMode=SIM_IS_BIT_SET(nothing,1);
-                    normalCheck=SIM_IS_BIT_SET(nothing,2);
-                    frontFaceDetection=!SIM_IS_BIT_SET(nothing,4);
-                    backFaceDetection=!SIM_IS_BIT_SET(nothing,5);
-                    _showVolumeWhenDetecting=SIM_IS_BIT_SET(nothing,6);
-                    explicitHandling=SIM_IS_BIT_SET(nothing,7);
-                }
-                if (theName=="Pr5")
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-                    _checkOcclusions=SIM_IS_BIT_SET(nothing,0);
-                    _randomizedDetection=SIM_IS_BIT_SET(nothing,1);
-                    occlusionCheckThingWasLoaded_backwardCompatibility2010_08_09=true;
-                }
-                if (theName.compare("Rad")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _randomizedDetectionSampleCount >> _randomizedDetectionCountForDetection;
-                }
-                if (theName.compare("Cl1")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    passiveVolumeColor.serialize(ar,0);
-                }
-                if (theName.compare("Cl2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    activeVolumeColor.serialize(ar,0);
-                }
-                if (theName.compare("Cl3")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    detectionRayColor.serialize(ar,1);
-                }
-                if (theName.compare("Cl4")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    closestDistanceVolumeColor.serialize(ar,1);
-                }
-                if (noHit)
-                    ar.loadUnknownData();
-            }
+            ar.storeDataName(SER_END_OF_OBJECT);
         }
-        if (!occlusionCheckThingWasLoaded_backwardCompatibility2010_08_09)
-            _checkOcclusions=false;
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            bool occlusionCheckThingWasLoaded_backwardCompatibility2010_08_09=false;
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
+            {
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
+                {
+                    bool noHit=true;
+                    if (theName.compare("Snt")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> sensorType;
+                    }
+                    if (theName.compare("Vod")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        if (convexVolume!=nullptr)
+                            delete convexVolume;
+                        convexVolume=new CConvexVolume();
+                        convexVolume->serialize(ar);
+                    }
+                    if (theName.compare("Sns")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> size;
+                    }
+                    if (theName.compare("Sox")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _sensableObject;
+                    }
+                    if (theName.compare("Sst")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _sensableType;
+                    }
+                    if (theName.compare("Al2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> allowedNormal;
+                    }
+                    if (theName=="Pr4")
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        _showVolumeWhenNotDetecting=SIM_IS_BIT_SET(nothing,0);
+                        closestObjectMode=SIM_IS_BIT_SET(nothing,1);
+                        normalCheck=SIM_IS_BIT_SET(nothing,2);
+                        frontFaceDetection=!SIM_IS_BIT_SET(nothing,4);
+                        backFaceDetection=!SIM_IS_BIT_SET(nothing,5);
+                        _showVolumeWhenDetecting=SIM_IS_BIT_SET(nothing,6);
+                        explicitHandling=SIM_IS_BIT_SET(nothing,7);
+                    }
+                    if (theName=="Pr5")
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        _checkOcclusions=SIM_IS_BIT_SET(nothing,0);
+                        _randomizedDetection=SIM_IS_BIT_SET(nothing,1);
+                        occlusionCheckThingWasLoaded_backwardCompatibility2010_08_09=true;
+                    }
+                    if (theName.compare("Rad")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _randomizedDetectionSampleCount >> _randomizedDetectionCountForDetection;
+                    }
+                    if (theName.compare("Cl1")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        passiveVolumeColor.serialize(ar,0);
+                    }
+                    if (theName.compare("Cl2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        activeVolumeColor.serialize(ar,0);
+                    }
+                    if (theName.compare("Cl3")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        detectionRayColor.serialize(ar,1);
+                    }
+                    if (theName.compare("Cl4")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        closestDistanceVolumeColor.serialize(ar,1);
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
+                }
+            }
+            if (!occlusionCheckThingWasLoaded_backwardCompatibility2010_08_09)
+                _checkOcclusions=false;
 
-        if (ar.getSerializationVersionThatWroteThisFile()<17)
-        { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
-            CTTUtil::scaleColorUp_(passiveVolumeColor.colors);
-            CTTUtil::scaleColorUp_(activeVolumeColor.colors);
-            CTTUtil::scaleColorUp_(detectionRayColor.colors);
-            CTTUtil::scaleColorUp_(closestDistanceVolumeColor.colors);
+            if (ar.getSerializationVersionThatWroteThisFile()<17)
+            { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
+                CTTUtil::scaleColorUp_(passiveVolumeColor.colors);
+                CTTUtil::scaleColorUp_(activeVolumeColor.colors);
+                CTTUtil::scaleColorUp_(detectionRayColor.colors);
+                CTTUtil::scaleColorUp_(closestDistanceVolumeColor.colors);
+            }
         }
     }
 }

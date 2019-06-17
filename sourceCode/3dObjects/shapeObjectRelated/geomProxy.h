@@ -33,7 +33,7 @@ public:
     C7Vector recomputeOrientation(C7Vector& m,bool alignWithMainAxis);
     C7Vector recomputeTubeOrCuboidOrientation(C7Vector& m,bool tube,bool& error);
     CGeomProxy* copyYourself();
-    void serialize(CSer& ar);
+    void serialize(CSer& ar,const char* shapeName);
     C7Vector getCreationTransformation();
     void setCreationTransformation(const C7Vector& tr);
     bool applyCuttingChanges(const C7Vector& shapeCTM);

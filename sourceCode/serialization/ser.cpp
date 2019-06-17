@@ -23,40 +23,47 @@ int CSer::SER_SERIALIZATION_VERSION=22; // 9 since 2008/09/01,
 
 int CSer::SER_MIN_SERIALIZATION_VERSION_THAT_CAN_READ_THIS=18; // means: files written with this can be read by older v-rep with serialization THE_NUMBER
 int CSer::SER_MIN_SERIALIZATION_VERSION_THAT_THIS_CAN_READ=18; // means: this executable can read versions >=THE_NUMBER
-int CSer::XML_SERIALIZATION_VERSION=1;
-
 char CSer::getFileTypeFromName(const char* filename)
 {
     return(CSerBase::typeFromName(filename));
 }
 
-CSer::CSer(VArchive& ar)
-{ // When reading: if serializationVersion==-1 --> not recognized
+CSer::CSer(const char* filename,char filetype)
+{
     _commonInit();
-    theArchive=&ar;
-    handleVerSpecConstructor1(this);
+    _filetype=filetype;
+    _filename=filename;
 }
 
-CSer::CSer(std::vector<char>& bufferArchive)
+CSer::CSer(std::vector<char>& bufferArchive,char filetype)
 { // if bufferArchive is empty, we are storing, otherwise we are restoring
     _commonInit();
+    _filetype=filetype;
     _bufferArchive=&bufferArchive;
     handleVerSpecConstructor2(this);
 }
 
-CSer::CSer(const char* xmlFilename)
-{
-    _xmlFilename=xmlFilename;
-}
 
 CSer::~CSer()
 {
+    if (theArchive!=nullptr)
+    {
+        theArchive->close();
+        delete theArchive;
+    }
+    if (theFile!=nullptr)
+    {
+        theFile->close();
+        delete theFile;
+    }
 }
 
 void CSer::_commonInit()
 {
+    theFile=nullptr;
     theArchive=nullptr;
     _bufferArchive=nullptr;
+    _noHeader=false;
     countingMode=0;
     counter=0;
     _coutingModeDisabledExceptForExceptions=false;
@@ -67,22 +74,63 @@ void CSer::_commonInit()
     _foundUnknownCommands=false;
 }
 
-void CSer::writeOpen(bool compress,char filetype)
+bool CSer::writeOpenBinary(bool compress)
 {
+    bool retVal=false;
+    _storing=true;
     _compress=compress;
-    _filetype=filetype;
-    if (_xmlFilename.size()>0)
-        _writeXmlHeader();
+    if ( (_filetype==filetype_vrep_bin_scene_file)||(_filetype==filetype_vrep_bin_model_file)||
+         (_filetype==filetype_br_bin_scene_file)||(_filetype==filetype_br_bin_model_file)||
+         (_filetype==filetype_vrep_bin_thumbnails_file)||(_filetype==filetype_vrep_bin_ui_file) )
+    {
+        theFile=new VFile(_filename,VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE,true);
+        if (theFile->getFile()!=nullptr)
+        {
+            theArchive=new VArchive(theFile,VArchive::STORE);
+            retVal=true;
+        }
+        else
+        {
+            delete theFile;
+            theFile=nullptr;
+        }
+    }
+    if ( (_filetype==filetype_vrep_bin_scene_buff)||(_filetype==filetype_vrep_bin_model_buff) )
+        retVal=true;
+    return(retVal);
+}
+
+
+bool CSer::writeOpenBinaryNoHeader(bool compress)
+{
+    bool retVal=false;
+    _storing=true;
+    _compress=compress;
+    _noHeader=true;
+    if (_filetype==filetype_bin_file)
+    {
+        theFile=new VFile(_filename,VFile::CREATE_WRITE|VFile::SHARE_EXCLUSIVE,true);
+        if (theFile->getFile()!=nullptr)
+        {
+            theArchive=new VArchive(theFile,VArchive::STORE);
+            retVal=true;
+        }
+        else
+        {
+            delete theFile;
+            theFile=nullptr;
+        }
+    }
+    if (_filetype==filetype_bin_buff)
+        retVal=true;
+    return(retVal);
 }
 
 void CSer::writeClose()
 {
-    if (_xmlFilename.size()>0)
-        _writeXmlFooter();
-    else
     { // we write the whole file from the fileBuffer:
-        _writeBinaryHeader();
-
+        if (!_noHeader)
+            _writeBinaryHeader();
         // Now we write all the data:
         if (_compress)
         { // compressed. When changing compression method, then serialization version has to be incremented and older version won't be able to read newer versions anymore!
@@ -258,228 +306,221 @@ void CSer::_writeBinaryHeader()
     _compress=handleVerSpecWriteClose1(_compress,_filetype);
 }
 
-void CSer::_writeXmlHeader()
+int CSer::readOpenBinaryNoHeader()
 {
-    xmlNode* mainNode=xmlCreateNode("V-REP");
-    xmlAddNode(nullptr,mainNode);
-    xmlSetCurrentNode(mainNode);
-    std::string str("unknown");
-    if (_filetype==9)
-        str="scene";
-    xmlAddNode_string(mainNode,"filetype",str.c_str());
-    xmlAddNode_int(mainNode,"xmlSerializationNb",XML_SERIALIZATION_VERSION);
-    xmlAddNode_int(mainNode,"prgCompilVer",VREP_COMPILATION_VERSION);
-    xmlAddNode_int(mainNode,"prgVer",VREP_PROGRAM_VERSION_NB);
-    xmlAddNode_int(mainNode,"prgRev",VREP_PROGRAM_REVISION_NB);
-    xmlAddNode_2int(mainNode,"2ints",59,57);
-    xmlNode* shape=xmlCreateNode("shape","cuboid1");
-    xmlAddNode(mainNode,shape);
-    shape=xmlCreateNode("shape","cylinder");
-    xmlAddNode(mainNode,shape);
-    xmlNode* color=xmlCreateNode("color",21);
-    xmlAddNode(mainNode,color);
-    color=xmlCreateNode("color",18);
-    xmlAddNode(mainNode,color);
-}
-
-void CSer::_writeXmlFooter()
-{
-    _xmlDocument.SaveFile(_xmlFilename.c_str(),false);
-}
-
-int CSer::_readXmlHeader(int& serializationVersion,unsigned short& vrepVersionThatWroteThis,char& revNumber)
-{
-    if (_xmlDocument.LoadFile(_xmlFilename.c_str())==tinyxml2::XML_NO_ERROR)
+    int retVal=-3;
+    _storing=false;
+    if (_filetype==filetype_bin_file)
     {
-        xmlNode* mainNode=xmlGetNode_fromParent(nullptr,"V-REP");
-        if (mainNode!=nullptr)
+        theFile=new VFile(_filename,VFile::READ|VFile::SHARE_DENY_NONE);
+        if (theFile->getFile()!=nullptr)
         {
-            xmlSetCurrentNode(mainNode);
-            std::string str;
-            int prgVer,prgRev;
-            if ( xmlGetNode_string(mainNode,"filetype",str) && xmlGetNode_int(mainNode,"xmlSerializationNb",serializationVersion) &&
-                 xmlGetNode_int(mainNode,"prgVer",prgVer) && xmlGetNode_int(mainNode,"prgRev",prgRev) )
+            theArchive=new VArchive(theFile,VArchive::LOAD);
+            unsigned long l=(unsigned long)theArchive->getFile()->getLength();
+            char dummy;
+            for (unsigned long i=0;i<l;i++)
             {
-                vrepVersionThatWroteThis=prgVer;
-                revNumber=prgRev;
-                if (str.compare("scene")==0)
-                    return(1);
+                (*theArchive) >> dummy;
+                _fileBuffer.push_back(dummy);
             }
+            retVal=1;
+        }
+        else
+        {
+            delete theFile;
+            theFile=nullptr;
         }
     }
-    return(-3);
+    if (_filetype==filetype_bin_buff)
+        retVal=1;
+    return(retVal);
 }
 
-int CSer::readOpen(int& serializationVersion,unsigned short& vrepVersionThatWroteThis,int& licenseTypeThatWroteThis,char& revNumber,bool ignoreTooOldSerializationVersion)
-{ // return values: -3=wrong fileformat, -2=format too old, -1=format too new, 0=compressor unknown, 1=alright!
+int CSer::readOpenBinary(int& serializationVersion,unsigned short& vrepVersionThatWroteThis,int& licenseTypeThatWroteThis,char& revNumber,bool ignoreTooOldSerializationVersion)
+{ // return values: -4 file can't be opened, -3=wrong fileformat, -2=format too old, -1=format too new, 0=compressor unknown, 1=alright!
+    _storing=false;
+    if ( (_filetype!=filetype_vrep_bin_scene_buff)&&(_filetype!=filetype_vrep_bin_model_buff) )
+    {
+        theFile=new VFile(_filename,VFile::READ|VFile::SHARE_DENY_NONE);
+        if (theFile->getFile()!=nullptr)
+            theArchive=new VArchive(theFile,VArchive::LOAD);
+        else
+        {
+            delete theFile;
+            theFile=nullptr;
+            return(-4);
+        }
+    }
+
     vrepVersionThatWroteThis=0; // means: not yet supported
     licenseTypeThatWroteThis=-1; // means: not yet supported
     serializationVersion=-1; // error
     _serializationVersionThatWroteThisFile=serializationVersion;
-    if (_xmlFilename.size()>0)
-        return(_readXmlHeader(serializationVersion,vrepVersionThatWroteThis,revNumber));
     int minSerializationVersionThatCanReadThis=-1; // error
     int compilationVersion=-1;
-
-    // We try to read the new header:
-    if (theArchive!=nullptr)
-    {
-        VFile* theFile=theArchive->getFile();
-        if (theFile->getLength()<strlen(SER_VREP_HEADER))
-            return(-3); // wrong fileformat
-    }
-    else
-    {
-        if ((*_bufferArchive).size()<strlen(SER_VREP_HEADER))
-            return(-3); // wrong fileformat
-    }
+    int alreadyReadDataCount=0;
     char filetype=0;
     char compressMethod=0;
     int originalDataSize=0;
-    std::string head;
     int bufferArchivePointer=0;
-    for (size_t i=0;i<strlen(SER_VREP_HEADER);i++)
+
+    if (!_noHeader)
     {
-        char tmp;
-        if (theArchive!=nullptr)
-            (*theArchive) >> tmp;
-        else
-            tmp=(*_bufferArchive)[bufferArchivePointer++];
-        head+=tmp;
-    }
-    int alreadyReadDataCount;
-    if (head!=SER_VREP_HEADER)
-        return(-3); // we don't have the appropriate header! (wrong fileformat)
-    else
-    { // We have the correct header!
-        // We read the serialization version:
+        // We try to read the header:
         if (theArchive!=nullptr)
         {
-            (*theArchive) >> ((char*)&serializationVersion)[0];
-            (*theArchive) >> ((char*)&serializationVersion)[1];
-            (*theArchive) >> ((char*)&serializationVersion)[2];
-            (*theArchive) >> ((char*)&serializationVersion)[3];
-            (*theArchive) >> ((char*)&minSerializationVersionThatCanReadThis)[0];
-            (*theArchive) >> ((char*)&minSerializationVersionThatCanReadThis)[1];
-            (*theArchive) >> ((char*)&minSerializationVersionThatCanReadThis)[2];
-            (*theArchive) >> ((char*)&minSerializationVersionThatCanReadThis)[3];
+            VFile* theFile=theArchive->getFile();
+            if (theFile->getLength()<strlen(SER_VREP_HEADER))
+                return(-3); // wrong fileformat
         }
         else
         {
-            ((char*)&serializationVersion)[0]=(*_bufferArchive)[bufferArchivePointer++];
-            ((char*)&serializationVersion)[1]=(*_bufferArchive)[bufferArchivePointer++];
-            ((char*)&serializationVersion)[2]=(*_bufferArchive)[bufferArchivePointer++];
-            ((char*)&serializationVersion)[3]=(*_bufferArchive)[bufferArchivePointer++];
-            ((char*)&minSerializationVersionThatCanReadThis)[0]=(*_bufferArchive)[bufferArchivePointer++];
-            ((char*)&minSerializationVersionThatCanReadThis)[1]=(*_bufferArchive)[bufferArchivePointer++];
-            ((char*)&minSerializationVersionThatCanReadThis)[2]=(*_bufferArchive)[bufferArchivePointer++];
-            ((char*)&minSerializationVersionThatCanReadThis)[3]=(*_bufferArchive)[bufferArchivePointer++];
+            if ((*_bufferArchive).size()<strlen(SER_VREP_HEADER))
+                return(-3); // wrong fileformat
         }
-        _serializationVersionThatWroteThisFile=serializationVersion;
-        // We read the compression method:
-        if (theArchive!=nullptr)
-            (*theArchive) >> compressMethod;
-        else
-            compressMethod=(*_bufferArchive)[bufferArchivePointer++];
-        // We read the uncompressed data size:
-        if (theArchive!=nullptr)
+        std::string head;
+        for (size_t i=0;i<strlen(SER_VREP_HEADER);i++)
         {
-            (*theArchive) >> ((char*)&originalDataSize)[0];
-            (*theArchive) >> ((char*)&originalDataSize)[1];
-            (*theArchive) >> ((char*)&originalDataSize)[2];
-            (*theArchive) >> ((char*)&originalDataSize)[3];
+            char tmp;
+            if (theArchive!=nullptr)
+                (*theArchive) >> tmp;
+            else
+                tmp=(*_bufferArchive)[bufferArchivePointer++];
+            head+=tmp;
         }
+        if (head!=SER_VREP_HEADER)
+            return(-3); // we don't have the appropriate header! (wrong fileformat)
         else
-        {
-            ((char*)&originalDataSize)[0]=(*_bufferArchive)[bufferArchivePointer++];
-            ((char*)&originalDataSize)[1]=(*_bufferArchive)[bufferArchivePointer++];
-            ((char*)&originalDataSize)[2]=(*_bufferArchive)[bufferArchivePointer++];
-            ((char*)&originalDataSize)[3]=(*_bufferArchive)[bufferArchivePointer++];
-        }
-
-        alreadyReadDataCount=17; // this is for ser version 12, ser version 13 has additional 1004!! (added a bit further down)
-        if (serializationVersion>12)
-        { // for serialization version 13 and above! (2009/07/21)
+        { // We have the correct header!
+            // We read the serialization version:
             if (theArchive!=nullptr)
             {
-                (*theArchive) >> ((char*)&compilationVersion)[0];
-                (*theArchive) >> ((char*)&compilationVersion)[1];
-                (*theArchive) >> ((char*)&compilationVersion)[2];
-                (*theArchive) >> ((char*)&compilationVersion)[3];
+                (*theArchive) >> ((char*)&serializationVersion)[0];
+                (*theArchive) >> ((char*)&serializationVersion)[1];
+                (*theArchive) >> ((char*)&serializationVersion)[2];
+                (*theArchive) >> ((char*)&serializationVersion)[3];
+                (*theArchive) >> ((char*)&minSerializationVersionThatCanReadThis)[0];
+                (*theArchive) >> ((char*)&minSerializationVersionThatCanReadThis)[1];
+                (*theArchive) >> ((char*)&minSerializationVersionThatCanReadThis)[2];
+                (*theArchive) >> ((char*)&minSerializationVersionThatCanReadThis)[3];
             }
             else
             {
-                ((char*)&compilationVersion)[0]=(*_bufferArchive)[bufferArchivePointer++];
-                ((char*)&compilationVersion)[1]=(*_bufferArchive)[bufferArchivePointer++];
-                ((char*)&compilationVersion)[2]=(*_bufferArchive)[bufferArchivePointer++];
-                ((char*)&compilationVersion)[3]=(*_bufferArchive)[bufferArchivePointer++];
+                ((char*)&serializationVersion)[0]=(*_bufferArchive)[bufferArchivePointer++];
+                ((char*)&serializationVersion)[1]=(*_bufferArchive)[bufferArchivePointer++];
+                ((char*)&serializationVersion)[2]=(*_bufferArchive)[bufferArchivePointer++];
+                ((char*)&serializationVersion)[3]=(*_bufferArchive)[bufferArchivePointer++];
+                ((char*)&minSerializationVersionThatCanReadThis)[0]=(*_bufferArchive)[bufferArchivePointer++];
+                ((char*)&minSerializationVersionThatCanReadThis)[1]=(*_bufferArchive)[bufferArchivePointer++];
+                ((char*)&minSerializationVersionThatCanReadThis)[2]=(*_bufferArchive)[bufferArchivePointer++];
+                ((char*)&minSerializationVersionThatCanReadThis)[3]=(*_bufferArchive)[bufferArchivePointer++];
             }
-
-            // We read the license version that wrote this file and the V-REP version:
+            _serializationVersionThatWroteThisFile=serializationVersion;
+            // We read the compression method:
+            if (theArchive!=nullptr)
+                (*theArchive) >> compressMethod;
+            else
+                compressMethod=(*_bufferArchive)[bufferArchivePointer++];
+            // We read the uncompressed data size:
             if (theArchive!=nullptr)
             {
-                (*theArchive) >> ((char*)&vrepVersionThatWroteThis)[0];
-                (*theArchive) >> ((char*)&vrepVersionThatWroteThis)[1];
-                unsigned int licenseTypeThatWroteThisTmp;
-                (*theArchive) >> ((char*)&licenseTypeThatWroteThisTmp)[0];
-                (*theArchive) >> ((char*)&licenseTypeThatWroteThisTmp)[1];
-                (*theArchive) >> ((char*)&licenseTypeThatWroteThisTmp)[2];
-                (*theArchive) >> ((char*)&licenseTypeThatWroteThisTmp)[3];
-                licenseTypeThatWroteThis=licenseTypeThatWroteThisTmp-1; // -1 because -1 means: no info about license type yet!
+                (*theArchive) >> ((char*)&originalDataSize)[0];
+                (*theArchive) >> ((char*)&originalDataSize)[1];
+                (*theArchive) >> ((char*)&originalDataSize)[2];
+                (*theArchive) >> ((char*)&originalDataSize)[3];
             }
             else
             {
-                ((char*)&vrepVersionThatWroteThis)[0]=(*_bufferArchive)[bufferArchivePointer++];
-                ((char*)&vrepVersionThatWroteThis)[1]=(*_bufferArchive)[bufferArchivePointer++];
-                unsigned int licenseTypeThatWroteThisTmp;
-                ((char*)&licenseTypeThatWroteThisTmp)[0]=(*_bufferArchive)[bufferArchivePointer++];
-                ((char*)&licenseTypeThatWroteThisTmp)[1]=(*_bufferArchive)[bufferArchivePointer++];
-                ((char*)&licenseTypeThatWroteThisTmp)[2]=(*_bufferArchive)[bufferArchivePointer++];
-                ((char*)&licenseTypeThatWroteThisTmp)[3]=(*_bufferArchive)[bufferArchivePointer++];
-                licenseTypeThatWroteThis=licenseTypeThatWroteThisTmp-1; // -1 because -1 means: no info about license type yet!
+                ((char*)&originalDataSize)[0]=(*_bufferArchive)[bufferArchivePointer++];
+                ((char*)&originalDataSize)[1]=(*_bufferArchive)[bufferArchivePointer++];
+                ((char*)&originalDataSize)[2]=(*_bufferArchive)[bufferArchivePointer++];
+                ((char*)&originalDataSize)[3]=(*_bufferArchive)[bufferArchivePointer++];
             }
 
-            // We read the revision number:
-            if (theArchive!=nullptr)
-                (*theArchive) >> revNumber;
-            else
-                revNumber=(*_bufferArchive)[bufferArchivePointer++];
-
-            if (theArchive!=nullptr)
-                (*theArchive) >> filetype;
-            else
-                filetype=(*_bufferArchive)[bufferArchivePointer++];
-
-            for (int i=0;i<992;i++)
-            { // for future use!
-                char dummy;
+            alreadyReadDataCount=17; // this is for ser version 12, ser version 13 has additional 1004!! (added a bit further down)
+            if (serializationVersion>12)
+            { // for serialization version 13 and above! (2009/07/21)
                 if (theArchive!=nullptr)
-                    (*theArchive) >> dummy; // not used for now
+                {
+                    (*theArchive) >> ((char*)&compilationVersion)[0];
+                    (*theArchive) >> ((char*)&compilationVersion)[1];
+                    (*theArchive) >> ((char*)&compilationVersion)[2];
+                    (*theArchive) >> ((char*)&compilationVersion)[3];
+                }
                 else
-                    dummy=(*_bufferArchive)[bufferArchivePointer++];
+                {
+                    ((char*)&compilationVersion)[0]=(*_bufferArchive)[bufferArchivePointer++];
+                    ((char*)&compilationVersion)[1]=(*_bufferArchive)[bufferArchivePointer++];
+                    ((char*)&compilationVersion)[2]=(*_bufferArchive)[bufferArchivePointer++];
+                    ((char*)&compilationVersion)[3]=(*_bufferArchive)[bufferArchivePointer++];
+                }
+
+                // We read the license version that wrote this file and the V-REP version:
+                if (theArchive!=nullptr)
+                {
+                    (*theArchive) >> ((char*)&vrepVersionThatWroteThis)[0];
+                    (*theArchive) >> ((char*)&vrepVersionThatWroteThis)[1];
+                    unsigned int licenseTypeThatWroteThisTmp;
+                    (*theArchive) >> ((char*)&licenseTypeThatWroteThisTmp)[0];
+                    (*theArchive) >> ((char*)&licenseTypeThatWroteThisTmp)[1];
+                    (*theArchive) >> ((char*)&licenseTypeThatWroteThisTmp)[2];
+                    (*theArchive) >> ((char*)&licenseTypeThatWroteThisTmp)[3];
+                    licenseTypeThatWroteThis=licenseTypeThatWroteThisTmp-1; // -1 because -1 means: no info about license type yet!
+                }
+                else
+                {
+                    ((char*)&vrepVersionThatWroteThis)[0]=(*_bufferArchive)[bufferArchivePointer++];
+                    ((char*)&vrepVersionThatWroteThis)[1]=(*_bufferArchive)[bufferArchivePointer++];
+                    unsigned int licenseTypeThatWroteThisTmp;
+                    ((char*)&licenseTypeThatWroteThisTmp)[0]=(*_bufferArchive)[bufferArchivePointer++];
+                    ((char*)&licenseTypeThatWroteThisTmp)[1]=(*_bufferArchive)[bufferArchivePointer++];
+                    ((char*)&licenseTypeThatWroteThisTmp)[2]=(*_bufferArchive)[bufferArchivePointer++];
+                    ((char*)&licenseTypeThatWroteThisTmp)[3]=(*_bufferArchive)[bufferArchivePointer++];
+                    licenseTypeThatWroteThis=licenseTypeThatWroteThisTmp-1; // -1 because -1 means: no info about license type yet!
+                }
+
+                // We read the revision number:
+                if (theArchive!=nullptr)
+                    (*theArchive) >> revNumber;
+                else
+                    revNumber=(*_bufferArchive)[bufferArchivePointer++];
+
+                if (theArchive!=nullptr)
+                    (*theArchive) >> filetype;
+                else
+                    filetype=(*_bufferArchive)[bufferArchivePointer++];
+
+                for (int i=0;i<992;i++)
+                { // for future use!
+                    char dummy;
+                    if (theArchive!=nullptr)
+                        (*theArchive) >> dummy; // not used for now
+                    else
+                        dummy=(*_bufferArchive)[bufferArchivePointer++];
+                }
+                alreadyReadDataCount+=1004;
             }
-            alreadyReadDataCount+=1004;
         }
-    }
 
 
-    _vrepVersionThatWroteThis=vrepVersionThatWroteThis;
-    _licenseTypeThatWroteThis=licenseTypeThatWroteThis;
+        _vrepVersionThatWroteThis=vrepVersionThatWroteThis;
+        _licenseTypeThatWroteThis=licenseTypeThatWroteThis;
 
-    if (!ignoreTooOldSerializationVersion) // we can most of the time ignore a too old serialization number, if we only want to load the thumbnail
-    {
-        if (serializationVersion<SER_MIN_SERIALIZATION_VERSION_THAT_THIS_CAN_READ)
-            return(-2); // This file is too old
-    }
-    if (minSerializationVersionThatCanReadThis>SER_SERIALIZATION_VERSION)
-        return(-1); // This file is too new
-    if (serializationVersion>SER_SERIALIZATION_VERSION)
-    { // we might have problems reading this (even if it should be supported). Some functions might not be available.
+        if (!ignoreTooOldSerializationVersion) // we can most of the time ignore a too old serialization number, if we only want to load the thumbnail
+        {
+            if (serializationVersion<SER_MIN_SERIALIZATION_VERSION_THAT_THIS_CAN_READ)
+                return(-2); // This file is too old
+        }
+        if (minSerializationVersionThatCanReadThis>SER_SERIALIZATION_VERSION)
+            return(-1); // This file is too new
+        if (serializationVersion>SER_SERIALIZATION_VERSION)
+        { // we might have problems reading this (even if it should be supported). Some functions might not be available.
 #ifdef SIM_WITH_GUI
-        App::uiThread->messageBox_warning(App::mainWindow,strTranslate("Serialization"),strTranslate(IDS_READING_NEWER_SERIALIZATION_FILE_WARNING),VMESSAGEBOX_OKELI);
+            App::uiThread->messageBox_warning(App::mainWindow,strTranslate("Serialization"),strTranslate(IDS_READING_NEWER_SERIALIZATION_FILE_WARNING),VMESSAGEBOX_OKELI);
 #else
-        printf("%s\n",IDS_READING_NEWER_SERIALIZATION_FILE_WARNING);
+            printf("%s\n",IDS_READING_NEWER_SERIALIZATION_FILE_WARNING);
 #endif
+        }
     }
 
     // We read the whole file:
@@ -510,7 +551,7 @@ int CSer::readOpen(int& serializationVersion,unsigned short& vrepVersionThatWrot
                 _fileBuffer.push_back(uncompressedBuffer[i]);
             delete[] uncompressedBuffer;
 
-            return(handleVerSpecReadOpen(this,filetype));
+            return(handleVerSpecReadOpen(this,_filetype));
         }
     }
     else
@@ -523,17 +564,20 @@ void CSer::readClose()
     _fileBuffer.clear();
 }
 
-bool CSer::isStoring()
+
+char CSer::getFileType() const
 {
-    if (theArchive!=nullptr)
-        return(theArchive->isStoring()!=0);
-    else
-        return(_bufferArchive->size()==0);
+    return(_filetype);
 }
 
-bool CSer::isBinary()
+bool CSer::isStoring() const
 {
-    return(_xmlFilename.size()==0);
+    return(_storing);
+}
+
+bool CSer::isBinary() const
+{
+    return(true);
 }
 
 void CSer::disableCountingModeExceptForExceptions()
@@ -578,7 +622,7 @@ bool CSer::setWritingMode(bool force)
         return(false);
 }
 
-int CSer::getCounter()
+int CSer::getCounter() const
 {
     return(counter);
 }
@@ -685,7 +729,7 @@ std::vector<unsigned char>* CSer::getFileBuffer()
     return(&_fileBuffer);
 }
 
-int CSer::getFileBufferReadPointer()
+int CSer::getFileBufferReadPointer() const
 {
     return(_fileBufferReadPointer);
 }
@@ -800,12 +844,15 @@ void CSer::flush(bool writeNbOfBytes)
 
 void CSer::storeDataName(const char* name)
 {
-    if (countingMode!=0)
-        counter+=3;
-    else
+    if (isBinary())
     {
-        for (int i=0;i<3;i++)
-            _fileBuffer.push_back(name[i]);
+        if (countingMode!=0)
+            counter+=3;
+        else
+        {
+            for (int i=0;i<3;i++)
+                _fileBuffer.push_back(name[i]);
+        }
     }
 }
 
@@ -847,197 +894,3 @@ int CSer::getSerializationVersionThatWroteThisFile()
     return(_serializationVersionThatWroteThisFile);
 }
 
-xmlNode* CSer::xmlCreateNode(const char* name)
-{
-    xmlNode* node=_xmlDocument.NewElement(name);
-    return(node);
-}
-
-xmlNode* CSer::xmlCreateNode(const char* name,const char* nameAttribute)
-{
-    xmlNode* node=xmlCreateNode(name);
-    node->SetAttribute("name",nameAttribute);
-    return(node);
-}
-
-xmlNode* CSer::xmlCreateNode(const char* name,int idAttribute)
-{
-    xmlNode* node=xmlCreateNode(name);
-    node->SetAttribute("id",idAttribute);
-    return(node);
-}
-
-void CSer::xmlAddNode(xmlNode* parentNode,xmlNode* node)
-{
-    if (parentNode==nullptr)
-        _xmlDocument.InsertFirstChild(node);
-    else
-        parentNode->InsertEndChild(node);
-}
-
-xmlNode* CSer::xmlGetCurrentNode()
-{
-    return(_xmlCurrentNode);
-}
-
-void CSer::xmlSetCurrentNode(xmlNode* node)
-{
-    _xmlCurrentNode=node;
-}
-
-void CSer::xmlAddNode_string(xmlNode* parentNode,const char* name,const char* str)
-{
-    xmlNode* node=_xmlDocument.NewElement(name);
-    parentNode->InsertEndChild(node);
-    tinyxml2::XMLText* txt=_xmlDocument.NewText(str);
-    node->InsertEndChild(txt);
-}
-
-void CSer::xmlAddNode_int(xmlNode* parentNode,const char* name,int val)
-{
-    xmlNode* node=_xmlDocument.NewElement(name);
-    parentNode->InsertEndChild(node);
-    tinyxml2::XMLText* txt=_xmlDocument.NewText(boost::str(boost::format("%i") % val).c_str());
-    node->InsertEndChild(txt);
-}
-
-void CSer::xmlAddNode_2int(xmlNode* parentNode,const char* name,int val1,int val2)
-{
-    xmlNode* node=_xmlDocument.NewElement(name);
-    parentNode->InsertEndChild(node);
-    tinyxml2::XMLText* txt=_xmlDocument.NewText(boost::str(boost::format("%i %i") % val1 % val2).c_str());
-    node->InsertEndChild(txt);
-}
-
-void CSer::xmlAddNode_3int(xmlNode* parentNode,const char* name,int val1,int val2,int val3)
-{
-    xmlNode* node=_xmlDocument.NewElement(name);
-    parentNode->InsertEndChild(node);
-    tinyxml2::XMLText* txt=_xmlDocument.NewText(boost::str(boost::format("%i %i %i") % val1 % val2 %val3).c_str());
-    node->InsertEndChild(txt);
-}
-
-
-xmlNode* CSer::xmlGetNode_fromParent(xmlNode* parentNode,const char* name)
-{
-    if (parentNode==nullptr)
-        return(_xmlDocument.FirstChildElement(name));
-    else
-        return(parentNode->FirstChildElement(name));
-}
-
-xmlNode* CSer::xmlGetNode_fromSibling(xmlNode* siblingNode,const char* name)
-{
-    return(siblingNode->NextSiblingElement(name));
-}
-
-bool CSer::xmlGetNode_nameAttribute(xmlNode* node,std::string& val)
-{
-    const char* nm=node->Attribute("name");
-    if (nm!=nullptr)
-        val=nm;
-    return(nm!=nullptr);
-}
-
-bool CSer::xmlGetNode_idAttribute(xmlNode* node,int& val)
-{
-    val=node->IntAttribute("id");
-    return(true);
-}
-
-bool CSer::xmlGetNode_string(xmlNode* parentNode,const char* name,std::string& val)
-{
-    const xmlNode* node=parentNode->FirstChildElement(name);
-    if (node!=nullptr)
-    {
-        val=node->GetText();
-        return(true);
-    }
-    return(false);
-}
-
-bool CSer::xmlGetNode_int(xmlNode* parentNode,const char* name,int& val)
-{
-    const xmlNode* node=parentNode->FirstChildElement(name);
-    if (node!=nullptr)
-    {
-        std::string str(node->GetText());
-        std::string buff;
-        std::stringstream ss(str);
-        if (ss >> buff)
-        {
-            try
-            {
-                val=boost::lexical_cast<int>(buff);
-            }
-            catch (boost::bad_lexical_cast &)
-            {
-                return(false);
-            }
-        }
-        else
-            return(false);
-        return(true);
-    }
-    return(false);
-}
-
-bool CSer::xmlGetNode_2int(xmlNode* parentNode,const char* name,int& val1,int& val2)
-{
-    int* vals[2]={&val1,&val2};
-    const xmlNode* node=parentNode->FirstChildElement(name);
-    if (node!=nullptr)
-    {
-        std::string str(node->GetText());
-        std::string buff;
-        std::stringstream ss(str);
-        for (int i=0;i<2;i++)
-        {
-            if (ss >> buff)
-            {
-                try
-                {
-                    vals[i][0]=boost::lexical_cast<int>(buff);
-                }
-                catch (boost::bad_lexical_cast &)
-                {
-                    return(false);
-                }
-            }
-            else
-                return(false);
-        }
-        return(true);
-    }
-    return(false);
-}
-
-bool CSer::xmlGetNode_3int(xmlNode* parentNode,const char* name,int& val1,int& val2,int& val3)
-{
-    int* vals[3]={&val1,&val2,&val3};
-    const xmlNode* node=parentNode->FirstChildElement(name);
-    if (node!=nullptr)
-    {
-        std::string str(node->GetText());
-        std::string buff;
-        std::stringstream ss(str);
-        for (int i=0;i<3;i++)
-        {
-            if (ss >> buff)
-            {
-                try
-                {
-                    vals[i][0]=boost::lexical_cast<int>(buff);
-                }
-                catch (boost::bad_lexical_cast &)
-                {
-                    return(false);
-                }
-            }
-            else
-                return(false);
-        }
-        return(true);
-    }
-    return(false);
-}

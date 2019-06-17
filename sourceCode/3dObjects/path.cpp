@@ -605,121 +605,124 @@ bool CPath::getShape(CGeomProxy* geomObj[1],CShape* shapeObj[1])
 void CPath::serialize(CSer& ar)
 {
     serializeMain(ar);
-    if (ar.isStoring())
-    {       // Storing
-        ar.storeDataName("Var");
-        unsigned char dummy=0;
-        SIM_SET_CLEAR_BIT(dummy,0,_shapingEnabled);
-        SIM_SET_CLEAR_BIT(dummy,1,_shapingFollowFullOrientation);
-        SIM_SET_CLEAR_BIT(dummy,2,_shapingSectionClosed);
-        SIM_SET_CLEAR_BIT(dummy,3,_shapingConvexHull);
-//FREE
-        SIM_SET_CLEAR_BIT(dummy,5,_explicitHandling);
-        ar << dummy;
-        ar.flush();
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            ar.storeDataName("Var");
+            unsigned char dummy=0;
+            SIM_SET_CLEAR_BIT(dummy,0,_shapingEnabled);
+            SIM_SET_CLEAR_BIT(dummy,1,_shapingFollowFullOrientation);
+            SIM_SET_CLEAR_BIT(dummy,2,_shapingSectionClosed);
+            SIM_SET_CLEAR_BIT(dummy,3,_shapingConvexHull);
+    //FREE
+            SIM_SET_CLEAR_BIT(dummy,5,_explicitHandling);
+            ar << dummy;
+            ar.flush();
 
-        ar.storeDataName("Pss");
-        ar << _shapingScaling;
-        ar.flush();
+            ar.storeDataName("Pss");
+            ar << _shapingScaling;
+            ar.flush();
 
-        ar.storeDataName("Sha");
-        ar << _shapingElementMaxLength << _shapingType;
-        ar.flush();
+            ar.storeDataName("Sha");
+            ar << _shapingElementMaxLength << _shapingType;
+            ar.flush();
 
-        ar.storeDataName("Ntp");
-        ar.setCountingMode();
-        pathContainer->serialize(ar);
-        if (ar.setWritingMode())
+            ar.storeDataName("Ntp");
+            ar.setCountingMode();
             pathContainer->serialize(ar);
+            if (ar.setWritingMode())
+                pathContainer->serialize(ar);
 
-        ar.storeDataName("Sec");
-        ar << int(shapingCoordinates.size());
-        for (int i=0;i<int(shapingCoordinates.size());i++)
-            ar << shapingCoordinates[i];
-        ar.flush();
+            ar.storeDataName("Sec");
+            ar << int(shapingCoordinates.size());
+            for (int i=0;i<int(shapingCoordinates.size());i++)
+                ar << shapingCoordinates[i];
+            ar.flush();
 
-        ar.storeDataName("Scl");
-        ar.setCountingMode();
-        shapingColor.serialize(ar,0);
-        if (ar.setWritingMode())
+            ar.storeDataName("Scl");
+            ar.setCountingMode();
             shapingColor.serialize(ar,0);
+            if (ar.setWritingMode())
+                shapingColor.serialize(ar,0);
 
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
+            ar.storeDataName(SER_END_OF_OBJECT);
+        }
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
             {
-                bool noHit=true;
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
+                {
+                    bool noHit=true;
 
-                if (theName.compare("Var")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char dummy;
-                    ar >> dummy;
-                    _shapingEnabled=SIM_IS_BIT_SET(dummy,0);
-                    _shapingFollowFullOrientation=SIM_IS_BIT_SET(dummy,1);
-                    _shapingSectionClosed=SIM_IS_BIT_SET(dummy,2);
-                    _shapingConvexHull=SIM_IS_BIT_SET(dummy,3);
-//FREE
-                    _explicitHandling=SIM_IS_BIT_SET(dummy,5);
-                }
-
-                if (theName.compare("Pss")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _shapingScaling;
-                }
-
-                if (theName.compare("Sha")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _shapingElementMaxLength >> _shapingType;
-                }
-                if (theName.compare("Ntp")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    pathContainer->serialize(ar);
-                }
-                if (theName.compare("Sec")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int l;
-                    ar >> l;
-                    float c;
-                    shapingCoordinates.clear();
-                    for (int i=0;i<l;i++)
+                    if (theName.compare("Var")==0)
                     {
-                        ar >> c;
-                        shapingCoordinates.push_back(c);
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char dummy;
+                        ar >> dummy;
+                        _shapingEnabled=SIM_IS_BIT_SET(dummy,0);
+                        _shapingFollowFullOrientation=SIM_IS_BIT_SET(dummy,1);
+                        _shapingSectionClosed=SIM_IS_BIT_SET(dummy,2);
+                        _shapingConvexHull=SIM_IS_BIT_SET(dummy,3);
+    //FREE
+                        _explicitHandling=SIM_IS_BIT_SET(dummy,5);
                     }
-                }
-                if (theName.compare("Scl")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    shapingColor.serialize(ar,0);
-                }
-                if (noHit)
-                    ar.loadUnknownData();
-            }
-        }
 
-        if (ar.getSerializationVersionThatWroteThisFile()<17)
-        { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
-            CTTUtil::scaleColorUp_(shapingColor.colors);
+                    if (theName.compare("Pss")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _shapingScaling;
+                    }
+
+                    if (theName.compare("Sha")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _shapingElementMaxLength >> _shapingType;
+                    }
+                    if (theName.compare("Ntp")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        pathContainer->serialize(ar);
+                    }
+                    if (theName.compare("Sec")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int l;
+                        ar >> l;
+                        float c;
+                        shapingCoordinates.clear();
+                        for (int i=0;i<l;i++)
+                        {
+                            ar >> c;
+                            shapingCoordinates.push_back(c);
+                        }
+                    }
+                    if (theName.compare("Scl")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        shapingColor.serialize(ar,0);
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
+                }
+            }
+
+            if (ar.getSerializationVersionThatWroteThisFile()<17)
+            { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
+                CTTUtil::scaleColorUp_(shapingColor.colors);
+            }
+            _generatePathShape();
         }
-        _generatePathShape();
     }
 }
 

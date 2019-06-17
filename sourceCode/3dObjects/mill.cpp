@@ -269,114 +269,117 @@ void CMill::simulationEnded()
 void CMill::serialize(CSer& ar)
 {
     serializeMain(ar);
-    if (ar.isStoring())
-    {       // Storing
-        ar.storeDataName("Snt");
-        ar << _millType;
-        ar.flush();
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            ar.storeDataName("Snt");
+            ar << _millType;
+            ar.flush();
 
-        ar.storeDataName("Vod");
-        ar.setCountingMode();
-        convexVolume->serialize(ar);
-        if (ar.setWritingMode())
+            ar.storeDataName("Vod");
+            ar.setCountingMode();
             convexVolume->serialize(ar);
+            if (ar.setWritingMode())
+                convexVolume->serialize(ar);
 
-        ar.storeDataName("Sns");
-        ar << _size;
-        ar.flush();
+            ar.storeDataName("Sns");
+            ar << _size;
+            ar.flush();
 
-        ar.storeDataName("Pra");
-        unsigned char nothing=0;
-        // 12/12/2011 SIM_SET_CLEAR_BIT(nothing,0,_millAllCuttable);
-        // free since 13/7/2016 SIM_SET_CLEAR_BIT(nothing,1,_showMillBase_DEPRECATED);
-        SIM_SET_CLEAR_BIT(nothing,2,_explicitHandling);
-        ar << nothing;
-        ar.flush();
+            ar.storeDataName("Pra");
+            unsigned char nothing=0;
+            // 12/12/2011 SIM_SET_CLEAR_BIT(nothing,0,_millAllCuttable);
+            // free since 13/7/2016 SIM_SET_CLEAR_BIT(nothing,1,_showMillBase_DEPRECATED);
+            SIM_SET_CLEAR_BIT(nothing,2,_explicitHandling);
+            ar << nothing;
+            ar.flush();
 
-        ar.storeDataName("Cl1");
-        ar.setCountingMode();
-        passiveVolumeColor.serialize(ar,0);
-        if (ar.setWritingMode())
+            ar.storeDataName("Cl1");
+            ar.setCountingMode();
             passiveVolumeColor.serialize(ar,0);
+            if (ar.setWritingMode())
+                passiveVolumeColor.serialize(ar,0);
 
-        ar.storeDataName("Cl2");
-        ar.setCountingMode();
-        activeVolumeColor.serialize(ar,0);
-        if (ar.setWritingMode())
+            ar.storeDataName("Cl2");
+            ar.setCountingMode();
             activeVolumeColor.serialize(ar,0);
+            if (ar.setWritingMode())
+                activeVolumeColor.serialize(ar,0);
 
-        ar.storeDataName("Sox");
-        ar << _millableObject;
-        ar.flush();
+            ar.storeDataName("Sox");
+            ar << _millableObject;
+            ar.flush();
 
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
-            {
-                bool noHit=true;
-                if (theName.compare("Snt")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _millType;
-                }
-                if (theName.compare("Vod")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    if (convexVolume!=nullptr)
-                        delete convexVolume;
-                    convexVolume=new CConvexVolume();
-                    convexVolume->serialize(ar);
-                }
-                if (theName.compare("Sns")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _size;
-                }
-                if (theName.compare("Sox")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _millableObject;
-                }
-                if (theName=="Pra")
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-                    // free since 13/7/2016 _showMillBase_DEPRECATED=SIM_IS_BIT_SET(nothing,1);
-                    _explicitHandling=SIM_IS_BIT_SET(nothing,2);
-                }
-                if (theName.compare("Cl1")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    passiveVolumeColor.serialize(ar,0);
-                }
-                if (theName.compare("Cl2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    activeVolumeColor.serialize(ar,0);
-                }
-                if (noHit)
-                    ar.loadUnknownData();
-            }
+            ar.storeDataName(SER_END_OF_OBJECT);
         }
-        if (ar.getSerializationVersionThatWroteThisFile()<17)
-        { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
-            CTTUtil::scaleColorUp_(passiveVolumeColor.colors);
-            CTTUtil::scaleColorUp_(activeVolumeColor.colors);
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
+            {
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
+                {
+                    bool noHit=true;
+                    if (theName.compare("Snt")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _millType;
+                    }
+                    if (theName.compare("Vod")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        if (convexVolume!=nullptr)
+                            delete convexVolume;
+                        convexVolume=new CConvexVolume();
+                        convexVolume->serialize(ar);
+                    }
+                    if (theName.compare("Sns")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _size;
+                    }
+                    if (theName.compare("Sox")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _millableObject;
+                    }
+                    if (theName=="Pra")
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        // free since 13/7/2016 _showMillBase_DEPRECATED=SIM_IS_BIT_SET(nothing,1);
+                        _explicitHandling=SIM_IS_BIT_SET(nothing,2);
+                    }
+                    if (theName.compare("Cl1")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        passiveVolumeColor.serialize(ar,0);
+                    }
+                    if (theName.compare("Cl2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        activeVolumeColor.serialize(ar,0);
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
+                }
+            }
+            if (ar.getSerializationVersionThatWroteThisFile()<17)
+            { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
+                CTTUtil::scaleColorUp_(passiveVolumeColor.colors);
+                CTTUtil::scaleColorUp_(activeVolumeColor.colors);
+            }
         }
     }
 }

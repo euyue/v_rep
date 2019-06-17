@@ -283,122 +283,125 @@ void CDummy::simulationEnded()
 void CDummy::serialize(CSer& ar)
 {
     serializeMain(ar);
-    if (ar.isStoring())
-    {       // Storing
-        ar.storeDataName("Dy2");
-        ar << size;
-        ar.flush();
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            ar.storeDataName("Dy2");
+            ar << size;
+            ar.flush();
 
-        ar.storeDataName("Cl0");
-        ar.setCountingMode();
-        color.serialize(ar,0);
-        if (ar.setWritingMode())
+            ar.storeDataName("Cl0");
+            ar.setCountingMode();
             color.serialize(ar,0);
+            if (ar.setWritingMode())
+                color.serialize(ar,0);
 
-        ar.storeDataName("Lli");
-        ar << _linkedDummyID;
-        ar.flush();
+            ar.storeDataName("Lli");
+            ar << _linkedDummyID;
+            ar.flush();
 
-        ar.storeDataName("Var");
-        unsigned char dummy=0;
-// removed on 2010/01/26        SIM_SET_CLEAR_BIT(dummy,0,_targetDummy);
-        SIM_SET_CLEAR_BIT(dummy,1,_assignedToParentPath);
-        SIM_SET_CLEAR_BIT(dummy,2,_freeOnPathTrajectory);
-        SIM_SET_CLEAR_BIT(dummy,3,_assignedToParentPathOrientation);
-// removed on 17/6/2011.. probably always 0     SIM_SET_CLEAR_BIT(dummy,4,_removeAfterAssembly);
-        ar << dummy;
-        ar.flush();
+            ar.storeDataName("Var");
+            unsigned char dummy=0;
+    // removed on 2010/01/26        SIM_SET_CLEAR_BIT(dummy,0,_targetDummy);
+            SIM_SET_CLEAR_BIT(dummy,1,_assignedToParentPath);
+            SIM_SET_CLEAR_BIT(dummy,2,_freeOnPathTrajectory);
+            SIM_SET_CLEAR_BIT(dummy,3,_assignedToParentPathOrientation);
+    // removed on 17/6/2011.. probably always 0     SIM_SET_CLEAR_BIT(dummy,4,_removeAfterAssembly);
+            ar << dummy;
+            ar.flush();
 
-        ar.storeDataName("Po5");
-        ar << _virtualDistanceOffsetOnPath << _virtualDistanceOffsetOnPath_variationWhenCopy;
-        ar.flush();
+            ar.storeDataName("Po5");
+            ar << _virtualDistanceOffsetOnPath << _virtualDistanceOffsetOnPath_variationWhenCopy;
+            ar.flush();
 
-        ar.storeDataName("Dl2");
-        ar << _linkType;
-        ar.flush();
+            ar.storeDataName("Dl2");
+            ar << _linkType;
+            ar.flush();
 
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        bool before2009_12_16=false;
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
+            ar.storeDataName(SER_END_OF_OBJECT);
+        }
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            bool before2009_12_16=false;
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
             {
-                bool noHit=true;
-                if (theName.compare("Dy2")==0)
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
                 {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> size;
-                }
-                if (theName.compare("Lli")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _linkedDummyID;
-                }
-                if (theName.compare("Cl0")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    color.serialize(ar,0);
-                }
-                if (theName.compare("Var")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char dummy;
-                    ar >> dummy;
-                    _assignedToParentPath=SIM_IS_BIT_SET(dummy,1);
-                    _freeOnPathTrajectory=SIM_IS_BIT_SET(dummy,2);
-                    _assignedToParentPathOrientation=SIM_IS_BIT_SET(dummy,3);
-                }
-//************* for backward compatibility (23/02/2011) ****************
-                if (theName.compare("Po4")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _virtualDistanceOffsetOnPath;
-                }
-//************************************************************************
-                if (theName.compare("Po5")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _virtualDistanceOffsetOnPath >> _virtualDistanceOffsetOnPath_variationWhenCopy;
-                }
+                    bool noHit=true;
+                    if (theName.compare("Dy2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> size;
+                    }
+                    if (theName.compare("Lli")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _linkedDummyID;
+                    }
+                    if (theName.compare("Cl0")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        color.serialize(ar,0);
+                    }
+                    if (theName.compare("Var")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char dummy;
+                        ar >> dummy;
+                        _assignedToParentPath=SIM_IS_BIT_SET(dummy,1);
+                        _freeOnPathTrajectory=SIM_IS_BIT_SET(dummy,2);
+                        _assignedToParentPathOrientation=SIM_IS_BIT_SET(dummy,3);
+                    }
+    //************* for backward compatibility (23/02/2011) ****************
+                    if (theName.compare("Po4")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _virtualDistanceOffsetOnPath;
+                    }
+    //************************************************************************
+                    if (theName.compare("Po5")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _virtualDistanceOffsetOnPath >> _virtualDistanceOffsetOnPath_variationWhenCopy;
+                    }
 
-                if (theName.compare("Dl2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _linkType;
+                    if (theName.compare("Dl2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _linkType;
+                    }
+    //************** for backward compatibility (17/6/2011) **********************
+                    if (theName.compare("Ack")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _modelAcknowledgement; // this is now the 3DObject's variable!!! (was Dummy's variable before)
+                    }
+    //****************************************************************************
+                    if (noHit)
+                        ar.loadUnknownData();
                 }
-//************** for backward compatibility (17/6/2011) **********************
-                if (theName.compare("Ack")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _modelAcknowledgement; // this is now the 3DObject's variable!!! (was Dummy's variable before)
-                }
-//****************************************************************************
-                if (noHit)
-                    ar.loadUnknownData();
             }
-        }
-        if (before2009_12_16)
-        {
-            if (_linkedDummyID==-1)
-                _linkType=sim_dummy_linktype_dynamics_loop_closure;
-        }
-        if (ar.getSerializationVersionThatWroteThisFile()<17)
-        { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
-            CTTUtil::scaleColorUp_(color.colors);
+            if (before2009_12_16)
+            {
+                if (_linkedDummyID==-1)
+                    _linkType=sim_dummy_linktype_dynamics_loop_closure;
+            }
+            if (ar.getSerializationVersionThatWroteThisFile()<17)
+            { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
+                CTTUtil::scaleColorUp_(color.colors);
+            }
         }
     }
 }

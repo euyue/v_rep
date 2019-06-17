@@ -1,4 +1,3 @@
-
 #include "vrepMainHeader.h"
 #include "thumbnail.h"
 #include "global.h"
@@ -205,40 +204,43 @@ void CThumbnail::copyFrom(CThumbnail* it)
 
 void  CThumbnail::serializeAdditionalModelInfos(CSer& ar,C7Vector& modelTr,C3Vector& modelBBSize,float& modelNonDefaultTranslationStepSize)
 {
-    if (ar.isStoring())
-    { // Storing
-        ar.storeDataName("Mo2");
-        for (int i=0;i<7;i++)
-            ar << modelTr(i);
-        for (int i=0;i<3;i++)
-            ar << modelBBSize(i);
-        ar << modelNonDefaultTranslationStepSize;
-        ar.flush();
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        { // Storing
+            ar.storeDataName("Mo2");
+            for (int i=0;i<7;i++)
+                ar << modelTr(i);
+            for (int i=0;i<3;i++)
+                ar << modelBBSize(i);
+            ar << modelNonDefaultTranslationStepSize;
+            ar.flush();
 
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
+            ar.storeDataName(SER_END_OF_OBJECT);
+        }
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
             {
-                bool noHit=true;
-                if (theName.compare("Mo2")==0)
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
                 {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    for (int i=0;i<7;i++)
-                        ar >> modelTr(i);
-                    for (int i=0;i<3;i++)
-                        ar >> modelBBSize(i);
-                    ar >> modelNonDefaultTranslationStepSize;
+                    bool noHit=true;
+                    if (theName.compare("Mo2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        for (int i=0;i<7;i++)
+                            ar >> modelTr(i);
+                        for (int i=0;i<3;i++)
+                            ar >> modelBBSize(i);
+                        ar >> modelNonDefaultTranslationStepSize;
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
                 }
-                if (noHit)
-                    ar.loadUnknownData();
             }
         }
     }
@@ -246,118 +248,119 @@ void  CThumbnail::serializeAdditionalModelInfos(CSer& ar,C7Vector& modelTr,C3Vec
 
 void CThumbnail::serialize(CSer& ar,bool forceCompressedSaving/*=false*/)
 {
-    if (ar.isStoring())
-    { // Storing
-        ar.storeDataName("Tm2");
-        if (_thumbnailRGBAImage==nullptr)
-            ar << (unsigned char)(0);
-        else
-        {
-            ar << (unsigned char)(1);
-            if (forceCompressedSaving||_compressData)
-            {
-                ar << (unsigned char)(1);
-                char* compressedImage=new char[128*64*3];
-                getCompressedImage(compressedImage);
-                for (int j=0;j<128*64*3;j++)
-                    ar << compressedImage[j];
-                delete[] compressedImage;
-            }
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        { // Storing
+            ar.storeDataName("Tm2");
+            if (_thumbnailRGBAImage==nullptr)
+                ar << (unsigned char)(0);
             else
             {
-                ar << (unsigned char)(0);
-                for (int j=0;j<128*128*4;j++)
-                    ar << _thumbnailRGBAImage[j];
-            }
-        }
-        ar.flush();
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
-            {
-                bool noHit=true;
-//***************************************************************
-                if (theName.compare("Tmb")==0)
-                { // for backward compatibility (7/3/2012)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char imagePresent;
-                    ar >> imagePresent;
-                    char dum;
-                    if (imagePresent!=0)
-                    {
-                        _thumbnailRGBAImage=new char[128*128*4];
-                        unsigned char compressed;
-                        ar >> compressed;
-                        _compressData=(compressed!=0);
-                        if (_compressData)
-                        {
-                            char* compressedImage=new char[128*64*3];
-                            for (int j=0;j<128*64*3;j++)
-                            {
-                                ar >> dum;
-                                compressedImage[j]=dum;
-                            }
-                            uncompressThumbnail(compressedImage,_thumbnailRGBAImage);
-                            delete[] compressedImage;
-                        }
-                        else
-                        {
-                            for (int j=0;j<128*128*4;j++)
-                            {
-                                ar >> dum;
-                                _thumbnailRGBAImage[j]=dum;
-                            }
-                        }
-                        for (int j=0;j<128*128;j++)
-                            _thumbnailRGBAImage[4*j+3]=char(float((unsigned char)(_thumbnailRGBAImage[4*j+3]))/0.22508f);
-                    }
-                }
-//***************************************************************
-                if (theName.compare("Tm2")==0)
+                ar << (unsigned char)(1);
+                if (forceCompressedSaving||_compressData)
                 {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char imagePresent;
-                    ar >> imagePresent;
-                    char dum;
-                    if (imagePresent!=0)
-                    {
-                        if (_thumbnailRGBAImage==nullptr)
+                    ar << (unsigned char)(1);
+                    char* compressedImage=new char[128*64*3];
+                    getCompressedImage(compressedImage);
+                    for (int j=0;j<128*64*3;j++)
+                        ar << compressedImage[j];
+                    delete[] compressedImage;
+                }
+                else
+                {
+                    ar << (unsigned char)(0);
+                    for (int j=0;j<128*128*4;j++)
+                        ar << _thumbnailRGBAImage[j];
+                }
+            }
+            ar.flush();
+            ar.storeDataName(SER_END_OF_OBJECT);
+        }
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
+            {
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
+                {
+                    bool noHit=true;
+                    if (theName.compare("Tmb")==0)
+                    { // for backward compatibility (7/3/2012)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char imagePresent;
+                        ar >> imagePresent;
+                        char dum;
+                        if (imagePresent!=0)
+                        {
                             _thumbnailRGBAImage=new char[128*128*4];
-                        unsigned char compressed;
-                        ar >> compressed;
-                        _compressData=(compressed!=0);
-                        if (_compressData)
-                        {
-                            char* compressedImage=new char[128*64*3];
-                            for (int j=0;j<128*64*3;j++)
+                            unsigned char compressed;
+                            ar >> compressed;
+                            _compressData=(compressed!=0);
+                            if (_compressData)
                             {
-                                ar >> dum;
-                                compressedImage[j]=dum;
+                                char* compressedImage=new char[128*64*3];
+                                for (int j=0;j<128*64*3;j++)
+                                {
+                                    ar >> dum;
+                                    compressedImage[j]=dum;
+                                }
+                                uncompressThumbnail(compressedImage,_thumbnailRGBAImage);
+                                delete[] compressedImage;
                             }
-                            uncompressThumbnail(compressedImage,_thumbnailRGBAImage);
-                            delete[] compressedImage;
-                        }
-                        else
-                        {
-                            for (int j=0;j<128*128*4;j++)
+                            else
                             {
-                                ar >> dum;
-                                _thumbnailRGBAImage[j]=dum;
+                                for (int j=0;j<128*128*4;j++)
+                                {
+                                    ar >> dum;
+                                    _thumbnailRGBAImage[j]=dum;
+                                }
+                            }
+                            for (int j=0;j<128*128;j++)
+                                _thumbnailRGBAImage[4*j+3]=char(float((unsigned char)(_thumbnailRGBAImage[4*j+3]))/0.22508f);
+                        }
+                    }
+                    if (theName.compare("Tm2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char imagePresent;
+                        ar >> imagePresent;
+                        char dum;
+                        if (imagePresent!=0)
+                        {
+                            if (_thumbnailRGBAImage==nullptr)
+                                _thumbnailRGBAImage=new char[128*128*4];
+                            unsigned char compressed;
+                            ar >> compressed;
+                            _compressData=(compressed!=0);
+                            if (_compressData)
+                            {
+                                char* compressedImage=new char[128*64*3];
+                                for (int j=0;j<128*64*3;j++)
+                                {
+                                    ar >> dum;
+                                    compressedImage[j]=dum;
+                                }
+                                uncompressThumbnail(compressedImage,_thumbnailRGBAImage);
+                                delete[] compressedImage;
+                            }
+                            else
+                            {
+                                for (int j=0;j<128*128*4;j++)
+                                {
+                                    ar >> dum;
+                                    _thumbnailRGBAImage[j]=dum;
+                                }
                             }
                         }
                     }
+                    if (noHit)
+                        ar.loadUnknownData();
                 }
-                if (noHit)
-                    ar.loadUnknownData();
             }
         }
     }

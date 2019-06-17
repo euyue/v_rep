@@ -579,130 +579,133 @@ bool CShape::applyMilling()
 void CShape::serialize(CSer& ar)
 {
     serializeMain(ar);
-    if (ar.isStoring())
-    {   // Storing
-        // Following tags are reserved (11/11/2012): Sco, Sc2, Eco, Ewt
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {   // Storing
+            // Following tags are reserved (11/11/2012): Sco, Sc2, Eco, Ewt
 
-        ar.storeDataName("Ge2");
-        ar.setCountingMode();
-        geomData->serialize(ar);
-        if (ar.setWritingMode())
-            geomData->serialize(ar);
+            ar.storeDataName("Ge2");
+            ar.setCountingMode();
+            geomData->serialize(ar,_objectName.c_str());
+            if (ar.setWritingMode())
+                geomData->serialize(ar,_objectName.c_str());
 
-        ar.storeDataName("Mat");
-        ar.setCountingMode();
-        _dynMaterial->serialize(ar);
-        if (ar.setWritingMode())
+            ar.storeDataName("Mat");
+            ar.setCountingMode();
             _dynMaterial->serialize(ar);
+            if (ar.setWritingMode())
+                _dynMaterial->serialize(ar);
 
-        ar.storeDataName("Dc2");
-        ar << _dynamicCollisionMask;
-        ar.flush();
+            ar.storeDataName("Dc2");
+            ar << _dynamicCollisionMask;
+            ar.flush();
 
-        ar.storeDataName("Idv");
-        ar << _initialDynamicLinearVelocity(0) << _initialDynamicLinearVelocity(1) << _initialDynamicLinearVelocity(2);
-        ar << _initialDynamicAngularVelocity(0) << _initialDynamicAngularVelocity(1) << _initialDynamicAngularVelocity(2);
-        ar.flush();
+            ar.storeDataName("Idv");
+            ar << _initialDynamicLinearVelocity(0) << _initialDynamicLinearVelocity(1) << _initialDynamicLinearVelocity(2);
+            ar << _initialDynamicAngularVelocity(0) << _initialDynamicAngularVelocity(1) << _initialDynamicAngularVelocity(2);
+            ar.flush();
 
-        ar.storeDataName("Sss");
-        unsigned char nothing=0;
-//      SIM_SET_CLEAR_BIT(nothing,0,_explicitTracing); removed on 13/09/2011
-//      SIM_SET_CLEAR_BIT(nothing,1,_visibleEdges); removed on 11/11/2012
-//      SIM_SET_CLEAR_BIT(nothing,2,_culling); removed on 11/11/2012
-//      SIM_SET_CLEAR_BIT(nothing,3,tracing); removed on 13/09/2011
-//      SIM_SET_CLEAR_BIT(nothing,4,_shapeWireframe); removed on 11/11/2012
-//      SIM_SET_CLEAR_BIT(nothing,5,_displayInvertedFaces); removed on 2010/04/19
-        SIM_SET_CLEAR_BIT(nothing,6,_startInDynamicSleeping);
-        SIM_SET_CLEAR_BIT(nothing,7,!_shapeIsDynamicallyStatic);
-        ar << nothing;
-        ar.flush();
+            ar.storeDataName("Sss");
+            unsigned char nothing=0;
+    //      SIM_SET_CLEAR_BIT(nothing,0,_explicitTracing); removed on 13/09/2011
+    //      SIM_SET_CLEAR_BIT(nothing,1,_visibleEdges); removed on 11/11/2012
+    //      SIM_SET_CLEAR_BIT(nothing,2,_culling); removed on 11/11/2012
+    //      SIM_SET_CLEAR_BIT(nothing,3,tracing); removed on 13/09/2011
+    //      SIM_SET_CLEAR_BIT(nothing,4,_shapeWireframe); removed on 11/11/2012
+    //      SIM_SET_CLEAR_BIT(nothing,5,_displayInvertedFaces); removed on 2010/04/19
+            SIM_SET_CLEAR_BIT(nothing,6,_startInDynamicSleeping);
+            SIM_SET_CLEAR_BIT(nothing,7,!_shapeIsDynamicallyStatic);
+            ar << nothing;
+            ar.flush();
 
-        ar.storeDataName("Ss3");
-        nothing=0;
-        SIM_SET_CLEAR_BIT(nothing,0,_shapeIsDynamicallyRespondable);
-//      SIM_SET_CLEAR_BIT(nothing,1,_visualizeInertia); // removed on 16/12/2012
-        SIM_SET_CLEAR_BIT(nothing,2,_parentFollowsDynamic);
-//      SIM_SET_CLEAR_BIT(nothing,3,!_insideAndOutsideFacesSameColor); // removed on 11/11/2012
-//      SIM_SET_CLEAR_BIT(nothing,4,_containsTransparentComponents); // removed on 11/11/2012
-        SIM_SET_CLEAR_BIT(nothing,5,_setAutomaticallyToNonStaticIfGetsParent);
-        ar << nothing;
-        ar.flush();
+            ar.storeDataName("Ss3");
+            nothing=0;
+            SIM_SET_CLEAR_BIT(nothing,0,_shapeIsDynamicallyRespondable);
+    //      SIM_SET_CLEAR_BIT(nothing,1,_visualizeInertia); // removed on 16/12/2012
+            SIM_SET_CLEAR_BIT(nothing,2,_parentFollowsDynamic);
+    //      SIM_SET_CLEAR_BIT(nothing,3,!_insideAndOutsideFacesSameColor); // removed on 11/11/2012
+    //      SIM_SET_CLEAR_BIT(nothing,4,_containsTransparentComponents); // removed on 11/11/2012
+            SIM_SET_CLEAR_BIT(nothing,5,_setAutomaticallyToNonStaticIfGetsParent);
+            ar << nothing;
+            ar.flush();
 
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
-            {
-                bool noHit=true;
-                if (theName.compare("Ge2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    geomData=new CGeomProxy();
-                    geomData->serialize(ar);
-                    geomData->geomInfo->containsOnlyPureConvexShapes(); // needed since there was a bug where pure planes and pure discs were considered as convex
-                }
-                if (theName.compare("Mat")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    _dynMaterial->serialize(ar);
-                }
-
-                if (theName.compare("Dc2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _dynamicCollisionMask;
-                }
-
-                if (theName.compare("Idv")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _initialDynamicLinearVelocity(0) >> _initialDynamicLinearVelocity(1) >> _initialDynamicLinearVelocity(2);
-                    ar >> _initialDynamicAngularVelocity(0) >> _initialDynamicAngularVelocity(1) >> _initialDynamicAngularVelocity(2);
-                }
-
-                if (theName=="Sss")
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-                    _startInDynamicSleeping=SIM_IS_BIT_SET(nothing,6);
-                    _shapeIsDynamicallyStatic=!SIM_IS_BIT_SET(nothing,7);
-                }
-                if (theName=="Ss2")
-                { // keep for backward compatibility (2010/07/12)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-                    _shapeIsDynamicallyRespondable=SIM_IS_BIT_SET(nothing,0);
-                    _parentFollowsDynamic=SIM_IS_BIT_SET(nothing,2);
-                }
-                if (theName=="Ss3")
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-                    _shapeIsDynamicallyRespondable=SIM_IS_BIT_SET(nothing,0);
-                    _parentFollowsDynamic=SIM_IS_BIT_SET(nothing,2);
-                    _setAutomaticallyToNonStaticIfGetsParent=SIM_IS_BIT_SET(nothing,5);
-                }
-                if (noHit)
-                    ar.loadUnknownData();
-            }
+            ar.storeDataName(SER_END_OF_OBJECT);
         }
-        actualizeContainsTransparentComponent();
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
+            {
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
+                {
+                    bool noHit=true;
+                    if (theName.compare("Ge2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        geomData=new CGeomProxy();
+                        geomData->serialize(ar,_objectName.c_str());
+                        geomData->geomInfo->containsOnlyPureConvexShapes(); // needed since there was a bug where pure planes and pure discs were considered as convex
+                    }
+                    if (theName.compare("Mat")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        _dynMaterial->serialize(ar);
+                    }
+
+                    if (theName.compare("Dc2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _dynamicCollisionMask;
+                    }
+
+                    if (theName.compare("Idv")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _initialDynamicLinearVelocity(0) >> _initialDynamicLinearVelocity(1) >> _initialDynamicLinearVelocity(2);
+                        ar >> _initialDynamicAngularVelocity(0) >> _initialDynamicAngularVelocity(1) >> _initialDynamicAngularVelocity(2);
+                    }
+
+                    if (theName=="Sss")
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        _startInDynamicSleeping=SIM_IS_BIT_SET(nothing,6);
+                        _shapeIsDynamicallyStatic=!SIM_IS_BIT_SET(nothing,7);
+                    }
+                    if (theName=="Ss2")
+                    { // keep for backward compatibility (2010/07/12)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        _shapeIsDynamicallyRespondable=SIM_IS_BIT_SET(nothing,0);
+                        _parentFollowsDynamic=SIM_IS_BIT_SET(nothing,2);
+                    }
+                    if (theName=="Ss3")
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        _shapeIsDynamicallyRespondable=SIM_IS_BIT_SET(nothing,0);
+                        _parentFollowsDynamic=SIM_IS_BIT_SET(nothing,2);
+                        _setAutomaticallyToNonStaticIfGetsParent=SIM_IS_BIT_SET(nothing,5);
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
+                }
+            }
+            actualizeContainsTransparentComponent();
+        }
     }
 }
 

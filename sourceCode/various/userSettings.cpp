@@ -722,7 +722,6 @@ void CUserSettings::saveUserSettings()
     c.addBoolean(_USR_DO_NOT_SHOW_VIDEO_COMPRESSION_LIBRARY_LOAD_ERROR,doNotShowVideoCompressionLibraryLoadError,"");
     c.addBoolean(_USR_REDIRECT_STATUSBAR_MSG_TO_CONSOLE_IN_HEADLESS_MODE,redirectStatusbarMsgToConsoleInHeadlessMode,"");
     c.addBoolean(_USR_SUPPRESS_STARTUP_DIALOG,suppressStartupDialogs,"");
-#define _USR_SUPPRESS_STARTUP_DIALOG "suppressStartupDialogs"
 
 
 

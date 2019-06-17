@@ -1,4 +1,3 @@
-
 #include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "easyLock.h"
@@ -23,8 +22,7 @@ CLuaScriptObject::CLuaScriptObject(int scriptTypeOrMinusOneForSerialization)
 {
     scriptID=SIM_IDSTART_LUASCRIPT;
     _scriptUniqueId=_scriptUniqueCounter++;
-    _objectIDAttachedTo_child=-1; // used for child scripts
-    _objectIDAttachedTo_customization=-1; // used for customization scripts
+    _objectIDAttachedTo=-1;
 
     _scriptText="";
     _scriptTextExec="";
@@ -1097,7 +1095,7 @@ std::string CLuaScriptObject::getDescriptiveName() const
                 return(strTranslate(pref+"Threaded child script (destroyed)"));
             return(strTranslate(pref+"Non-threaded Child script (destroyed)"));
         }
-        C3DObject* it=App::ct->objCont->getObjectFromHandle(_objectIDAttachedTo_child);
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(_objectIDAttachedTo);
         if (it==nullptr)
         {
             if (_threadedExecution)
@@ -1134,7 +1132,7 @@ std::string CLuaScriptObject::getDescriptiveName() const
     {
         std::string retVal;
         retVal=strTranslate(pref+"Customization script ");
-        C3DObject* it=App::ct->objCont->getObjectFromHandle(_objectIDAttachedTo_customization);
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(_objectIDAttachedTo);
         if (it==nullptr)
             return(strTranslate(pref+"Customization script (unassociated)"));
 
@@ -1164,7 +1162,7 @@ std::string CLuaScriptObject::getShortDescriptiveName() const
     {
         if (_flaggedForDestruction)
             return(strTranslate(pref+"CHILD SCRIPT (DESTROYED)"));
-        C3DObject* it=App::ct->objCont->getObjectFromHandle(_objectIDAttachedTo_child);
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(_objectIDAttachedTo);
         if (it==nullptr)
             return(strTranslate(pref+"UNASSOCIATED CHILD SCRIPT"));
 
@@ -1191,7 +1189,7 @@ std::string CLuaScriptObject::getShortDescriptiveName() const
     {
         std::string retVal;
         retVal=strTranslate(pref+"CUSTOMIZATION SCRIPT ");
-        C3DObject* it=App::ct->objCont->getObjectFromHandle(_objectIDAttachedTo_customization);
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(_objectIDAttachedTo);
         if (it==nullptr)
             return(strTranslate(pref+"CUSTOMIZATION SCRIPT  (UNASSOCIATED)"));
         retVal+=it->getObjectName();
@@ -1210,10 +1208,8 @@ void CLuaScriptObject::setAddOnName(const char* name)
 std::string CLuaScriptObject::getScriptSuffixNumberString() const
 {
     C3DObject* it=nullptr;
-    if (_scriptType==sim_scripttype_childscript)
-        it=App::ct->objCont->getObjectFromHandle(_objectIDAttachedTo_child);
-    if (_scriptType==sim_scripttype_customizationscript)
-        it=App::ct->objCont->getObjectFromHandle(_objectIDAttachedTo_customization);
+    if ( (_scriptType==sim_scripttype_childscript)||(_scriptType==sim_scripttype_customizationscript) )
+        it=App::ct->objCont->getObjectFromHandle(_objectIDAttachedTo);
     if (it==nullptr)
         return("");
     int suffNb=tt::getNameSuffixNumber(it->getObjectName().c_str(),true);
@@ -1225,20 +1221,14 @@ std::string CLuaScriptObject::getScriptSuffixNumberString() const
 
 std::string CLuaScriptObject::getScriptPseudoName() const
 {
-    if (_scriptType==sim_scripttype_childscript)
+    if ( (_scriptType==sim_scripttype_childscript)||(_scriptType==sim_scripttype_customizationscript) )
     {
-        C3DObject* it=App::ct->objCont->getObjectFromHandle(_objectIDAttachedTo_child);
+        C3DObject* it=App::ct->objCont->getObjectFromHandle(_objectIDAttachedTo);
         if (it!=nullptr)
             return(it->getObjectName());
     }
     if ( (_scriptType==sim_scripttype_addonscript)||(_scriptType==sim_scripttype_addonfunction) )
         return(_addOnName);
-    if (_scriptType==sim_scripttype_customizationscript)
-    {
-        C3DObject* it=App::ct->objCont->getObjectFromHandle(_objectIDAttachedTo_customization);
-        if (it!=nullptr)
-            return(it->getObjectName());
-    }
     return("");
 }
 
@@ -1266,37 +1256,37 @@ bool CLuaScriptObject::getThreadedExecutionIsUnderWay() const
 void CLuaScriptObject::perform3DObjectLoadingMapping(std::vector<int>* map)
 {
     if (App::ct->objCont!=nullptr)
-    {
-        _objectIDAttachedTo_child=App::ct->objCont->getLoadingMapping(map,_objectIDAttachedTo_child);
-        _objectIDAttachedTo_customization=App::ct->objCont->getLoadingMapping(map,_objectIDAttachedTo_customization);
-    }
+        _objectIDAttachedTo=App::ct->objCont->getLoadingMapping(map,_objectIDAttachedTo);
 }
 
 bool CLuaScriptObject::announce3DObjectWillBeErased(int objectID,bool copyBuffer)
 { // script will be erased if attached to objectID (if threaded simulation is not running!)
     bool retVal=false;
     if (copyBuffer)
-        retVal=(_objectIDAttachedTo_child==objectID)||(_objectIDAttachedTo_customization==objectID);
+        retVal=(_objectIDAttachedTo==objectID);
     else
     {
         bool closeCodeEditor=false;
-        if (_objectIDAttachedTo_child==objectID)
+        if (_objectIDAttachedTo==objectID)
         {
-            closeCodeEditor=true;
-            if (!App::ct->simulation->isSimulationStopped()) // Removed the if(_threadedExecution()) thing on 2008/12/08
-            { // threaded scripts cannot be directly erased, since the Lua state needs to be cleared in the thread that created it
-                _objectIDAttachedTo_child=-1; // This is for a potential threaded simulation running
-                _flaggedForDestruction=true;
-                retVal=!_inExecutionNow; // from false to !_inExecutionNow on 8/9/2016
+            if (_scriptType==sim_scripttype_childscript)
+            {
+                closeCodeEditor=true;
+                if (!App::ct->simulation->isSimulationStopped()) // Removed the if(_threadedExecution()) thing on 2008/12/08
+                { // threaded scripts cannot be directly erased, since the Lua state needs to be cleared in the thread that created it
+                    _objectIDAttachedTo=-1; // This is for a potential threaded simulation running
+                    _flaggedForDestruction=true;
+                    retVal=!_inExecutionNow; // from false to !_inExecutionNow on 8/9/2016
+                }
+                else
+                    retVal=true;
             }
-            else
-                retVal=true;
-        }
-        if (_objectIDAttachedTo_customization==objectID)
-        {
-            closeCodeEditor=true;
-            _flaggedForDestruction=true;
-            retVal=!_inExecutionNow; // from false to !_inExecutionNow on 26/8/2016 (i.e. no delayed destruction anymore. Important since the clean-up section of custom. scripts can contain code that refers to the attached object, etc.)
+            if (_scriptType==sim_scripttype_customizationscript)
+            {
+                closeCodeEditor=true;
+                _flaggedForDestruction=true;
+                retVal=!_inExecutionNow; // from false to !_inExecutionNow on 26/8/2016 (i.e. no delayed destruction anymore. Important since the clean-up section of custom. scripts can contain code that refers to the attached object, etc.)
+            }
         }
         if (closeCodeEditor)
         {
@@ -1331,24 +1321,32 @@ int CLuaScriptObject::flagScriptForRemoval()
 
 int CLuaScriptObject::getObjectIDThatScriptIsAttachedTo_child() const
 {
-    return(_objectIDAttachedTo_child);
+    if (_scriptType==sim_scripttype_childscript)
+        return(_objectIDAttachedTo);
+    return(-1);
 }
 
 int CLuaScriptObject::getObjectIDThatScriptIsAttachedTo_customization() const
 {
-    return(_objectIDAttachedTo_customization);
+    if (_scriptType==sim_scripttype_customizationscript)
+        return(_objectIDAttachedTo);
+    return(-1);
 }
 
-void CLuaScriptObject::setObjectIDThatScriptIsAttachedTo_child(int newObjectID)
+int CLuaScriptObject::getObjectIDThatScriptIsAttachedTo() const
 {
-    _objectIDAttachedTo_child=newObjectID;
+    return(_objectIDAttachedTo);
+}
+
+void CLuaScriptObject::setObjectIDThatScriptIsAttachedTo(int newObjectID)
+{
     if (newObjectID!=-1)
-        _scriptType=sim_scripttype_childscript;
-}
-
-void CLuaScriptObject::setObjectIDThatScriptIsAttachedTo_customization(int newObjectID)
-{
-    _objectIDAttachedTo_customization=newObjectID;
+    {
+        if ( (_scriptType==sim_scripttype_childscript)||(_scriptType==sim_scripttype_customizationscript) )
+            _objectIDAttachedTo=newObjectID;
+    }
+    else
+        _objectIDAttachedTo=-1;
 }
 
 int CLuaScriptObject::getNumberOfPasses() const
@@ -2527,8 +2525,7 @@ CLuaScriptObject* CLuaScriptObject::copyYourself()
 {
     CLuaScriptObject* it=new CLuaScriptObject(_scriptType);
     it->scriptID=scriptID;
-    it->_objectIDAttachedTo_child=_objectIDAttachedTo_child;
-    it->_objectIDAttachedTo_customization=_objectIDAttachedTo_customization;
+    it->_objectIDAttachedTo=_objectIDAttachedTo;
     it->_threadedExecution=_threadedExecution;
     it->_scriptIsDisabled=_scriptIsDisabled;
     it->_executionOrder=_executionOrder;
@@ -2637,245 +2634,248 @@ void CLuaScriptObject::_displayScriptError(const char* errMsg,int errorType)
 
 void CLuaScriptObject::serialize(CSer& ar)
 {
-    if (ar.isStoring())
-    {       // Storing
-        ar.storeDataName("Si2");
-        ar << scriptID << _objectIDAttachedTo_child << _scriptType;
-        ar.flush();
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            ar.storeDataName("Si2");
+            ar << scriptID << _objectIDAttachedTo << _scriptType;
+            ar.flush();
 
-        // Keep following close to the beginning!
-        ar.storeDataName("Va2");
-        unsigned char nothing=0;
-        SIM_SET_CLEAR_BIT(nothing,0,_threadedExecution);
-        SIM_SET_CLEAR_BIT(nothing,1,_scriptIsDisabled);
-        // RESERVED
-        SIM_SET_CLEAR_BIT(nothing,3,!_mainScriptIsDefaultMainScript);
-        SIM_SET_CLEAR_BIT(nothing,4,_executeJustOnce);
-        // RESERVED!!
-        SIM_SET_CLEAR_BIT(nothing,6,true); // this indicates we have the 'almost' new script execution engine (since V3.1.3)
-        SIM_SET_CLEAR_BIT(nothing,7,true); // this indicates we have the new script execution engine (since V3.1.3)
-        ar << nothing;
-        ar.flush();
+            // Keep following close to the beginning!
+            ar.storeDataName("Va2");
+            unsigned char nothing=0;
+            SIM_SET_CLEAR_BIT(nothing,0,_threadedExecution);
+            SIM_SET_CLEAR_BIT(nothing,1,_scriptIsDisabled);
+            // RESERVED
+            SIM_SET_CLEAR_BIT(nothing,3,!_mainScriptIsDefaultMainScript);
+            SIM_SET_CLEAR_BIT(nothing,4,_executeJustOnce);
+            // RESERVED!!
+            SIM_SET_CLEAR_BIT(nothing,6,true); // this indicates we have the 'almost' new script execution engine (since V3.1.3)
+            SIM_SET_CLEAR_BIT(nothing,7,true); // this indicates we have the new script execution engine (since V3.1.3)
+            ar << nothing;
+            ar.flush();
 
-        // Keep following close to the beginning!
-        ar.storeDataName("Va3"); // this is also used as a marked for the color correction introduced in V3.1.4 and later!
-        nothing=0;
-        SIM_SET_CLEAR_BIT(nothing,0,true); // needed for a code correction
-        SIM_SET_CLEAR_BIT(nothing,1,!_disableCustomizationScriptWithError);
-        ar << nothing;
-        ar.flush();
+            // Keep following close to the beginning!
+            ar.storeDataName("Va3"); // this is also used as a marked for the color correction introduced in V3.1.4 and later!
+            nothing=0;
+            SIM_SET_CLEAR_BIT(nothing,0,true); // needed for a code correction
+            SIM_SET_CLEAR_BIT(nothing,1,!_disableCustomizationScriptWithError);
+            ar << nothing;
+            ar.flush();
 
-        ar.storeDataName("Seo");
-        ar << _executionOrder;
-        ar.flush();
+            ar.storeDataName("Seo");
+            ar << _executionOrder;
+            ar.flush();
 
-        ar.storeDataName("Ttd");
-        ar << _treeTraversalDirection;
-        ar.flush();
+            ar.storeDataName("Ttd");
+            ar << _treeTraversalDirection;
+            ar.flush();
 
-        ar.storeDataName("Dbl");
-        ar << _debugLevel;
-        ar.flush();
+            ar.storeDataName("Dbl");
+            ar << _debugLevel;
+            ar.flush();
 
-        std::string stt(_scriptText);
+            std::string stt(_scriptText);
 
-        // We store scripts in a light encoded way:
-        ar.storeDataName("Ste");
-        tt::lightEncodeBuffer(&stt[0],int(stt.length()));
-        for (size_t i=0;i<stt.length();i++)
-            ar << stt[i];
-        ar.flush();
+            // We store scripts in a light encoded way:
+            ar.storeDataName("Ste");
+            tt::lightEncodeBuffer(&stt[0],int(stt.length()));
+            for (size_t i=0;i<stt.length();i++)
+                ar << stt[i];
+            ar.flush();
 
-        ar.storeDataName("Prm");
-        ar.setCountingMode();
-        scriptParameters->serialize(ar);
-        if (ar.setWritingMode())
-            scriptParameters->serialize(ar);
-
-        ar.storeDataName("Coc");
-        ar << _objectIDAttachedTo_customization;
-        ar.flush();
-
-        if (_customObjectData!=nullptr)
-        {
-            ar.storeDataName("Cod");
+            ar.storeDataName("Prm");
             ar.setCountingMode();
-            _customObjectData->serializeData(ar);
+            scriptParameters->serialize(ar);
             if (ar.setWritingMode())
-                _customObjectData->serializeData(ar);
-        }
+                scriptParameters->serialize(ar);
 
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        bool backwardCompatibility_7_8_2014=false;
-        bool backwardCompatibility_13_8_2014=false;
-        bool executeInSensingPhase_oldCompatibility_7_8_2014=false;
-        bool backwardCompatibilityCorrectionNeeded_13_10_2014=true;
-        bool backwardCompatibilityCorrectionNeeded_8_11_2014=true;
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
+            // keep a while so that older versions can read this. 11.06.2019, V3.6.1 is current
+            ar.storeDataName("Coc");
+            ar << _objectIDAttachedTo;
+            ar.flush();
+
+            if (_customObjectData!=nullptr)
             {
-                bool noHit=true;
-                bool justLoadedCustomScriptBuffer=false;
-                if (theName.compare("Si2")==0)
+                ar.storeDataName("Cod");
+                ar.setCountingMode();
+                _customObjectData->serializeData(ar,nullptr,-1);
+                if (ar.setWritingMode())
+                    _customObjectData->serializeData(ar,nullptr,-1);
+            }
+
+            ar.storeDataName(SER_END_OF_OBJECT);
+        }
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            bool backwardCompatibility_7_8_2014=false;
+            bool backwardCompatibility_13_8_2014=false;
+            bool executeInSensingPhase_oldCompatibility_7_8_2014=false;
+            bool backwardCompatibilityCorrectionNeeded_13_10_2014=true;
+            bool backwardCompatibilityCorrectionNeeded_8_11_2014=true;
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
+            {
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
                 {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> scriptID >> _objectIDAttachedTo_child >> _scriptType;
-                }
-
-                if (theName.compare("Ttd")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _treeTraversalDirection;
-                }
-                if (theName.compare("Dbl")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _debugLevel;
-                }
-
-                if (theName.compare("Seo")==0)
-                { 
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _executionOrder;
-                }
-
-                if (theName.compare("Ste")==0)
-                { // The script is stored encoded!
-                    noHit=false;
-                    ar >> byteQuantity;
-
-                    _scriptText.resize(byteQuantity,' ');
-                    if (byteQuantity!=0)
+                    bool noHit=true;
+                    bool justLoadedCustomScriptBuffer=false;
+                    if (theName.compare("Si2")==0)
                     {
-                        for (int i=0;i<byteQuantity;i++)
-                            ar >> _scriptText[i];
-                        tt::lightDecodeBuffer(&_scriptText[0],byteQuantity);
-                        while ( (_scriptText.size()>0)&&(_scriptText[_scriptText.size()-1]==0) )
-                            _scriptText.erase(_scriptText.end()-1); // to fix a compatibility bug
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> scriptID >> _objectIDAttachedTo >> _scriptType;
                     }
-                    justLoadedCustomScriptBuffer=true;
-                }
-                if (justLoadedCustomScriptBuffer)
-                { // We just loaded the script text.
-                    if (_scriptType==sim_scripttype_mainscript)
-                    { // We just loaded a main script text. Do we want to load the default main script instead?
-                        if (_mainScriptIsDefaultMainScript)
-                        { // Yes!
-                            std::string filenameAndPath(App::directories->systemDirectory+VREP_SLASH);
-                            filenameAndPath+=DEFAULT_MAINSCRIPT_NAME;
-                            if (VFile::doesFileExist(filenameAndPath))
-                            {
-                                try
+
+                    if (theName.compare("Ttd")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _treeTraversalDirection;
+                    }
+                    if (theName.compare("Dbl")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _debugLevel;
+                    }
+
+                    if (theName.compare("Seo")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _executionOrder;
+                    }
+
+                    if (theName.compare("Ste")==0)
+                    { // The script is stored encoded!
+                        noHit=false;
+                        ar >> byteQuantity;
+
+                        _scriptText.resize(byteQuantity,' ');
+                        if (byteQuantity!=0)
+                        {
+                            for (int i=0;i<byteQuantity;i++)
+                                ar >> _scriptText[i];
+                            tt::lightDecodeBuffer(&_scriptText[0],byteQuantity);
+                            while ( (_scriptText.size()>0)&&(_scriptText[_scriptText.size()-1]==0) )
+                                _scriptText.erase(_scriptText.end()-1); // to fix a compatibility bug
+                        }
+                        justLoadedCustomScriptBuffer=true;
+                    }
+                    if (justLoadedCustomScriptBuffer)
+                    { // We just loaded the script text.
+                        if (_scriptType==sim_scripttype_mainscript)
+                        { // We just loaded a main script text. Do we want to load the default main script instead?
+                            if (_mainScriptIsDefaultMainScript)
+                            { // Yes!
+                                std::string filenameAndPath(App::directories->systemDirectory+VREP_SLASH);
+                                filenameAndPath+=DEFAULT_MAINSCRIPT_NAME;
+                                if (VFile::doesFileExist(filenameAndPath))
                                 {
-                                    VFile file(filenameAndPath.c_str(),VFile::READ|VFile::SHARE_DENY_NONE);
-                                    VArchive archive2(&file,VArchive::LOAD);
-                                    unsigned int archiveLength=(unsigned int)file.getLength();
-                                    // We replace current script with a default main script
-                                    _scriptText.resize(archiveLength,' ');
-                                    for (unsigned int i=0;i<archiveLength;i++)
-                                        archive2 >> _scriptText[i];
-                                    archive2.close();
-                                    file.close();
-                                }
-                                catch(VFILE_EXCEPTION_TYPE e)
-                                {
-                                    VFile::reportAndHandleFileExceptionError(e);
-                                    // Removed following line on 2010/03/03: even if the default main script is not there, we might still want the default main script next time (if there maybe).
-                                    // Following line also causes problems when converting to a new fileformat!
-                                    // _mainScriptIsDefaultMainScript=false; // We couldn't find the default main script, we turn this one into a customized main script!
+                                    try
+                                    {
+                                        VFile file(filenameAndPath.c_str(),VFile::READ|VFile::SHARE_DENY_NONE);
+                                        VArchive archive2(&file,VArchive::LOAD);
+                                        unsigned int archiveLength=(unsigned int)file.getLength();
+                                        // We replace current script with a default main script
+                                        _scriptText.resize(archiveLength,' ');
+                                        for (unsigned int i=0;i<archiveLength;i++)
+                                            archive2 >> _scriptText[i];
+                                        archive2.close();
+                                        file.close();
+                                    }
+                                    catch(VFILE_EXCEPTION_TYPE e)
+                                    {
+                                        VFile::reportAndHandleFileExceptionError(e);
+                                        // Removed following line on 2010/03/03: even if the default main script is not there, we might still want the default main script next time (if there maybe).
+                                        // Following line also causes problems when converting to a new fileformat!
+                                        // _mainScriptIsDefaultMainScript=false; // We couldn't find the default main script, we turn this one into a customized main script!
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                if (theName=="Va2")
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-                    _threadedExecution=SIM_IS_BIT_SET(nothing,0);
-                    _scriptIsDisabled=SIM_IS_BIT_SET(nothing,1);
-                    // RESERVED
-                    _mainScriptIsDefaultMainScript=!SIM_IS_BIT_SET(nothing,3);
-                    _executeJustOnce=SIM_IS_BIT_SET(nothing,4);
-                    executeInSensingPhase_oldCompatibility_7_8_2014=SIM_IS_BIT_SET(nothing,5);
-                    backwardCompatibility_7_8_2014=!SIM_IS_BIT_SET(nothing,6);
-                    backwardCompatibility_13_8_2014=!SIM_IS_BIT_SET(nothing,7);
-                }
-                if (theName=="Va3")
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-                    backwardCompatibilityCorrectionNeeded_8_11_2014=!SIM_IS_BIT_SET(nothing,0);
-                    backwardCompatibilityCorrectionNeeded_13_10_2014=false;
-                    _disableCustomizationScriptWithError=!SIM_IS_BIT_SET(nothing,1);
-                }
-                if (theName.compare("Prm")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    delete scriptParameters;
-                    scriptParameters=new CLuaScriptParameters();
-                    scriptParameters->serialize(ar);
-                    if (_scriptType==sim_scripttype_mainscript)
-                    { // We just loaded a main script. Do we want to load the default main script parameters instead?
-                        if (_mainScriptIsDefaultMainScript)
-                        { // Yes!
-                            // For now we just clear all parameters! (in future we might load default  parameters)
-                            delete scriptParameters;
-                            scriptParameters=new CLuaScriptParameters();
+                    if (theName=="Va2")
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        _threadedExecution=SIM_IS_BIT_SET(nothing,0);
+                        _scriptIsDisabled=SIM_IS_BIT_SET(nothing,1);
+                        // RESERVED
+                        _mainScriptIsDefaultMainScript=!SIM_IS_BIT_SET(nothing,3);
+                        _executeJustOnce=SIM_IS_BIT_SET(nothing,4);
+                        executeInSensingPhase_oldCompatibility_7_8_2014=SIM_IS_BIT_SET(nothing,5);
+                        backwardCompatibility_7_8_2014=!SIM_IS_BIT_SET(nothing,6);
+                        backwardCompatibility_13_8_2014=!SIM_IS_BIT_SET(nothing,7);
+                    }
+                    if (theName=="Va3")
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        backwardCompatibilityCorrectionNeeded_8_11_2014=!SIM_IS_BIT_SET(nothing,0);
+                        backwardCompatibilityCorrectionNeeded_13_10_2014=false;
+                        _disableCustomizationScriptWithError=!SIM_IS_BIT_SET(nothing,1);
+                    }
+                    if (theName.compare("Prm")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        delete scriptParameters;
+                        scriptParameters=new CLuaScriptParameters();
+                        scriptParameters->serialize(ar);
+                        if (_scriptType==sim_scripttype_mainscript)
+                        { // We just loaded a main script. Do we want to load the default main script parameters instead?
+                            if (_mainScriptIsDefaultMainScript)
+                            { // Yes!
+                                // For now we just clear all parameters! (in future we might load default  parameters)
+                                delete scriptParameters;
+                                scriptParameters=new CLuaScriptParameters();
+                            }
                         }
                     }
-                }
 
-                //if (theName.compare("Coi")==0)
-                //{
-                //}
+                    if (theName.compare("Coc")==0)
+                    { // keep 3-4 years for backward compatibility (11.06.2019, V3.6.1 is current)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int v;
+                        ar >> v;
+                        if (v>=0)
+                            _objectIDAttachedTo=v;
+                    }
+                    if (theName.compare("Cod")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        _customObjectData=new CCustomData();
+                        _customObjectData->serializeData(ar,nullptr,-1);
+                    }
 
-                if (theName.compare("Coc")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _objectIDAttachedTo_customization;
+                    if (noHit)
+                        ar.loadUnknownData();
                 }
-                if (theName.compare("Cod")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    _customObjectData=new CCustomData();
-                    _customObjectData->serializeData(ar);
-                }
-
-                if (noHit)
-                    ar.loadUnknownData();
             }
-        }
 
-        handleVerSpec_adjustScriptText1(this,backwardCompatibility_7_8_2014,executeInSensingPhase_oldCompatibility_7_8_2014);
-        handleVerSpec_adjustScriptText2(this,(!backwardCompatibility_7_8_2014)&&backwardCompatibility_13_8_2014);
-        handleVerSpec_adjustScriptText3(this,backwardCompatibilityCorrectionNeeded_13_10_2014);
-        handleVerSpec_adjustScriptText4(this,backwardCompatibilityCorrectionNeeded_8_11_2014);
-        handleVerSpec_adjustScriptText5(this,ar.getVrepVersionThatWroteThisFile()<30300);
-        handleVerSpec_adjustScriptText6(this,ar.getVrepVersionThatWroteThisFile()<30300);
-        handleVerSpec_adjustScriptText7(this,(ar.getVrepVersionThatWroteThisFile()<=30302)&&(VREP_PROGRAM_VERSION_NB>30302));
-        handleVerSpec_adjustScriptText8(this,App::userSettings->changeScriptCodeForNewApiNotation);
-        handleVerSpec_adjustScriptText9(this);
-        handleVerSpec_adjustScriptText10(this,ar.getVrepVersionThatWroteThisFile()<30401);
-        fromBufferToFile();
+            handleVerSpec_adjustScriptText1(this,backwardCompatibility_7_8_2014,executeInSensingPhase_oldCompatibility_7_8_2014);
+            handleVerSpec_adjustScriptText2(this,(!backwardCompatibility_7_8_2014)&&backwardCompatibility_13_8_2014);
+            handleVerSpec_adjustScriptText3(this,backwardCompatibilityCorrectionNeeded_13_10_2014);
+            handleVerSpec_adjustScriptText4(this,backwardCompatibilityCorrectionNeeded_8_11_2014);
+            handleVerSpec_adjustScriptText5(this,ar.getVrepVersionThatWroteThisFile()<30300);
+            handleVerSpec_adjustScriptText6(this,ar.getVrepVersionThatWroteThisFile()<30300);
+            handleVerSpec_adjustScriptText7(this,(ar.getVrepVersionThatWroteThisFile()<=30302)&&(VREP_PROGRAM_VERSION_NB>30302));
+            handleVerSpec_adjustScriptText8(this,App::userSettings->changeScriptCodeForNewApiNotation);
+            handleVerSpec_adjustScriptText9(this);
+            handleVerSpec_adjustScriptText10(this,ar.getVrepVersionThatWroteThisFile()<30401);
+            fromBufferToFile();
+        }
     }
 }
 

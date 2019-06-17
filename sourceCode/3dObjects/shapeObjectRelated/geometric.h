@@ -37,7 +37,7 @@ public:
     bool getColor(const char* colorName,int colorComponent,float* rgbData);
     void getAllShapeComponentsCumulative(std::vector<CGeometric*>& shapeComponentList); // needed by the dynamics routine
     CGeometric* getShapeComponentAtIndex(int& index);
-    void serialize(CSer& ar);
+    void serialize(CSer& ar,const char* shapeName);
     void preMultiplyAllVerticeLocalFrames(const C7Vector& preTr);
     void flipFaces();
     float getGouraudShadingAngle();

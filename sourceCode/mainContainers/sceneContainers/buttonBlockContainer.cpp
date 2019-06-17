@@ -1214,14 +1214,12 @@ CButtonBlockContainer* CButtonBlockContainer::loadSystemButtonBlocks(std::string
     {
         try
         {
-            VFile file(fullPathAndFilename.c_str(),VFile::READ|VFile::SHARE_DENY_NONE);
-            VArchive archive(&file,VArchive::LOAD);
-            CSer ar(archive);
+            CSer ar(fullPathAndFilename.c_str(),CSer::filetype_vrep_bin_ui_file);
             int serializationVersion;
             unsigned short dum0;
             int dum1;
             char dum2;
-            int result=ar.readOpen(serializationVersion,dum0,dum1,dum2,false);
+            int result=ar.readOpenBinary(serializationVersion,dum0,dum1,dum2,false);
             CButtonBlockContainer* cont=new CButtonBlockContainer(false);
             if (result==1)
             {
@@ -1268,8 +1266,6 @@ CButtonBlockContainer* CButtonBlockContainer::loadSystemButtonBlocks(std::string
                 delete cont;
                 cont=nullptr;
             }
-            archive.close();
-            file.close();
             return(cont);
         }
         catch(VFILE_EXCEPTION_TYPE e)

@@ -829,110 +829,112 @@ int CSView::getViewIndex() const
 
 void CSView::serialize(CSer& ar)
 {
-    if (ar.isStoring())
+    if (ar.isBinary())
     {
-        ar.storeDataName("Oid");
-        ar << linkedObjectID;
-        ar.flush();
-
-        ar.storeDataName("Gps");
-        ar << graphPosition[0] << graphPosition[1];
-        ar << graphSize[0] << graphSize[1];
-        ar.flush();
-
-        ar.storeDataName("Rem");
-        ar << _renderingMode;
-        ar.flush();
-
-        ar.storeDataName("Va2");
-        unsigned char dummy=0;
-        SIM_SET_CLEAR_BIT(dummy,0,perspectiveDisplay);
-        SIM_SET_CLEAR_BIT(dummy,1,!_canSwapViewWithMainView);
-        SIM_SET_CLEAR_BIT(dummy,2,graphIsTimeGraph);
-        SIM_SET_CLEAR_BIT(dummy,3,!_canBeClosed);
-        SIM_SET_CLEAR_BIT(dummy,4,_xyGraphInAutoModeDuringSimulation);
-        SIM_SET_CLEAR_BIT(dummy,5,_xyGraphIsOneOneProportional);
-        SIM_SET_CLEAR_BIT(dummy,6,!_canBeShifted);
-        SIM_SET_CLEAR_BIT(dummy,7,!_canBeResized);
-        ar << dummy;
-        ar.flush();
-
-
-        ar.storeDataName("Va3");
-        dummy=0;
-        SIM_SET_CLEAR_BIT(dummy,0,_showEdges);
-        SIM_SET_CLEAR_BIT(dummy,1,_thickEdges);
-        SIM_SET_CLEAR_BIT(dummy,2,_fitSceneToView);
-        SIM_SET_CLEAR_BIT(dummy,3,_fitSelectionToView);
-        SIM_SET_CLEAR_BIT(dummy,4,!_timeGraphXInAutoModeDuringSimulation);
-        SIM_SET_CLEAR_BIT(dummy,5,!_timeGraphYInAutoModeDuringSimulation);
-        SIM_SET_CLEAR_BIT(dummy,6,_visualizeOnlyInertias);
-        ar << dummy;
-        ar.flush();
-
-
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
+        if (ar.isStoring())
         {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
+            ar.storeDataName("Oid");
+            ar << linkedObjectID;
+            ar.flush();
+
+            ar.storeDataName("Gps");
+            ar << graphPosition[0] << graphPosition[1];
+            ar << graphSize[0] << graphSize[1];
+            ar.flush();
+
+            ar.storeDataName("Rem");
+            ar << _renderingMode;
+            ar.flush();
+
+            ar.storeDataName("Va2");
+            unsigned char dummy=0;
+            SIM_SET_CLEAR_BIT(dummy,0,perspectiveDisplay);
+            SIM_SET_CLEAR_BIT(dummy,1,!_canSwapViewWithMainView);
+            SIM_SET_CLEAR_BIT(dummy,2,graphIsTimeGraph);
+            SIM_SET_CLEAR_BIT(dummy,3,!_canBeClosed);
+            SIM_SET_CLEAR_BIT(dummy,4,_xyGraphInAutoModeDuringSimulation);
+            SIM_SET_CLEAR_BIT(dummy,5,_xyGraphIsOneOneProportional);
+            SIM_SET_CLEAR_BIT(dummy,6,!_canBeShifted);
+            SIM_SET_CLEAR_BIT(dummy,7,!_canBeResized);
+            ar << dummy;
+            ar.flush();
+
+
+            ar.storeDataName("Va3");
+            dummy=0;
+            SIM_SET_CLEAR_BIT(dummy,0,_showEdges);
+            SIM_SET_CLEAR_BIT(dummy,1,_thickEdges);
+            SIM_SET_CLEAR_BIT(dummy,2,_fitSceneToView);
+            SIM_SET_CLEAR_BIT(dummy,3,_fitSelectionToView);
+            SIM_SET_CLEAR_BIT(dummy,4,!_timeGraphXInAutoModeDuringSimulation);
+            SIM_SET_CLEAR_BIT(dummy,5,!_timeGraphYInAutoModeDuringSimulation);
+            SIM_SET_CLEAR_BIT(dummy,6,_visualizeOnlyInertias);
+            ar << dummy;
+            ar.flush();
+
+            ar.storeDataName(SER_END_OF_OBJECT);
+        }
+        else
+        {
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
             {
-                bool noHit=true;
-                if (theName.compare("Oid")==0)
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
                 {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> linkedObjectID;
+                    bool noHit=true;
+                    if (theName.compare("Oid")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> linkedObjectID;
+                    }
+                    if (theName.compare("Gps")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> graphPosition[0] >> graphPosition[1];
+                        ar >> graphSize[0] >> graphSize[1];
+                    }
+                    if (theName.compare("Rem")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _renderingMode;
+                    }
+                    if (theName.compare("Va2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char dummy;
+                        ar >> dummy;
+                        perspectiveDisplay=SIM_IS_BIT_SET(dummy,0);
+                        _canSwapViewWithMainView=!SIM_IS_BIT_SET(dummy,1);
+                        graphIsTimeGraph=SIM_IS_BIT_SET(dummy,2);
+                        _canBeClosed=!SIM_IS_BIT_SET(dummy,3);
+                        _xyGraphInAutoModeDuringSimulation=SIM_IS_BIT_SET(dummy,4);
+                        _xyGraphIsOneOneProportional=SIM_IS_BIT_SET(dummy,5);
+                        _canBeShifted=!SIM_IS_BIT_SET(dummy,6);
+                        _canBeResized=!SIM_IS_BIT_SET(dummy,7);
+                    }
+                    if (theName.compare("Va3")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char dummy;
+                        ar >> dummy;
+                        _showEdges=SIM_IS_BIT_SET(dummy,0);
+                        _thickEdges=SIM_IS_BIT_SET(dummy,1);
+                        _fitSceneToView=SIM_IS_BIT_SET(dummy,2);
+                        _fitSelectionToView=SIM_IS_BIT_SET(dummy,3);
+                        _timeGraphXInAutoModeDuringSimulation=!SIM_IS_BIT_SET(dummy,4);
+                        _timeGraphYInAutoModeDuringSimulation=!SIM_IS_BIT_SET(dummy,5);
+                        _visualizeOnlyInertias=SIM_IS_BIT_SET(dummy,6);
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
                 }
-                if (theName.compare("Gps")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> graphPosition[0] >> graphPosition[1];
-                    ar >> graphSize[0] >> graphSize[1];
-                }
-                if (theName.compare("Rem")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _renderingMode;
-                }
-                if (theName.compare("Va2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char dummy;
-                    ar >> dummy;
-                    perspectiveDisplay=SIM_IS_BIT_SET(dummy,0);
-                    _canSwapViewWithMainView=!SIM_IS_BIT_SET(dummy,1);
-                    graphIsTimeGraph=SIM_IS_BIT_SET(dummy,2);
-                    _canBeClosed=!SIM_IS_BIT_SET(dummy,3);
-                    _xyGraphInAutoModeDuringSimulation=SIM_IS_BIT_SET(dummy,4);
-                    _xyGraphIsOneOneProportional=SIM_IS_BIT_SET(dummy,5);
-                    _canBeShifted=!SIM_IS_BIT_SET(dummy,6);
-                    _canBeResized=!SIM_IS_BIT_SET(dummy,7);
-                }
-                if (theName.compare("Va3")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char dummy;
-                    ar >> dummy;
-                    _showEdges=SIM_IS_BIT_SET(dummy,0);
-                    _thickEdges=SIM_IS_BIT_SET(dummy,1);
-                    _fitSceneToView=SIM_IS_BIT_SET(dummy,2);
-                    _fitSelectionToView=SIM_IS_BIT_SET(dummy,3);
-                    _timeGraphXInAutoModeDuringSimulation=!SIM_IS_BIT_SET(dummy,4);
-                    _timeGraphYInAutoModeDuringSimulation=!SIM_IS_BIT_SET(dummy,5);
-                    _visualizeOnlyInertias=SIM_IS_BIT_SET(dummy,6);
-                }
-                if (noHit)
-                    ar.loadUnknownData();
             }
         }
     }

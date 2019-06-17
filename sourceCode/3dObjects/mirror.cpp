@@ -344,86 +344,88 @@ void CMirror::simulationEnded()
 void CMirror::serialize(CSer& ar)
 {
     serializeMain(ar);
-    if (ar.isStoring())
-    { // Storing
-        
-        ar.storeDataName("Msz");
-        ar << _mirrorWidth << _mirrorHeight;
-        ar.flush();
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        { // Storing
+            ar.storeDataName("Msz");
+            ar << _mirrorWidth << _mirrorHeight;
+            ar.flush();
 
-        ar.storeDataName("Cas");
-        unsigned char nothing=0;
-        SIM_SET_CLEAR_BIT(nothing,0,_active);
-        SIM_SET_CLEAR_BIT(nothing,1,!_isMirror);
-        ar << nothing;
-        ar.flush();
+            ar.storeDataName("Cas");
+            unsigned char nothing=0;
+            SIM_SET_CLEAR_BIT(nothing,0,_active);
+            SIM_SET_CLEAR_BIT(nothing,1,!_isMirror);
+            ar << nothing;
+            ar.flush();
 
-        ar.storeDataName("Clp");
-        ar << _clippingObjectOrCollection;
-        ar.flush();
+            ar.storeDataName("Clp");
+            ar << _clippingObjectOrCollection;
+            ar.flush();
 
-        ar.storeDataName("Mcr");
-        ar << _mirrorReflectance << mirrorColor[0] << mirrorColor[1] << mirrorColor[2];
-        ar.flush();
+            ar.storeDataName("Mcr");
+            ar << _mirrorReflectance << mirrorColor[0] << mirrorColor[1] << mirrorColor[2];
+            ar.flush();
 
-        ar.storeDataName("Cpc");
-        ar.setCountingMode();
-        clipPlaneColor.serialize(ar,0);
-        if (ar.setWritingMode())
+            ar.storeDataName("Cpc");
+            ar.setCountingMode();
             clipPlaneColor.serialize(ar,0);
+            if (ar.setWritingMode())
+                clipPlaneColor.serialize(ar,0);
 
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
-            {
-                bool noHit=true;
-                if (theName.compare("Msz")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _mirrorWidth >> _mirrorHeight;
-                }
-                if (theName=="Cas")
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-                    _active=SIM_IS_BIT_SET(nothing,0);
-                    _isMirror=!SIM_IS_BIT_SET(nothing,1);
-                }
-                if (theName.compare("Clp")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _clippingObjectOrCollection;
-                }
-                if (theName.compare("Mcr")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _mirrorReflectance >> mirrorColor[0] >> mirrorColor[1] >> mirrorColor[2];
-                }
-                if (theName.compare("Cpc")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    clipPlaneColor.serialize(ar,0);
-                }
-                if (noHit)
-                    ar.loadUnknownData();
-            }
+            ar.storeDataName(SER_END_OF_OBJECT);
         }
-        if (ar.getSerializationVersionThatWroteThisFile()<17)
-        { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
-            CTTUtil::scaleColorUp_(mirrorColor);
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
+            {
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
+                {
+                    bool noHit=true;
+                    if (theName.compare("Msz")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _mirrorWidth >> _mirrorHeight;
+                    }
+                    if (theName=="Cas")
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        _active=SIM_IS_BIT_SET(nothing,0);
+                        _isMirror=!SIM_IS_BIT_SET(nothing,1);
+                    }
+                    if (theName.compare("Clp")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _clippingObjectOrCollection;
+                    }
+                    if (theName.compare("Mcr")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _mirrorReflectance >> mirrorColor[0] >> mirrorColor[1] >> mirrorColor[2];
+                    }
+                    if (theName.compare("Cpc")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        clipPlaneColor.serialize(ar,0);
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
+                }
+            }
+            if (ar.getSerializationVersionThatWroteThisFile()<17)
+            { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
+                CTTUtil::scaleColorUp_(mirrorColor);
+            }
         }
     }
 }

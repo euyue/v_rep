@@ -48,7 +48,7 @@ void CObjCont::simulationEnded()
 }
 
 bool CObjCont::loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool justLoadThumbnail,bool forceModelAsCopy,C7Vector* optionalModelTr,C3Vector* optionalModelBoundingBoxSize,float* optionalModelNonDefaultTranslationStepSize)
-{   // There is a similar routine for XML files further down
+{
 
     // Should always be called through 'loadModel' or 'loadScene'!!!!
 
@@ -72,247 +72,250 @@ bool CObjCont::loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool jus
     std::vector<CConstraintSolverObject*> loadedConstraintSolverObjectList;
 
 
-    int byteQuantity;
-    std::string theName="";
     bool hasThumbnail=false;
-    while (theName.compare(SER_END_OF_FILE)!=0)
+    if (ar.isBinary())
     {
-        theName=ar.readDataName();
-        if (theName.compare(SER_END_OF_FILE)!=0)
+        int byteQuantity;
+        std::string theName="";
+        while (theName.compare(SER_END_OF_FILE)!=0)
         {
-            bool noHit=true;
-            if (theName.compare(SER_MODEL_THUMBNAIL_INFO)==0)
+            theName=ar.readDataName();
+            if (theName.compare(SER_END_OF_FILE)!=0)
             {
-                ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                C7Vector tr;
-                C3Vector bbs;
-                float ndss;
-                App::ct->environment->modelThumbnail_notSerializedHere.serializeAdditionalModelInfos(ar,tr,bbs,ndss);
-                if (optionalModelTr!=nullptr)
-                    optionalModelTr[0]=tr;
-                if (optionalModelBoundingBoxSize!=nullptr)
-                    optionalModelBoundingBoxSize[0]=bbs;
-                if (optionalModelNonDefaultTranslationStepSize!=nullptr)
-                    optionalModelNonDefaultTranslationStepSize[0]=ndss;
-                noHit=false;
-            }
-
-            if (theName.compare(SER_MODEL_THUMBNAIL)==0)
-            {
-                ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                App::ct->environment->modelThumbnail_notSerializedHere.serialize(ar);
-                noHit=false;
-                if (justLoadThumbnail)
-                    return(true);
-                hasThumbnail=true;
-            }
-
-            if (theName.compare(SER_MODEL_THUMBNAIL_OLD_COMPATIBILITY_2012_03_06)==0)
-            { // For backward compatibility (6/3/2012) Takes care of files reaching back to 25/7/2010
-                ar >> byteQuantity;
-                int l;
-                ar >> l;
-                char t;
-                std::vector<char> modelThumbnailBuffer;
-                for (int i=0;i<l;i++)
+                bool noHit=true;
+                if (theName.compare(SER_MODEL_THUMBNAIL_INFO)==0)
                 {
-                    ar >> t;
-                    modelThumbnailBuffer.push_back(t);
+                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    C7Vector tr;
+                    C3Vector bbs;
+                    float ndss;
+                    App::ct->environment->modelThumbnail_notSerializedHere.serializeAdditionalModelInfos(ar,tr,bbs,ndss);
+                    if (optionalModelTr!=nullptr)
+                        optionalModelTr[0]=tr;
+                    if (optionalModelBoundingBoxSize!=nullptr)
+                        optionalModelBoundingBoxSize[0]=bbs;
+                    if (optionalModelNonDefaultTranslationStepSize!=nullptr)
+                        optionalModelNonDefaultTranslationStepSize[0]=ndss;
+                    noHit=false;
                 }
-                if (modelThumbnailBuffer.size()!=0)
-                    App::ct->environment->modelThumbnail_notSerializedHere.setCompressedThumbnailImage(&modelThumbnailBuffer[0]);
-                else
-                    App::ct->environment->modelThumbnail_notSerializedHere.clearThumbnailImage();
-                noHit=false;
-                if (justLoadThumbnail)
-                    return(true);
-                hasThumbnail=true;
-            }
 
-            // Handle the heavy data here so we don't have duplicates (vertices, indices, normals and edges):
-            //------------------------------------------------------------
-            if (theName.compare(SER_VERTICESINDICESNORMALSEDGES)==0)
-            {
-                CGeometric::clearTempVerticesIndicesNormalsAndEdges();
-                ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                CGeometric::serializeTempVerticesIndicesNormalsAndEdges(ar);
-                noHit=false;
-            }
-            //------------------------------------------------------------
-
-            C3DObject* it=load3DObject(ar,theName,noHit);
-            if (it!=nullptr) 
-            {
-                loadedObjectList.push_back(it);
-                noHit=false;
-            }
-
-            CTextureObject* theTextureData=App::ct->textureCont->loadTextureObject(ar,theName,noHit);
-            if (theTextureData!=nullptr)
-            {
-                loadedTextureList.push_back(theTextureData);
-                noHit=false;
-            }
-            if (theName.compare(SER_DYNMATERIAL)==0)
-            { // Following for backward compatibility (i.e. files written prior V-REP 3.4.0) (30/10/2016)
-                ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                CDynMaterialObject* myNewObject=new CDynMaterialObject();
-                myNewObject->serialize(ar);
-                loadedDynMaterialList.push_back(myNewObject);
-                noHit=false;
-            }
-            if (theName.compare(SER_GHOSTS)==0)
-            {
-                ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                App::ct->ghostObjectCont->serialize(ar);
-                noHit=false;
-            }
-            if (theName.compare(SER_ENVIRONMENT)==0)
-            {
-                ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                App::ct->environment->serialize(ar);
-                noHit=false;
-            }
-            if (theName.compare(SER_SETTINGS)==0)
-            {
-                ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                App::ct->mainSettings->serialize(ar);
-                noHit=false;
-            }
-            if (theName.compare(SER_DYNAMICS)==0)
-            {
-                ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                App::ct->dynamicsContainer->serialize(ar);
-                noHit=false;
-            }
-            if (theName.compare(SER_SIMULATION)==0)
-            {
-                ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                App::ct->simulation->serialize(ar);
-                noHit=false;
-                
-                // For backward compatibility (3/1/2012):
-                //************************************************
-                if (App::ct->mainSettings->forBackwardCompatibility_03_01_2012_stillUsingStepSizeDividers)
-                { // This needs to be done AFTER simulation settings are loaded!
-                    float step=float(App::ct->simulation->getSimulationTimeStep_speedModified_ns())/1000000.0f;
-                    float bulletStepSize=step/float(App::ct->mainSettings->dynamicsBULLETStepSizeDivider_forBackwardCompatibility_03_01_2012);
-                    float odeStepSize=step/float(App::ct->mainSettings->dynamicsODEStepSizeDivider_forBackwardCompatibility_03_01_2012);
-                    if (fabs(step-0.05f)>0.002f)
-                        App::ct->dynamicsContainer->setUseDynamicDefaultCalculationParameters(4); // use custom settings
-                    // Following has an effect only when using custom parameters (custom parameters might already be enabled before above line!):
-
-                    App::ct->dynamicsContainer->setEngineFloatParam(sim_bullet_global_stepsize,bulletStepSize,false);
-                    App::ct->dynamicsContainer->setEngineFloatParam(sim_ode_global_stepsize,odeStepSize,false);
+                if (theName.compare(SER_MODEL_THUMBNAIL)==0)
+                {
+                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    App::ct->environment->modelThumbnail_notSerializedHere.serialize(ar);
+                    noHit=false;
+                    if (justLoadThumbnail)
+                        return(true);
+                    hasThumbnail=true;
                 }
-                //************************************************
-            }
-            if (theName.compare(SER_VIEWS)==0)
-            {
-                ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                App::ct->pageContainer->serialize(ar);
-                noHit=false;
-            }
-            if (theName.compare(SER_GROUP)==0)
-            {
-                ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                CRegCollection* it=new CRegCollection("Default");
-                it->serialize(ar);
-                loadedGroupList.push_back(it);
-                noHit=false;
-            }
-            if (theName.compare(SER_BUTTON_BLOCK)==0)
-            {
-                ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                CButtonBlock* it=new CButtonBlock(1,1,10,10,0);
-                it->serialize(ar);
-                loadedButtonBlockList.push_back(it);
-                noHit=false;
-            }
-            if (theName.compare(SER_LUA_SCRIPT)==0)
-            {
-                ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                CLuaScriptObject* it=new CLuaScriptObject(-1);
-                it->serialize(ar);
-                if ( (it->getScriptType()==sim_scripttype_jointctrlcallback_old)||(it->getScriptType()==sim_scripttype_generalcallback_old)||(it->getScriptType()==sim_scripttype_contactcallback_old) )
-                { // joint callback, contact callback and general callback scripts are not supported anymore since V3.6.1.rev2
-                    std::string ml(it->getScriptText());
-                    std::string l;
-                    while (CTTUtil::extractLine(ml,l))
+
+                if (theName.compare(SER_MODEL_THUMBNAIL_OLD_COMPATIBILITY_2012_03_06)==0)
+                { // For backward compatibility (6/3/2012) Takes care of files reaching back to 25/7/2010
+                    ar >> byteQuantity;
+                    int l;
+                    ar >> l;
+                    char t;
+                    std::vector<char> modelThumbnailBuffer;
+                    for (int i=0;i<l;i++)
                     {
-                        l="<font color='orange'>"+l;
-                        l+="</font>@html";
-                        App::addStatusbarMessage(l.c_str());
+                        ar >> t;
+                        modelThumbnailBuffer.push_back(t);
                     }
-                    if (it->getScriptType()==sim_scripttype_jointctrlcallback_old)
-                        App::addStatusbarMessage("<font color='red'>The file contains a joint control callback script, which is a script type that is not supported anymore (since V-REP V3.6.1 rev2). Use a joint callback function instead.</font>@html");
-                    if (it->getScriptType()==sim_scripttype_generalcallback_old)
-                        App::addStatusbarMessage("<font color='red'>The file contains a general callback script, which is a script type that is not supported anymore (since V-REP V3.6.1 rev2).</font>@html");
-                    if (it->getScriptType()==sim_scripttype_contactcallback_old)
-                        App::addStatusbarMessage("<font color='red'>The file contains a contact callback script, which is a script type that is not supported anymore (since V-REP V3.6.1 rev2). Use a contact callback functions instead.</font>@html");
-                    App::addStatusbarMessage("<font color='red'>See above the content of the unsupported script</font>@html");
-                    delete it;
+                    if (modelThumbnailBuffer.size()!=0)
+                        App::ct->environment->modelThumbnail_notSerializedHere.setCompressedThumbnailImage(&modelThumbnailBuffer[0]);
+                    else
+                        App::ct->environment->modelThumbnail_notSerializedHere.clearThumbnailImage();
+                    noHit=false;
+                    if (justLoadThumbnail)
+                        return(true);
+                    hasThumbnail=true;
                 }
-                else
-                    loadedLuaScriptList.push_back(it);
-                noHit=false;
+
+                // Handle the heavy data here so we don't have duplicates (vertices, indices, normals and edges):
+                //------------------------------------------------------------
+                if (theName.compare(SER_VERTICESINDICESNORMALSEDGES)==0)
+                {
+                    CGeometric::clearTempVerticesIndicesNormalsAndEdges();
+                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    CGeometric::serializeTempVerticesIndicesNormalsAndEdges(ar);
+                    noHit=false;
+                }
+                //------------------------------------------------------------
+
+                C3DObject* it=load3DObject(ar,theName,noHit);
+                if (it!=nullptr)
+                {
+                    loadedObjectList.push_back(it);
+                    noHit=false;
+                }
+
+                CTextureObject* theTextureData=App::ct->textureCont->loadTextureObject(ar,theName,noHit);
+                if (theTextureData!=nullptr)
+                {
+                    loadedTextureList.push_back(theTextureData);
+                    noHit=false;
+                }
+                if (theName.compare(SER_DYNMATERIAL)==0)
+                { // Following for backward compatibility (i.e. files written prior V-REP 3.4.0) (30/10/2016)
+                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    CDynMaterialObject* myNewObject=new CDynMaterialObject();
+                    myNewObject->serialize(ar);
+                    loadedDynMaterialList.push_back(myNewObject);
+                    noHit=false;
+                }
+                if (theName.compare(SER_GHOSTS)==0)
+                {
+                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    App::ct->ghostObjectCont->serialize(ar);
+                    noHit=false;
+                }
+                if (theName.compare(SER_ENVIRONMENT)==0)
+                {
+                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    App::ct->environment->serialize(ar);
+                    noHit=false;
+                }
+                if (theName.compare(SER_SETTINGS)==0)
+                {
+                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    App::ct->mainSettings->serialize(ar);
+                    noHit=false;
+                }
+                if (theName.compare(SER_DYNAMICS)==0)
+                {
+                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    App::ct->dynamicsContainer->serialize(ar);
+                    noHit=false;
+                }
+                if (theName.compare(SER_SIMULATION)==0)
+                {
+                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    App::ct->simulation->serialize(ar);
+                    noHit=false;
+
+                    // For backward compatibility (3/1/2012):
+                    //************************************************
+                    if (App::ct->mainSettings->forBackwardCompatibility_03_01_2012_stillUsingStepSizeDividers)
+                    { // This needs to be done AFTER simulation settings are loaded!
+                        float step=float(App::ct->simulation->getSimulationTimeStep_speedModified_ns())/1000000.0f;
+                        float bulletStepSize=step/float(App::ct->mainSettings->dynamicsBULLETStepSizeDivider_forBackwardCompatibility_03_01_2012);
+                        float odeStepSize=step/float(App::ct->mainSettings->dynamicsODEStepSizeDivider_forBackwardCompatibility_03_01_2012);
+                        if (fabs(step-0.05f)>0.002f)
+                            App::ct->dynamicsContainer->setUseDynamicDefaultCalculationParameters(4); // use custom settings
+                        // Following has an effect only when using custom parameters (custom parameters might already be enabled before above line!):
+
+                        App::ct->dynamicsContainer->setEngineFloatParam(sim_bullet_global_stepsize,bulletStepSize,false);
+                        App::ct->dynamicsContainer->setEngineFloatParam(sim_ode_global_stepsize,odeStepSize,false);
+                    }
+                    //************************************************
+                }
+                if (theName.compare(SER_VIEWS)==0)
+                {
+                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    App::ct->pageContainer->serialize(ar);
+                    noHit=false;
+                }
+                if (theName.compare(SER_COLLECTION)==0)
+                {
+                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    CRegCollection* it=new CRegCollection("Default");
+                    it->serialize(ar);
+                    loadedGroupList.push_back(it);
+                    noHit=false;
+                }
+                if (theName.compare(SER_BUTTON_BLOCK)==0)
+                {
+                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    CButtonBlock* it=new CButtonBlock(1,1,10,10,0);
+                    it->serialize(ar);
+                    loadedButtonBlockList.push_back(it);
+                    noHit=false;
+                }
+                if (theName.compare(SER_LUA_SCRIPT)==0)
+                {
+                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    CLuaScriptObject* it=new CLuaScriptObject(-1);
+                    it->serialize(ar);
+                    if ( (it->getScriptType()==sim_scripttype_jointctrlcallback_old)||(it->getScriptType()==sim_scripttype_generalcallback_old)||(it->getScriptType()==sim_scripttype_contactcallback_old) )
+                    { // joint callback, contact callback and general callback scripts are not supported anymore since V3.6.1.rev2
+                        std::string ml(it->getScriptText());
+                        std::string l;
+                        while (CTTUtil::extractLine(ml,l))
+                        {
+                            l="<font color='orange'>"+l;
+                            l+="</font>@html";
+                            App::addStatusbarMessage(l.c_str());
+                        }
+                        if (it->getScriptType()==sim_scripttype_jointctrlcallback_old)
+                            App::addStatusbarMessage("<font color='red'>The file contains a joint control callback script, which is a script type that is not supported anymore (since V-REP V3.6.1 rev2). Use a joint callback function instead.</font>@html");
+                        if (it->getScriptType()==sim_scripttype_generalcallback_old)
+                            App::addStatusbarMessage("<font color='red'>The file contains a general callback script, which is a script type that is not supported anymore (since V-REP V3.6.1 rev2).</font>@html");
+                        if (it->getScriptType()==sim_scripttype_contactcallback_old)
+                            App::addStatusbarMessage("<font color='red'>The file contains a contact callback script, which is a script type that is not supported anymore (since V-REP V3.6.1 rev2). Use a contact callback functions instead.</font>@html");
+                        App::addStatusbarMessage("<font color='red'>See above the content of the unsupported script</font>@html");
+                        delete it;
+                    }
+                    else
+                        loadedLuaScriptList.push_back(it);
+                    noHit=false;
+                }
+                if (theName.compare(SER_GEOMETRIC_CONSTRAINT_OBJECT)==0)
+                {
+                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    CConstraintSolverObject* it=new CConstraintSolverObject();
+                    it->serialize(ar);
+                    loadedConstraintSolverObjectList.push_back(it);
+                    noHit=false;
+                }
+                if (theName.compare(SER_SCENE_CUSTOM_DATA)==0)
+                {
+                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    App::ct->customSceneData->serializeData(ar,nullptr,-1);
+                    noHit=false;
+                }
+                if (theName.compare(SER_COLLISION)==0)
+                {
+                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    CRegCollision* it=new CRegCollision(0,0,"",0);
+                    it->serialize(ar);
+                    loadedCollisionList.push_back(it);
+                    noHit=false;
+                }
+                if (theName.compare(SER_DISTANCE)==0)
+                {
+                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    CRegDist* it=new CRegDist(0,0,"",0);
+                    it->serialize(ar);
+                    loadedDistanceList.push_back(it);
+                    noHit=false;
+                }
+                if (theName.compare(SER_IK)==0)
+                {
+                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    CikGroup* it=new CikGroup();
+                    it->serialize(ar);
+                    loadedIkGroupList.push_back(it);
+                    noHit=false;
+                }
+                if (theName==SER_PATH_PLANNING)
+                {
+                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    CPathPlanningTask* it=new CPathPlanningTask();
+                    it->serialize(ar);
+                    pathPlanningTaskList.push_back(it);
+                    noHit=false;
+                }
+                if (theName==SER_MOTION_PLANNING)
+                {
+                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                    CMotionPlanningTask* it=new CMotionPlanningTask();
+                    it->serialize(ar);
+                    motionPlanningTaskList.push_back(it);
+                    noHit=false;
+                }
+                if (noHit)
+                    ar.loadUnknownData();
             }
-            if (theName.compare(SER_GEOMETRIC_CONSTRAINT_OBJECT)==0)
-            {
-                ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                CConstraintSolverObject* it=new CConstraintSolverObject();
-                it->serialize(ar);
-                loadedConstraintSolverObjectList.push_back(it);
-                noHit=false;
-            }
-            if (theName.compare(SER_SCENE_CUSTOM_DATA)==0)
-            {
-                ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                App::ct->customSceneData->serializeData(ar);
-                noHit=false;
-            }
-            if (theName.compare(SER_COLLISION)==0)
-            {
-                ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                CRegCollision* it=new CRegCollision(0,0,"",0);
-                it->serialize(ar);
-                loadedCollisionList.push_back(it);
-                noHit=false;
-            }
-            if (theName.compare(SER_DISTANCE)==0)
-            {
-                ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                CRegDist* it=new CRegDist(0,0,"",0);
-                it->serialize(ar);
-                loadedDistanceList.push_back(it);
-                noHit=false;
-            }
-            if (theName.compare(SER_IK)==0)
-            {
-                ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                CikGroup* it=new CikGroup();
-                it->serialize(ar);
-                loadedIkGroupList.push_back(it);
-                noHit=false;
-            }
-            if (theName==SER_PATH_PLANNING)
-            {
-                ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                CPathPlanningTask* it=new CPathPlanningTask();
-                it->serialize(ar);
-                pathPlanningTaskList.push_back(it);
-                noHit=false;
-            }
-            if (theName==SER_MOTION_PLANNING)
-            {
-                ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                CMotionPlanningTask* it=new CMotionPlanningTask();
-                it->serialize(ar);
-                motionPlanningTaskList.push_back(it);
-                noHit=false;
-            }
-            if (noHit)
-                ar.loadUnknownData();
         }
     }
 
@@ -850,131 +853,134 @@ bool CObjCont::loadModel(CSer& ar,bool justLoadThumbnail,bool forceModelAsCopy,C
 
 C3DObject* CObjCont::load3DObject(CSer& ar,std::string theName,bool &noHit)
 {
-    int byteQuantity;
-    if (theName.compare(SER_SHAPE)==0)
+    if (ar.isBinary())
     {
-        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-        CShape* myNewObject=new CShape();
-        myNewObject->serialize(ar);
-        noHit=false;
-        return(myNewObject);
-    }
-    if (theName.compare(SER_JOINT)==0)
-    {
-        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-        CJoint* myNewObject=new CJoint();
-        myNewObject->serialize(ar);
-        noHit=false;
-        return(myNewObject);
-    }
-    if (theName.compare(SER_GRAPH)==0)
-    {
-        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-        CGraph* myNewObject=new CGraph();
-        myNewObject->serialize(ar);
-        noHit=false;
-        return(myNewObject);
-    }
-    if (theName.compare(SER_CAMERA)==0)
-    {
-        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-        CCamera* myNewObject=new CCamera();
-        myNewObject->serialize(ar);
-        noHit=false;
-        return(myNewObject);
-    }
-    if (theName.compare(SER_LIGHT)==0)
-    {
-        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-        CLight* myNewObject=new CLight();
-        myNewObject->serialize(ar);
-        noHit=false;
-        return(myNewObject);
-    }
-    if (theName.compare(SER_MIRROR)==0)
-    {
-        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-        CMirror* myNewObject=new CMirror();
-        myNewObject->serialize(ar);
-        noHit=false;
-        return(myNewObject);
-    }
-    if (theName.compare(SER_OCTREE)==0)
-    {
-        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-        COctree* myNewObject=new COctree();
-        myNewObject->serialize(ar);
-        noHit=false;
-        return(myNewObject);
-    }
-    if (theName.compare(SER_POINTCLOUD)==0)
-    {
-        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-        CPointCloud* myNewObject=new CPointCloud();
-        myNewObject->serialize(ar);
-        noHit=false;
-        return(myNewObject);
-    }
-    if (theName.compare(SER_DUMMY)==0)
-    {
-        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-        CDummy* myNewObject=new CDummy();
-        myNewObject->serialize(ar);
-        noHit=false;
-        return(myNewObject);
-    }
-    if (theName.compare(SER_PROXIMITYSENSOR)==0)
-    {
-        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-        CProxSensor* myNewObject=new CProxSensor();
-        myNewObject->serialize(ar);
-        noHit=false;
-        return(myNewObject);
-    }
-    if (theName.compare(SER_VISIONSENSOR)==0)
-    {
-        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-        CVisionSensor* myNewObject=new CVisionSensor();
-        myNewObject->serialize(ar);
-        noHit=false;
-        return(myNewObject);
-    }
-    if (theName.compare(SER_PATH)==0)
-    {
-        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-        CPath* myNewObject=new CPath();
-        myNewObject->serialize(ar);
-        noHit=false;
-        return(myNewObject);
-    }
-    if (theName.compare(SER_MILL)==0)
-    {
-        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-        CMill* myNewObject=new CMill();
-        myNewObject->serialize(ar);
-        noHit=false;
-        return(myNewObject);
-    }
-    if (theName.compare(SER_FORCESENSOR)==0)
-    { 
-        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-        CForceSensor* myNewObject=new CForceSensor();
-        myNewObject->serialize(ar);
-        noHit=false;
-        return(myNewObject);
-    }
-    // If we arrived here it means that maybe we have a new 3DObject type that this V-REP doesn't understand yet. 
-    // We try to replace it with a dummy (2009/12/09):
-    unsigned char dat[14];
-    if (ar.readBytesButKeepPointerUnchanged(dat,14)!=14)
-        return(nullptr); // No, this is not a 3DObject! (not enough to read)
-    if ((dat[4]=='3')&&(dat[5]=='d')&&(dat[6]=='o')&&(dat[11]==57)&&(dat[12]==58)&&(dat[13]==59))
-    { // yes we have a 3DObject of an unknown type!
-        ar >> byteQuantity; // Undo/redo will never arrive here
-        CDummy* newUnknownType=new CDummy();
-        newUnknownType->loadUnknownObjectType(ar);
-        noHit=false;
-        return(newUnknownType);
+        int byteQuantity;
+        if (theName.compare(SER_SHAPE)==0)
+        {
+            ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+            CShape* myNewObject=new CShape();
+            myNewObject->serialize(ar);
+            noHit=false;
+            return(myNewObject);
+        }
+        if (theName.compare(SER_JOINT)==0)
+        {
+            ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+            CJoint* myNewObject=new CJoint();
+            myNewObject->serialize(ar);
+            noHit=false;
+            return(myNewObject);
+        }
+        if (theName.compare(SER_GRAPH)==0)
+        {
+            ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+            CGraph* myNewObject=new CGraph();
+            myNewObject->serialize(ar);
+            noHit=false;
+            return(myNewObject);
+        }
+        if (theName.compare(SER_CAMERA)==0)
+        {
+            ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+            CCamera* myNewObject=new CCamera();
+            myNewObject->serialize(ar);
+            noHit=false;
+            return(myNewObject);
+        }
+        if (theName.compare(SER_LIGHT)==0)
+        {
+            ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+            CLight* myNewObject=new CLight();
+            myNewObject->serialize(ar);
+            noHit=false;
+            return(myNewObject);
+        }
+        if (theName.compare(SER_MIRROR)==0)
+        {
+            ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+            CMirror* myNewObject=new CMirror();
+            myNewObject->serialize(ar);
+            noHit=false;
+            return(myNewObject);
+        }
+        if (theName.compare(SER_OCTREE)==0)
+        {
+            ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+            COctree* myNewObject=new COctree();
+            myNewObject->serialize(ar);
+            noHit=false;
+            return(myNewObject);
+        }
+        if (theName.compare(SER_POINTCLOUD)==0)
+        {
+            ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+            CPointCloud* myNewObject=new CPointCloud();
+            myNewObject->serialize(ar);
+            noHit=false;
+            return(myNewObject);
+        }
+        if (theName.compare(SER_DUMMY)==0)
+        {
+            ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+            CDummy* myNewObject=new CDummy();
+            myNewObject->serialize(ar);
+            noHit=false;
+            return(myNewObject);
+        }
+        if (theName.compare(SER_PROXIMITYSENSOR)==0)
+        {
+            ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+            CProxSensor* myNewObject=new CProxSensor();
+            myNewObject->serialize(ar);
+            noHit=false;
+            return(myNewObject);
+        }
+        if (theName.compare(SER_VISIONSENSOR)==0)
+        {
+            ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+            CVisionSensor* myNewObject=new CVisionSensor();
+            myNewObject->serialize(ar);
+            noHit=false;
+            return(myNewObject);
+        }
+        if (theName.compare(SER_PATH)==0)
+        {
+            ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+            CPath* myNewObject=new CPath();
+            myNewObject->serialize(ar);
+            noHit=false;
+            return(myNewObject);
+        }
+        if (theName.compare(SER_MILL)==0)
+        {
+            ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+            CMill* myNewObject=new CMill();
+            myNewObject->serialize(ar);
+            noHit=false;
+            return(myNewObject);
+        }
+        if (theName.compare(SER_FORCESENSOR)==0)
+        {
+            ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+            CForceSensor* myNewObject=new CForceSensor();
+            myNewObject->serialize(ar);
+            noHit=false;
+            return(myNewObject);
+        }
+        // If we arrived here it means that maybe we have a new 3DObject type that this V-REP doesn't understand yet.
+        // We try to replace it with a dummy (2009/12/09):
+        unsigned char dat[14];
+        if (ar.readBytesButKeepPointerUnchanged(dat,14)!=14)
+            return(nullptr); // No, this is not a 3DObject! (not enough to read)
+        if ((dat[4]=='3')&&(dat[5]=='d')&&(dat[6]=='o')&&(dat[11]==57)&&(dat[12]==58)&&(dat[13]==59))
+        { // yes we have a 3DObject of an unknown type!
+            ar >> byteQuantity; // Undo/redo will never arrive here
+            CDummy* newUnknownType=new CDummy();
+            newUnknownType->loadUnknownObjectType(ar);
+            noHit=false;
+            return(newUnknownType);
+        }
     }
     return(nullptr); // No, this is not a 3DObject!
 }
@@ -995,38 +1001,41 @@ bool CObjCont::loadScene(CSer& ar,bool forUndoRedoOperation)
 
 void CObjCont::store3DObject(CSer& ar,C3DObject* it)
 {
-    if (it->getObjectType()==sim_object_shape_type)
-        ar.storeDataName(SER_SHAPE);
-    if (it->getObjectType()==sim_object_joint_type)
-        ar.storeDataName(SER_JOINT);
-    if (it->getObjectType()==sim_object_graph_type)
-        ar.storeDataName(SER_GRAPH);
-    if (it->getObjectType()==sim_object_camera_type)
-        ar.storeDataName(SER_CAMERA);
-    if (it->getObjectType()==sim_object_light_type)
-        ar.storeDataName(SER_LIGHT);
-    if (it->getObjectType()==sim_object_mirror_type)
-        ar.storeDataName(SER_MIRROR);
-    if (it->getObjectType()==sim_object_octree_type)
-        ar.storeDataName(SER_OCTREE);
-    if (it->getObjectType()==sim_object_pointcloud_type)
-        ar.storeDataName(SER_POINTCLOUD);
-    if (it->getObjectType()==sim_object_dummy_type)
-        ar.storeDataName(SER_DUMMY);
-    if (it->getObjectType()==sim_object_proximitysensor_type)
-        ar.storeDataName(SER_PROXIMITYSENSOR);
-    if (it->getObjectType()==sim_object_visionsensor_type)
-        ar.storeDataName(SER_VISIONSENSOR);
-    if (it->getObjectType()==sim_object_path_type)
-        ar.storeDataName(SER_PATH);
-    if (it->getObjectType()==sim_object_mill_type)
-        ar.storeDataName(SER_MILL);
-    if (it->getObjectType()==sim_object_forcesensor_type)
-        ar.storeDataName(SER_FORCESENSOR);
-    ar.setCountingMode();
-    it->serialize(ar);
-    if (ar.setWritingMode())
+    if (ar.isBinary())
+    {
+        if (it->getObjectType()==sim_object_shape_type)
+            ar.storeDataName(SER_SHAPE);
+        if (it->getObjectType()==sim_object_joint_type)
+            ar.storeDataName(SER_JOINT);
+        if (it->getObjectType()==sim_object_graph_type)
+            ar.storeDataName(SER_GRAPH);
+        if (it->getObjectType()==sim_object_camera_type)
+            ar.storeDataName(SER_CAMERA);
+        if (it->getObjectType()==sim_object_light_type)
+            ar.storeDataName(SER_LIGHT);
+        if (it->getObjectType()==sim_object_mirror_type)
+            ar.storeDataName(SER_MIRROR);
+        if (it->getObjectType()==sim_object_octree_type)
+            ar.storeDataName(SER_OCTREE);
+        if (it->getObjectType()==sim_object_pointcloud_type)
+            ar.storeDataName(SER_POINTCLOUD);
+        if (it->getObjectType()==sim_object_dummy_type)
+            ar.storeDataName(SER_DUMMY);
+        if (it->getObjectType()==sim_object_proximitysensor_type)
+            ar.storeDataName(SER_PROXIMITYSENSOR);
+        if (it->getObjectType()==sim_object_visionsensor_type)
+            ar.storeDataName(SER_VISIONSENSOR);
+        if (it->getObjectType()==sim_object_path_type)
+            ar.storeDataName(SER_PATH);
+        if (it->getObjectType()==sim_object_mill_type)
+            ar.storeDataName(SER_MILL);
+        if (it->getObjectType()==sim_object_forcesensor_type)
+            ar.storeDataName(SER_FORCESENSOR);
+        ar.setCountingMode();
         it->serialize(ar);
+        if (ar.setWritingMode())
+            it->serialize(ar);
+    }
 }
 
 C3DObject* CObjCont::getObjectWithUniqueID(int uniqueID)
@@ -1077,21 +1086,21 @@ void CObjCont::saveScene(CSer& ar)
     if (!App::ct->undoBufferContainer->isUndoSavingOrRestoringUnderWay())
     { // real saving!
         if (App::ct->environment->getSaveExistingCalculationStructures())
-        {
-            // removed on 10/9/2014 App::ct->environment->setSaveExistingCalculationStructures(false); // we clear that flag
             App::ct->environment->setSaveExistingCalculationStructuresTemp(true);
-        }
     }
     // ************************************************************
 
     selectedObjectsWhenSaving.clear();
 
     //***************************************************
-    ar.storeDataName(SER_MODEL_THUMBNAIL);
-    ar.setCountingMode();
-    App::ct->environment->modelThumbnail_notSerializedHere.serialize(ar,false);
-    if (ar.setWritingMode())
+    if (ar.isBinary())
+    {
+        ar.storeDataName(SER_MODEL_THUMBNAIL);
+        ar.setCountingMode();
         App::ct->environment->modelThumbnail_notSerializedHere.serialize(ar,false);
+        if (ar.setWritingMode())
+            App::ct->environment->modelThumbnail_notSerializedHere.serialize(ar,false);
+    }
     //****************************************************
 
     // Textures:
@@ -1099,172 +1108,230 @@ void CObjCont::saveScene(CSer& ar)
     while (App::ct->textureCont->getObjectAtIndex(textCnt)!=nullptr)
     {
         CTextureObject* it=App::ct->textureCont->getObjectAtIndex(textCnt);
-        App::ct->textureCont->storeTextureObject(ar,it);
+        if (ar.isBinary())
+            App::ct->textureCont->storeTextureObject(ar,it);
         textCnt++;
     }
 
     // DynMaterial objects:
     // We only save this for backward compatibility, but not needed for V-REP's from 3.4.0 on:
     //------------------------------------------------------------
-    int dynObjId=SIM_IDSTART_DYNMATERIAL_OLD;
-    for (size_t i=0;i<shapeList.size();i++)
+    if (ar.isBinary())
     {
-        CShape* it=getShape(shapeList[i]);
-        CDynMaterialObject* mat=it->getDynMaterial();
-        it->geomData->geomInfo->setDynMaterialId_OLD(dynObjId);
-        mat->setObjectID(dynObjId++);
-        ar.storeDataName(SER_DYNMATERIAL);
-        ar.setCountingMode();
-        mat->serialize(ar);
-        if (ar.setWritingMode())
+        int dynObjId=SIM_IDSTART_DYNMATERIAL_OLD;
+        for (size_t i=0;i<shapeList.size();i++)
+        {
+            CShape* it=getShape(shapeList[i]);
+            CDynMaterialObject* mat=it->getDynMaterial();
+            it->geomData->geomInfo->setDynMaterialId_OLD(dynObjId);
+            mat->setObjectID(dynObjId++);
+            ar.storeDataName(SER_DYNMATERIAL);
+            ar.setCountingMode();
             mat->serialize(ar);
+            if (ar.setWritingMode())
+                mat->serialize(ar);
+        }
     }
     //------------------------------------------------------------
 
     // Handle the heavy data here so we don't have duplicates (vertices, indices, normals and edges):
     //------------------------------------------------------------
-    CGeometric::clearTempVerticesIndicesNormalsAndEdges();
-    for (size_t i=0;i<shapeList.size();i++)
+    if (ar.isBinary())
     {
-        CShape* it=getShape(shapeList[i]);
-        it->prepareVerticesIndicesNormalsAndEdgesForSerialization();
-    }
-    ar.storeDataName(SER_VERTICESINDICESNORMALSEDGES);
-    ar.setCountingMode();
-    CGeometric::serializeTempVerticesIndicesNormalsAndEdges(ar);
-    if (ar.setWritingMode())
+        CGeometric::clearTempVerticesIndicesNormalsAndEdges();
+        for (size_t i=0;i<shapeList.size();i++)
+        {
+            CShape* it=getShape(shapeList[i]);
+            it->prepareVerticesIndicesNormalsAndEdgesForSerialization();
+        }
+        ar.storeDataName(SER_VERTICESINDICESNORMALSEDGES);
+        ar.setCountingMode();
         CGeometric::serializeTempVerticesIndicesNormalsAndEdges(ar);
-    CGeometric::clearTempVerticesIndicesNormalsAndEdges();
+        if (ar.setWritingMode())
+            CGeometric::serializeTempVerticesIndicesNormalsAndEdges(ar);
+        CGeometric::clearTempVerticesIndicesNormalsAndEdges();
+    }
     //------------------------------------------------------------
 
-    for (int i=0;i<int(objectList.size());i++)
+    for (size_t i=0;i<objectList.size();i++)
     {
-        C3DObject* it=getObjectFromHandle(objectList[i]);
-        store3DObject(ar,it);
-    }
-
-    ar.storeDataName(SER_GHOSTS);
-    ar.setCountingMode();
-    App::ct->ghostObjectCont->serialize(ar);
-    if (ar.setWritingMode())
-        App::ct->ghostObjectCont->serialize(ar);
-
-    ar.storeDataName(SER_ENVIRONMENT);
-    ar.setCountingMode();
-    App::ct->environment->serialize(ar);
-    if (ar.setWritingMode())
-        App::ct->environment->serialize(ar);
-
-    for (int i=0;i<int(App::ct->collisions->collisionObjects.size());i++)
-    {
-        ar.storeDataName(SER_COLLISION);
-        ar.setCountingMode();
-        App::ct->collisions->collisionObjects[i]->serialize(ar);
-        if (ar.setWritingMode())
-            App::ct->collisions->collisionObjects[i]->serialize(ar);
-    }
-    for (int i=0;i<int(App::ct->distances->distanceObjects.size());i++)
-    {
-        ar.storeDataName(SER_DISTANCE);
-        ar.setCountingMode();
-        App::ct->distances->distanceObjects[i]->serialize(ar);
-        if (ar.setWritingMode())
-            App::ct->distances->distanceObjects[i]->serialize(ar);
-    }
-    for (int i=0;i<int(App::ct->ikGroups->ikGroups.size());i++)
-    {
-        ar.storeDataName(SER_IK);
-        ar.setCountingMode();
-        App::ct->ikGroups->ikGroups[i]->serialize(ar);
-        if (ar.setWritingMode())
-            App::ct->ikGroups->ikGroups[i]->serialize(ar);
-    }
-    for (int i=0;i<int(App::ct->pathPlanning->allObjects.size());i++)
-    {
-        ar.storeDataName(SER_PATH_PLANNING);
-        ar.setCountingMode();
-        App::ct->pathPlanning->allObjects[i]->serialize(ar);
-        if (ar.setWritingMode())
-            App::ct->pathPlanning->allObjects[i]->serialize(ar);
-    }
-    for (int i=0;i<int(App::ct->motionPlanning->allObjects.size());i++)
-    {
-        ar.storeDataName(SER_MOTION_PLANNING);
-        ar.setCountingMode();
-        App::ct->motionPlanning->allObjects[i]->serialize(ar);
-        if (ar.setWritingMode())
-            App::ct->motionPlanning->allObjects[i]->serialize(ar);
-    }
-
-    ar.storeDataName(SER_SETTINGS);
-    ar.setCountingMode();
-    App::ct->mainSettings->serialize(ar);
-    if (ar.setWritingMode())
-        App::ct->mainSettings->serialize(ar);
-
-    ar.storeDataName(SER_DYNAMICS);
-    ar.setCountingMode();
-    App::ct->dynamicsContainer->serialize(ar);
-    if (ar.setWritingMode())
-        App::ct->dynamicsContainer->serialize(ar);
-
-    ar.storeDataName(SER_SIMULATION);
-    ar.setCountingMode();
-    App::ct->simulation->serialize(ar);
-    if (ar.setWritingMode())
-        App::ct->simulation->serialize(ar);
-
-    ar.storeDataName(SER_SCENE_CUSTOM_DATA);
-    ar.setCountingMode();
-    App::ct->customSceneData->serializeData(ar);
-    if (ar.setWritingMode())
-        App::ct->customSceneData->serializeData(ar);
-
-    ar.storeDataName(SER_VIEWS);
-    ar.setCountingMode();
-    App::ct->pageContainer->serialize(ar);
-    if (ar.setWritingMode())
-        App::ct->pageContainer->serialize(ar);
-
-    // ******* FOLLOWING FOR FORWARD COMPATIBILITY, SO THAT OLD V_REP VERSIONS CAN READ NEWER FILES (2010/07/14) *******************
-    // We serialize the rendering order:
-    ar.storeDataName(SER_ORDER_OLD_FORWARD_COMPATIBILITY_2010_07_14);
-    for (int i=0;i<int(objectList.size());i++)
-        ar << objectList[i];
-    ar.flush();
-    // ******************************************************************************************************************************
-    
-    // We serialize all groups:
-    for (int i=0;i<int(App::ct->collections->allCollections.size());i++)
-    {
-        ar.storeDataName(SER_GROUP);
-        ar.setCountingMode();
-        App::ct->collections->allCollections[i]->serialize(ar);
-        if (ar.setWritingMode())
-            App::ct->collections->allCollections[i]->serialize(ar);
-    }
-
-    // We serialize the buttonBlocks (non-system):
-    for (int i=0;i<int(App::ct->buttonBlockContainer->allBlocks.size());i++)
-    {
-        CButtonBlock* bblk=App::ct->buttonBlockContainer->allBlocks[i];
-        if ((bblk->getAttributes()&sim_ui_property_systemblock)==0)
+        if (ar.isBinary())
         {
-            ar.storeDataName(SER_BUTTON_BLOCK);
-            ar.setCountingMode();
-            bblk->serialize(ar);
-            if (ar.setWritingMode())
-                bblk->serialize(ar);
+            C3DObject* it=getObjectFromHandle(objectList[i]);
+            store3DObject(ar,it);
         }
     }
 
-    // We serialize the lua script objects (not the add-on scripts!):
+    if (ar.isBinary())
+    {
+        ar.storeDataName(SER_GHOSTS);
+        ar.setCountingMode();
+        App::ct->ghostObjectCont->serialize(ar);
+        if (ar.setWritingMode())
+            App::ct->ghostObjectCont->serialize(ar);
+    }
+
+    if (ar.isBinary())
+    {
+        ar.storeDataName(SER_ENVIRONMENT);
+        ar.setCountingMode();
+        App::ct->environment->serialize(ar);
+        if (ar.setWritingMode())
+            App::ct->environment->serialize(ar);
+    }
+
+
+    for (size_t i=0;i<App::ct->collisions->collisionObjects.size();i++)
+    {
+        if (ar.isBinary())
+        {
+            ar.storeDataName(SER_COLLISION);
+            ar.setCountingMode();
+            App::ct->collisions->collisionObjects[i]->serialize(ar);
+            if (ar.setWritingMode())
+                App::ct->collisions->collisionObjects[i]->serialize(ar);
+        }
+    }
+    for (size_t i=0;i<App::ct->distances->distanceObjects.size();i++)
+    {
+        if (ar.isBinary())
+        {
+            ar.storeDataName(SER_DISTANCE);
+            ar.setCountingMode();
+            App::ct->distances->distanceObjects[i]->serialize(ar);
+            if (ar.setWritingMode())
+                App::ct->distances->distanceObjects[i]->serialize(ar);
+        }
+    }
+    for (size_t i=0;i<App::ct->ikGroups->ikGroups.size();i++)
+    {
+        if (ar.isBinary())
+        {
+            ar.storeDataName(SER_IK);
+            ar.setCountingMode();
+            App::ct->ikGroups->ikGroups[i]->serialize(ar);
+            if (ar.setWritingMode())
+                App::ct->ikGroups->ikGroups[i]->serialize(ar);
+        }
+    }
+    if (ar.isBinary())
+    { // deprecated functionality
+        for (size_t i=0;i<App::ct->pathPlanning->allObjects.size();i++)
+        {
+            ar.storeDataName(SER_PATH_PLANNING);
+            ar.setCountingMode();
+            App::ct->pathPlanning->allObjects[i]->serialize(ar);
+            if (ar.setWritingMode())
+                App::ct->pathPlanning->allObjects[i]->serialize(ar);
+        }
+        for (size_t i=0;i<App::ct->motionPlanning->allObjects.size();i++)
+        {
+            ar.storeDataName(SER_MOTION_PLANNING);
+            ar.setCountingMode();
+            App::ct->motionPlanning->allObjects[i]->serialize(ar);
+            if (ar.setWritingMode())
+                App::ct->motionPlanning->allObjects[i]->serialize(ar);
+        }
+    }
+
+    if (ar.isBinary())
+    {
+        ar.storeDataName(SER_SETTINGS);
+        ar.setCountingMode();
+        App::ct->mainSettings->serialize(ar);
+        if (ar.setWritingMode())
+            App::ct->mainSettings->serialize(ar);
+    }
+
+    if (ar.isBinary())
+    {
+        ar.storeDataName(SER_DYNAMICS);
+        ar.setCountingMode();
+        App::ct->dynamicsContainer->serialize(ar);
+        if (ar.setWritingMode())
+            App::ct->dynamicsContainer->serialize(ar);
+    }
+
+    if (ar.isBinary())
+    {
+        ar.storeDataName(SER_SIMULATION);
+        ar.setCountingMode();
+        App::ct->simulation->serialize(ar);
+        if (ar.setWritingMode())
+            App::ct->simulation->serialize(ar);
+    }
+    if (ar.isBinary())
+    {
+        ar.storeDataName(SER_SCENE_CUSTOM_DATA);
+        ar.setCountingMode();
+        App::ct->customSceneData->serializeData(ar,nullptr,-1);
+        if (ar.setWritingMode())
+            App::ct->customSceneData->serializeData(ar,nullptr,-1);
+    }
+
+    if (ar.isBinary())
+    {
+        ar.storeDataName(SER_VIEWS);
+        ar.setCountingMode();
+        App::ct->pageContainer->serialize(ar);
+        if (ar.setWritingMode())
+            App::ct->pageContainer->serialize(ar);
+    }
+
+    // We serialize all collections:
+    for (size_t i=0;i<App::ct->collections->allCollections.size();i++)
+    {
+        if (ar.isBinary())
+        {
+            ar.storeDataName(SER_COLLECTION);
+            ar.setCountingMode();
+            App::ct->collections->allCollections[i]->serialize(ar);
+            if (ar.setWritingMode())
+                App::ct->collections->allCollections[i]->serialize(ar);
+        }
+    }
+
+    if (ar.isBinary())
+    { // deprecated functionality
+        // We serialize the buttonBlocks (non-system):
+        for (size_t i=0;i<App::ct->buttonBlockContainer->allBlocks.size();i++)
+        {
+            CButtonBlock* bblk=App::ct->buttonBlockContainer->allBlocks[i];
+            if ((bblk->getAttributes()&sim_ui_property_systemblock)==0)
+            {
+                ar.storeDataName(SER_BUTTON_BLOCK);
+                ar.setCountingMode();
+                bblk->serialize(ar);
+                if (ar.setWritingMode())
+                    bblk->serialize(ar);
+            }
+        }
+    }
+
+    // We serialize the lua script objects (not the add-on scripts nor the sandbox script):
     for (size_t i=0;i<App::ct->luaScriptContainer->allScripts.size();i++)
     {
         CLuaScriptObject* it=App::ct->luaScriptContainer->allScripts[i];
         if (it->isSceneScript())
         {
-            ar.storeDataName(SER_LUA_SCRIPT);
+            if (ar.isBinary())
+            {
+                ar.storeDataName(SER_LUA_SCRIPT);
+                ar.setCountingMode();
+                it->serialize(ar);
+                if (ar.setWritingMode())
+                    it->serialize(ar);
+            }
+        }
+    }
+
+    if (ar.isBinary())
+    { // deprecated functionality
+        // We serialize the GCS objects (all of them):
+        for (size_t i=0;i<App::ct->constraintSolver->allGcsObjects.size();i++)
+        {
+            CConstraintSolverObject* it=App::ct->constraintSolver->allGcsObjects[i];
+            ar.storeDataName(SER_GEOMETRIC_CONSTRAINT_OBJECT);
             ar.setCountingMode();
             it->serialize(ar);
             if (ar.setWritingMode())
@@ -1272,18 +1339,8 @@ void CObjCont::saveScene(CSer& ar)
         }
     }
 
-    // We serialize the GCS objects (all of them):
-    for (int i=0;i<int(App::ct->constraintSolver->allGcsObjects.size());i++)
-    {
-        CConstraintSolverObject* it=App::ct->constraintSolver->allGcsObjects[i];
-        ar.storeDataName(SER_GEOMETRIC_CONSTRAINT_OBJECT);
-        ar.setCountingMode();
-        it->serialize(ar);
-        if (ar.setWritingMode())
-            it->serialize(ar);
-    }
-
-    ar.storeDataName(SER_END_OF_FILE);
+    if (ar.isBinary())
+        ar.storeDataName(SER_END_OF_FILE);
     CGeometric::clearTempVerticesIndicesNormalsAndEdges();
 }
 

@@ -224,23 +224,29 @@ void CTextureContainer::removeAllObjects()
 
 void CTextureContainer::storeTextureObject(CSer& ar,CTextureObject* it)
 {
-    ar.storeDataName(SER_TEXTURE);
-    ar.setCountingMode();
-    it->serialize(ar);
-    if (ar.setWritingMode())
+    if (ar.isBinary())
+    {
+        ar.storeDataName(SER_TEXTURE);
+        ar.setCountingMode();
         it->serialize(ar);
+        if (ar.setWritingMode())
+            it->serialize(ar);
+    }
 }
 
 CTextureObject* CTextureContainer::loadTextureObject(CSer& ar,std::string theName,bool &noHit)
 {
-    int byteNumber;
-    if (theName.compare(SER_TEXTURE)==0)
+    if (ar.isBinary())
     {
-        noHit=false;
-        ar >> byteNumber; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-        CTextureObject* myNewObject=new CTextureObject();
-        myNewObject->serialize(ar);
-        return(myNewObject);
+        int byteNumber;
+        if (theName.compare(SER_TEXTURE)==0)
+        {
+            noHit=false;
+            ar >> byteNumber; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+            CTextureObject* myNewObject=new CTextureObject();
+            myNewObject->serialize(ar);
+            return(myNewObject);
+        }
     }
     return(nullptr);
 }

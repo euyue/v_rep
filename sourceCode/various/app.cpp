@@ -90,6 +90,12 @@ void App::simulationThreadInit()
     void* replyBuffer=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instancepass,auxData,nullptr,nullptr);
     if (replyBuffer!=nullptr)
         simReleaseBuffer_internal((simChar*)replyBuffer);
+#ifdef SIM_WITH_GUI
+    SUIThreadCommand cmdIn;
+    SUIThreadCommand cmdOut;
+    cmdIn.cmdId=INSTANCE_PASS_FROM_UITHREAD_UITHREADCMD;
+    App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+#endif
 
     App::ct->sandboxScript=new CLuaScriptObject(sim_scripttype_sandboxscript);
     App::ct->sandboxScript->setScriptTextFromFile((App::directories->systemDirectory+VREP_SLASH+"sndbxscpt.txt").c_str());
@@ -148,6 +154,12 @@ void App::simulationThreadLoop()
     void* replyBuffer=CPluginContainer::sendEventCallbackMessageToAllPlugins(sim_message_eventcallback_instancepass,auxData,nullptr,nullptr);
     if (replyBuffer!=nullptr)
         simReleaseBuffer_internal((simChar*)replyBuffer);
+#ifdef SIM_WITH_GUI
+    SUIThreadCommand cmdIn;
+    SUIThreadCommand cmdOut;
+    cmdIn.cmdId=INSTANCE_PASS_FROM_UITHREAD_UITHREADCMD;
+    App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
+#endif
 
     // Handle customization script execution:
     if ( App::ct->simulation->isSimulationStopped()&&(App::getEditModeType()==NO_EDIT_MODE) )

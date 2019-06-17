@@ -509,113 +509,115 @@ void CTextureProperty::setTextureScaling(float x,float y)
 
 void CTextureProperty::serialize(CSer& ar)
 {
-    if (ar.isStoring())
-    {       // Storing
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            ar.storeDataName("Bst"); // Old, replaced by "Bs2". But keep (in that position) for backward compatibility (24/9/2014)
+            unsigned char nothing=0;
+            SIM_SET_CLEAR_BIT(nothing,0,_interpolateColor);
+            SIM_SET_CLEAR_BIT(nothing,1,_applyMode==1);
+            SIM_SET_CLEAR_BIT(nothing,2,_repeatU);
+            SIM_SET_CLEAR_BIT(nothing,3,_repeatV);
+            ar << nothing;
+            ar.flush();
 
-        ar.storeDataName("Bst"); // Old, replaced by "Bs2". But keep (in that position) for backward compatibility (24/9/2014)
-        unsigned char nothing=0;
-        SIM_SET_CLEAR_BIT(nothing,0,_interpolateColor);
-        SIM_SET_CLEAR_BIT(nothing,1,_applyMode==1);
-        SIM_SET_CLEAR_BIT(nothing,2,_repeatU);
-        SIM_SET_CLEAR_BIT(nothing,3,_repeatV);
-        ar << nothing;
-        ar.flush();
+            ar.storeDataName("Bs2");
+            nothing=0;
+            SIM_SET_CLEAR_BIT(nothing,0,_interpolateColor);
+            // FREE
+            SIM_SET_CLEAR_BIT(nothing,2,_repeatU);
+            SIM_SET_CLEAR_BIT(nothing,3,_repeatV);
+            ar << nothing;
+            ar.flush();
 
-        ar.storeDataName("Bs2");
-        nothing=0;
-        SIM_SET_CLEAR_BIT(nothing,0,_interpolateColor);
-        // FREE
-        SIM_SET_CLEAR_BIT(nothing,2,_repeatU);
-        SIM_SET_CLEAR_BIT(nothing,3,_repeatV);
-        ar << nothing;
-        ar.flush();
+            ar.storeDataName("Tob");
+            ar << _textureOrVisionSensorObjectID << _textureCoordinateMode << _textureScalingX << _textureScalingY;
+            ar.flush();
 
-        ar.storeDataName("Tob");
-        ar << _textureOrVisionSensorObjectID << _textureCoordinateMode << _textureScalingX << _textureScalingY;
-        ar.flush();
+            ar.storeDataName("Trc");
+            ar << _textureRelativeConfig.Q(0) << _textureRelativeConfig.Q(1) << _textureRelativeConfig.Q(2) << _textureRelativeConfig.Q(3);
+            ar << _textureRelativeConfig.X(0) << _textureRelativeConfig.X(1) << _textureRelativeConfig.X(2);
+            ar.flush();
 
-        ar.storeDataName("Trc");
-        ar << _textureRelativeConfig.Q(0) << _textureRelativeConfig.Q(1) << _textureRelativeConfig.Q(2) << _textureRelativeConfig.Q(3);
-        ar << _textureRelativeConfig.X(0) << _textureRelativeConfig.X(1) << _textureRelativeConfig.X(2);
-        ar.flush();
+            ar.storeDataName("Ftc");
+            for (int i=0;i<int(_fixedTextureCoordinates.size());i++)
+                ar << _fixedTextureCoordinates[i];
+            ar.flush();
 
-        ar.storeDataName("Ftc");
-        for (int i=0;i<int(_fixedTextureCoordinates.size());i++)
-            ar << _fixedTextureCoordinates[i];
-        ar.flush();
+            ar.storeDataName("Apm");
+            ar << _applyMode;
+            ar.flush();
 
-        ar.storeDataName("Apm");
-        ar << _applyMode;
-        ar.flush();
-
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
+            ar.storeDataName(SER_END_OF_OBJECT);
+        }
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
             {
-                bool noHit=true;
-                if (theName=="Bst")
-                { // Old, keep for backward compatibility (24/9/2014)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-                    _interpolateColor=SIM_IS_BIT_SET(nothing,0);
-                    bool decal=SIM_IS_BIT_SET(nothing,1);
-                    _repeatU=SIM_IS_BIT_SET(nothing,2);
-                    _repeatV=SIM_IS_BIT_SET(nothing,3);
-                    if (decal)
-                        _applyMode=1;
-                    else
-                        _applyMode=0;
-                }
-                if (theName=="Bs2")
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
                 {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-                    _interpolateColor=SIM_IS_BIT_SET(nothing,0);
-                    // FREE
-                    _repeatU=SIM_IS_BIT_SET(nothing,2);
-                    _repeatV=SIM_IS_BIT_SET(nothing,3);
-                }
-                if (theName.compare("Tob")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _textureOrVisionSensorObjectID >> _textureCoordinateMode >> _textureScalingX >> _textureScalingY;
-                }
-                if (theName.compare("Trc")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _textureRelativeConfig.Q(0) >> _textureRelativeConfig.Q(1) >> _textureRelativeConfig.Q(2) >> _textureRelativeConfig.Q(3);
-                    ar >> _textureRelativeConfig.X(0) >> _textureRelativeConfig.X(1) >> _textureRelativeConfig.X(2);
-                }
+                    bool noHit=true;
+                    if (theName=="Bst")
+                    { // Old, keep for backward compatibility (24/9/2014)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        _interpolateColor=SIM_IS_BIT_SET(nothing,0);
+                        bool decal=SIM_IS_BIT_SET(nothing,1);
+                        _repeatU=SIM_IS_BIT_SET(nothing,2);
+                        _repeatV=SIM_IS_BIT_SET(nothing,3);
+                        if (decal)
+                            _applyMode=1;
+                        else
+                            _applyMode=0;
+                    }
+                    if (theName=="Bs2")
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        _interpolateColor=SIM_IS_BIT_SET(nothing,0);
+                        // FREE
+                        _repeatU=SIM_IS_BIT_SET(nothing,2);
+                        _repeatV=SIM_IS_BIT_SET(nothing,3);
+                    }
+                    if (theName.compare("Tob")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _textureOrVisionSensorObjectID >> _textureCoordinateMode >> _textureScalingX >> _textureScalingY;
+                    }
+                    if (theName.compare("Trc")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _textureRelativeConfig.Q(0) >> _textureRelativeConfig.Q(1) >> _textureRelativeConfig.Q(2) >> _textureRelativeConfig.Q(3);
+                        ar >> _textureRelativeConfig.X(0) >> _textureRelativeConfig.X(1) >> _textureRelativeConfig.X(2);
+                    }
 
-                if (theName.compare("Ftc")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    _fixedTextureCoordinates.resize(byteQuantity/sizeof(float),0.0f);
-                    for (int i=0;i<int(_fixedTextureCoordinates.size());i++)
-                        ar >> _fixedTextureCoordinates[i];
+                    if (theName.compare("Ftc")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        _fixedTextureCoordinates.resize(byteQuantity/sizeof(float),0.0f);
+                        for (int i=0;i<int(_fixedTextureCoordinates.size());i++)
+                            ar >> _fixedTextureCoordinates[i];
+                    }
+                    if (theName.compare("Apm")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _applyMode;
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
                 }
-                if (theName.compare("Apm")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _applyMode;
-                }
-                if (noHit)
-                    ar.loadUnknownData();
             }
         }
     }

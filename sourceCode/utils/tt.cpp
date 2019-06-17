@@ -1202,55 +1202,27 @@ int tt::getAllKeyValuePairs(const char* txt,std::vector<std::string>& allKeys,st
         size_t p1=f.find('{');
         if (p1==std::string::npos)
             break;
-        // Now find corresponding '}':
-        std::string parse;
+        int opCnt=1;
         size_t p2=p1+1;
         bool ok=false;
         while (f.size()>p2)
         {
-            if (f[p2]=='\"')
-            {
-                if ( (parse.size()==0)||(parse[parse.size()-1]!='\"') )
-                    parse+='\"';
-                else
-                    parse.erase(parse.end()-1);
-            }
-            if ( (f[p2]=='{')&&((parse.size()==0)||(parse[parse.size()-1]!='\"')) )
-                parse+='{';
+            if (f[p2]=='{')
+                opCnt++;
             if (f[p2]=='}')
+                opCnt--;
+            if (opCnt==0)
             {
-                if ( (parse.size()!=0)&&(parse[parse.size()-1]=='{') )
-                    parse.erase(parse.end()-1);
-                else
-                {
-                    if (parse.size()==0)
-                    {
-                        ok=true;
-                        break;
-                    }
-                }
+                ok=true;
+                break;
             }
             p2++;
         }
-
         if (!ok)
             break;
+
         std::string key(f.begin(),f.begin()+p1);
         removeSpacesAtBeginningAndEnd(key);
-        bool notValid=false;
-        for (size_t i=0;i<key.size();i++)
-        {
-            if ((key[i]<'A')||(key[i]>'z'))
-                notValid=true;
-            if ((key[i]>'Z')&&(key[i]<'_'))
-                notValid=true;
-            if ((key[i]>'_')&&(key[i]<'a'))
-                notValid=true;
-            if (notValid)
-                break;
-        }
-        if (notValid)
-            break;
         std::string value(f.begin()+p1+1,f.begin()+p2);
         removeSpacesAtBeginningAndEnd(value);
         // insert only if that key is not yet present:

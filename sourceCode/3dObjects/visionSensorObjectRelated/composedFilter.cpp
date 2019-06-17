@@ -94,39 +94,42 @@ CComposedFilter* CComposedFilter::copyYourself()
 
 void CComposedFilter::serialize(CSer& ar)
 {
-    if (ar.isStoring())
+    if (ar.isBinary())
     {
-        for (int i=0;i<int(_allSimpleFilters.size());i++)
+        if (ar.isStoring())
         {
-            ar.storeDataName("Sfr");
-            ar.setCountingMode();
-            _allSimpleFilters[i]->serialize(ar);
-            if (ar.setWritingMode())
-                _allSimpleFilters[i]->serialize(ar);
-        }
-
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
+            for (int i=0;i<int(_allSimpleFilters.size());i++)
             {
-                bool noHit=true;
-                if (theName.compare("Sfr")==0)
+                ar.storeDataName("Sfr");
+                ar.setCountingMode();
+                _allSimpleFilters[i]->serialize(ar);
+                if (ar.setWritingMode())
+                    _allSimpleFilters[i]->serialize(ar);
+            }
+
+            ar.storeDataName(SER_END_OF_OBJECT);
+        }
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
+            {
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
                 {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    CSimpleFilter* it=new CSimpleFilter();
-                    it->serialize(ar);
-                    _allSimpleFilters.push_back(it);
+                    bool noHit=true;
+                    if (theName.compare("Sfr")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        CSimpleFilter* it=new CSimpleFilter();
+                        it->serialize(ar);
+                        _allSimpleFilters.push_back(it);
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
                 }
-                if (noHit)
-                    ar.loadUnknownData();
             }
         }
     }

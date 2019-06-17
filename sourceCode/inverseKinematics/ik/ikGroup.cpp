@@ -1,4 +1,3 @@
-
 #include "vrepMainHeader.h"
 #include "v_rep_internal.h"
 #include "distanceRoutine.h"
@@ -253,204 +252,207 @@ CikGroup* CikGroup::copyYourself()
 
 void CikGroup::serialize(CSer &ar)
 {
-    if (ar.isStoring())
-    {       // Storing
-        ar.storeDataName("Oid");
-        ar << objectID;
-        ar.flush();
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            ar.storeDataName("Oid");
+            ar << objectID;
+            ar.flush();
 
-        ar.storeDataName("Nme");
-        ar << objectName;
-        ar.flush();
+            ar.storeDataName("Nme");
+            ar << objectName;
+            ar.flush();
 
-        ar.storeDataName("Mit");
-        ar << maxIterations;
-        ar.flush();
+            ar.storeDataName("Mit");
+            ar << maxIterations;
+            ar.flush();
 
-        ar.storeDataName("Ctr");
-        ar << constraints;
-        ar.flush();
+            ar.storeDataName("Ctr");
+            ar << constraints;
+            ar.flush();
 
-        ar.storeDataName("Wgt");
-        ar << jointLimitWeight << avoidanceWeight;
-        ar.flush();
+            ar.storeDataName("Wgt");
+            ar << jointLimitWeight << avoidanceWeight;
+            ar.flush();
 
-        ar.storeDataName("Jts");
-        ar << jointTreshholdAngular << jointTreshholdLinear;
-        ar.flush();
+            ar.storeDataName("Jts");
+            ar << jointTreshholdAngular << jointTreshholdLinear;
+            ar.flush();
 
-        ar.storeDataName("Dpg");
-        ar << dlsFactor;
-        ar.flush();
+            ar.storeDataName("Dpg");
+            ar << dlsFactor;
+            ar.flush();
 
-        ar.storeDataName("Cmt");
-        ar << calculationMethod;
-        ar.flush();
+            ar.storeDataName("Cmt");
+            ar << calculationMethod;
+            ar.flush();
 
-        ar.storeDataName("Doo");
-        ar << doOnFailOrSuccessOf;
-        ar.flush();
+            ar.storeDataName("Doo");
+            ar << doOnFailOrSuccessOf;
+            ar.flush();
 
-        ar.storeDataName("Var");
-        unsigned char nothing=0;
-        SIM_SET_CLEAR_BIT(nothing,0,active);
-        SIM_SET_CLEAR_BIT(nothing,1,restoreIfPositionNotReached);
-        SIM_SET_CLEAR_BIT(nothing,2,restoreIfOrientationNotReached);
-        SIM_SET_CLEAR_BIT(nothing,3,doOnFail);
-        SIM_SET_CLEAR_BIT(nothing,4,doOnPerformed);
-        SIM_SET_CLEAR_BIT(nothing,5,!ignoreMaxStepSizes);
-        SIM_SET_CLEAR_BIT(nothing,6,_explicitHandling);
-        // 14/12/2011       SIM_SET_CLEAR_BIT(nothing,7,_avoidanceCheckAgainstAll); DO NOT USE FOR BACKWARD COMPATIBILITY'S SAKE!
-        ar << nothing;
-        ar.flush();
+            ar.storeDataName("Var");
+            unsigned char nothing=0;
+            SIM_SET_CLEAR_BIT(nothing,0,active);
+            SIM_SET_CLEAR_BIT(nothing,1,restoreIfPositionNotReached);
+            SIM_SET_CLEAR_BIT(nothing,2,restoreIfOrientationNotReached);
+            SIM_SET_CLEAR_BIT(nothing,3,doOnFail);
+            SIM_SET_CLEAR_BIT(nothing,4,doOnPerformed);
+            SIM_SET_CLEAR_BIT(nothing,5,!ignoreMaxStepSizes);
+            SIM_SET_CLEAR_BIT(nothing,6,_explicitHandling);
+            // 14/12/2011       SIM_SET_CLEAR_BIT(nothing,7,_avoidanceCheckAgainstAll); DO NOT USE FOR BACKWARD COMPATIBILITY'S SAKE!
+            ar << nothing;
+            ar.flush();
 
-        ar.storeDataName("Va2");
-        nothing=0;
-        SIM_SET_CLEAR_BIT(nothing,0,_correctJointLimits);
-        ar << nothing;
-        ar.flush();
-        
+            ar.storeDataName("Va2");
+            nothing=0;
+            SIM_SET_CLEAR_BIT(nothing,0,_correctJointLimits);
+            ar << nothing;
+            ar.flush();
 
-        ar.storeDataName("Avx");
-        ar << _avoidanceRobotEntity << _avoidanceObstacleEntity;
-        ar.flush();
 
-        ar.storeDataName("Avt");
-        ar << avoidanceThreshold;
-        ar.flush();
+            ar.storeDataName("Avx");
+            ar << _avoidanceRobotEntity << _avoidanceObstacleEntity;
+            ar.flush();
 
-        ar.storeDataName("Uis");
-        ar << _uniquePersistentIdString;
-        ar.flush();
+            ar.storeDataName("Avt");
+            ar << avoidanceThreshold;
+            ar.flush();
 
-        for (int i=0;i<int(ikElements.size());i++)
-        {
-            ar.storeDataName("Ike");
-            ar.setCountingMode();
-            ikElements[i]->serialize(ar);
-            if (ar.setWritingMode())
-                ikElements[i]->serialize(ar);
-        }
+            ar.storeDataName("Uis");
+            ar << _uniquePersistentIdString;
+            ar.flush();
 
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
+            for (int i=0;i<int(ikElements.size());i++)
             {
-                bool noHit=true;
-                if (theName.compare("Oid")==0)
+                ar.storeDataName("Ike");
+                ar.setCountingMode();
+                ikElements[i]->serialize(ar);
+                if (ar.setWritingMode())
+                    ikElements[i]->serialize(ar);
+            }
+
+            ar.storeDataName(SER_END_OF_OBJECT);
+        }
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
+            {
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
                 {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> objectID;
+                    bool noHit=true;
+                    if (theName.compare("Oid")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> objectID;
+                    }
+                    if (theName.compare("Nme")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> objectName;
+                    }
+                    if (theName.compare("Mit")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> maxIterations;
+                    }
+                    if (theName.compare("Ctr")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> constraints;
+                    }
+                    if (theName.compare("Wgt")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> jointLimitWeight >> avoidanceWeight;
+                    }
+                    if (theName.compare("Jts")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> jointTreshholdAngular >> jointTreshholdLinear;
+                    }
+                    if (theName.compare("Dpg")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> dlsFactor;
+                    }
+                    if (theName.compare("Cmt")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> calculationMethod;
+                    }
+                    if (theName.compare("Doo")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> doOnFailOrSuccessOf;
+                    }
+                    if (theName.compare("Var")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        active=SIM_IS_BIT_SET(nothing,0);
+                        restoreIfPositionNotReached=SIM_IS_BIT_SET(nothing,1);
+                        restoreIfOrientationNotReached=SIM_IS_BIT_SET(nothing,2);
+                        doOnFail=SIM_IS_BIT_SET(nothing,3);
+                        doOnPerformed=SIM_IS_BIT_SET(nothing,4);
+                        ignoreMaxStepSizes=!SIM_IS_BIT_SET(nothing,5);
+                        _explicitHandling=SIM_IS_BIT_SET(nothing,6);
+                    }
+                    if (theName.compare("Va2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        _correctJointLimits=SIM_IS_BIT_SET(nothing,0);
+                    }
+                    if (theName.compare("Avx")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _avoidanceRobotEntity >> _avoidanceObstacleEntity;
+                        // Following for backw. compatibility (probably around 2012):
+                        if ((_avoidanceRobotEntity==-1)&&(constraints&sim_ik_avoidance_constraint))
+                            constraints-=sim_ik_avoidance_constraint;
+                    }
+                    if (theName.compare("Avt")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> avoidanceThreshold;
+                    }
+                    if (theName.compare("Uis")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _uniquePersistentIdString;
+                    }
+                    if (theName.compare("Ike")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        CikEl* it=new CikEl();
+                        it->serialize(ar);
+                        ikElements.push_back(it);
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
                 }
-                if (theName.compare("Nme")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> objectName;
-                }
-                if (theName.compare("Mit")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> maxIterations;
-                }
-                if (theName.compare("Ctr")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> constraints;
-                }
-                if (theName.compare("Wgt")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> jointLimitWeight >> avoidanceWeight;
-                }
-                if (theName.compare("Jts")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> jointTreshholdAngular >> jointTreshholdLinear;
-                }
-                if (theName.compare("Dpg")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> dlsFactor;
-                }
-                if (theName.compare("Cmt")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> calculationMethod;
-                }
-                if (theName.compare("Doo")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> doOnFailOrSuccessOf;
-                }
-                if (theName.compare("Var")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-                    active=SIM_IS_BIT_SET(nothing,0);
-                    restoreIfPositionNotReached=SIM_IS_BIT_SET(nothing,1);
-                    restoreIfOrientationNotReached=SIM_IS_BIT_SET(nothing,2);
-                    doOnFail=SIM_IS_BIT_SET(nothing,3);
-                    doOnPerformed=SIM_IS_BIT_SET(nothing,4);
-                    ignoreMaxStepSizes=!SIM_IS_BIT_SET(nothing,5);
-                    _explicitHandling=SIM_IS_BIT_SET(nothing,6);
-                }
-                if (theName.compare("Va2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-                    _correctJointLimits=SIM_IS_BIT_SET(nothing,0);
-                }
-                if (theName.compare("Avx")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _avoidanceRobotEntity >> _avoidanceObstacleEntity;
-                    // Following for backw. compatibility (probably around 2012):
-                    if ((_avoidanceRobotEntity==-1)&&(constraints&sim_ik_avoidance_constraint))
-                        constraints-=sim_ik_avoidance_constraint;
-                }
-                if (theName.compare("Avt")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> avoidanceThreshold;
-                }
-                if (theName.compare("Uis")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _uniquePersistentIdString;
-                }
-                if (theName.compare("Ike")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    CikEl* it=new CikEl();
-                    it->serialize(ar);
-                    ikElements.push_back(it);
-                }
-                if (noHit)
-                    ar.loadUnknownData();
             }
         }
     }

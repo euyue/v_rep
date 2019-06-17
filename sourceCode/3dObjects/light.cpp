@@ -74,7 +74,14 @@ void CLight::_commonInit()
 
     lightActive=true;
     _lightIsLocal=false;
-    _extensionString="povray {shadow {true} fadeXDist {0.00}}";
+    if (_extensionString.size()!=0)
+        _extensionString+=" ";
+    if (_lightType==sim_light_omnidirectional_subtype)
+        _extensionString+="openGL3 {lightProjection {nearPlane {0.1} farPlane {10} orthoSize {8} bias {0.001} normalBias {0.012} shadowTextureSize {2048}}} povray {shadow {true} fadeXDist {0.00}}";
+    if (_lightType==sim_light_spot_subtype)
+        _extensionString+="openGL3 {lightProjection {nearPlane {0.1} farPlane {10} orthoSize {8} bias {0.0} normalBias {0.00008} shadowTextureSize {2048}}} povray {shadow {true} fadeXDist {0.00}}";
+    if (_lightType==sim_light_directional_subtype)
+        _extensionString+="openGL3 {lightProjection {nearPlane {0.1} farPlane {10} orthoSize {8} bias {0.001} normalBias {0.005} shadowTextureSize {2048}}} povray {shadow {true} fadeXDist {0.00}}";
 
     _objectManipulationModePermissions=0x013;
 
@@ -416,120 +423,138 @@ CVisualParam* CLight::getColor(bool getLightColor)
 void CLight::serialize(CSer& ar)
 {
     serializeMain(ar);
-    if (ar.isStoring())
-    { // Storing
-        
-        ar.storeDataName("Cp2");
-        ar << _lightType << _spotExponent << _lightSize;
-        ar.flush();
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        { // Storing
 
-        ar.storeDataName("Cp3");
-        ar << _spotCutoffAngle;
-        ar.flush();
+            ar.storeDataName("Cp2");
+            ar << _lightType << _spotExponent << _lightSize;
+            ar.flush();
 
-        ar.storeDataName("Caf");
-        ar << constantAttenuation << linearAttenuation << quadraticAttenuation;
-        ar.flush();
+            ar.storeDataName("Cp3");
+            ar << _spotCutoffAngle;
+            ar.flush();
 
-        ar.storeDataName("Cas");
-        unsigned char nothing=0;
-        SIM_SET_CLEAR_BIT(nothing,0,lightActive);
-        SIM_SET_CLEAR_BIT(nothing,1,_lightIsLocal);
-        // RESERVED SIM_SET_CLEAR_BIT(nothing,2,!povShadow);
-        ar << nothing;
-        ar.flush();
+            ar.storeDataName("Caf");
+            ar << constantAttenuation << linearAttenuation << quadraticAttenuation;
+            ar.flush();
 
-        ar.storeDataName("Cl1");
-        ar.setCountingMode();
-        objectColor.serialize(ar,0);
-        if (ar.setWritingMode())
+            ar.storeDataName("Cas");
+            unsigned char nothing=0;
+            SIM_SET_CLEAR_BIT(nothing,0,lightActive);
+            SIM_SET_CLEAR_BIT(nothing,1,_lightIsLocal);
+            // RESERVED SIM_SET_CLEAR_BIT(nothing,2,!povShadow);
+            ar << nothing;
+            ar.flush();
+
+            ar.storeDataName("Cl1");
+            ar.setCountingMode();
             objectColor.serialize(ar,0);
+            if (ar.setWritingMode())
+                objectColor.serialize(ar,0);
 
-        ar.storeDataName("Cl2");
-        ar.setCountingMode();
-        lightColor.serialize(ar,3);
-        if (ar.setWritingMode())
+            ar.storeDataName("Cl2");
+            ar.setCountingMode();
             lightColor.serialize(ar,3);
+            if (ar.setWritingMode())
+                lightColor.serialize(ar,3);
 
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        bool povShadow_backwardCompatibility_3_2_2016=true;
-        float povFadeXDist_backwardCompatibility_3_2_2016=-1.0;
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
+            ar.storeDataName(SER_END_OF_OBJECT);
+        }
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            bool povShadow_backwardCompatibility_3_2_2016=true;
+            float povFadeXDist_backwardCompatibility_3_2_2016=-1.0;
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
             {
-                bool noHit=true;
-                if (theName.compare("Cp2")==0)
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
                 {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _lightType >> _spotExponent >> _lightSize;
+                    bool noHit=true;
+                    if (theName.compare("Cp2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _lightType >> _spotExponent >> _lightSize;
+                    }
+                    if (theName.compare("Cp3")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _spotCutoffAngle;
+                    }
+                    if (theName.compare("Caf")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> constantAttenuation >> linearAttenuation >> quadraticAttenuation;
+                    }
+                    if (theName.compare("Pfd")==0)
+                    { // keep for backward compatibility (3/2/2016)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> povFadeXDist_backwardCompatibility_3_2_2016;
+                    }
+                    if (theName=="Cas")
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        lightActive=SIM_IS_BIT_SET(nothing,0);
+                        _lightIsLocal=SIM_IS_BIT_SET(nothing,1);
+                        povShadow_backwardCompatibility_3_2_2016=!SIM_IS_BIT_SET(nothing,2);
+                    }
+                    if (theName.compare("Cl1")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        objectColor.serialize(ar,0);
+                    }
+                    if (theName.compare("Cl2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        lightColor.serialize(ar,3);
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
                 }
-                if (theName.compare("Cp3")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _spotCutoffAngle;
-                }
-                if (theName.compare("Caf")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> constantAttenuation >> linearAttenuation >> quadraticAttenuation;
-                }
-                if (theName.compare("Pfd")==0)
-                { // keep for backward compatibility (3/2/2016)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> povFadeXDist_backwardCompatibility_3_2_2016;
-                }
-                if (theName=="Cas")
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-                    lightActive=SIM_IS_BIT_SET(nothing,0);
-                    _lightIsLocal=SIM_IS_BIT_SET(nothing,1);
-                    povShadow_backwardCompatibility_3_2_2016=!SIM_IS_BIT_SET(nothing,2);
-                }
-                if (theName.compare("Cl1")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    objectColor.serialize(ar,0);
-                }
-                if (theName.compare("Cl2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    lightColor.serialize(ar,3);
-                }
-                if (noHit)
-                    ar.loadUnknownData();
             }
-        }
-        if (ar.getSerializationVersionThatWroteThisFile()<17)
-        { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
-            CTTUtil::scaleColorUp_(objectColor.colors);
-            CTTUtil::scaleLightDown_(lightColor.colors);
-        }
+            if (ar.getSerializationVersionThatWroteThisFile()<17)
+            { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
+                CTTUtil::scaleColorUp_(objectColor.colors);
+                CTTUtil::scaleLightDown_(lightColor.colors);
+            }
 
-        if (povFadeXDist_backwardCompatibility_3_2_2016>=0.0)
-        { // keep for backward compatibility (3/2/2016)
-            _extensionString="povray {shadow {";
-            if (povShadow_backwardCompatibility_3_2_2016)
-                _extensionString+="true} fadeXDist {";
-            else
-                _extensionString+="false} fadeXDist {";
-            _extensionString+=tt::FNb(0,povFadeXDist_backwardCompatibility_3_2_2016,3,false);
-            _extensionString+="}}";
+            if (povFadeXDist_backwardCompatibility_3_2_2016>=0.0)
+            { // keep for backward compatibility (3/2/2016)
+                _extensionString="povray {shadow {";
+                if (povShadow_backwardCompatibility_3_2_2016)
+                    _extensionString+="true} fadeXDist {";
+                else
+                    _extensionString+="false} fadeXDist {";
+                _extensionString+=tt::FNb(0,povFadeXDist_backwardCompatibility_3_2_2016,3,false);
+                _extensionString+="}}";
+            }
+
+            if (ar.getVrepVersionThatWroteThisFile()<=30601)
+            {
+                if (_extensionString.find("openGL3")==std::string::npos)
+                {
+                    if (_extensionString.size()!=0)
+                        _extensionString+=" ";
+                    if (_lightType==sim_light_omnidirectional_subtype)
+                        _extensionString+="openGL3 {lightProjection {nearPlane {0.1} farPlane {10} orthoSize {8} bias {0.001} normalBias {0.012} shadowTextureSize {2048}}}";
+                    if (_lightType==sim_light_spot_subtype)
+                        _extensionString+="openGL3 {lightProjection {nearPlane {0.1} farPlane {10} orthoSize {8} bias {0.0} normalBias {0.00008} shadowTextureSize {2048}}}";
+                    if (_lightType==sim_light_directional_subtype)
+                        _extensionString+="openGL3 {lightProjection {nearPlane {0.1} farPlane {10} orthoSize {8} bias {0.001} normalBias {0.005} shadowTextureSize {2048}}}";
+                }
+            }
         }
     }
 }

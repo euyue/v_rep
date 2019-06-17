@@ -500,146 +500,186 @@ void CCopyBuffer::serializeCurrentSelection(CSer &ar,std::vector<int>* sel,C7Vec
     //***************************************************
 
     //------------------------------------------------------------
-    ar.storeDataName(SER_MODEL_THUMBNAIL_INFO);
-    ar.setCountingMode();
-    App::ct->environment->modelThumbnail_notSerializedHere.serializeAdditionalModelInfos(ar,modelTr,modelBBSize,modelNonDefaultTranslationStepSize);
-    if (ar.setWritingMode())
+    if (ar.isBinary())
+    {
+        ar.storeDataName(SER_MODEL_THUMBNAIL_INFO);
+        ar.setCountingMode();
         App::ct->environment->modelThumbnail_notSerializedHere.serializeAdditionalModelInfos(ar,modelTr,modelBBSize,modelNonDefaultTranslationStepSize);
+        if (ar.setWritingMode())
+            App::ct->environment->modelThumbnail_notSerializedHere.serializeAdditionalModelInfos(ar,modelTr,modelBBSize,modelNonDefaultTranslationStepSize);
+    }
     //------------------------------------------------------------
 
-    ar.storeDataName(SER_MODEL_THUMBNAIL);
-    ar.setCountingMode();
-    App::ct->environment->modelThumbnail_notSerializedHere.serialize(ar,false);
-    if (ar.setWritingMode())
+    if (ar.isBinary())
+    {
+        ar.storeDataName(SER_MODEL_THUMBNAIL);
+        ar.setCountingMode();
         App::ct->environment->modelThumbnail_notSerializedHere.serialize(ar,false);
+        if (ar.setWritingMode())
+            App::ct->environment->modelThumbnail_notSerializedHere.serialize(ar,false);
+    }
 
     // DynMaterial objects:
     // We only save this for backward compatibility, but not needed for V-REP's from 3.4.0 on:
     //------------------------------------------------------------
-    int dynObjId=SIM_IDSTART_DYNMATERIAL_OLD;
-    for (size_t i=0;i<objectBuffer.size();i++)
+    if (ar.isBinary())
     {
-        if (objectBuffer[i]->getObjectType()==sim_object_shape_type)
+        int dynObjId=SIM_IDSTART_DYNMATERIAL_OLD;
+        for (size_t i=0;i<objectBuffer.size();i++)
         {
-            CShape* it=(CShape*)objectBuffer[i];
-            CDynMaterialObject* mat=it->getDynMaterial();
-            it->geomData->geomInfo->setDynMaterialId_OLD(dynObjId);
-            mat->setObjectID(dynObjId++);
-            ar.storeDataName(SER_DYNMATERIAL);
-            ar.setCountingMode();
-            mat->serialize(ar);
-            if (ar.setWritingMode())
+            if (objectBuffer[i]->getObjectType()==sim_object_shape_type)
+            {
+                CShape* it=(CShape*)objectBuffer[i];
+                CDynMaterialObject* mat=it->getDynMaterial();
+                it->geomData->geomInfo->setDynMaterialId_OLD(dynObjId);
+                mat->setObjectID(dynObjId++);
+                ar.storeDataName(SER_DYNMATERIAL);
+                ar.setCountingMode();
                 mat->serialize(ar);
+                if (ar.setWritingMode())
+                    mat->serialize(ar);
+            }
         }
     }
     //------------------------------------------------------------
 
     // We store texture objects:
     for (size_t i=0;i<textureObjectBuffer.size();i++)
-        App::ct->textureCont->storeTextureObject(ar,textureObjectBuffer[i]);
+    {
+        if (ar.isBinary())
+            App::ct->textureCont->storeTextureObject(ar,textureObjectBuffer[i]);
+    }
 
     // Now we store all vertices, indices, normals and edges (there might be duplicates, and we don't wanna waste disk space)
-    CGeometric::clearTempVerticesIndicesNormalsAndEdges();
-    for (size_t i=0;i<objectBuffer.size();i++)
+    if (ar.isBinary())
     {
-        if (objectBuffer[i]->getObjectType()==sim_object_shape_type)
-            ((CShape*)objectBuffer[i])->prepareVerticesIndicesNormalsAndEdgesForSerialization();
-    }
-    ar.storeDataName(SER_VERTICESINDICESNORMALSEDGES);
-    ar.setCountingMode();
-    CGeometric::serializeTempVerticesIndicesNormalsAndEdges(ar);
-    if (ar.setWritingMode())
+        CGeometric::clearTempVerticesIndicesNormalsAndEdges();
+        for (size_t i=0;i<objectBuffer.size();i++)
+        {
+            if (objectBuffer[i]->getObjectType()==sim_object_shape_type)
+                ((CShape*)objectBuffer[i])->prepareVerticesIndicesNormalsAndEdgesForSerialization();
+        }
+        ar.storeDataName(SER_VERTICESINDICESNORMALSEDGES);
+        ar.setCountingMode();
         CGeometric::serializeTempVerticesIndicesNormalsAndEdges(ar);
-    CGeometric::clearTempVerticesIndicesNormalsAndEdges();
+        if (ar.setWritingMode())
+            CGeometric::serializeTempVerticesIndicesNormalsAndEdges(ar);
+        CGeometric::clearTempVerticesIndicesNormalsAndEdges();
+    }
 
     // Now we store all 3DObjects:
     for (size_t i=0;i<objectBuffer.size();i++)
-        App::ct->objCont->store3DObject(ar,objectBuffer[i]);
-    
-    // Here we store the groups:
+    {
+        if (ar.isBinary())
+            App::ct->objCont->store3DObject(ar,objectBuffer[i]);
+    }
+
+    // Here we store the collections:
     for (size_t i=0;i<groupBuffer.size();i++)
     {
-        ar.storeDataName(SER_GROUP);
-        ar.setCountingMode();
-        groupBuffer[i]->serialize(ar);
-        if (ar.setWritingMode())
+        if (ar.isBinary())
+        {
+            ar.storeDataName(SER_COLLECTION);
+            ar.setCountingMode();
             groupBuffer[i]->serialize(ar);
+            if (ar.setWritingMode())
+                groupBuffer[i]->serialize(ar);
+        }
     }
     // Here we store the collision objects:
     for (size_t i=0;i<collisionBuffer.size();i++)
     {
-        ar.storeDataName(SER_COLLISION);
-        ar.setCountingMode();
-        collisionBuffer[i]->serialize(ar);
-        if (ar.setWritingMode())
+        if (ar.isBinary())
+        {
+            ar.storeDataName(SER_COLLISION);
+            ar.setCountingMode();
             collisionBuffer[i]->serialize(ar);
+            if (ar.setWritingMode())
+                collisionBuffer[i]->serialize(ar);
+        }
     }
     // Here we store the distance objects:
     for (size_t i=0;i<distanceBuffer.size();i++)
     {
-        ar.storeDataName(SER_DISTANCE);
-        ar.setCountingMode();
-        distanceBuffer[i]->serialize(ar);
-        if (ar.setWritingMode())
+        if (ar.isBinary())
+        {
+            ar.storeDataName(SER_DISTANCE);
+            ar.setCountingMode();
             distanceBuffer[i]->serialize(ar);
+            if (ar.setWritingMode())
+                distanceBuffer[i]->serialize(ar);
+        }
     }
     // Here we store the ik objects:
     for (size_t i=0;i<ikGroupBuffer.size();i++)
     {
-        ar.storeDataName(SER_IK);
-        ar.setCountingMode();
-        ikGroupBuffer[i]->serialize(ar);
-        if (ar.setWritingMode())
+        if (ar.isBinary())
+        {
+            ar.storeDataName(SER_IK);
+            ar.setCountingMode();
             ikGroupBuffer[i]->serialize(ar);
+            if (ar.setWritingMode())
+                ikGroupBuffer[i]->serialize(ar);
+        }
     }
-    // Here we store the path planning objects:
-    for (size_t i=0;i<pathPlanningTaskBuffer.size();i++)
-    {
-        ar.storeDataName(SER_PATH_PLANNING);
-        ar.setCountingMode();
-        pathPlanningTaskBuffer[i]->serialize(ar);
-        if (ar.setWritingMode())
+    if (ar.isBinary())
+    { // following for backward compatibility, but not supported anymore:
+        // Here we store the path planning objects:
+        for (size_t i=0;i<pathPlanningTaskBuffer.size();i++)
+        {
+            ar.storeDataName(SER_PATH_PLANNING);
+            ar.setCountingMode();
             pathPlanningTaskBuffer[i]->serialize(ar);
-    }
-    // Here we store the motion planning objects:
-    for (size_t i=0;i<motionPlanningTaskBuffer.size();i++)
-    {
-        ar.storeDataName(SER_MOTION_PLANNING);
-        ar.setCountingMode();
-        motionPlanningTaskBuffer[i]->serialize(ar);
-        if (ar.setWritingMode())
+            if (ar.setWritingMode())
+                pathPlanningTaskBuffer[i]->serialize(ar);
+        }
+        // Here we store the motion planning objects:
+        for (size_t i=0;i<motionPlanningTaskBuffer.size();i++)
+        {
+            ar.storeDataName(SER_MOTION_PLANNING);
+            ar.setCountingMode();
             motionPlanningTaskBuffer[i]->serialize(ar);
-    }
-    // Here we store the button block objects:
-    for (size_t i=0;i<buttonBlockBuffer.size();i++)
-    {
-        ar.storeDataName(SER_BUTTON_BLOCK);
-        ar.setCountingMode();
-        buttonBlockBuffer[i]->serialize(ar);
-        if (ar.setWritingMode())
+            if (ar.setWritingMode())
+                motionPlanningTaskBuffer[i]->serialize(ar);
+        }
+        // Here we store the button block objects:
+        for (size_t i=0;i<buttonBlockBuffer.size();i++)
+        {
+            ar.storeDataName(SER_BUTTON_BLOCK);
+            ar.setCountingMode();
             buttonBlockBuffer[i]->serialize(ar);
+            if (ar.setWritingMode())
+                buttonBlockBuffer[i]->serialize(ar);
+        }
     }
     // Here we store the script objects:
     for (size_t i=0;i<luaScriptBuffer.size();i++)
     {
-        ar.storeDataName(SER_LUA_SCRIPT);
-        ar.setCountingMode();
-        luaScriptBuffer[i]->serialize(ar);
-        if (ar.setWritingMode())
+        if (ar.isBinary())
+        {
+            ar.storeDataName(SER_LUA_SCRIPT);
+            ar.setCountingMode();
             luaScriptBuffer[i]->serialize(ar);
+            if (ar.setWritingMode())
+                luaScriptBuffer[i]->serialize(ar);
+        }
     }
-    // Here we store the constraintSolver objects:
-    for (size_t i=0;i<constraintSolverBuffer.size();i++)
-    {
-        ar.storeDataName(SER_GEOMETRIC_CONSTRAINT_OBJECT);
-        ar.setCountingMode();
-        constraintSolverBuffer[i]->serialize(ar);
-        if (ar.setWritingMode())
+    if (ar.isBinary())
+    { // following for backward compatibility, but not supported anymore:
+        // Here we store the constraintSolver objects:
+        for (size_t i=0;i<constraintSolverBuffer.size();i++)
+        {
+            ar.storeDataName(SER_GEOMETRIC_CONSTRAINT_OBJECT);
+            ar.setCountingMode();
             constraintSolverBuffer[i]->serialize(ar);
+            if (ar.setWritingMode())
+                constraintSolverBuffer[i]->serialize(ar);
+        }
     }
 
     // Here we have finished:
-    ar.storeDataName(SER_END_OF_FILE);
+    if (ar.isBinary())
+        ar.storeDataName(SER_END_OF_FILE);
 
     // We empty the used buffers (not needed anymore, since it was saved):
     clearBuffer();

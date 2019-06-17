@@ -1,4 +1,3 @@
-
 #include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "geomProxy.h"
@@ -214,7 +213,7 @@ void CGeomProxy::computeBoundingBox()
 { // Only the bounding box is recomputed. 
     std::vector<float> visibleVertices;
     geomInfo->getCumulativeMeshes(visibleVertices,nullptr,nullptr);
-    for (int i=0;i<int(visibleVertices.size())/3;i++)
+    for (size_t i=0;i<visibleVertices.size()/3;i++)
     {
         if (i==0)
             _boundingBoxHalfSizes.set(&visibleVertices[3*i+0]);
@@ -811,97 +810,100 @@ void CGeomProxy::prepareVerticesIndicesNormalsAndEdgesForSerialization()
     geomInfo->prepareVerticesIndicesNormalsAndEdgesForSerialization();
 }
 
-void CGeomProxy::serialize(CSer& ar)
+void CGeomProxy::serialize(CSer& ar,const char* shapeName)
 {
-    if (ar.isStoring())
-    {       // Storing
-        // geomInfo hast to be stored before collInfo!!!
-        if (geomInfo->isGeometric())
-            ar.storeDataName("Gst");
-        else
-            ar.storeDataName("Gsg");
-        ar.setCountingMode();
-        geomInfo->serialize(ar);
-        if (ar.setWritingMode())
-            geomInfo->serialize(ar);
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            // geomInfo hast to be stored before collInfo!!!
+            if (geomInfo->isGeometric())
+                ar.storeDataName("Gst");
+            else
+                ar.storeDataName("Gsg");
+            ar.setCountingMode();
+            geomInfo->serialize(ar,shapeName);
+            if (ar.setWritingMode())
+                geomInfo->serialize(ar,shapeName);
 
-        // (if undo/redo under way, getSaveExistingCalculationStructuresTemp is false)
-        if (App::ct->environment->getSaveExistingCalculationStructuresTemp()&&isCollisionInformationInitialized())
-        {
-            if (CPluginContainer::mesh_getCalculatedPolygonCount(collInfo)!=0)
+            // (if undo/redo under way, getSaveExistingCalculationStructuresTemp is false)
+            if (App::ct->environment->getSaveExistingCalculationStructuresTemp()&&isCollisionInformationInitialized())
             {
-                removeCollisionInformation(); // Make sure the shape is not in the cut-state:
-                initializeCalculationStructureIfNeeded();
-            }
+                if (CPluginContainer::mesh_getCalculatedPolygonCount(collInfo)!=0)
+                {
+                    removeCollisionInformation(); // Make sure the shape is not in the cut-state:
+                    initializeCalculationStructureIfNeeded();
+                }
 
-            int collInfoDataSize;
-            unsigned char* collInfoData=CPluginContainer::mesh_getCollisionInformationStructureSerializationData(collInfo,collInfoDataSize);
+                int collInfoDataSize;
+                unsigned char* collInfoData=CPluginContainer::mesh_getCollisionInformationStructureSerializationData(collInfo,collInfoDataSize);
 
-            ar.storeDataName("Coi");
-            ar.setCountingMode(true);
-            for (int i=0;i<collInfoDataSize;i++)
-                ar << collInfoData[i];
-            ar.flush(false);
-            if (ar.setWritingMode(true))
-            {
+                ar.storeDataName("Coi");
+                ar.setCountingMode(true);
                 for (int i=0;i<collInfoDataSize;i++)
                     ar << collInfoData[i];
                 ar.flush(false);
-            }
-            CPluginContainer::mesh_releaseBuffer(collInfoData);
-        }
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
-            {
-                bool noHit=true;
-
-                if (theName.compare("Gst")==0)
-                { // geometric
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    delete geomInfo;
-                    geomInfo=new CGeometric();
-                    ((CGeometric*)geomInfo)->serialize(ar);
-                }
-                if (theName.compare("Gsg")==0)
-                { // geomWrap
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    delete geomInfo;
-                    geomInfo=new CGeomWrap();
-                    geomInfo->serialize(ar);
-                }
-
-                if (theName.compare("Coi")==0)
+                if (ar.setWritingMode(true))
                 {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo never stores calc structures)
-
-                    std::vector<unsigned char> data;
-                    data.reserve(byteQuantity);
-                    unsigned char dummy;
-                    for (int i=0;i<byteQuantity;i++)
-                    {
-                        ar >> dummy;
-                        data.push_back(dummy);
-                    }
-                    std::vector<float> wvert;
-                    std::vector<int> wind;
-                    geomInfo->getCumulativeMeshes(wvert,&wind,nullptr);
-                    collInfo=CPluginContainer::mesh_getCollisionInformationStructureFromSerializationData(&data[0],&wvert[0],(int)wvert.size(),&wind[0],(int)wind.size());
+                    for (int i=0;i<collInfoDataSize;i++)
+                        ar << collInfoData[i];
+                    ar.flush(false);
                 }
-                if (noHit)
-                    ar.loadUnknownData();
+                CPluginContainer::mesh_releaseBuffer(collInfoData);
             }
+            ar.storeDataName(SER_END_OF_OBJECT);
         }
-        computeBoundingBox();
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
+            {
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
+                {
+                    bool noHit=true;
+
+                    if (theName.compare("Gst")==0)
+                    { // geometric
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        delete geomInfo;
+                        geomInfo=new CGeometric();
+                        ((CGeometric*)geomInfo)->serialize(ar,shapeName);
+                    }
+                    if (theName.compare("Gsg")==0)
+                    { // geomWrap
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        delete geomInfo;
+                        geomInfo=new CGeomWrap();
+                        geomInfo->serialize(ar,shapeName);
+                    }
+
+                    if (theName.compare("Coi")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo never stores calc structures)
+
+                        std::vector<unsigned char> data;
+                        data.reserve(byteQuantity);
+                        unsigned char dummy;
+                        for (int i=0;i<byteQuantity;i++)
+                        {
+                            ar >> dummy;
+                            data.push_back(dummy);
+                        }
+                        std::vector<float> wvert;
+                        std::vector<int> wind;
+                        geomInfo->getCumulativeMeshes(wvert,&wind,nullptr);
+                        collInfo=CPluginContainer::mesh_getCollisionInformationStructureFromSerializationData(&data[0],&wvert[0],(int)wvert.size(),&wind[0],(int)wind.size());
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
+                }
+            }
+            computeBoundingBox();
+        }
     }
 }

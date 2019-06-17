@@ -47,7 +47,7 @@ public:
     virtual bool getColor(const char* colorName,int colorComponent,float* rgbData);
     virtual void getAllShapeComponentsCumulative(std::vector<CGeometric*>& shapeComponentList); // needed by the dynamics routine
     virtual CGeometric* getShapeComponentAtIndex(int& index);
-    virtual void serialize(CSer& ar);
+    virtual void serialize(CSer& ar,const char* shapeName);
     virtual void preMultiplyAllVerticeLocalFrames(const C7Vector& preTr);
     virtual void flipFaces();
     virtual float getGouraudShadingAngle();
@@ -61,7 +61,7 @@ public:
     virtual void removeAllTextures();
     virtual void getColorStrings(std::string& colorStrings);
 
-    void serializeWrapperInfos(CSer& ar);
+    void serializeWrapperInfos(CSer& ar,const char* shapeName);
     void scaleWrapperInfos(float xVal,float yVal,float zVal);
     void scaleMassAndInertia(float xVal,float yVal,float zVal);
     void copyWrapperInfos(CGeomWrap* target);

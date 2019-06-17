@@ -647,102 +647,105 @@ void CSPage::addFloatingView()
 
 void CSPage::serialize(CSer& ar)
 {
-    if (ar.isStoring())
+    if (ar.isBinary())
     {
-        ar.storeDataName("Vw2"); // has to be the first element to be stored
-        ar << _pageType;
-        ar.flush();
-
-        int floatViewsNotToSaveCnt=0;
-        for (int i=getRegularViewCount();i<int(_allViews.size());i++)
+        if (ar.isStoring())
         {
-            if (_allViews[i]->getDoNotSaveFloatingView())
-                floatViewsNotToSaveCnt++;
-        }
-        int totViewsToSaveCnt=int(_allViews.size())-floatViewsNotToSaveCnt;
+            ar.storeDataName("Vw2"); // has to be the first element to be stored
+            ar << _pageType;
+            ar.flush();
 
-        for (int i=0;i<int(_allViews.size());i++)
-        {
-            if ( (i<getRegularViewCount())||(!_allViews[i]->getDoNotSaveFloatingView()) )
+            int floatViewsNotToSaveCnt=0;
+            for (int i=getRegularViewCount();i<int(_allViews.size());i++)
             {
-                ar.storeDataName("Sv2");
-                ar.setCountingMode();
-                _allViews[i]->serialize(ar);
-                if (ar.setWritingMode())
+                if (_allViews[i]->getDoNotSaveFloatingView())
+                    floatViewsNotToSaveCnt++;
+            }
+            int totViewsToSaveCnt=int(_allViews.size())-floatViewsNotToSaveCnt;
+
+            for (int i=0;i<int(_allViews.size());i++)
+            {
+                if ( (i<getRegularViewCount())||(!_allViews[i]->getDoNotSaveFloatingView()) )
+                {
+                    ar.storeDataName("Sv2");
+                    ar.setCountingMode();
                     _allViews[i]->serialize(ar);
+                    if (ar.setWritingMode())
+                        _allViews[i]->serialize(ar);
+                }
             }
-        }
-        // Positions and sizes are relative now (2009/05/22)
-        ar.storeDataName("Fvr");
-        ar << totViewsToSaveCnt*4;
-        for (int i=0;i<int(_allViews.size());i++)
-        {
-            if ( (i<getRegularViewCount())||(!_allViews[i]->getDoNotSaveFloatingView()) )
+            // Positions and sizes are relative now (2009/05/22)
+            ar.storeDataName("Fvr");
+            ar << totViewsToSaveCnt*4;
+            for (int i=0;i<int(_allViews.size());i++)
             {
-                ar << _allViewAuxSizesAndPos[4*i+0];
-                ar << _allViewAuxSizesAndPos[4*i+1];
-                ar << _allViewAuxSizesAndPos[4*i+2];
-                ar << _allViewAuxSizesAndPos[4*i+3];
+                if ( (i<getRegularViewCount())||(!_allViews[i]->getDoNotSaveFloatingView()) )
+                {
+                    ar << _allViewAuxSizesAndPos[4*i+0];
+                    ar << _allViewAuxSizesAndPos[4*i+1];
+                    ar << _allViewAuxSizesAndPos[4*i+2];
+                    ar << _allViewAuxSizesAndPos[4*i+3];
+                }
             }
-        }
-        ar.flush();
+            ar.flush();
 
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {
-        for (int i=0;i<int(_allViews.size());i++)
-            delete _allViews[i];
-        _allViews.clear();
-        _allViewAuxSizesAndPos.clear();
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
-            {
-                bool noHit=true;
-                if (theName.compare("Vwt")==0)
-                { // keep for backward compatibility (25/09/2013)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _pageType;
-                }
-                if (theName.compare("Vw2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _pageType;
-                }
-                if (theName.compare("Sv2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    CSView* theSubView=new CSView(-1);
-                    theSubView->serialize(ar);
-                    _allViews.push_back(theSubView);
-                }
-                if (theName.compare("Fvr")==0)
-                { // Positions and sizes are relative now (2009/05/22)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int n;
-                    ar >> n;
-                    for (int i=0;i<n;i++)
-                    {
-                        float dummy;
-                        ar >> dummy;
-                        _allViewAuxSizesAndPos.push_back(dummy);
-                    }
-                }
-                if (noHit)
-                    ar.loadUnknownData();
-            }
+            ar.storeDataName(SER_END_OF_OBJECT);
         }
-        // Following is to correct for a bug where deleted views would still have their sizes and pos stored (19/7/2011):
-        std::vector<float> copy(_allViewAuxSizesAndPos);
-        _allViewAuxSizesAndPos.assign(copy.begin(),copy.begin()+4*_allViews.size());
+        else
+        {
+            for (int i=0;i<int(_allViews.size());i++)
+                delete _allViews[i];
+            _allViews.clear();
+            _allViewAuxSizesAndPos.clear();
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
+            {
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
+                {
+                    bool noHit=true;
+                    if (theName.compare("Vwt")==0)
+                    { // keep for backward compatibility (25/09/2013)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _pageType;
+                    }
+                    if (theName.compare("Vw2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _pageType;
+                    }
+                    if (theName.compare("Sv2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        CSView* theSubView=new CSView(-1);
+                        theSubView->serialize(ar);
+                        _allViews.push_back(theSubView);
+                    }
+                    if (theName.compare("Fvr")==0)
+                    { // Positions and sizes are relative now (2009/05/22)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int n;
+                        ar >> n;
+                        for (int i=0;i<n;i++)
+                        {
+                            float dummy;
+                            ar >> dummy;
+                            _allViewAuxSizesAndPos.push_back(dummy);
+                        }
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
+                }
+            }
+            // Following is to correct for a bug where deleted views would still have their sizes and pos stored (19/7/2011):
+            std::vector<float> copy(_allViewAuxSizesAndPos);
+            _allViewAuxSizesAndPos.assign(copy.begin(),copy.begin()+4*_allViews.size());
+        }
     }
 }
 

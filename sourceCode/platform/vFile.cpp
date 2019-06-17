@@ -1,4 +1,3 @@
-
 #include "vFile.h"
 #include "app.h"
 #include "v_repStrings.h"
@@ -223,4 +222,5 @@ bool VFile::flush()
     return(_theFile->flush());
 #endif
 }
+
 

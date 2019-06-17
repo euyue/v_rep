@@ -132,3 +132,4 @@ SFileOrFolder* VFileFinder::getFoundItem(int index)
     return(&_searchResult[index]);
 }
 
+

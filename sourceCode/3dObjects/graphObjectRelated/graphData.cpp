@@ -454,215 +454,218 @@ CGraphData* CGraphData::copyYourself()
 void CGraphData::serialize(CSer& ar,void* it)
 {
     CGraph* cg=(CGraph*)it;
-    if (ar.isStoring())
-    {       // Storing
-        ar.storeDataName("Nme");
-        ar << name;
-        ar.flush();
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            ar.storeDataName("Nme");
+            ar << name;
+            ar.flush();
 
-        ar.storeDataName("Oid");
-        ar << identifier;
-        ar.flush();
+            ar.storeDataName("Oid");
+            ar << identifier;
+            ar.flush();
 
-        ar.storeDataName("Dt2");
-        ar << dataType << dataObjectID << dataObjectAuxID;
-        ar.flush();
+            ar.storeDataName("Dt2");
+            ar << dataType << dataObjectID << dataObjectAuxID;
+            ar.flush();
 
-        ar.storeDataName("Col");
-        ar << ambientColor[0] << ambientColor[1] << ambientColor[2];
-        ar.flush();
+            ar.storeDataName("Col");
+            ar << ambientColor[0] << ambientColor[1] << ambientColor[2];
+            ar.flush();
 
-        ar.storeDataName("Var");
-        ar << zoomFactor << 0.0f << addCoeff;
-        ar.flush();
+            ar.storeDataName("Var");
+            ar << zoomFactor << 0.0f << addCoeff;
+            ar.flush();
 
-        ar.storeDataName("Mac");
-        ar << _movingAverageCount;
-        ar.flush();
+            ar.storeDataName("Mac");
+            ar << _movingAverageCount;
+            ar.flush();
 
-        ar.storeDataName("Dci");
-        ar << _derivativeIntegralAndCumulative;
-        ar.flush();
+            ar.storeDataName("Dci");
+            ar << _derivativeIntegralAndCumulative;
+            ar.flush();
 
-        ar.storeDataName("Pa2");
-        unsigned char dummy=0;
-        dummy=dummy+1*visible;
-        dummy=dummy+2*linkPoints;
-        dummy=dummy+4*label;
-        ar << dummy;
-        ar.flush();
+            ar.storeDataName("Pa2");
+            unsigned char dummy=0;
+            dummy=dummy+1*visible;
+            dummy=dummy+2*linkPoints;
+            dummy=dummy+4*label;
+            ar << dummy;
+            ar.flush();
 
-        ar.storeDataName("Dt9"); // Should always come after nullValue
-        for (int i=0;i<cg->getNumberOfPoints();i++)
-        { 
-            int absIndex;
-            cg->getAbsIndexOfPosition(i,absIndex);
-            ar << _floatData[absIndex];
-        }
-        ar.flush();
-
-        ar.storeDataName("Ifd");
-        for (int i=0;i<cg->getNumberOfPoints();i++)
-        { 
-            int absIndex;
-            cg->getAbsIndexOfPosition(i,absIndex);
-            ar << _transformedFloatData[absIndex];
-        }
-        ar.flush();
-
-        ar.storeDataName("Bla");
-        for (int i=0;i<cg->getNumberOfPoints();i++)
-        { 
-            int absIndex;
-            cg->getAbsIndexOfPosition(i,absIndex);
-            if ((_floatDataValidFlags[absIndex/8]&(1<<(absIndex&7)))!=0)
-                ar << (unsigned char)1;
-            else
-                ar << (unsigned char)0;
-        }
-        ar.flush();
-
-        ar.storeDataName("Bli");
-        for (int i=0;i<cg->getNumberOfPoints();i++)
-        { 
-            int absIndex;
-            cg->getAbsIndexOfPosition(i,absIndex);
-            if ((_transformedFloatDataValidFlags[absIndex/8]&(1<<(absIndex&7)))!=0)
-                ar << (unsigned char)1;
-            else
-                ar << (unsigned char)0;
-        }
-        ar.flush();
-
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
+            ar.storeDataName("Dt9"); // Should always come after nullValue
+            for (int i=0;i<cg->getNumberOfPoints();i++)
             {
-                bool noHit=true;
-                if (theName.compare("Nme")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> name;
-                }
-                if (theName.compare("Oid")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> identifier;
-                }
-                if (theName.compare("Dt2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> dataType >> dataObjectID >> dataObjectAuxID;
-                }
-                if (theName.compare("Col")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> ambientColor[0] >> ambientColor[1] >> ambientColor[2];
-                }
-                if (theName.compare("Var")==0)
-                {
-                    noHit=false;
-                    float dummy;
-                    ar >> byteQuantity;
-                    ar >> zoomFactor >> dummy >> addCoeff;
-                }
-                if (theName.compare("Mac")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _movingAverageCount;
-                }
+                int absIndex;
+                cg->getAbsIndexOfPosition(i,absIndex);
+                ar << _floatData[absIndex];
+            }
+            ar.flush();
 
-                if (theName.compare("Dci")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _derivativeIntegralAndCumulative;
-                }
-                if (theName.compare("Pa2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char dummy;
-                    ar >> dummy;
-                    visible=(dummy&1)==1;
-                    linkPoints=(dummy&2)==2;
-                    label=(dummy&4)==4;
-                }
-                if (theName.compare("Dt9")==0)
-                { 
-                    noHit=false;
-                    ar >> byteQuantity;
-                    _floatData.reserve(cg->getBufferSize());
-                    _floatData.clear();
-                    for (int i=0;i<cg->getBufferSize();i++)
-                        _floatData.push_back(0.0f);
-                    for (int i=0;i<byteQuantity/int(sizeof(float));i++)
-                    {   
-                        float dummy;
-                        ar >> dummy;
-                        _floatData[i]=dummy;
-                    }
-                }
+            ar.storeDataName("Ifd");
+            for (int i=0;i<cg->getNumberOfPoints();i++)
+            {
+                int absIndex;
+                cg->getAbsIndexOfPosition(i,absIndex);
+                ar << _transformedFloatData[absIndex];
+            }
+            ar.flush();
 
-                if (theName.compare("Ifd")==0)
-                { 
-                    noHit=false;
-                    ar >> byteQuantity;
-                    _transformedFloatData.reserve(cg->getBufferSize());
-                    _transformedFloatData.clear();
-                    for (int i=0;i<cg->getBufferSize();i++)
-                        _transformedFloatData.push_back(0.0f);
-                    for (int i=0;i<byteQuantity/int(sizeof(float));i++)
-                    {   
-                        float dummy;
-                        ar >> dummy;
-                        _transformedFloatData[i]=dummy;
-                    }
-                }
-                if (theName.compare("Bla")==0)
+            ar.storeDataName("Bla");
+            for (int i=0;i<cg->getNumberOfPoints();i++)
+            {
+                int absIndex;
+                cg->getAbsIndexOfPosition(i,absIndex);
+                if ((_floatDataValidFlags[absIndex/8]&(1<<(absIndex&7)))!=0)
+                    ar << (unsigned char)1;
+                else
+                    ar << (unsigned char)0;
+            }
+            ar.flush();
+
+            ar.storeDataName("Bli");
+            for (int i=0;i<cg->getNumberOfPoints();i++)
+            {
+                int absIndex;
+                cg->getAbsIndexOfPosition(i,absIndex);
+                if ((_transformedFloatDataValidFlags[absIndex/8]&(1<<(absIndex&7)))!=0)
+                    ar << (unsigned char)1;
+                else
+                    ar << (unsigned char)0;
+            }
+            ar.flush();
+
+            ar.storeDataName(SER_END_OF_OBJECT);
+        }
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
+            {
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
                 {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    _floatDataValidFlags.clear();
-                    for (int i=0;i<((cg->getBufferSize()/8)+1);i++)
-                        _floatDataValidFlags.push_back(0); // None valid!
-                    for (int i=0;i<byteQuantity;i++)
-                    {   
+                    bool noHit=true;
+                    if (theName.compare("Nme")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> name;
+                    }
+                    if (theName.compare("Oid")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> identifier;
+                    }
+                    if (theName.compare("Dt2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> dataType >> dataObjectID >> dataObjectAuxID;
+                    }
+                    if (theName.compare("Col")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> ambientColor[0] >> ambientColor[1] >> ambientColor[2];
+                    }
+                    if (theName.compare("Var")==0)
+                    {
+                        noHit=false;
+                        float dummy;
+                        ar >> byteQuantity;
+                        ar >> zoomFactor >> dummy >> addCoeff;
+                    }
+                    if (theName.compare("Mac")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _movingAverageCount;
+                    }
+
+                    if (theName.compare("Dci")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _derivativeIntegralAndCumulative;
+                    }
+                    if (theName.compare("Pa2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
                         unsigned char dummy;
                         ar >> dummy;
-                        if (dummy!=0)
-                            _floatDataValidFlags[i/8]|=(1<<(i&7));
+                        visible=(dummy&1)==1;
+                        linkPoints=(dummy&2)==2;
+                        label=(dummy&4)==4;
                     }
-                }
-                if (theName.compare("Bli")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    _transformedFloatDataValidFlags.clear();
-                    for (int i=0;i<((cg->getBufferSize()/8)+1);i++)
-                        _transformedFloatDataValidFlags.push_back(0);
-                    for (int i=0;i<byteQuantity;i++)
-                    {   
-                        unsigned char dummy;
-                        ar >> dummy;
-                        if (dummy!=0)
-                            _transformedFloatDataValidFlags[i/8]|=(1<<(i&7));
+                    if (theName.compare("Dt9")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        _floatData.reserve(cg->getBufferSize());
+                        _floatData.clear();
+                        for (int i=0;i<cg->getBufferSize();i++)
+                            _floatData.push_back(0.0f);
+                        for (int i=0;i<byteQuantity/int(sizeof(float));i++)
+                        {
+                            float dummy;
+                            ar >> dummy;
+                            _floatData[i]=dummy;
+                        }
                     }
+
+                    if (theName.compare("Ifd")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        _transformedFloatData.reserve(cg->getBufferSize());
+                        _transformedFloatData.clear();
+                        for (int i=0;i<cg->getBufferSize();i++)
+                            _transformedFloatData.push_back(0.0f);
+                        for (int i=0;i<byteQuantity/int(sizeof(float));i++)
+                        {
+                            float dummy;
+                            ar >> dummy;
+                            _transformedFloatData[i]=dummy;
+                        }
+                    }
+                    if (theName.compare("Bla")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        _floatDataValidFlags.clear();
+                        for (int i=0;i<((cg->getBufferSize()/8)+1);i++)
+                            _floatDataValidFlags.push_back(0); // None valid!
+                        for (int i=0;i<byteQuantity;i++)
+                        {
+                            unsigned char dummy;
+                            ar >> dummy;
+                            if (dummy!=0)
+                                _floatDataValidFlags[i/8]|=(1<<(i&7));
+                        }
+                    }
+                    if (theName.compare("Bli")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        _transformedFloatDataValidFlags.clear();
+                        for (int i=0;i<((cg->getBufferSize()/8)+1);i++)
+                            _transformedFloatDataValidFlags.push_back(0);
+                        for (int i=0;i<byteQuantity;i++)
+                        {
+                            unsigned char dummy;
+                            ar >> dummy;
+                            if (dummy!=0)
+                                _transformedFloatDataValidFlags[i/8]|=(1<<(i&7));
+                        }
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
                 }
-                if (noHit)
-                    ar.loadUnknownData();
             }
         }
     }

@@ -172,10 +172,10 @@ bool CUndoBufferCont::memorizeState()
         App::mainWindow->codeEditorContainer->saveOrCopyOperationAboutToHappen();
 
     std::vector<char> newBuff;
-    CSer serObj(newBuff);
+    CSer serObj(newBuff,CSer::filetype_vrep_bin_scene_buff);
     serObj.disableCountingModeExceptForExceptions();
 
-    serObj.writeOpen(false,0); // we don't wanna compression
+    serObj.writeOpenBinary(false); // we don't wanna compression
     _undoPointSavingOrRestoringUnderWay=true;
     CUndoBufferCameras* cameraBuffers=new CUndoBufferCameras();
     cameraBuffers->storeCameras();
@@ -348,12 +348,12 @@ void CUndoBufferCont::undo()
     App::ct->simulation->stopSimulation(); // should be anyway stopped!
     App::ct->emptyScene(false);
 
-    CSer serObj(theBuff);
+    CSer serObj(theBuff,CSer::filetype_vrep_bin_scene_buff);
     int serializationVersion;
     unsigned short dum0;
     int dum1;
     char dum2;
-    serObj.readOpen(serializationVersion,dum0,dum1,dum2,false);
+    serObj.readOpenBinary(serializationVersion,dum0,dum1,dum2,false);
     _undoPointSavingOrRestoringUnderWay=true;
 
     App::ct->objCont->loadScene(serObj,true);
@@ -409,12 +409,12 @@ void CUndoBufferCont::redo()
     App::ct->simulation->stopSimulation(); // should be anyway stopped!
     App::ct->emptyScene(false);
 
-    CSer serObj(theBuff);
+    CSer serObj(theBuff,CSer::filetype_vrep_bin_scene_buff);
     int serializationVersion;
     unsigned short dum0;
     int dum1;
     char dum2;
-    serObj.readOpen(serializationVersion,dum0,dum1,dum2,false);
+    serObj.readOpenBinary(serializationVersion,dum0,dum1,dum2,false);
     _undoPointSavingOrRestoringUnderWay=true;
 
     App::ct->objCont->loadScene(serObj,true);

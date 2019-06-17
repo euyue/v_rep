@@ -45,10 +45,10 @@ public:
     void perform3DObjectLoadingMapping(std::vector<int>* map);
     bool announce3DObjectWillBeErased(int objectID,bool copyBuffer);
     int flagScriptForRemoval();
+    void setObjectIDThatScriptIsAttachedTo(int newObjectID);
+    int getObjectIDThatScriptIsAttachedTo() const;
     int getObjectIDThatScriptIsAttachedTo_child() const; // for child scripts
-    void setObjectIDThatScriptIsAttachedTo_child(int newObjectID); // for child scripts
     int getObjectIDThatScriptIsAttachedTo_customization() const; // for customization scripts
-    void setObjectIDThatScriptIsAttachedTo_customization(int newObjectID); // for customization scripts
 
 
     void setScriptText(const char* scriptTxt);
@@ -212,8 +212,7 @@ protected:
     int _debugLevel;
     bool _inDebug;
     int _treeTraversalDirection;
-    int _objectIDAttachedTo_child;
-    int _objectIDAttachedTo_customization;
+    int _objectIDAttachedTo;
     bool _calledInThisSimulationStep;
 
     std::string _scriptText;

@@ -98,201 +98,203 @@ void CVisualParam::copyYourselfInto(CVisualParam* it) const
 
 void CVisualParam::serialize(CSer& ar,int objType)
 {
-    if (ar.isStoring())
-    {       // Storing
-
-        // Keep following for backward compatibility (5/10/2014):
-        ar.storeDataName("Cl2");
-        float c[15];
-        for (int i=0;i<15;i++)
-            c[i]=colors[i];
-        if (objType<3)
-        {
-            c[0]=(c[0]*0.85f)-0.125f;
-            c[1]=(c[1]*0.85f)-0.125f;
-            c[2]=(c[2]*0.85f)-0.125f;
-            c[3]=0.25f;
-            c[4]=0.25f;
-            c[5]=0.25f;
-        }
-        if (objType==3)
-        {
-            c[0]=c[3]/2.0f;
-            c[1]=c[4]/2.0f;
-            c[2]=c[5]/2.0f;
-        }
-        for (int i=0;i<15;i++)
-            ar << c[i];
-        ar.flush();
-
-        ar.storeDataName("Cl3");
-        for (int i=0;i<15;i++)
-            ar << colors[i];
-        ar.flush();
-
-        ar.storeDataName("Sh2");
-        ar << shininess;
-        ar.flush();
-
-        ar.storeDataName("Trf");
-        ar << transparencyFactor;
-        ar.flush();
-
-        ar.storeDataName("Var");
-        unsigned char dummy=0;
-//      FREE
-//      FREE
-        SIM_SET_CLEAR_BIT(dummy,2,!translucid);
-//      FREE
-        SIM_SET_CLEAR_BIT(dummy,4,flash);
-        SIM_SET_CLEAR_BIT(dummy,5,useSimulationTime);
-        ar << dummy;
-        ar.flush();
-
-        ar.storeDataName("Fi3");
-        ar << flashFrequency << flashRatio << flashPhase;
-        ar.flush();
-
-        ar.storeDataName("Cnm");
-        ar << colorName;
-        ar.flush();
-
-        ar.storeDataName("Rst");
-        ar << extensionString;
-        ar.flush();
-
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            // Keep following for backward compatibility (5/10/2014):
+            ar.storeDataName("Cl2");
+            float c[15];
+            for (int i=0;i<15;i++)
+                c[i]=colors[i];
+            if (objType<3)
             {
-                bool noHit=true;
-                if (theName.compare("Cls")==0)
-                { // for backward compatibility 5/9/2014 (before 3.1.3)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    for (int i=0;i<12;i++)
-                        ar >> colors[i];
-                }
+                c[0]=(c[0]*0.85f)-0.125f;
+                c[1]=(c[1]*0.85f)-0.125f;
+                c[2]=(c[2]*0.85f)-0.125f;
+                c[3]=0.25f;
+                c[4]=0.25f;
+                c[5]=0.25f;
+            }
+            if (objType==3)
+            {
+                c[0]=c[3]/2.0f;
+                c[1]=c[4]/2.0f;
+                c[2]=c[5]/2.0f;
+            }
+            for (int i=0;i<15;i++)
+                ar << c[i];
+            ar.flush();
 
-                if (theName.compare("Cl2")==0)
-                { // for backward compatibility 5/10/2014
-                    noHit=false;
-                    ar >> byteQuantity;
-                    for (int i=0;i<15;i++)
-                        ar >> colors[i];
-                 }
+            ar.storeDataName("Cl3");
+            for (int i=0;i<15;i++)
+                ar << colors[i];
+            ar.flush();
 
-                if ( (theName.compare("Cls")==0)||(theName.compare("Cl2")==0) )
-                { // for backward compatibility (5/10/2014)
-                    if (objType<3)
-                    {
-                        float avgDiff=(colors[3]+colors[4]+colors[5])/3.0f;
-                        colors[0]=(colors[0]+avgDiff*0.5f)/0.85f;
-                        colors[1]=(colors[1]+avgDiff*0.5f)/0.85f;
-                        colors[2]=(colors[2]+avgDiff*0.5f)/0.85f;
+            ar.storeDataName("Sh2");
+            ar << shininess;
+            ar.flush();
 
-                        colors[0]*=App::userSettings->colorAdjust_backCompatibility;
-                        colors[1]*=App::userSettings->colorAdjust_backCompatibility;
-                        colors[2]*=App::userSettings->colorAdjust_backCompatibility;
+            ar.storeDataName("Trf");
+            ar << transparencyFactor;
+            ar.flush();
 
-                        float mx=SIM_MAX(SIM_MAX(colors[0],colors[1]),colors[2]);
-                        if (mx>1.0f)
+            ar.storeDataName("Var");
+            unsigned char dummy=0;
+    //      FREE
+    //      FREE
+            SIM_SET_CLEAR_BIT(dummy,2,!translucid);
+    //      FREE
+            SIM_SET_CLEAR_BIT(dummy,4,flash);
+            SIM_SET_CLEAR_BIT(dummy,5,useSimulationTime);
+            ar << dummy;
+            ar.flush();
+
+            ar.storeDataName("Fi3");
+            ar << flashFrequency << flashRatio << flashPhase;
+            ar.flush();
+
+            ar.storeDataName("Cnm");
+            ar << colorName;
+            ar.flush();
+
+            ar.storeDataName("Rst");
+            ar << extensionString;
+            ar.flush();
+
+            ar.storeDataName(SER_END_OF_OBJECT);
+        }
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
+            {
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
+                {
+                    bool noHit=true;
+                    if (theName.compare("Cls")==0)
+                    { // for backward compatibility 5/9/2014 (before 3.1.3)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        for (int i=0;i<12;i++)
+                            ar >> colors[i];
+                    }
+
+                    if (theName.compare("Cl2")==0)
+                    { // for backward compatibility 5/10/2014
+                        noHit=false;
+                        ar >> byteQuantity;
+                        for (int i=0;i<15;i++)
+                            ar >> colors[i];
+                     }
+
+                    if ( (theName.compare("Cls")==0)||(theName.compare("Cl2")==0) )
+                    { // for backward compatibility (5/10/2014)
+                        if (objType<3)
                         {
-                            colors[0]/=mx;
-                            colors[1]/=mx;
-                            colors[2]/=mx;
+                            float avgDiff=(colors[3]+colors[4]+colors[5])/3.0f;
+                            colors[0]=(colors[0]+avgDiff*0.5f)/0.85f;
+                            colors[1]=(colors[1]+avgDiff*0.5f)/0.85f;
+                            colors[2]=(colors[2]+avgDiff*0.5f)/0.85f;
+
+                            colors[0]*=App::userSettings->colorAdjust_backCompatibility;
+                            colors[1]*=App::userSettings->colorAdjust_backCompatibility;
+                            colors[2]*=App::userSettings->colorAdjust_backCompatibility;
+
+                            float mx=SIM_MAX(SIM_MAX(colors[0],colors[1]),colors[2]);
+                            if (mx>1.0f)
+                            {
+                                colors[0]/=mx;
+                                colors[1]/=mx;
+                                colors[2]/=mx;
+                            }
+                            colors[3]=0.0f;
+                            colors[4]=0.0f;
+                            colors[5]=0.0f;
                         }
-                        colors[3]=0.0f;
-                        colors[4]=0.0f;
-                        colors[5]=0.0f;
+                        if (objType==3)
+                        {
+                            colors[0]=0.0f;
+                            colors[1]=0.0f;
+                            colors[2]=0.0f;
+                            float avgDiff=(colors[3]+colors[4]+colors[5])/3.0f;
+                            colors[3]=avgDiff;
+                            colors[4]=avgDiff;
+                            colors[5]=avgDiff;
+                        }
                     }
-                    if (objType==3)
+
+                    if (theName.compare("Cl3")==0)
                     {
-                        colors[0]=0.0f;
-                        colors[1]=0.0f;
-                        colors[2]=0.0f;
-                        float avgDiff=(colors[3]+colors[4]+colors[5])/3.0f;
-                        colors[3]=avgDiff;
-                        colors[4]=avgDiff;
-                        colors[5]=avgDiff;
+                        noHit=false;
+                        ar >> byteQuantity;
+                        for (int i=0;i<15;i++)
+                            ar >> colors[i];
                     }
-                }
 
-                if (theName.compare("Cl3")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    for (int i=0;i<15;i++)
-                        ar >> colors[i];
+                    if (theName.compare("Shi")==0)
+                    { // for backward compatibility (around January-March 2012?)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> shininess;
+                        if (shininess<48)
+                            shininess=48;
+                    }
+                    if (theName.compare("Sh2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> shininess;
+                    }
+                    if (theName.compare("Trf")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> transparencyFactor;
+                    }
+                    if (theName.compare("Var")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char dummy;
+                        ar >> dummy;
+                        translucid=!SIM_IS_BIT_SET(dummy,2);
+                        flash=SIM_IS_BIT_SET(dummy,4);
+                        useSimulationTime=SIM_IS_BIT_SET(dummy,5);
+                    }
+                    if (theName.compare("Fi3")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> flashFrequency >> flashRatio >> flashPhase;
+                    }
+                    if (theName.compare("Cnm")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> colorName;
+                    }
+                    if (theName.compare("Rst")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> extensionString;
+                    }
+                    if (theName.compare("Pov")==0)
+                    { // Keep for backward compatibility (3/2/2016)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int povPatternType;
+                        ar >> povPatternType;
+                        extensionString="povray {pattern {";
+                        extensionString+=_getPatternStringFromPatternId_backwardCompatibility_3_2_2016(povPatternType);
+                        extensionString+="}}";
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
                 }
-
-                if (theName.compare("Shi")==0)
-                { // for backward compatibility (around January-March 2012?)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> shininess;
-                    if (shininess<48)
-                        shininess=48;
-                }
-                if (theName.compare("Sh2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> shininess;
-                }
-                if (theName.compare("Trf")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> transparencyFactor;
-                }
-                if (theName.compare("Var")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char dummy;
-                    ar >> dummy;
-                    translucid=!SIM_IS_BIT_SET(dummy,2);
-                    flash=SIM_IS_BIT_SET(dummy,4);
-                    useSimulationTime=SIM_IS_BIT_SET(dummy,5);
-                }
-                if (theName.compare("Fi3")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> flashFrequency >> flashRatio >> flashPhase;
-                }
-                if (theName.compare("Cnm")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> colorName;
-                }
-                if (theName.compare("Rst")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> extensionString;
-                }
-                if (theName.compare("Pov")==0)
-                { // Keep for backward compatibility (3/2/2016)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int povPatternType;
-                    ar >> povPatternType;
-                    extensionString="povray {pattern {";
-                    extensionString+=_getPatternStringFromPatternId_backwardCompatibility_3_2_2016(povPatternType);
-                    extensionString+="}}";
-                }
-                if (noHit)
-                    ar.loadUnknownData();
             }
         }
     }

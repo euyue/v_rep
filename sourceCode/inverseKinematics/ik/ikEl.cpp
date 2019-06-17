@@ -80,103 +80,106 @@ CikEl* CikEl::copyYourself()
 
 void CikEl::serialize(CSer& ar)
 {
-    if (ar.isStoring())
-    {       // Storing
-        ar.storeDataName("Oid");
-        ar << objectID;
-        ar.flush();
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            ar.storeDataName("Oid");
+            ar << objectID;
+            ar.flush();
 
-        ar.storeDataName("Ik2");
-        ar << tooltip << base;
-        ar.flush();
+            ar.storeDataName("Ik2");
+            ar << tooltip << base;
+            ar.flush();
 
-        ar.storeDataName("Abc");
-        ar << alternativeBaseForConstraints;
-        ar.flush();
+            ar.storeDataName("Abc");
+            ar << alternativeBaseForConstraints;
+            ar.flush();
 
-        ar.storeDataName("Pr2");
-        ar << minAngularPrecision << minLinearPrecision;
-        ar.flush();
+            ar.storeDataName("Pr2");
+            ar << minAngularPrecision << minLinearPrecision;
+            ar.flush();
 
-        ar.storeDataName("Ctr");
-        ar << constraints;
-        ar.flush();
+            ar.storeDataName("Ctr");
+            ar << constraints;
+            ar.flush();
 
-        ar.storeDataName("Wgt");
-        ar << positionWeight << orientationWeight;
-        ar.flush();
+            ar.storeDataName("Wgt");
+            ar << positionWeight << orientationWeight;
+            ar.flush();
 
-        ar.storeDataName("Var");
-        unsigned char nothing=0;
-        nothing=nothing+1*active;
-        ar << nothing;
-        ar.flush();
+            ar.storeDataName("Var");
+            unsigned char nothing=0;
+            nothing=nothing+1*active;
+            ar << nothing;
+            ar.flush();
 
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
+            ar.storeDataName(SER_END_OF_OBJECT);
+        }
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
             {
-                bool noHit=true;
-                if (theName.compare("Oid")==0)
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
                 {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> objectID;
+                    bool noHit=true;
+                    if (theName.compare("Oid")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> objectID;
+                    }
+                    if (theName.compare("Ik2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> tooltip >> base;
+                    }
+                    if (theName.compare("Abc")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> alternativeBaseForConstraints;
+                    }
+                    if (theName.compare("Prc")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> minAngularPrecision >> minLinearPrecision;
+                        minAngularPrecision*=degToRad_f;
+                    }
+                    if (theName.compare("Pr2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> minAngularPrecision >> minLinearPrecision;
+                    }
+                    if (theName.compare("Ctr")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> constraints;
+                    }
+                    if (theName.compare("Wgt")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> positionWeight >> orientationWeight;
+                    }
+                    if (theName.compare("Var")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        active=((nothing&1)!=0);
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
                 }
-                if (theName.compare("Ik2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> tooltip >> base;
-                }
-                if (theName.compare("Abc")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> alternativeBaseForConstraints;
-                }
-                if (theName.compare("Prc")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> minAngularPrecision >> minLinearPrecision;
-                    minAngularPrecision*=degToRad_f;
-                }
-                if (theName.compare("Pr2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> minAngularPrecision >> minLinearPrecision;
-                }
-                if (theName.compare("Ctr")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> constraints;
-                }
-                if (theName.compare("Wgt")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> positionWeight >> orientationWeight;
-                }
-                if (theName.compare("Var")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-                    active=((nothing&1)!=0);
-                }
-                if (noHit)
-                    ar.loadUnknownData();
             }
         }
     }

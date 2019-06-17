@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "vrepMainHeader.h"
@@ -6,6 +5,8 @@
 #include "sPage.h"
 #include "global.h"
 #include "buttonBlock.h"
+
+#define PAGES_COUNT 8
 
 class CPageContainer : public CMainCont
 {
@@ -32,12 +33,11 @@ public:
     bool processCommand(int commandID,int viewIndex);
 
 private:
-    CSPage* _allPages[MAX_NUMBER_OF_PAGES];
+    CSPage* _allPages[PAGES_COUNT];
     int _activePageIndex;
 
     int _initialValuesInitialized;
     int _initialActivePageIndex;
-    int _numberOfPages;
     int _pageSize[2];
     int _pagePosition[2];
 

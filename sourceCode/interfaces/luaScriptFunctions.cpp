@@ -3280,9 +3280,9 @@ std::string getAdditionalLuaSearchPath()
     retVal+=App::directories->executableDirectory;
 #ifdef MAC_VREP
     // We are inside of the package!!!
-    retVal+="/../../../BlueWorkforce/?.lua";
+    retVal+="/../../../bwf/?.lua";
 #else
-    retVal+="/BlueWorkforce/?.lua";
+    retVal+="/bwf/?.lua";
 #endif
     if (App::ct->mainSettings->getScenePathAndName().compare("")!=0)
     {

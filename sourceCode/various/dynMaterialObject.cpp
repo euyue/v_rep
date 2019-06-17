@@ -722,325 +722,328 @@ CDynMaterialObject* CDynMaterialObject::copyYourself()
 
 void CDynMaterialObject::serialize(CSer& ar)
 {
-    if (ar.isStoring())
-    {       // Storing
-        ar.storeDataName("Ipa");
-        ar << _objectID;
-        ar.flush();
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            ar.storeDataName("Ipa");
+            ar << _objectID;
+            ar.flush();
 
-        ar.storeDataName("Gon");
-        ar << _objectName;
-        ar.flush();
+            ar.storeDataName("Gon");
+            ar << _objectName;
+            ar.flush();
 
-        ar.storeDataName("Bcv");
-        unsigned char dummy=0;
-        SIM_SET_CLEAR_BIT(dummy,0,true); // for backward compatibility (29/10/2016)
-        ar << dummy;
-        ar.flush();
+            ar.storeDataName("Bcv");
+            unsigned char dummy=0;
+            SIM_SET_CLEAR_BIT(dummy,0,true); // for backward compatibility (29/10/2016)
+            ar << dummy;
+            ar.flush();
 
-        ar.storeDataName("Bul"); // keep for file write backw. compat. (09/03/2016)
-        // ar << _bulletRestitution << _bulletFriction << _bulletLinearDamping << _bulletAngularDamping << _bulletNonDefaultCollisionMarginFactor << _bulletNonDefaultCollisionMarginFactor_forConvexAndNonPureShape;
-        ar << _bulletFloatParams[simi_bullet_body_restitution] << _bulletFloatParams[simi_bullet_body_oldfriction] << _bulletFloatParams[simi_bullet_body_lineardamping] << _bulletFloatParams[simi_bullet_body_angulardamping] << _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactor] << _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactorconvex];
-        ar.flush();
+            ar.storeDataName("Bul"); // keep for file write backw. compat. (09/03/2016)
+            // ar << _bulletRestitution << _bulletFriction << _bulletLinearDamping << _bulletAngularDamping << _bulletNonDefaultCollisionMarginFactor << _bulletNonDefaultCollisionMarginFactor_forConvexAndNonPureShape;
+            ar << _bulletFloatParams[simi_bullet_body_restitution] << _bulletFloatParams[simi_bullet_body_oldfriction] << _bulletFloatParams[simi_bullet_body_lineardamping] << _bulletFloatParams[simi_bullet_body_angulardamping] << _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactor] << _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactorconvex];
+            ar.flush();
 
-        ar.storeDataName("Od2"); // keep for file write backw. compat. (09/03/2016)
-        // ar << _odeMaxContacts << _odeFriction << _odeSoftERP << _odeSoftCFM << _odeLinearDamping << _odeAngularDamping;
-        ar << _odeIntParams[simi_ode_body_maxcontacts] << _odeFloatParams[simi_ode_body_friction] << _odeFloatParams[simi_ode_body_softerp] << _odeFloatParams[simi_ode_body_softcfm] << _odeFloatParams[simi_ode_body_lineardamping] << _odeFloatParams[simi_ode_body_angulardamping];
-        ar.flush();
+            ar.storeDataName("Od2"); // keep for file write backw. compat. (09/03/2016)
+            // ar << _odeMaxContacts << _odeFriction << _odeSoftERP << _odeSoftCFM << _odeLinearDamping << _odeAngularDamping;
+            ar << _odeIntParams[simi_ode_body_maxcontacts] << _odeFloatParams[simi_ode_body_friction] << _odeFloatParams[simi_ode_body_softerp] << _odeFloatParams[simi_ode_body_softcfm] << _odeFloatParams[simi_ode_body_lineardamping] << _odeFloatParams[simi_ode_body_angulardamping];
+            ar.flush();
 
-        ar.storeDataName("Vo4"); // vortex params:
-        ar << int(_vortexFloatParams.size()) << int(_vortexIntParams.size());
-        for (int i=0;i<int(_vortexFloatParams.size());i++)
-            ar << _vortexFloatParams[i];
-        for (int i=0;i<int(_vortexIntParams.size());i++)
-            ar << _vortexIntParams[i];
-        ar.flush();
+            ar.storeDataName("Vo4"); // vortex params:
+            ar << int(_vortexFloatParams.size()) << int(_vortexIntParams.size());
+            for (int i=0;i<int(_vortexFloatParams.size());i++)
+                ar << _vortexFloatParams[i];
+            for (int i=0;i<int(_vortexIntParams.size());i++)
+                ar << _vortexIntParams[i];
+            ar.flush();
 
-        ar.storeDataName("Nw1"); // newton params:
-        ar << int(_newtonFloatParams.size()) << int(_newtonIntParams.size());
-        for (int i=0;i<int(_newtonFloatParams.size());i++)
-            ar << _newtonFloatParams[i];
-        for (int i=0;i<int(_newtonIntParams.size());i++)
-            ar << _newtonIntParams[i];
-        ar.flush();
+            ar.storeDataName("Nw1"); // newton params:
+            ar << int(_newtonFloatParams.size()) << int(_newtonIntParams.size());
+            for (int i=0;i<int(_newtonFloatParams.size());i++)
+                ar << _newtonFloatParams[i];
+            for (int i=0;i<int(_newtonIntParams.size());i++)
+                ar << _newtonIntParams[i];
+            ar.flush();
 
-        ar.storeDataName("Var"); // keep for file write backw. compat. (09/03/2016)
-        unsigned char nothing=0;
-        if (_bulletIntParams[simi_bullet_body_bitcoded]&simi_bullet_body_usenondefaultcollisionmargin)
-            nothing|=1;
-        if (_bulletIntParams[simi_bullet_body_bitcoded]&simi_bullet_body_sticky)
-            nothing|=2;
-        if (_bulletIntParams[simi_bullet_body_bitcoded]&simi_bullet_body_autoshrinkconvex)
-            nothing|=4;
-        if (_bulletIntParams[simi_bullet_body_bitcoded]&simi_bullet_body_usenondefaultcollisionmarginconvex)
-            nothing|=8;
-        ar << nothing;
-        ar.flush();
+            ar.storeDataName("Var"); // keep for file write backw. compat. (09/03/2016)
+            unsigned char nothing=0;
+            if (_bulletIntParams[simi_bullet_body_bitcoded]&simi_bullet_body_usenondefaultcollisionmargin)
+                nothing|=1;
+            if (_bulletIntParams[simi_bullet_body_bitcoded]&simi_bullet_body_sticky)
+                nothing|=2;
+            if (_bulletIntParams[simi_bullet_body_bitcoded]&simi_bullet_body_autoshrinkconvex)
+                nothing|=4;
+            if (_bulletIntParams[simi_bullet_body_bitcoded]&simi_bullet_body_usenondefaultcollisionmarginconvex)
+                nothing|=8;
+            ar << nothing;
+            ar.flush();
 
-        ar.storeDataName("BuN"); // Bullet params, keep after "Bul" and "Var"
-        ar << int(_bulletFloatParams.size()) << int(_bulletIntParams.size());
-        for (int i=0;i<int(_bulletFloatParams.size());i++)
-            ar << _bulletFloatParams[i];
-        for (int i=0;i<int(_bulletIntParams.size());i++)
-            ar << _bulletIntParams[i];
-        ar.flush();
+            ar.storeDataName("BuN"); // Bullet params, keep after "Bul" and "Var"
+            ar << int(_bulletFloatParams.size()) << int(_bulletIntParams.size());
+            for (int i=0;i<int(_bulletFloatParams.size());i++)
+                ar << _bulletFloatParams[i];
+            for (int i=0;i<int(_bulletIntParams.size());i++)
+                ar << _bulletIntParams[i];
+            ar.flush();
 
-        ar.storeDataName("OdN"); // Ode params, keep after "Od2"
-        ar << int(_odeFloatParams.size()) << int(_odeIntParams.size());
-        for (int i=0;i<int(_odeFloatParams.size());i++)
-            ar << _odeFloatParams[i];
-        for (int i=0;i<int(_odeIntParams.size());i++)
-            ar << _odeIntParams[i];
-        ar.flush();
+            ar.storeDataName("OdN"); // Ode params, keep after "Od2"
+            ar << int(_odeFloatParams.size()) << int(_odeIntParams.size());
+            for (int i=0;i<int(_odeFloatParams.size());i++)
+                ar << _odeFloatParams[i];
+            for (int i=0;i<int(_odeIntParams.size());i++)
+                ar << _odeIntParams[i];
+            ar.flush();
 
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        bool vortexDataLoaded=false;
-        bool newtonDataLoaded=false;
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
-            {
-                bool noHit=true;
-                if (theName.compare("Ipa")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _objectID;
-                }
-                if (theName.compare("Gon")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _objectName;
-                }
-                if (theName.compare("Bcv")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char dummy;
-                    ar >> dummy;
-                    // _isIndividualTag=SIM_IS_BIT_SET(dummy,0);
-                }
-                if (theName.compare("Bul")==0)
-                { // keep for backw. compat. (09/03/2016)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    // ar >> _bulletRestitution >> _bulletFriction >> _bulletLinearDamping >> _bulletAngularDamping >> _bulletNonDefaultCollisionMarginFactor >> _bulletNonDefaultCollisionMarginFactor_forConvexAndNonPureShape;
-                    float fric;
-                    ar >> _bulletFloatParams[simi_bullet_body_restitution] >> fric >> _bulletFloatParams[simi_bullet_body_lineardamping] >> _bulletFloatParams[simi_bullet_body_angulardamping] >> _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactor] >> _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactorconvex];
-                    _bulletFloatParams[simi_bullet_body_oldfriction]=fric;
-                    _bulletFloatParams[simi_bullet_body_friction]=tt::getLimitedFloat(0.0f,1.0f,fric); // sticky contacts have disappeared for the new Bullet, now everything is "sticky", so make sure it is not too sticky!
-                }
-                if (theName.compare("Ode")==0)
-                { // for backward compatibility (13/8/2015)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    // ar >> _odeMaxContacts >> _odeFriction >> _odeSoftERP >> _odeSoftCFM >> _odeLinearDamping >> _odeAngularDamping;
-                    ar >> _odeIntParams[simi_ode_body_maxcontacts] >> _odeFloatParams[simi_ode_body_friction] >> _odeFloatParams[simi_ode_body_softerp] >> _odeFloatParams[simi_ode_body_softcfm] >> _odeFloatParams[simi_ode_body_lineardamping] >> _odeFloatParams[simi_ode_body_angulardamping];
-                    _odeIntParams[0]=64;
-                }
-                if (theName.compare("Od2")==0)
-                { // keep for backw. compat. (09/03/2016)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    // ar >> _odeMaxContacts >> _odeFriction >> _odeSoftERP >> _odeSoftCFM >> _odeLinearDamping >> _odeAngularDamping;
-                    ar >> _odeIntParams[0] >> _odeFloatParams[0] >> _odeFloatParams[1] >> _odeFloatParams[2] >> _odeFloatParams[3] >> _odeFloatParams[4];
-                }
-                if (theName.compare("BuN")==0)
-                { // Bullet params:
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int cnt1,cnt2;
-                    ar >> cnt1 >> cnt2;
-
-                    int cnt1_b=SIM_MIN(int(_bulletFloatParams.size()),cnt1);
-                    int cnt2_b=SIM_MIN(int(_bulletIntParams.size()),cnt2);
-
-                    float vf;
-                    int vi;
-                    for (int i=0;i<cnt1_b;i++)
-                    { // new versions will always have same or more items in _bulletFloatParams already!
-                        ar >> vf;
-                        _bulletFloatParams[i]=vf;
-                    }
-                    for (int i=0;i<cnt1-cnt1_b;i++)
-                    { // this serialization version is newer than what we know. Discard the unrecognized data:
-                        ar >> vf;
-                    }
-                    for (int i=0;i<cnt2_b;i++)
-                    { // new versions will always have same or more items in _bulletIntParams already!
-                        ar >> vi;
-                        _bulletIntParams[i]=vi;
-                    }
-                    for (int i=0;i<cnt2-cnt2_b;i++)
-                    { // this serialization version is newer than what we know. Discard the unrecognized data:
-                        ar >> vi;
-                    }
-                }
-                if (theName.compare("OdN")==0)
-                { // Ode params:
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int cnt1,cnt2;
-                    ar >> cnt1 >> cnt2;
-
-                    int cnt1_b=SIM_MIN(int(_odeFloatParams.size()),cnt1);
-                    int cnt2_b=SIM_MIN(int(_odeIntParams.size()),cnt2);
-
-                    float vf;
-                    int vi;
-                    for (int i=0;i<cnt1_b;i++)
-                    { // new versions will always have same or more items in _odeFloatParams already!
-                        ar >> vf;
-                        _odeFloatParams[i]=vf;
-                    }
-                    for (int i=0;i<cnt1-cnt1_b;i++)
-                    { // this serialization version is newer than what we know. Discard the unrecognized data:
-                        ar >> vf;
-                    }
-                    for (int i=0;i<cnt2_b;i++)
-                    { // new versions will always have same or more items in _odeIntParams already!
-                        ar >> vi;
-                        _odeIntParams[i]=vi;
-                    }
-                    for (int i=0;i<cnt2-cnt2_b;i++)
-                    { // this serialization version is newer than what we know. Discard the unrecognized data:
-                        ar >> vi;
-                    }
-                }
-                if (theName.compare("Vo4")==0)
-                { // vortex params:
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int cnt1,cnt2;
-                    ar >> cnt1 >> cnt2;
-
-                    int cnt1_b=SIM_MIN(int(_vortexFloatParams.size()),cnt1);
-                    int cnt2_b=SIM_MIN(int(_vortexIntParams.size()),cnt2);
-
-                    float vf;
-                    int vi;
-                    for (int i=0;i<cnt1_b;i++)
-                    { // new versions will always have same or more items in _vortexFloatParams already!
-                        ar >> vf;
-                        _vortexFloatParams[i]=vf;
-                    }
-                    for (int i=0;i<cnt1-cnt1_b;i++)
-                    { // this serialization version is newer than what we know. Discard the unrecognized data:
-                        ar >> vf;
-                    }
-                    for (int i=0;i<cnt2_b;i++)
-                    { // new versions will always have same or more items in _vortexIntParams already!
-                        ar >> vi;
-                        _vortexIntParams[i]=vi;
-                    }
-                    for (int i=0;i<cnt2-cnt2_b;i++)
-                    { // this serialization version is newer than what we know. Discard the unrecognized data:
-                        ar >> vi;
-                        // was there by mistake until 5/8/2015: _vortexIntParams[i]=vi;
-                    }
-                    vortexDataLoaded=true;
-                }
-                if (theName.compare("Nw1")==0)
-                { // newton params:
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int cnt1,cnt2;
-                    ar >> cnt1 >> cnt2;
-
-                    int cnt1_b=SIM_MIN(int(_newtonFloatParams.size()),cnt1);
-                    int cnt2_b=SIM_MIN(int(_newtonIntParams.size()),cnt2);
-
-                    float vf;
-                    int vi;
-                    for (int i=0;i<cnt1_b;i++)
-                    { // new versions will always have same or more items in _newtonFloatParams already!
-                        ar >> vf;
-                        _newtonFloatParams[i]=vf;
-                    }
-                    for (int i=0;i<cnt1-cnt1_b;i++)
-                    { // this serialization version is newer than what we know. Discard the unrecognized data:
-                        ar >> vf;
-                    }
-                    for (int i=0;i<cnt2_b;i++)
-                    { // new versions will always have same or more items in _newtonIntParams already!
-                        ar >> vi;
-                        _newtonIntParams[i]=vi;
-                    }
-                    for (int i=0;i<cnt2-cnt2_b;i++)
-                    { // this serialization version is newer than what we know. Discard the unrecognized data:
-                        ar >> vi;
-                    }
-                    newtonDataLoaded=true;
-                }
-                if (theName=="Var")
-                { // keep for backw. compat. (09/03/2016)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-
-                    if (nothing&1)
-                        _bulletIntParams[simi_bullet_body_bitcoded]|=simi_bullet_body_usenondefaultcollisionmargin;
-                    if (nothing&2)
-                        _bulletIntParams[simi_bullet_body_bitcoded]|=simi_bullet_body_sticky;
-                    if (nothing&4)
-                        _bulletIntParams[simi_bullet_body_bitcoded]|=simi_bullet_body_autoshrinkconvex;
-                    if (nothing&8)
-                        _bulletIntParams[simi_bullet_body_bitcoded]|=simi_bullet_body_usenondefaultcollisionmarginconvex;
-                    // Following is done after everything was loaded:
-                    //  if (_bulletIntParams[simi_bullet_body_bitcoded]&simi_bullet_body_sticky)
-                    //  _bulletFloatParams[simi_bullet_body_friction]=0.25f; // sticky contacts have disappeared for the new Bullet, we need to adjust for that
-                }
-                if (noHit)
-                    ar.loadUnknownData();
-            }
+            ar.storeDataName(SER_END_OF_OBJECT);
         }
-        if (!vortexDataLoaded)
-        { // keep for backward compatibility (16/10/2013)
-            // Try to guess the friction we would need for Vortex:
-            float averageFriction=0.0f;
-            if (_bulletFloatParams[simi_bullet_body_oldfriction]>1.0f)
-                averageFriction+=1.0f;
-            else
-                averageFriction+=_bulletFloatParams[simi_bullet_body_oldfriction];
-            if (_odeFloatParams[simi_ode_body_friction]>1.0f)
-                averageFriction+=1.0f;
-            else
-                averageFriction+=_odeFloatParams[simi_ode_body_friction];
-            averageFriction*=0.5f;
-            if (averageFriction<0.01f)
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            bool vortexDataLoaded=false;
+            bool newtonDataLoaded=false;
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
             {
-                _vortexIntParams[simi_vortex_body_primlinearaxisfrictionmodel]=sim_vortex_bodyfrictionmodel_none;
-                _vortexIntParams[simi_vortex_body_seclinearaxisfrictionmodel]=sim_vortex_bodyfrictionmodel_none;
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
+                {
+                    bool noHit=true;
+                    if (theName.compare("Ipa")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _objectID;
+                    }
+                    if (theName.compare("Gon")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _objectName;
+                    }
+                    if (theName.compare("Bcv")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char dummy;
+                        ar >> dummy;
+                        // _isIndividualTag=SIM_IS_BIT_SET(dummy,0);
+                    }
+                    if (theName.compare("Bul")==0)
+                    { // keep for backw. compat. (09/03/2016)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        // ar >> _bulletRestitution >> _bulletFriction >> _bulletLinearDamping >> _bulletAngularDamping >> _bulletNonDefaultCollisionMarginFactor >> _bulletNonDefaultCollisionMarginFactor_forConvexAndNonPureShape;
+                        float fric;
+                        ar >> _bulletFloatParams[simi_bullet_body_restitution] >> fric >> _bulletFloatParams[simi_bullet_body_lineardamping] >> _bulletFloatParams[simi_bullet_body_angulardamping] >> _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactor] >> _bulletFloatParams[simi_bullet_body_nondefaultcollisionmargingfactorconvex];
+                        _bulletFloatParams[simi_bullet_body_oldfriction]=fric;
+                        _bulletFloatParams[simi_bullet_body_friction]=tt::getLimitedFloat(0.0f,1.0f,fric); // sticky contacts have disappeared for the new Bullet, now everything is "sticky", so make sure it is not too sticky!
+                    }
+                    if (theName.compare("Ode")==0)
+                    { // for backward compatibility (13/8/2015)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        // ar >> _odeMaxContacts >> _odeFriction >> _odeSoftERP >> _odeSoftCFM >> _odeLinearDamping >> _odeAngularDamping;
+                        ar >> _odeIntParams[simi_ode_body_maxcontacts] >> _odeFloatParams[simi_ode_body_friction] >> _odeFloatParams[simi_ode_body_softerp] >> _odeFloatParams[simi_ode_body_softcfm] >> _odeFloatParams[simi_ode_body_lineardamping] >> _odeFloatParams[simi_ode_body_angulardamping];
+                        _odeIntParams[0]=64;
+                    }
+                    if (theName.compare("Od2")==0)
+                    { // keep for backw. compat. (09/03/2016)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        // ar >> _odeMaxContacts >> _odeFriction >> _odeSoftERP >> _odeSoftCFM >> _odeLinearDamping >> _odeAngularDamping;
+                        ar >> _odeIntParams[0] >> _odeFloatParams[0] >> _odeFloatParams[1] >> _odeFloatParams[2] >> _odeFloatParams[3] >> _odeFloatParams[4];
+                    }
+                    if (theName.compare("BuN")==0)
+                    { // Bullet params:
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int cnt1,cnt2;
+                        ar >> cnt1 >> cnt2;
+
+                        int cnt1_b=SIM_MIN(int(_bulletFloatParams.size()),cnt1);
+                        int cnt2_b=SIM_MIN(int(_bulletIntParams.size()),cnt2);
+
+                        float vf;
+                        int vi;
+                        for (int i=0;i<cnt1_b;i++)
+                        { // new versions will always have same or more items in _bulletFloatParams already!
+                            ar >> vf;
+                            _bulletFloatParams[i]=vf;
+                        }
+                        for (int i=0;i<cnt1-cnt1_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vf;
+                        }
+                        for (int i=0;i<cnt2_b;i++)
+                        { // new versions will always have same or more items in _bulletIntParams already!
+                            ar >> vi;
+                            _bulletIntParams[i]=vi;
+                        }
+                        for (int i=0;i<cnt2-cnt2_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vi;
+                        }
+                    }
+                    if (theName.compare("OdN")==0)
+                    { // Ode params:
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int cnt1,cnt2;
+                        ar >> cnt1 >> cnt2;
+
+                        int cnt1_b=SIM_MIN(int(_odeFloatParams.size()),cnt1);
+                        int cnt2_b=SIM_MIN(int(_odeIntParams.size()),cnt2);
+
+                        float vf;
+                        int vi;
+                        for (int i=0;i<cnt1_b;i++)
+                        { // new versions will always have same or more items in _odeFloatParams already!
+                            ar >> vf;
+                            _odeFloatParams[i]=vf;
+                        }
+                        for (int i=0;i<cnt1-cnt1_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vf;
+                        }
+                        for (int i=0;i<cnt2_b;i++)
+                        { // new versions will always have same or more items in _odeIntParams already!
+                            ar >> vi;
+                            _odeIntParams[i]=vi;
+                        }
+                        for (int i=0;i<cnt2-cnt2_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vi;
+                        }
+                    }
+                    if (theName.compare("Vo4")==0)
+                    { // vortex params:
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int cnt1,cnt2;
+                        ar >> cnt1 >> cnt2;
+
+                        int cnt1_b=SIM_MIN(int(_vortexFloatParams.size()),cnt1);
+                        int cnt2_b=SIM_MIN(int(_vortexIntParams.size()),cnt2);
+
+                        float vf;
+                        int vi;
+                        for (int i=0;i<cnt1_b;i++)
+                        { // new versions will always have same or more items in _vortexFloatParams already!
+                            ar >> vf;
+                            _vortexFloatParams[i]=vf;
+                        }
+                        for (int i=0;i<cnt1-cnt1_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vf;
+                        }
+                        for (int i=0;i<cnt2_b;i++)
+                        { // new versions will always have same or more items in _vortexIntParams already!
+                            ar >> vi;
+                            _vortexIntParams[i]=vi;
+                        }
+                        for (int i=0;i<cnt2-cnt2_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vi;
+                            // was there by mistake until 5/8/2015: _vortexIntParams[i]=vi;
+                        }
+                        vortexDataLoaded=true;
+                    }
+                    if (theName.compare("Nw1")==0)
+                    { // newton params:
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int cnt1,cnt2;
+                        ar >> cnt1 >> cnt2;
+
+                        int cnt1_b=SIM_MIN(int(_newtonFloatParams.size()),cnt1);
+                        int cnt2_b=SIM_MIN(int(_newtonIntParams.size()),cnt2);
+
+                        float vf;
+                        int vi;
+                        for (int i=0;i<cnt1_b;i++)
+                        { // new versions will always have same or more items in _newtonFloatParams already!
+                            ar >> vf;
+                            _newtonFloatParams[i]=vf;
+                        }
+                        for (int i=0;i<cnt1-cnt1_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vf;
+                        }
+                        for (int i=0;i<cnt2_b;i++)
+                        { // new versions will always have same or more items in _newtonIntParams already!
+                            ar >> vi;
+                            _newtonIntParams[i]=vi;
+                        }
+                        for (int i=0;i<cnt2-cnt2_b;i++)
+                        { // this serialization version is newer than what we know. Discard the unrecognized data:
+                            ar >> vi;
+                        }
+                        newtonDataLoaded=true;
+                    }
+                    if (theName=="Var")
+                    { // keep for backw. compat. (09/03/2016)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+
+                        if (nothing&1)
+                            _bulletIntParams[simi_bullet_body_bitcoded]|=simi_bullet_body_usenondefaultcollisionmargin;
+                        if (nothing&2)
+                            _bulletIntParams[simi_bullet_body_bitcoded]|=simi_bullet_body_sticky;
+                        if (nothing&4)
+                            _bulletIntParams[simi_bullet_body_bitcoded]|=simi_bullet_body_autoshrinkconvex;
+                        if (nothing&8)
+                            _bulletIntParams[simi_bullet_body_bitcoded]|=simi_bullet_body_usenondefaultcollisionmarginconvex;
+                        // Following is done after everything was loaded:
+                        //  if (_bulletIntParams[simi_bullet_body_bitcoded]&simi_bullet_body_sticky)
+                        //  _bulletFloatParams[simi_bullet_body_friction]=0.25f; // sticky contacts have disappeared for the new Bullet, we need to adjust for that
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
+                }
             }
-            else
-            {
-                _vortexFloatParams[simi_vortex_body_primlinearaxisfriction]=averageFriction;
-                _vortexFloatParams[simi_vortex_body_seclinearaxisfriction]=averageFriction;
+            if (!vortexDataLoaded)
+            { // keep for backward compatibility (16/10/2013)
+                // Try to guess the friction we would need for Vortex:
+                float averageFriction=0.0f;
+                if (_bulletFloatParams[simi_bullet_body_oldfriction]>1.0f)
+                    averageFriction+=1.0f;
+                else
+                    averageFriction+=_bulletFloatParams[simi_bullet_body_oldfriction];
+                if (_odeFloatParams[simi_ode_body_friction]>1.0f)
+                    averageFriction+=1.0f;
+                else
+                    averageFriction+=_odeFloatParams[simi_ode_body_friction];
+                averageFriction*=0.5f;
+                if (averageFriction<0.01f)
+                {
+                    _vortexIntParams[simi_vortex_body_primlinearaxisfrictionmodel]=sim_vortex_bodyfrictionmodel_none;
+                    _vortexIntParams[simi_vortex_body_seclinearaxisfrictionmodel]=sim_vortex_bodyfrictionmodel_none;
+                }
+                else
+                {
+                    _vortexFloatParams[simi_vortex_body_primlinearaxisfriction]=averageFriction;
+                    _vortexFloatParams[simi_vortex_body_seclinearaxisfriction]=averageFriction;
+                }
             }
-        }
-        if (!newtonDataLoaded)
-        { // keep for backward compatibility (5/8/2015)
-            // Try to guess the friction we would need for Newton:
-            float averageFriction=0.0f;
-            if (_bulletFloatParams[simi_bullet_body_oldfriction]>1.0f)
-                averageFriction+=1.0f;
-            else
-                averageFriction+=_bulletFloatParams[simi_bullet_body_oldfriction];
-            if (_odeFloatParams[simi_ode_body_friction]>1.0f)
-                averageFriction+=1.0f;
-            else
-                averageFriction+=_odeFloatParams[simi_ode_body_friction];
-            averageFriction*=0.5f;
-            _newtonFloatParams[simi_newton_body_staticfriction]=averageFriction;
-            _newtonFloatParams[simi_newton_body_kineticfriction]=averageFriction;
+            if (!newtonDataLoaded)
+            { // keep for backward compatibility (5/8/2015)
+                // Try to guess the friction we would need for Newton:
+                float averageFriction=0.0f;
+                if (_bulletFloatParams[simi_bullet_body_oldfriction]>1.0f)
+                    averageFriction+=1.0f;
+                else
+                    averageFriction+=_bulletFloatParams[simi_bullet_body_oldfriction];
+                if (_odeFloatParams[simi_ode_body_friction]>1.0f)
+                    averageFriction+=1.0f;
+                else
+                    averageFriction+=_odeFloatParams[simi_ode_body_friction];
+                averageFriction*=0.5f;
+                _newtonFloatParams[simi_newton_body_staticfriction]=averageFriction;
+                _newtonFloatParams[simi_newton_body_kineticfriction]=averageFriction;
+            }
         }
     }
 }

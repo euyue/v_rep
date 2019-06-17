@@ -1,4 +1,3 @@
-
 #include "vrepMainHeader.h"
 #include "funcDebug.h"
 #include "geometric.h"
@@ -10,6 +9,7 @@
 #include "app.h"
 #include "pluginContainer.h"
 #include "shapeRendering.h"
+#include "tt.h"
 
 int CGeometric::_nextUniqueID=0;
 unsigned int CGeometric::_extRendererUniqueObjectID=0;
@@ -1069,6 +1069,7 @@ void CGeometric::actualizeGouraudShadingAndVisibleEdges()
 
 void CGeometric::_recomputeNormals()
 {
+    _normals.resize(3*_indices.size());
     float maxAngle=_gouraudShadingAngle;
     C3Vector v[3];
     for (int i=0;i<int(_indices.size())/3;i++)
@@ -1603,330 +1604,333 @@ void CGeometric::getEdgesFromBufferBasedOnIndex(int index,std::vector<unsigned c
     edges.assign(_tempEdges[index]->begin(),_tempEdges[index]->end());
 }
 
-void CGeometric::serialize(CSer& ar)
+void CGeometric::serialize(CSer& ar,const char* shapeName)
 { // function has virtual/non-virtual counterpart!
-    serializeWrapperInfos(ar);
-    if (ar.isStoring())
-    {       // Storing
-        ar.storeDataName("Cl0");
-        ar.setCountingMode();
-        color.serialize(ar,0);
-        if (ar.setWritingMode())
+    serializeWrapperInfos(ar,shapeName);
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            ar.storeDataName("Cl0");
+            ar.setCountingMode();
             color.serialize(ar,0);
+            if (ar.setWritingMode())
+                color.serialize(ar,0);
 
-        ar.storeDataName("Cl2");
-        ar.setCountingMode();
-        insideColor_DEPRECATED.serialize(ar,0);
-        if (ar.setWritingMode())
+            ar.storeDataName("Cl2");
+            ar.setCountingMode();
             insideColor_DEPRECATED.serialize(ar,0);
+            if (ar.setWritingMode())
+                insideColor_DEPRECATED.serialize(ar,0);
 
-        ar.storeDataName("Ecl");
-        ar.setCountingMode();
-        edgeColor_DEPRECATED.serialize(ar,1);
-        if (ar.setWritingMode())
+            ar.storeDataName("Ecl");
+            ar.setCountingMode();
             edgeColor_DEPRECATED.serialize(ar,1);
+            if (ar.setWritingMode())
+                edgeColor_DEPRECATED.serialize(ar,1);
 
-        if (App::ct->undoBufferContainer->isUndoSavingOrRestoringUnderWay())
-        { // undo/redo serialization:
-            ar.storeDataName("Ver");
-            ar << App::ct->undoBufferContainer->undoBufferArrays.addVertexBuffer(_vertices,App::ct->undoBufferContainer->getNextBufferId());
+            if (App::ct->undoBufferContainer->isUndoSavingOrRestoringUnderWay())
+            { // undo/redo serialization:
+                ar.storeDataName("Ver");
+                ar << App::ct->undoBufferContainer->undoBufferArrays.addVertexBuffer(_vertices,App::ct->undoBufferContainer->getNextBufferId());
+                ar.flush();
+
+                ar.storeDataName("Ind");
+                ar << App::ct->undoBufferContainer->undoBufferArrays.addIndexBuffer(_indices,App::ct->undoBufferContainer->getNextBufferId());
+                ar.flush();
+
+                ar.storeDataName("Nor");
+                ar << App::ct->undoBufferContainer->undoBufferArrays.addNormalsBuffer(_normals,App::ct->undoBufferContainer->getNextBufferId());
+                ar.flush();
+            }
+            else
+            { // normal serialization:
+                ar.storeDataName("Vev");
+                ar << _tempVerticesIndexForSerialization;
+                ar.flush();
+
+                ar.storeDataName("Inv");
+                ar << _tempIndicesIndexForSerialization;
+                ar.flush();
+
+                ar.storeDataName("Nov");
+                ar << _tempNormalsIndexForSerialization;
+                ar.flush();
+            }
+
+            ar.storeDataName("Vvd");
+            ar << _tempEdgesIndexForSerialization;
             ar.flush();
 
-            ar.storeDataName("Ind");
-            ar << App::ct->undoBufferContainer->undoBufferArrays.addIndexBuffer(_indices,App::ct->undoBufferContainer->getNextBufferId());
+            ar.storeDataName("Ppr");
+            ar << _purePrimitive << _purePrimitiveXSizeOrDiameter << _purePrimitiveYSize << _purePrimitiveZSizeOrHeight;
             ar.flush();
 
-            ar.storeDataName("Nor");
-            ar << App::ct->undoBufferContainer->undoBufferArrays.addNormalsBuffer(_normals,App::ct->undoBufferContainer->getNextBufferId());
+            ar.storeDataName("Pp2");
+            ar << _purePrimitiveInsideScaling;
             ar.flush();
+
+            ar.storeDataName("Ppf");
+            ar << _verticeLocalFrame(0) << _verticeLocalFrame(1) << _verticeLocalFrame(2) << _verticeLocalFrame(3);
+            ar << _verticeLocalFrame(4) << _verticeLocalFrame(5) << _verticeLocalFrame(6);
+            ar.flush();
+
+            ar.storeDataName("Gsa"); // write this always before Gs2
+            ar << _gouraudShadingAngle << _edgeWidth_DEPRERCATED;
+            ar.flush();
+
+            ar.storeDataName("Gs2");
+            ar << _edgeThresholdAngle;
+            ar.flush();
+
+            ar.storeDataName("Var");
+            unsigned char nothing=0;
+            SIM_SET_CLEAR_BIT(nothing,0,_visibleEdges);
+            SIM_SET_CLEAR_BIT(nothing,1,_culling);
+            SIM_SET_CLEAR_BIT(nothing,2,_wireframe);
+            SIM_SET_CLEAR_BIT(nothing,3,_insideAndOutsideFacesSameColor_DEPRECATED);
+            // RESERVED... DO NOT USE  // SIM_SET_CLEAR_BIT(nothing,4,true); // means: we do not have to make the convectivity test for this shape (was already done). Added this on 16/1/2013
+            SIM_SET_CLEAR_BIT(nothing,5,true); // means: we do not have to make the convectivity test for this shape (was already done). Added this on 28/1/2013
+            SIM_SET_CLEAR_BIT(nothing,6,_displayInverted_DEPRECATED);
+            SIM_SET_CLEAR_BIT(nothing,7,_hideEdgeBorders);
+            ar << nothing;
+            ar.flush();
+
+            if (_textureProperty!=nullptr)
+            {
+                ar.storeDataName("Toj");
+                ar.setCountingMode();
+                _textureProperty->serialize(ar);
+                if (ar.setWritingMode())
+                    _textureProperty->serialize(ar);
+            }
+
+            ar.storeDataName("Hfd"); // Has to come after PURE TYPE!
+            ar << _heightfieldXCount << _heightfieldYCount;
+            for (int i=0;i<int(_heightfieldHeights.size());i++)
+                ar << _heightfieldHeights[i];
+            ar.flush();
+
+            ar.storeDataName(SER_END_OF_OBJECT);
         }
         else
-        { // normal serialization:
-            ar.storeDataName("Vev");
-            ar << _tempVerticesIndexForSerialization;
-            ar.flush();
-
-            ar.storeDataName("Inv");
-            ar << _tempIndicesIndexForSerialization;
-            ar.flush();
-
-            ar.storeDataName("Nov");
-            ar << _tempNormalsIndexForSerialization;
-            ar.flush();
-        }
-
-        ar.storeDataName("Vvd");
-        ar << _tempEdgesIndexForSerialization;
-        ar.flush();
-
-        ar.storeDataName("Ppr");
-        ar << _purePrimitive << _purePrimitiveXSizeOrDiameter << _purePrimitiveYSize << _purePrimitiveZSizeOrHeight;
-        ar.flush();
-
-        ar.storeDataName("Pp2");
-        ar << _purePrimitiveInsideScaling;
-        ar.flush();
-
-        ar.storeDataName("Ppf");
-        ar << _verticeLocalFrame(0) << _verticeLocalFrame(1) << _verticeLocalFrame(2) << _verticeLocalFrame(3);
-        ar << _verticeLocalFrame(4) << _verticeLocalFrame(5) << _verticeLocalFrame(6);
-        ar.flush();
-
-        ar.storeDataName("Gsa"); // write this always before Gs2
-        ar << _gouraudShadingAngle << _edgeWidth_DEPRERCATED;
-        ar.flush();
-
-        ar.storeDataName("Gs2");
-        ar << _edgeThresholdAngle;
-        ar.flush();
-
-        ar.storeDataName("Var");
-        unsigned char nothing=0;
-        SIM_SET_CLEAR_BIT(nothing,0,_visibleEdges);
-        SIM_SET_CLEAR_BIT(nothing,1,_culling);
-        SIM_SET_CLEAR_BIT(nothing,2,_wireframe);
-        SIM_SET_CLEAR_BIT(nothing,3,_insideAndOutsideFacesSameColor_DEPRECATED);
-        // RESERVED... DO NOT USE  // SIM_SET_CLEAR_BIT(nothing,4,true); // means: we do not have to make the convectivity test for this shape (was already done). Added this on 16/1/2013
-        SIM_SET_CLEAR_BIT(nothing,5,true); // means: we do not have to make the convectivity test for this shape (was already done). Added this on 28/1/2013
-        SIM_SET_CLEAR_BIT(nothing,6,_displayInverted_DEPRECATED);
-        SIM_SET_CLEAR_BIT(nothing,7,_hideEdgeBorders);
-        ar << nothing;
-        ar.flush();
-
-        if (_textureProperty!=nullptr)
-        {
-            ar.storeDataName("Toj");
-            ar.setCountingMode();
-            _textureProperty->serialize(ar);
-            if (ar.setWritingMode())
-                _textureProperty->serialize(ar);
-        }
-
-        ar.storeDataName("Hfd"); // Has to come after PURE TYPE!
-        ar << _heightfieldXCount << _heightfieldYCount;
-        for (int i=0;i<int(_heightfieldHeights.size());i++)
-            ar << _heightfieldHeights[i];
-        ar.flush();
-
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
             {
-                bool noHit=true;
-                if (theName.compare("Cl0")==0)
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
                 {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    color.serialize(ar,0);
-                }
-                if (theName.compare("Cl2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    insideColor_DEPRECATED.serialize(ar,0);
-                }
-                if (theName.compare("Ecl")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    edgeColor_DEPRECATED.serialize(ar,1);
-                }
-                if (App::ct->undoBufferContainer->isUndoSavingOrRestoringUnderWay())
-                { // undo/redo serialization
-                    if (theName.compare("Ver")==0)
+                    bool noHit=true;
+                    if (theName.compare("Cl0")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity;
-                        int id;
-                        ar >> id;
-                        App::ct->undoBufferContainer->undoBufferArrays.getVertexBuffer(id,_vertices);
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        color.serialize(ar,0);
                     }
-                    if (theName.compare("Ind")==0)
+                    if (theName.compare("Cl2")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity;
-                        int id;
-                        ar >> id;
-                        App::ct->undoBufferContainer->undoBufferArrays.getIndexBuffer(id,_indices);
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        insideColor_DEPRECATED.serialize(ar,0);
                     }
-                    if (theName.compare("Nor")==0)
+                    if (theName.compare("Ecl")==0)
                     {
                         noHit=false;
-                        ar >> byteQuantity;
-                        int id;
-                        ar >> id;
-                        App::ct->undoBufferContainer->undoBufferArrays.getNormalsBuffer(id,_normals);
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        edgeColor_DEPRECATED.serialize(ar,1);
                     }
-                }
-                else
-                { // normal serialization
-                    if (theName.compare("Ver")==0)
-                    { // for backward compatibility (1/7/2014)
-                        noHit=false;
-                        ar >> byteQuantity;
-                        _vertices.resize(byteQuantity/sizeof(float),0.0f);
-                        for (int i=0;i<int(_vertices.size());i++)
-                            ar >> _vertices[i];
+                    if (App::ct->undoBufferContainer->isUndoSavingOrRestoringUnderWay())
+                    { // undo/redo serialization
+                        if (theName.compare("Ver")==0)
+                        {
+                            noHit=false;
+                            ar >> byteQuantity;
+                            int id;
+                            ar >> id;
+                            App::ct->undoBufferContainer->undoBufferArrays.getVertexBuffer(id,_vertices);
+                        }
+                        if (theName.compare("Ind")==0)
+                        {
+                            noHit=false;
+                            ar >> byteQuantity;
+                            int id;
+                            ar >> id;
+                            App::ct->undoBufferContainer->undoBufferArrays.getIndexBuffer(id,_indices);
+                        }
+                        if (theName.compare("Nor")==0)
+                        {
+                            noHit=false;
+                            ar >> byteQuantity;
+                            int id;
+                            ar >> id;
+                            App::ct->undoBufferContainer->undoBufferArrays.getNormalsBuffer(id,_normals);
+                        }
                     }
-                    if (theName.compare("Ind")==0)
-                    { // for backward compatibility (1/7/2014)
-                        noHit=false;
-                        ar >> byteQuantity;
-                        _indices.resize(byteQuantity/sizeof(int),0);
-                        for (int i=0;i<int(_indices.size());i++)
-                            ar >> _indices[i];
-                    }
-                    if (theName.compare("Nor")==0)
-                    { // for backward compatibility (1/7/2014)
-                        noHit=false;
-                        ar >> byteQuantity;
-                        _normals.resize(byteQuantity/sizeof(float),0.0f);
-                        for (int i=0;i<int(_normals.size());i++)
-                            ar >> _normals[i];
+                    else
+                    { // normal serialization
+                        if (theName.compare("Ver")==0)
+                        { // for backward compatibility (1/7/2014)
+                            noHit=false;
+                            ar >> byteQuantity;
+                            _vertices.resize(byteQuantity/sizeof(float),0.0f);
+                            for (int i=0;i<int(_vertices.size());i++)
+                                ar >> _vertices[i];
+                        }
+                        if (theName.compare("Ind")==0)
+                        { // for backward compatibility (1/7/2014)
+                            noHit=false;
+                            ar >> byteQuantity;
+                            _indices.resize(byteQuantity/sizeof(int),0);
+                            for (int i=0;i<int(_indices.size());i++)
+                                ar >> _indices[i];
+                        }
+                        if (theName.compare("Nor")==0)
+                        { // for backward compatibility (1/7/2014)
+                            noHit=false;
+                            ar >> byteQuantity;
+                            _normals.resize(byteQuantity/sizeof(float),0.0f);
+                            for (int i=0;i<int(_normals.size());i++)
+                                ar >> _normals[i];
+                        }
+
+                        if (theName.compare("Vev")==0)
+                        {
+                            noHit=false;
+                            ar >> byteQuantity;
+                            int index;
+                            ar >> index;
+                            getVerticesFromBufferBasedOnIndex(index,_vertices);
+                        }
+                        if (theName.compare("Inv")==0)
+                        {
+                            noHit=false;
+                            ar >> byteQuantity;
+                            int index;
+                            ar >> index;
+                            getIndicesFromBufferBasedOnIndex(index,_indices);
+                        }
+                        if (theName.compare("Nov")==0)
+                        {
+                            noHit=false;
+                            ar >> byteQuantity;
+                            int index;
+                            ar >> index;
+                            getNormalsFromBufferBasedOnIndex(index,_normals);
+                        }
                     }
 
-                    if (theName.compare("Vev")==0)
+                    if (theName.compare("In2")==0)
+                    { // for backward compatibility (1/7/2014)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        _loadPackedIntegers(ar,_indices);
+                    }
+                    if (theName.compare("No2")==0)
+                    { // for backward compatibility (1/7/2014)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        _normals.resize(byteQuantity*6/sizeof(float),0.0f);
+                        for (int i=0;i<byteQuantity/2;i++)
+                        {
+                            unsigned short w;
+                            ar >> w;
+                            char x=(w&0x001f)-15;
+                            char y=((w>>5)&0x001f)-15;
+                            char z=((w>>10)&0x001f)-15;
+                            C3Vector n((float)x,(float)y,(float)z);
+                            n.normalize();
+                            _normals[3*i+0]=n(0);
+                            _normals[3*i+1]=n(1);
+                            _normals[3*i+2]=n(2);
+                        }
+                    }
+                    if (theName.compare("Ved")==0)
+                    { // for backward compatibility (1/7/2014)
+                        noHit=false;
+                        ar >> byteQuantity;
+                        _edges.resize(byteQuantity,0);
+                        for (int i=0;i<byteQuantity;i++)
+                            ar >> _edges[i];
+                    }
+                    if (theName.compare("Vvd")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
                         int index;
                         ar >> index;
-                        getVerticesFromBufferBasedOnIndex(index,_vertices);
+                        getEdgesFromBufferBasedOnIndex(index,_edges);
                     }
-                    if (theName.compare("Inv")==0)
+                    if (theName.compare("Ppr")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        int index;
-                        ar >> index;
-                        getIndicesFromBufferBasedOnIndex(index,_indices);
+                        ar >> _purePrimitive >> _purePrimitiveXSizeOrDiameter >> _purePrimitiveYSize >> _purePrimitiveZSizeOrHeight;
                     }
-                    if (theName.compare("Nov")==0)
+                    if (theName.compare("Pp2")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        int index;
-                        ar >> index;
-                        getNormalsFromBufferBasedOnIndex(index,_normals);
+                        ar >> _purePrimitiveInsideScaling;
                     }
-                }
-
-                if (theName.compare("In2")==0)
-                { // for backward compatibility (1/7/2014)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    _loadPackedIntegers(ar,_indices);
-                }
-                if (theName.compare("No2")==0)
-                { // for backward compatibility (1/7/2014)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    _normals.resize(byteQuantity*6/sizeof(float),0.0f);
-                    for (int i=0;i<byteQuantity/2;i++)
+                    if (theName.compare("Ppf")==0)
                     {
-                        unsigned short w;
-                        ar >> w;
-                        char x=(w&0x001f)-15;
-                        char y=((w>>5)&0x001f)-15;
-                        char z=((w>>10)&0x001f)-15;
-                        C3Vector n((float)x,(float)y,(float)z);
-                        n.normalize();
-                        _normals[3*i+0]=n(0);
-                        _normals[3*i+1]=n(1);
-                        _normals[3*i+2]=n(2);
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _verticeLocalFrame(0) >> _verticeLocalFrame(1) >> _verticeLocalFrame(2) >> _verticeLocalFrame(3);
+                        ar >> _verticeLocalFrame(4) >> _verticeLocalFrame(5) >> _verticeLocalFrame(6);
                     }
-                }
-                if (theName.compare("Ved")==0)
-                { // for backward compatibility (1/7/2014)
-                    noHit=false;
-                    ar >> byteQuantity;
-                    _edges.resize(byteQuantity,0);
-                    for (int i=0;i<byteQuantity;i++)
-                        ar >> _edges[i];
-                }
-                if (theName.compare("Vvd")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int index;
-                    ar >> index;
-                    getEdgesFromBufferBasedOnIndex(index,_edges);
-                }
-                if (theName.compare("Ppr")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _purePrimitive >> _purePrimitiveXSizeOrDiameter >> _purePrimitiveYSize >> _purePrimitiveZSizeOrHeight;
-                }
-                if (theName.compare("Pp2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _purePrimitiveInsideScaling;
-                }
-                if (theName.compare("Ppf")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _verticeLocalFrame(0) >> _verticeLocalFrame(1) >> _verticeLocalFrame(2) >> _verticeLocalFrame(3);
-                    ar >> _verticeLocalFrame(4) >> _verticeLocalFrame(5) >> _verticeLocalFrame(6);
-                }
-                if (theName.compare("Gsa")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _gouraudShadingAngle >> _edgeWidth_DEPRERCATED;
-                    _edgeThresholdAngle=_gouraudShadingAngle;
-                }
-                if (theName.compare("Gs2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _edgeThresholdAngle;
-                }
-                if (theName=="Var")
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-                    _visibleEdges=SIM_IS_BIT_SET(nothing,0);
-                    _culling=SIM_IS_BIT_SET(nothing,1);
-                    _wireframe=SIM_IS_BIT_SET(nothing,2);
-                    _insideAndOutsideFacesSameColor_DEPRECATED=SIM_IS_BIT_SET(nothing,3);
-                    // reserved   doTheConvectivityTest=!SIM_IS_BIT_SET(nothing,4); // version 3.0.1 was buggy
-                    // reserved doTheConvectivityTest=!SIM_IS_BIT_SET(nothing,5); // since version 3.0.2 (version 3.0.1 was buggy)
-                    _displayInverted_DEPRECATED=SIM_IS_BIT_SET(nothing,6);
-                    _hideEdgeBorders=SIM_IS_BIT_SET(nothing,7);
-                }
-                if (theName.compare("Toj")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    _textureProperty=new CTextureProperty();
-                    _textureProperty->serialize(ar);
-                }
-                if (theName.compare("Hfd")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _heightfieldXCount >> _heightfieldYCount;
-                    for (int i=0;i<_heightfieldXCount*_heightfieldYCount;i++)
+                    if (theName.compare("Gsa")==0)
                     {
-                        float dummy;
-                        ar >> dummy;
-                        _heightfieldHeights.push_back(dummy);
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _gouraudShadingAngle >> _edgeWidth_DEPRERCATED;
+                        _edgeThresholdAngle=_gouraudShadingAngle;
                     }
+                    if (theName.compare("Gs2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _edgeThresholdAngle;
+                    }
+                    if (theName=="Var")
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        _visibleEdges=SIM_IS_BIT_SET(nothing,0);
+                        _culling=SIM_IS_BIT_SET(nothing,1);
+                        _wireframe=SIM_IS_BIT_SET(nothing,2);
+                        _insideAndOutsideFacesSameColor_DEPRECATED=SIM_IS_BIT_SET(nothing,3);
+                        // reserved   doTheConvectivityTest=!SIM_IS_BIT_SET(nothing,4); // version 3.0.1 was buggy
+                        // reserved doTheConvectivityTest=!SIM_IS_BIT_SET(nothing,5); // since version 3.0.2 (version 3.0.1 was buggy)
+                        _displayInverted_DEPRECATED=SIM_IS_BIT_SET(nothing,6);
+                        _hideEdgeBorders=SIM_IS_BIT_SET(nothing,7);
+                    }
+                    if (theName.compare("Toj")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        _textureProperty=new CTextureProperty();
+                        _textureProperty->serialize(ar);
+                    }
+                    if (theName.compare("Hfd")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _heightfieldXCount >> _heightfieldYCount;
+                        for (int i=0;i<_heightfieldXCount*_heightfieldYCount;i++)
+                        {
+                            float dummy;
+                            ar >> dummy;
+                            _heightfieldHeights.push_back(dummy);
+                        }
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
                 }
-                if (noHit)
-                    ar.loadUnknownData();
             }
         }
     }

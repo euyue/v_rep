@@ -99,230 +99,233 @@ CConvexVolume* CConvexVolume::copyYourself()
 
 void CConvexVolume::serialize(CSer& ar)
 {
-    if (ar.isStoring())
-    {       // Storing
-        ar.storeDataName("Snt");
-        ar << _volumeType;
-        ar.flush();
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            ar.storeDataName("Snt");
+            ar << _volumeType;
+            ar.flush();
 
-        ar.storeDataName("Ss3");
-        ar << offset << range << xSize << ySize << xSizeFar << ySizeFar;
-        ar << radius << radiusFar << angle;
-        ar.flush();
+            ar.storeDataName("Ss3");
+            ar << offset << range << xSize << ySize << xSizeFar << ySizeFar;
+            ar << radius << radiusFar << angle;
+            ar.flush();
 
-        ar.storeDataName("Sia");
-        ar << insideAngleThing;
-        ar.flush();
+            ar.storeDataName("Sia");
+            ar << insideAngleThing;
+            ar.flush();
 
-        ar.storeDataName("Ssi");
-        ar << faceNumber << faceNumberFar << subdivisions << subdivisionsFar;
-        ar.flush();
+            ar.storeDataName("Ssi");
+            ar << faceNumber << faceNumberFar << subdivisions << subdivisionsFar;
+            ar.flush();
 
-        ar.storeDataName("Wtf");
-        ar << _smallestDistanceAllowed;
-        ar.flush();
+            ar.storeDataName("Wtf");
+            ar << _smallestDistanceAllowed;
+            ar.flush();
 
-        ar.storeDataName("Par");
-        unsigned char nothing=0;
-        SIM_SET_CLEAR_BIT(nothing,0,_smallestDistanceEnabled);
-        ar << nothing;
-        ar.flush();
+            ar.storeDataName("Par");
+            unsigned char nothing=0;
+            SIM_SET_CLEAR_BIT(nothing,0,_smallestDistanceEnabled);
+            ar << nothing;
+            ar.flush();
 
-        // Following added on 2010/04/28 because recomputing those values takes long:
-        //***************************************************************************
-        ar.storeDataName("Nc0");
-        ar << int(planesInside.size());
-        for (int i=0;i<int(planesInside.size());i++)
-            ar << planesInside[i];
-        ar.flush();
+            // Following added on 2010/04/28 because recomputing those values takes long:
+            //***************************************************************************
+            ar.storeDataName("Nc0");
+            ar << int(planesInside.size());
+            for (int i=0;i<int(planesInside.size());i++)
+                ar << planesInside[i];
+            ar.flush();
 
-        ar.storeDataName("Nc1");
-        ar << int(planesOutside.size());
-        for (int i=0;i<int(planesOutside.size());i++)
-            ar << planesOutside[i];
-        ar.flush();
+            ar.storeDataName("Nc1");
+            ar << int(planesOutside.size());
+            for (int i=0;i<int(planesOutside.size());i++)
+                ar << planesOutside[i];
+            ar.flush();
 
-        ar.storeDataName("Nc2");
-        ar << int(normalsInside.size());
-        for (int i=0;i<int(normalsInside.size());i++)
-            ar << normalsInside[i];
-        ar.flush();
+            ar.storeDataName("Nc2");
+            ar << int(normalsInside.size());
+            for (int i=0;i<int(normalsInside.size());i++)
+                ar << normalsInside[i];
+            ar.flush();
 
-        ar.storeDataName("Nc3");
-        ar << int(normalsOutside.size());
-        for (int i=0;i<int(normalsOutside.size());i++)
-            ar << normalsOutside[i];
-        ar.flush();
+            ar.storeDataName("Nc3");
+            ar << int(normalsOutside.size());
+            for (int i=0;i<int(normalsOutside.size());i++)
+                ar << normalsOutside[i];
+            ar.flush();
 
-        ar.storeDataName("Nc4");
-        ar << int(volumeEdges.size());
-        for (int i=0;i<int(volumeEdges.size());i++)
-            ar << volumeEdges[i];
-        ar.flush();
+            ar.storeDataName("Nc4");
+            ar << int(volumeEdges.size());
+            for (int i=0;i<int(volumeEdges.size());i++)
+                ar << volumeEdges[i];
+            ar.flush();
 
-        ar.storeDataName("Nc5");
-        ar << int(nonDetectingVolumeEdges.size());
-        for (int i=0;i<int(nonDetectingVolumeEdges.size());i++)
-            ar << nonDetectingVolumeEdges[i];
-        ar.flush();
+            ar.storeDataName("Nc5");
+            ar << int(nonDetectingVolumeEdges.size());
+            for (int i=0;i<int(nonDetectingVolumeEdges.size());i++)
+                ar << nonDetectingVolumeEdges[i];
+            ar.flush();
 
-        //***************************************************************************
+            //***************************************************************************
 
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        bool recomputeVolumes=true; // for backward compatibility (2010/04/28)
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
-            {
-                bool noHit=true;
-                if (theName.compare("Snt")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _volumeType;
-                }
-                if (theName.compare("Ss3")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> offset >> range >> xSize >> ySize >> xSizeFar >> ySizeFar;
-                    ar >> radius >> radiusFar >> angle;
-                }
-                if (theName.compare("Sia")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> insideAngleThing;
-                }
-                if (theName.compare("Ssi")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> faceNumber >> faceNumberFar >> subdivisions >> subdivisionsFar;
-                }
-                if (theName.compare("Wtf")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _smallestDistanceAllowed;
-                }
-                if (theName=="Par")
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-                    _smallestDistanceEnabled=SIM_IS_BIT_SET(nothing,0);
-                }
-                // Following added on 2010/04/28 because recomputing those values takes long:
-                //***************************************************************************
-                if (theName.compare("Nc0")==0)
-                {
-                    recomputeVolumes=false;
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int vectSize;
-                    ar >> vectSize;
-                    planesInside.clear();
-                    float dum;
-                    for (int i=0;i<vectSize;i++)
-                    {
-                        ar >> dum;
-                        planesInside.push_back(dum);
-                    }
-                }
-                if (theName.compare("Nc1")==0)
-                {
-                    recomputeVolumes=false;
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int vectSize;
-                    ar >> vectSize;
-                    planesOutside.clear();
-                    float dum;
-                    for (int i=0;i<vectSize;i++)
-                    {
-                        ar >> dum;
-                        planesOutside.push_back(dum);
-                    }
-                }
-                if (theName.compare("Nc2")==0)
-                {
-                    recomputeVolumes=false;
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int vectSize;
-                    ar >> vectSize;
-                    normalsInside.clear();
-                    float dum;
-                    for (int i=0;i<vectSize;i++)
-                    {
-                        ar >> dum;
-                        normalsInside.push_back(dum);
-                    }
-                }
-                if (theName.compare("Nc3")==0)
-                {
-                    recomputeVolumes=false;
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int vectSize;
-                    ar >> vectSize;
-                    normalsOutside.clear();
-                    float dum;
-                    for (int i=0;i<vectSize;i++)
-                    {
-                        ar >> dum;
-                        normalsOutside.push_back(dum);
-                    }
-                }
-                if (theName.compare("Nc4")==0)
-                {
-                    recomputeVolumes=false;
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int vectSize;
-                    ar >> vectSize;
-                    volumeEdges.clear();
-                    float dum;
-                    for (int i=0;i<vectSize;i++)
-                    {
-                        ar >> dum;
-                        volumeEdges.push_back(dum);
-                    }
-                }
-                if (theName.compare("Nc5")==0)
-                {
-                    recomputeVolumes=false;
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int vectSize;
-                    ar >> vectSize;
-                    nonDetectingVolumeEdges.clear();
-                    float dum;
-                    for (int i=0;i<vectSize;i++)
-                    {
-                        ar >> dum;
-                        nonDetectingVolumeEdges.push_back(dum);
-                    }
-                }
-                //***************************************************************************
-
-                if (noHit)
-                    ar.loadUnknownData();
-            }
+            ar.storeDataName(SER_END_OF_OBJECT);
         }
-        // For backward compatibility (2010/04/28)
-        //**************************************
-        if (recomputeVolumes)
-            computeVolumes();
-        //**************************************
+        else
+        {       // Loading
+            int byteQuantity;
+            bool recomputeVolumes=true; // for backward compatibility (2010/04/28)
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
+            {
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
+                {
+                    bool noHit=true;
+                    if (theName.compare("Snt")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _volumeType;
+                    }
+                    if (theName.compare("Ss3")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> offset >> range >> xSize >> ySize >> xSizeFar >> ySizeFar;
+                        ar >> radius >> radiusFar >> angle;
+                    }
+                    if (theName.compare("Sia")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> insideAngleThing;
+                    }
+                    if (theName.compare("Ssi")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> faceNumber >> faceNumberFar >> subdivisions >> subdivisionsFar;
+                    }
+                    if (theName.compare("Wtf")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _smallestDistanceAllowed;
+                    }
+                    if (theName=="Par")
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        _smallestDistanceEnabled=SIM_IS_BIT_SET(nothing,0);
+                    }
+                    // Following added on 2010/04/28 because recomputing those values takes long:
+                    //***************************************************************************
+                    if (theName.compare("Nc0")==0)
+                    {
+                        recomputeVolumes=false;
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int vectSize;
+                        ar >> vectSize;
+                        planesInside.clear();
+                        float dum;
+                        for (int i=0;i<vectSize;i++)
+                        {
+                            ar >> dum;
+                            planesInside.push_back(dum);
+                        }
+                    }
+                    if (theName.compare("Nc1")==0)
+                    {
+                        recomputeVolumes=false;
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int vectSize;
+                        ar >> vectSize;
+                        planesOutside.clear();
+                        float dum;
+                        for (int i=0;i<vectSize;i++)
+                        {
+                            ar >> dum;
+                            planesOutside.push_back(dum);
+                        }
+                    }
+                    if (theName.compare("Nc2")==0)
+                    {
+                        recomputeVolumes=false;
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int vectSize;
+                        ar >> vectSize;
+                        normalsInside.clear();
+                        float dum;
+                        for (int i=0;i<vectSize;i++)
+                        {
+                            ar >> dum;
+                            normalsInside.push_back(dum);
+                        }
+                    }
+                    if (theName.compare("Nc3")==0)
+                    {
+                        recomputeVolumes=false;
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int vectSize;
+                        ar >> vectSize;
+                        normalsOutside.clear();
+                        float dum;
+                        for (int i=0;i<vectSize;i++)
+                        {
+                            ar >> dum;
+                            normalsOutside.push_back(dum);
+                        }
+                    }
+                    if (theName.compare("Nc4")==0)
+                    {
+                        recomputeVolumes=false;
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int vectSize;
+                        ar >> vectSize;
+                        volumeEdges.clear();
+                        float dum;
+                        for (int i=0;i<vectSize;i++)
+                        {
+                            ar >> dum;
+                            volumeEdges.push_back(dum);
+                        }
+                    }
+                    if (theName.compare("Nc5")==0)
+                    {
+                        recomputeVolumes=false;
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int vectSize;
+                        ar >> vectSize;
+                        nonDetectingVolumeEdges.clear();
+                        float dum;
+                        for (int i=0;i<vectSize;i++)
+                        {
+                            ar >> dum;
+                            nonDetectingVolumeEdges.push_back(dum);
+                        }
+                    }
+                    //***************************************************************************
+
+                    if (noHit)
+                        ar.loadUnknownData();
+                }
+            }
+            // For backward compatibility (2010/04/28)
+            //**************************************
+            if (recomputeVolumes)
+                computeVolumes();
+            //**************************************
+        }
     }
 }
 

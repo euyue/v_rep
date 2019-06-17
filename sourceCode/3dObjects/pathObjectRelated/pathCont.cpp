@@ -1921,119 +1921,122 @@ CPathCont* CPathCont::copyYourself()
 
 void CPathCont::serialize(CSer& ar)
 {
-    if (ar.isStoring())
-    {       // Storing
-        for (int i=0;i<int(_simplePathPoints.size());i++)
-        {
-            ar.storeDataName("Pat");
-            ar.setCountingMode();
-            _simplePathPoints[i]->serialize(ar);
-            if (ar.setWritingMode())
-                _simplePathPoints[i]->serialize(ar);
-        }
-
-        ar.storeDataName("Si2");
-        ar << _lineSize << _squareSize;
-        ar.flush();
-
-        ar.storeDataName("At2");
-        ar << _attributes;
-        ar.flush();
-
-        ar.storeDataName("Cl0");
-        ar.setCountingMode();
-        _lineColor.serialize(ar,1);
-        if (ar.setWritingMode())
-            _lineColor.serialize(ar,1);
-
-        ar.storeDataName("Jm2");
-        ar << float(_position) << _maxAcceleration << _nominalVelocity << _targetNominalVelocity;
-        ar.flush();
-
-        ar.storeDataName("Av3");
-        ar << _angleVarToDistanceCoeff << _pathLengthCalculationMethod;
-        ar.flush();
-
-        ar.storeDataName("Av9"); 
-        ar << _onSpotDistanceToDistanceCoeff;
-        ar.flush();
-
-        ar.storeDataName("Av2");
-        ar << _avp_turningCircleRadiusForHalfVelocity << _avp_relativeVelocityAtRotationAxisChange;
-        ar << _avp_relativeAcceleration;
-        ar.flush();
-
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            for (int i=0;i<int(_simplePathPoints.size());i++)
             {
-                bool noHit=true;
-
-                if (theName.compare("Pat")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    CSimplePathPoint* newPoint=new CSimplePathPoint();
-                    newPoint->serialize(ar);
-                    _simplePathPoints.push_back(newPoint);
-                }
-                if (theName.compare("Si2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _lineSize >> _squareSize;
-                }
-                if (theName.compare("At2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _attributes;
-                }
-                if (theName.compare("Cl0")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    _lineColor.serialize(ar,1);
-                }
-                if (theName.compare("Jm2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    float dummyPos;
-                    ar >> dummyPos >> _maxAcceleration >> _nominalVelocity >> _targetNominalVelocity;
-                    _position=double(dummyPos);
-                }
-                if (theName.compare("Av3")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _angleVarToDistanceCoeff >> _pathLengthCalculationMethod;
-                }
-                if (theName.compare("Av9")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _onSpotDistanceToDistanceCoeff;
-                }
-                if (theName.compare("Av2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _avp_turningCircleRadiusForHalfVelocity >> _avp_relativeVelocityAtRotationAxisChange;
-                    ar >> _avp_relativeAcceleration;
-                }
-                if (noHit)
-                    ar.loadUnknownData();
+                ar.storeDataName("Pat");
+                ar.setCountingMode();
+                _simplePathPoints[i]->serialize(ar);
+                if (ar.setWritingMode())
+                    _simplePathPoints[i]->serialize(ar);
             }
+
+            ar.storeDataName("Si2");
+            ar << _lineSize << _squareSize;
+            ar.flush();
+
+            ar.storeDataName("At2");
+            ar << _attributes;
+            ar.flush();
+
+            ar.storeDataName("Cl0");
+            ar.setCountingMode();
+            _lineColor.serialize(ar,1);
+            if (ar.setWritingMode())
+                _lineColor.serialize(ar,1);
+
+            ar.storeDataName("Jm2");
+            ar << float(_position) << _maxAcceleration << _nominalVelocity << _targetNominalVelocity;
+            ar.flush();
+
+            ar.storeDataName("Av3");
+            ar << _angleVarToDistanceCoeff << _pathLengthCalculationMethod;
+            ar.flush();
+
+            ar.storeDataName("Av9");
+            ar << _onSpotDistanceToDistanceCoeff;
+            ar.flush();
+
+            ar.storeDataName("Av2");
+            ar << _avp_turningCircleRadiusForHalfVelocity << _avp_relativeVelocityAtRotationAxisChange;
+            ar << _avp_relativeAcceleration;
+            ar.flush();
+
+            ar.storeDataName(SER_END_OF_OBJECT);
         }
-        actualizePath();
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
+            {
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
+                {
+                    bool noHit=true;
+
+                    if (theName.compare("Pat")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        CSimplePathPoint* newPoint=new CSimplePathPoint();
+                        newPoint->serialize(ar);
+                        _simplePathPoints.push_back(newPoint);
+                    }
+                    if (theName.compare("Si2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _lineSize >> _squareSize;
+                    }
+                    if (theName.compare("At2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _attributes;
+                    }
+                    if (theName.compare("Cl0")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        _lineColor.serialize(ar,1);
+                    }
+                    if (theName.compare("Jm2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        float dummyPos;
+                        ar >> dummyPos >> _maxAcceleration >> _nominalVelocity >> _targetNominalVelocity;
+                        _position=double(dummyPos);
+                    }
+                    if (theName.compare("Av3")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _angleVarToDistanceCoeff >> _pathLengthCalculationMethod;
+                    }
+                    if (theName.compare("Av9")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _onSpotDistanceToDistanceCoeff;
+                    }
+                    if (theName.compare("Av2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _avp_turningCircleRadiusForHalfVelocity >> _avp_relativeVelocityAtRotationAxisChange;
+                        ar >> _avp_relativeAcceleration;
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
+                }
+            }
+            actualizePath();
+        }
     }
 }
 

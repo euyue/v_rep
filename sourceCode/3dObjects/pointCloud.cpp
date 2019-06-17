@@ -920,204 +920,207 @@ void CPointCloud::serialize(CSer& ar)
 {
     FUNCTION_INSIDE_DEBUG("CPointCloud::serialize");
     serializeMain(ar);
-    if (ar.isStoring())
-    {       // Storing
-        ar.storeDataName("Siz");
-        ar << _cellSize << _pointSize;
-        ar.flush();
-
-        ar.storeDataName("Sut");
-        ar << _removalDistanceTolerance;
-        ar.flush();
-
-        ar.storeDataName("adt");
-        ar << _insertionDistanceTolerance;
-        ar.flush();
-
-        ar.storeDataName("Nec");
-        ar << _nonEmptyCells;
-        ar.flush();
-
-        ar.storeDataName("Pdr");
-        ar << _pointDisplayRatio;
-        ar.flush();
-
-        ar.storeDataName("Pcc");
-        ar << _maxPointCountPerCell << _buildResolution;
-        ar.flush();
-
-        ar.storeDataName("Var");
-        unsigned char dummy=0;
-        SIM_SET_CLEAR_BIT(dummy,1,_showOctreeStructure);
-        SIM_SET_CLEAR_BIT(dummy,2,_useRandomColors);
-        SIM_SET_CLEAR_BIT(dummy,3,_saveCalculationStructure);
-        SIM_SET_CLEAR_BIT(dummy,4,_doNotUseOctreeStructure);
-        SIM_SET_CLEAR_BIT(dummy,5,_colorIsEmissive);
-        ar << dummy;
-        ar.flush();
-
-        ar.storeDataName("Col");
-        ar.setCountingMode();
-        color.serialize(ar,0);
-        if (ar.setWritingMode())
-            color.serialize(ar,0);
-
-        if ( (!_saveCalculationStructure)||_doNotUseOctreeStructure )
-        {
-            ar.storeDataName("Pt2");
-            ar << int(_points.size()/3);
-            for (size_t i=0;i<_points.size()/3;i++)
-            {
-                ar << _points[3*i+0];
-                ar << _points[3*i+1];
-                ar << _points[3*i+2];
-                ar << (unsigned char)(_colors[4*i+0]*255.1f);
-                ar << (unsigned char)(_colors[4*i+1]*255.1f);
-                ar << (unsigned char)(_colors[4*i+2]*255.1f);
-            }
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            ar.storeDataName("Siz");
+            ar << _cellSize << _pointSize;
             ar.flush();
-        }
-        else
-        {
-            if (_pointCloudInfo!=nullptr)
-            {
-                ar.storeDataName("Mmd");
-                ar << _minDim(0) << _minDim(1) << _minDim(2);
-                ar << _maxDim(0) << _maxDim(1) << _maxDim(2);
-                ar.flush();
 
-                std::vector<unsigned char> data;
-                CPluginContainer::mesh_getPointCloudSerializationData(_pointCloudInfo,data);
-                ar.storeDataName("Co2");
-                ar.setCountingMode(true);
-                for (size_t i=0;i<data.size();i++)
-                    ar << data[i];
-                ar.flush(false);
-                if (ar.setWritingMode(true))
+            ar.storeDataName("Sut");
+            ar << _removalDistanceTolerance;
+            ar.flush();
+
+            ar.storeDataName("adt");
+            ar << _insertionDistanceTolerance;
+            ar.flush();
+
+            ar.storeDataName("Nec");
+            ar << _nonEmptyCells;
+            ar.flush();
+
+            ar.storeDataName("Pdr");
+            ar << _pointDisplayRatio;
+            ar.flush();
+
+            ar.storeDataName("Pcc");
+            ar << _maxPointCountPerCell << _buildResolution;
+            ar.flush();
+
+            ar.storeDataName("Var");
+            unsigned char dummy=0;
+            SIM_SET_CLEAR_BIT(dummy,1,_showOctreeStructure);
+            SIM_SET_CLEAR_BIT(dummy,2,_useRandomColors);
+            SIM_SET_CLEAR_BIT(dummy,3,_saveCalculationStructure);
+            SIM_SET_CLEAR_BIT(dummy,4,_doNotUseOctreeStructure);
+            SIM_SET_CLEAR_BIT(dummy,5,_colorIsEmissive);
+            ar << dummy;
+            ar.flush();
+
+            ar.storeDataName("Col");
+            ar.setCountingMode();
+            color.serialize(ar,0);
+            if (ar.setWritingMode())
+                color.serialize(ar,0);
+
+            if ( (!_saveCalculationStructure)||_doNotUseOctreeStructure )
+            {
+                ar.storeDataName("Pt2");
+                ar << int(_points.size()/3);
+                for (size_t i=0;i<_points.size()/3;i++)
                 {
+                    ar << _points[3*i+0];
+                    ar << _points[3*i+1];
+                    ar << _points[3*i+2];
+                    ar << (unsigned char)(_colors[4*i+0]*255.1f);
+                    ar << (unsigned char)(_colors[4*i+1]*255.1f);
+                    ar << (unsigned char)(_colors[4*i+2]*255.1f);
+                }
+                ar.flush();
+            }
+            else
+            {
+                if (_pointCloudInfo!=nullptr)
+                {
+                    ar.storeDataName("Mmd");
+                    ar << _minDim(0) << _minDim(1) << _minDim(2);
+                    ar << _maxDim(0) << _maxDim(1) << _maxDim(2);
+                    ar.flush();
+
+                    std::vector<unsigned char> data;
+                    CPluginContainer::mesh_getPointCloudSerializationData(_pointCloudInfo,data);
+                    ar.storeDataName("Co2");
+                    ar.setCountingMode(true);
                     for (size_t i=0;i<data.size();i++)
                         ar << data[i];
                     ar.flush(false);
+                    if (ar.setWritingMode(true))
+                    {
+                        for (size_t i=0;i<data.size();i++)
+                            ar << data[i];
+                        ar.flush(false);
+                    }
                 }
             }
+            ar.storeDataName(SER_END_OF_OBJECT);
         }
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
             {
-                bool noHit=true;
-                if (theName.compare("Siz")==0)
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
                 {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _cellSize >> _pointSize;
-                }
-                if (theName.compare("Sut")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _removalDistanceTolerance;
-                }
-                if (theName.compare("adt")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _insertionDistanceTolerance;
-                }
-                if (theName.compare("Nec")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _nonEmptyCells;
-                }
-                if (theName.compare("Pdr")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _pointDisplayRatio;
-                }
-                if (theName.compare("Pcc")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _maxPointCountPerCell >> _buildResolution;
-                }
-                if (theName.compare("Pt2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    int cnt;
-                    ar >> cnt;
-                    std::vector<float> pts;
-                    pts.resize(cnt*3);
-                    std::vector<unsigned char> cols;
-                    cols.resize(cnt*3);
-                    for (int i=0;i<cnt;i++)
+                    bool noHit=true;
+                    if (theName.compare("Siz")==0)
                     {
-                        ar >> pts[3*i+0];
-                        ar >> pts[3*i+1];
-                        ar >> pts[3*i+2];
-                        ar >> cols[3*i+0];
-                        ar >> cols[3*i+1];
-                        ar >> cols[3*i+2];
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _cellSize >> _pointSize;
                     }
-                    // Now we need to rebuild the pointCloud:
-                    if (cnt>0)
-                        insertPoints(&pts[0],cnt,true,&cols[0],true);
-                    else
-                        clear();
-                }
-                if (theName.compare("Mmd")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _minDim(0) >> _minDim(1) >> _minDim(2);
-                    ar >> _maxDim(0) >> _maxDim(1) >> _maxDim(2);
-                }
-
-                if (theName.compare("Var")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char dummy;
-                    ar >> dummy;
-                    _showOctreeStructure=SIM_IS_BIT_SET(dummy,1);
-                    _useRandomColors=SIM_IS_BIT_SET(dummy,2);
-                    _saveCalculationStructure=SIM_IS_BIT_SET(dummy,3);
-                    _doNotUseOctreeStructure=SIM_IS_BIT_SET(dummy,4);
-                    _colorIsEmissive=SIM_IS_BIT_SET(dummy,5);
-                }
-                if (theName.compare("Col")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    color.serialize(ar,0);
-                }
-                if (theName.compare("Co2")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo never stores calc structures)
-
-                    std::vector<unsigned char> data;
-                    data.reserve(byteQuantity);
-                    unsigned char dummy;
-                    for (int i=0;i<byteQuantity;i++)
+                    if (theName.compare("Sut")==0)
                     {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _removalDistanceTolerance;
+                    }
+                    if (theName.compare("adt")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _insertionDistanceTolerance;
+                    }
+                    if (theName.compare("Nec")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _nonEmptyCells;
+                    }
+                    if (theName.compare("Pdr")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _pointDisplayRatio;
+                    }
+                    if (theName.compare("Pcc")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _maxPointCountPerCell >> _buildResolution;
+                    }
+                    if (theName.compare("Pt2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        int cnt;
+                        ar >> cnt;
+                        std::vector<float> pts;
+                        pts.resize(cnt*3);
+                        std::vector<unsigned char> cols;
+                        cols.resize(cnt*3);
+                        for (int i=0;i<cnt;i++)
+                        {
+                            ar >> pts[3*i+0];
+                            ar >> pts[3*i+1];
+                            ar >> pts[3*i+2];
+                            ar >> cols[3*i+0];
+                            ar >> cols[3*i+1];
+                            ar >> cols[3*i+2];
+                        }
+                        // Now we need to rebuild the pointCloud:
+                        if (cnt>0)
+                            insertPoints(&pts[0],cnt,true,&cols[0],true);
+                        else
+                            clear();
+                    }
+                    if (theName.compare("Mmd")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _minDim(0) >> _minDim(1) >> _minDim(2);
+                        ar >> _maxDim(0) >> _maxDim(1) >> _maxDim(2);
+                    }
+
+                    if (theName.compare("Var")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char dummy;
                         ar >> dummy;
-                        data.push_back(dummy);
+                        _showOctreeStructure=SIM_IS_BIT_SET(dummy,1);
+                        _useRandomColors=SIM_IS_BIT_SET(dummy,2);
+                        _saveCalculationStructure=SIM_IS_BIT_SET(dummy,3);
+                        _doNotUseOctreeStructure=SIM_IS_BIT_SET(dummy,4);
+                        _colorIsEmissive=SIM_IS_BIT_SET(dummy,5);
                     }
-                    _pointCloudInfo=CPluginContainer::mesh_getPointCloudFromSerializationData(data);
-                    _readPositionsAndColorsAndSetDimensions();
+                    if (theName.compare("Col")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        color.serialize(ar,0);
+                    }
+                    if (theName.compare("Co2")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo never stores calc structures)
+
+                        std::vector<unsigned char> data;
+                        data.reserve(byteQuantity);
+                        unsigned char dummy;
+                        for (int i=0;i<byteQuantity;i++)
+                        {
+                            ar >> dummy;
+                            data.push_back(dummy);
+                        }
+                        _pointCloudInfo=CPluginContainer::mesh_getPointCloudFromSerializationData(data);
+                        _readPositionsAndColorsAndSetDimensions();
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
                 }
-                if (noHit)
-                    ar.loadUnknownData();
             }
         }
     }

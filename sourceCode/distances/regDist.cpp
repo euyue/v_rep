@@ -329,102 +329,105 @@ int CRegDist::getSegmentWidth() const
 
 void CRegDist::serialize(CSer& ar)
 {
-    if (ar.isStoring())
-    {       // Storing
-        ar.storeDataName("Inx");
-        ar << object1ID << object2ID << objectID;
-        ar.flush();
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            ar.storeDataName("Inx");
+            ar << object1ID << object2ID << objectID;
+            ar.flush();
 
-        ar.storeDataName("Trh");
-        ar << treshhold;
-        ar.flush();
+            ar.storeDataName("Trh");
+            ar << treshhold;
+            ar.flush();
 
-        ar.storeDataName("Swt");
-        ar << _segmentWidth;
-        ar.flush();
+            ar.storeDataName("Swt");
+            ar << _segmentWidth;
+            ar.flush();
 
-        ar.storeDataName("Col");
-        ar.setCountingMode();
-        segmentColor.serialize(ar,1);
-        if (ar.setWritingMode())
+            ar.storeDataName("Col");
+            ar.setCountingMode();
             segmentColor.serialize(ar,1);
+            if (ar.setWritingMode())
+                segmentColor.serialize(ar,1);
 
-        ar.storeDataName("Var");
-        unsigned char nothing=0;
-        SIM_SET_CLEAR_BIT(nothing,0,treshholdActive);
-        SIM_SET_CLEAR_BIT(nothing,1,!displaySegment);
-        SIM_SET_CLEAR_BIT(nothing,2,explicitHandling);
-        ar << nothing;
-        ar.flush();
+            ar.storeDataName("Var");
+            unsigned char nothing=0;
+            SIM_SET_CLEAR_BIT(nothing,0,treshholdActive);
+            SIM_SET_CLEAR_BIT(nothing,1,!displaySegment);
+            SIM_SET_CLEAR_BIT(nothing,2,explicitHandling);
+            ar << nothing;
+            ar.flush();
 
-        ar.storeDataName("Nme");
-        ar << objectName;
-        ar.flush();
+            ar.storeDataName("Nme");
+            ar << objectName;
+            ar.flush();
 
-        ar.storeDataName("Uis");
-        ar << _uniquePersistentIdString;
-        ar.flush();
+            ar.storeDataName("Uis");
+            ar << _uniquePersistentIdString;
+            ar.flush();
 
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
+            ar.storeDataName(SER_END_OF_OBJECT);
+        }
+        else
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
             {
-                bool noHit=true;
-                if (theName.compare("Inx")==0)
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
                 {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> object1ID >> object2ID >> objectID;
+                    bool noHit=true;
+                    if (theName.compare("Inx")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> object1ID >> object2ID >> objectID;
+                    }
+                    if (theName.compare("Trh")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> treshhold;
+                    }
+                    if (theName.compare("Swt")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _segmentWidth;
+                    }
+                    if (theName.compare("Col")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
+                        segmentColor.serialize(ar,1);
+                    }
+                    if (theName.compare("Var")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        treshholdActive=SIM_IS_BIT_SET(nothing,0);
+                        displaySegment=!SIM_IS_BIT_SET(nothing,1);
+                        explicitHandling=SIM_IS_BIT_SET(nothing,2);
+                    }
+                    if (theName.compare("Nme")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> objectName;
+                    }
+                    if (theName.compare("Uis")==0)
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _uniquePersistentIdString;
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
                 }
-                if (theName.compare("Trh")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> treshhold;
-                }
-                if (theName.compare("Swt")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _segmentWidth;
-                }
-                if (theName.compare("Col")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity; // never use that info, unless loading unknown data!!!! (undo/redo stores dummy info in there)
-                    segmentColor.serialize(ar,1);
-                }
-                if (theName.compare("Var")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-                    treshholdActive=SIM_IS_BIT_SET(nothing,0);
-                    displaySegment=!SIM_IS_BIT_SET(nothing,1);
-                    explicitHandling=SIM_IS_BIT_SET(nothing,2);
-                }
-                if (theName.compare("Nme")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> objectName;
-                }
-                if (theName.compare("Uis")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _uniquePersistentIdString;
-                }
-                if (noHit)
-                    ar.loadUnknownData();
             }
         }
     }

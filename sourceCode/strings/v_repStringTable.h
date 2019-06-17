@@ -547,7 +547,6 @@
 #define IDS_CAD_DATA_IMPORT_PROGRESS "CAD data import progress"
 #define IDS_EXPAND_SELECTED_TREE_MENU_ITEM "Expand selected trees"
 #define IDS_COLLAPSE_SELECTED_TREE_MENU_ITEM "Collapse selected trees"
-#define IDS_NOT_VALID_V_REP_FILE "The file does not seem to be a valid V-REP file."
 #define IDS_SERIALIZATION_VERSION_NOT_SUPPORTED_ANYMORE "This serialization version is not supported anymore. Please convert this file."
 #define IDS_SERIALIZATION_VERSION_TOO_RECENT "The serialization version is too recent and cannot be loaded by this V-REP version."
 
@@ -637,17 +636,22 @@
 
 // File menu item:
 #define IDS_NEW_SCENE_MENU_ITEM "New scene"
+
 #define IDS_OPEN_SCENE___MENU_ITEM "Open scene..."
 #define IDS_OPEN_RECENT_SCENE_MENU_ITEM "Open recent scene"
 #define IDS_LOAD_MODEL___MENU_ITEM "Load model..."
 #define IDS_SAVE_SCENE_MENU_ITEM "Save scene"
+#define IDS_SAVE_SCENE_AS_MENU_ITEM "Save scene as"
+#define IDS_SCENE_AS_VREP___MENU_ITEM "V-REP scene..."
+#define IDS_SCENE_AS_BR___MENU_ITEM "Blue REALITY scene..."
 #define IDS_SAVE_SCENE_AS___MENU_ITEM "Save scene as..."
+
+#define IDS_SAVE_MODEL_AS_MENU_ITEM "Save model as"
+#define IDS_MODEL_AS_VREP___MENU_ITEM "V-REP model..."
+#define IDS_MODEL_AS_BR___MENU_ITEM "Blue REALITY model..."
+
 #define IDS_SAVE_MODEL_AS___MENU_ITEM "Save model as..."
-#define IDS_SAVE_SCENE_AS_BLUEREALITY___MENU_ITEM "Save scene as Blue REALITY scene..."
-#define IDS_SAVE_MODEL_AS_BLUEREALITY___MENU_ITEM "Save model as Blue REALITY model..."
-#define IDS_SAVE_SCENE_AS_VREP___MENU_ITEM "Save scene as V-REP scene..."
-#define IDS_SAVE_SCENE_AS_XML___MENU_ITEM "Save scene as XML scene..."
-#define IDS_SAVE_MODEL_AS_VREP___MENU_ITEM "Save model as V-REP model..."
+
 #define IDS_SAVING_MODEL___ "Saving model..."
 #define IDS_IMPORT_MESH___MENU_ITEM "Mesh..."
 #define IDS_IMPORTING_MESH___ "Importing mesh..."
@@ -1103,8 +1107,8 @@
 #define IDS_WARNING_WHEN_PURE_HOLLOW_SHAPE_NOT_SUPPORTED "The scene contains one or several pure hollow shapes that cannot be simulated with currently selected dynamics engine. The pure shape(s) will be filled (i.e. non-hollow) for this simulation."
 #define IDS_WARNING_WHEN_PHYSICS_ENGINE_NOT_SUPPORTED "The physics engine currently selected is not supported (you might be missing a required plugin). Simulation will not run correctly."
 #define IDS_WARNING_WHEN_VORTEX_NOT_YET_SUPPORTED "The Vortex engine is not yet supported on this platform.\n\nThe Vortex engine is currently supported on Windows and Linux."
-#define IDS_WARNING_WITH_VORTEX_DEMO_PLUGIN_WINDOWS "You are running an unregistered version of the Vortex engine: dynamic is disabled.\nYou may obtain a free license for the Vortex engine by downloading Vortex Studio Essentials (2018c) here:\n\nwww.cm-labs.com\n\nOnce Vortex Studio Essentials is installed and registered, you will be able to run\nV-REP simulations with the Vortex engine."
-#define IDS_WARNING_WITH_VORTEX_DEMO_PLUGIN_LINUX "You are running an unregistered version of the Vortex engine: dynamic is disabled.\nYou may obtain a free license for the Vortex engine by downloading Vortex Studio Essentials (2018a) here:\n\nwww.cm-labs.com\n\nOnce Vortex Studio Essentials is installed and registered, you will be able to run\nV-REP simulations with the Vortex engine."
+#define IDS_WARNING_WITH_VORTEX_DEMO_PLUGIN_WINDOWS "You are running an unregistered version of the Vortex engine: dynamic is disabled.\nYou may obtain a free license for the Vortex engine by downloading Vortex Studio (2019a) here:\n\nwww.cm-labs.com\n\nOnce Vortex Studio is installed and registered, you will be able to run\nV-REP simulations with the Vortex engine."
+#define IDS_WARNING_WITH_VORTEX_DEMO_PLUGIN_LINUX "You are running an unregistered version of the Vortex engine: dynamic is disabled.\nYou may obtain a free license for the Vortex engine by downloading Vortex Studio (2019a) here:\n\nwww.cm-labs.com\n\nOnce Vortex Studio is installed and registered, you will be able to run\nV-REP simulations with the Vortex engine."
 
 #define IDS_SWITCH_TO_BULLET_2_78_ENGINE_MENU_ITEM "Using the Bullet physics engine (V2.78)"
 #define IDS_SWITCH_TO_BULLET_2_83_ENGINE_MENU_ITEM "Using the Bullet physics engine (V2.83)"

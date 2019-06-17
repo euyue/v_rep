@@ -1,4 +1,3 @@
-
 #include "vrepMainHeader.h"
 #include "v_rep_internal.h"
 #include "textureObject.h"
@@ -431,110 +430,113 @@ bool CTextureObject::writePortionOfTexture(const unsigned char* rgbData,int posX
 
 void CTextureObject::serialize(CSer& ar)
 {
-    if (ar.isStoring())
-    {       // Storing
-        ar.storeDataName("Ipa");
-        ar << _objectID << _textureSize[0] << _textureSize[1];
-        ar.flush();
-
-        ar.storeDataName("Gon");
-        ar << _objectName;
-        ar.flush();
-
-        ar.storeDataName("Bst");
-        unsigned char nothing=0;
-        SIM_SET_CLEAR_BIT(nothing,0,_providedImageWasRGBA);
-        ar << nothing;
-        ar.flush();
-
-        if (App::ct->undoBufferContainer->isUndoSavingOrRestoringUnderWay())
-        { // undo/redo serialization:
-            ar.storeDataName("Img");
-            ar << App::ct->undoBufferContainer->undoBufferArrays.addTextureBuffer(_textureBuffer,App::ct->undoBufferContainer->getNextBufferId());
+    if (ar.isBinary())
+    {
+        if (ar.isStoring())
+        {       // Storing
+            ar.storeDataName("Ipa");
+            ar << _objectID << _textureSize[0] << _textureSize[1];
             ar.flush();
+
+            ar.storeDataName("Gon");
+            ar << _objectName;
+            ar.flush();
+
+            ar.storeDataName("Bst");
+            unsigned char nothing=0;
+            SIM_SET_CLEAR_BIT(nothing,0,_providedImageWasRGBA);
+            ar << nothing;
+            ar.flush();
+
+            if (App::ct->undoBufferContainer->isUndoSavingOrRestoringUnderWay())
+            { // undo/redo serialization:
+                ar.storeDataName("Img");
+                ar << App::ct->undoBufferContainer->undoBufferArrays.addTextureBuffer(_textureBuffer,App::ct->undoBufferContainer->getNextBufferId());
+                ar.flush();
+            }
+            else
+            { // normal serialization
+                ar.storeDataName("Img");
+                for (int i=0;i<_textureSize[0]*_textureSize[1];i++)
+                {
+                    ar << _textureBuffer[4*i+0];
+                    ar << _textureBuffer[4*i+1];
+                    ar << _textureBuffer[4*i+2];
+                    if (_providedImageWasRGBA)
+                        ar << _textureBuffer[4*i+3];
+                }
+                ar.flush();
+            }
+
+            ar.storeDataName(SER_END_OF_OBJECT);
         }
         else
-        { // normal serialization
-            ar.storeDataName("Img");
-            for (int i=0;i<_textureSize[0]*_textureSize[1];i++)
+        {       // Loading
+            int byteQuantity;
+            std::string theName="";
+            while (theName.compare(SER_END_OF_OBJECT)!=0)
             {
-                ar << _textureBuffer[4*i+0];
-                ar << _textureBuffer[4*i+1];
-                ar << _textureBuffer[4*i+2];
-                if (_providedImageWasRGBA)
-                    ar << _textureBuffer[4*i+3];
-            }
-            ar.flush();
-        }
-
-        ar.storeDataName(SER_END_OF_OBJECT);
-    }
-    else
-    {       // Loading
-        int byteQuantity;
-        std::string theName="";
-        while (theName.compare(SER_END_OF_OBJECT)!=0)
-        {
-            theName=ar.readDataName();
-            if (theName.compare(SER_END_OF_OBJECT)!=0)
-            {
-                bool noHit=true;
-                if (theName.compare("Ipa")==0)
+                theName=ar.readDataName();
+                if (theName.compare(SER_END_OF_OBJECT)!=0)
                 {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _objectID >> _textureSize[0] >> _textureSize[1];
-                }
-                if (theName.compare("Gon")==0)
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    ar >> _objectName;
-                }
-                if (theName=="Bst")
-                {
-                    noHit=false;
-                    ar >> byteQuantity;
-                    unsigned char nothing;
-                    ar >> nothing;
-                    _providedImageWasRGBA=SIM_IS_BIT_SET(nothing,0);
-                }
-                if (App::ct->undoBufferContainer->isUndoSavingOrRestoringUnderWay())
-                { // undo/redo serialization
-                    if (theName.compare("Img")==0)
+                    bool noHit=true;
+                    if (theName.compare("Ipa")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        int id;
-                        ar >> id;
-                        App::ct->undoBufferContainer->undoBufferArrays.getTextureBuffer(id,_textureBuffer);
-                        _changedFlag=true;
-                        _currentTextureContentUniqueId=_textureContentUniqueId++;
+                        ar >> _objectID >> _textureSize[0] >> _textureSize[1];
                     }
-                }
-                else
-                { // normal serialization
-                    if (theName=="Img")
+                    if (theName.compare("Gon")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
-                        _textureBuffer.resize(4*_textureSize[0]*_textureSize[1],0);
-                        for (int i=0;i<_textureSize[0]*_textureSize[1];i++)
+                        ar >> _objectName;
+                    }
+                    if (theName=="Bst")
+                    {
+                        noHit=false;
+                        ar >> byteQuantity;
+                        unsigned char nothing;
+                        ar >> nothing;
+                        _providedImageWasRGBA=SIM_IS_BIT_SET(nothing,0);
+                    }
+                    if (App::ct->undoBufferContainer->isUndoSavingOrRestoringUnderWay())
+                    { // undo/redo serialization
+                        if (theName.compare("Img")==0)
                         {
-                            ar >> _textureBuffer[4*i+0];
-                            ar >> _textureBuffer[4*i+1];
-                            ar >> _textureBuffer[4*i+2];
-                            if (_providedImageWasRGBA)
-                                ar >> _textureBuffer[4*i+3];
-                            else
-                                _textureBuffer[4*i+3]=255;
+                            noHit=false;
+                            ar >> byteQuantity;
+                            int id;
+                            ar >> id;
+                            App::ct->undoBufferContainer->undoBufferArrays.getTextureBuffer(id,_textureBuffer);
+                            _changedFlag=true;
+                            _currentTextureContentUniqueId=_textureContentUniqueId++;
                         }
-                        _changedFlag=true;
-                        _currentTextureContentUniqueId=_textureContentUniqueId++;
                     }
+                    else
+                    { // normal serialization
+                        if (theName=="Img")
+                        {
+                            noHit=false;
+                            ar >> byteQuantity;
+                            _textureBuffer.resize(4*_textureSize[0]*_textureSize[1],0);
+                            for (int i=0;i<_textureSize[0]*_textureSize[1];i++)
+                            {
+                                ar >> _textureBuffer[4*i+0];
+                                ar >> _textureBuffer[4*i+1];
+                                ar >> _textureBuffer[4*i+2];
+                                if (_providedImageWasRGBA)
+                                    ar >> _textureBuffer[4*i+3];
+                                else
+                                    _textureBuffer[4*i+3]=255;
+                            }
+                            _changedFlag=true;
+                            _currentTextureContentUniqueId=_textureContentUniqueId++;
+                        }
+                    }
+                    if (noHit)
+                        ar.loadUnknownData();
                 }
-                if (noHit)
-                    ar.loadUnknownData();
             }
         }
     }
