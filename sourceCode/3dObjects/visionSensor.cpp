@@ -1289,6 +1289,7 @@ void CVisionSensor::renderForDetection(int entityID,bool detectAll,bool entityIs
     }
     else
     {
+#ifdef SIM_WITH_GUI
         if (!_extRenderer_prepareView(_renderMode-sim_rendermode_povray))
         {
             if (_renderMode==sim_rendermode_povray)
@@ -1299,6 +1300,7 @@ void CVisionSensor::renderForDetection(int entityID,bool detectAll,bool entityIs
                 alreadyShown=true;
             }
         }
+#endif
         _extRenderer_prepareLights();
         _extRenderer_prepareMirrors();
     }

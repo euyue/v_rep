@@ -1862,6 +1862,7 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
             { // When using a ray-tracer during video recording, and we want to record not every frame, don't render those frames!!
                 App::mainWindow->openglWidget->doneCurrent();
 
+#ifdef SIM_WITH_GUI
                 if (!_extRenderer_prepareView(rendererIndex,_currentViewSize,isPerspective))
                 {
                     if (rendererIndex==0)
@@ -1872,6 +1873,7 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
                         alreadyShown=true;
                     }
                 }
+#endif
                 _extRenderer_prepareLights();
                 _extRenderer_prepareMirrors();
 
