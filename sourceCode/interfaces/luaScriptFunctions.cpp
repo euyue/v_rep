@@ -1631,6 +1631,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.visionfloatparam_pov_aperture",sim_visionfloatparam_pov_aperture,true},
     {"sim.visionintparam_pov_blur_sampled",sim_visionintparam_pov_blur_sampled,true},
     {"sim.visionintparam_render_mode",sim_visionintparam_render_mode,true},
+    {"sim.visionintparam_perspective_operation",sim_visionintparam_perspective_operation,true},
     // joints
     {"sim.jointintparam_motor_enabled",sim_jointintparam_motor_enabled,true},
     {"sim.jointintparam_ctrl_enabled",sim_jointintparam_ctrl_enabled,true},
@@ -1992,6 +1993,7 @@ const SLuaVariables simLuaVariables[]=
     {"sim.buffer_uint8argb",sim_buffer_uint8argb,true},
     {"sim.buffer_base64",sim_buffer_base64,true},
     {"sim.buffer_split",sim_buffer_split,true},
+    {"sim.buffer_clamp",sim_buffer_clamp,true},
     // Image combination:
     {"sim.imgcomb_vertical",sim_imgcomb_vertical,true},
     {"sim.imgcomb_horizontal",sim_imgcomb_horizontal,true},
@@ -10077,14 +10079,18 @@ int _simTransformBuffer(luaWrap_lua_State* L)
     if (checkInputArguments(L,&errorString,lua_arg_string,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0,lua_arg_number,0))
     {
         size_t dataLength;
-        char* data=(char*)luaWrap_lua_tolstring(L,1,&dataLength);
         int inFormat=luaToInt(L,2);
-        float mult=luaToFloat(L,3);
-        float off=luaToFloat(L,4);
         int outFormat=luaToInt(L,5);
+        bool clamp=(outFormat&sim_buffer_clamp)!=0;
+        if (clamp)
+            outFormat-=sim_buffer_clamp;
         bool something=false;
         if (inFormat==sim_buffer_float)
         {
+            float mult=luaToFloat(L,3);
+            float off=luaToFloat(L,4);
+            bool noScalingNorOffset=( (mult==1.0f)&&(off==0.0f) );
+            const float* data=(const float*)luaWrap_lua_tolstring(L,1,&dataLength);
             something=true;
             dataLength-=(dataLength % sizeof(float));
             dataLength/=sizeof(float);
@@ -10093,8 +10099,38 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                 if (outFormat==sim_buffer_uint8)
                 {
                    unsigned char* dat=new unsigned char[dataLength];
-                   for (size_t i=0;i<dataLength;i++)
-                       dat[i]=(unsigned char)(((float*)data)[i]*mult+off);
+                   if (clamp)
+                   {
+                       if (noScalingNorOffset)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               float v=data[i];
+                               dat[i]=(v<0.0f)?(0):((v>255.499f)?(255):((unsigned char)v));
+                           }
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               float v=data[i]*mult+off;
+                               dat[i]=(v<0.0f)?(0):((v>255.499f)?(255):((unsigned char)v));
+                           }
+                       }
+                   }
+                   else
+                   {
+                       if (noScalingNorOffset)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                               dat[i]=(unsigned char)(data[i]);
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                               dat[i]=(unsigned char)(data[i]*mult+off);
+                       }
+                   }
                    luaWrap_lua_pushlstring(L,(const char*)dat,dataLength);
                    delete[] dat;
                    LUA_END(1);
@@ -10102,11 +10138,49 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                 if (outFormat==sim_buffer_uint8rgb)
                 {
                    unsigned char* dat=new unsigned char[dataLength*3];
-                   for (size_t i=0;i<dataLength;i++)
+                   if (clamp)
                    {
-                       dat[3*i+0]=(unsigned char)(((float*)data)[i]*mult+off);
-                       dat[3*i+1]=dat[3*i+0];
-                       dat[3*i+2]=dat[3*i+0];
+                       if (noScalingNorOffset)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               float v=data[i];
+                               dat[3*i+0]=(v<0.0f)?(0):((v>255.499f)?(255):((unsigned char)v));
+                               dat[3*i+1]=dat[3*i+0];
+                               dat[3*i+2]=dat[3*i+0];
+                           }
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               float v=data[i]*mult+off;
+                               dat[3*i+0]=(v<0.0f)?(0):((v>255.499f)?(255):((unsigned char)v));
+                               dat[3*i+1]=dat[3*i+0];
+                               dat[3*i+2]=dat[3*i+0];
+                           }
+                       }
+                   }
+                   else
+                   {
+                       if (noScalingNorOffset)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               dat[3*i+0]=(unsigned char)data[i];
+                               dat[3*i+1]=dat[3*i+0];
+                               dat[3*i+2]=dat[3*i+0];
+                           }
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               dat[3*i+0]=(unsigned char)(data[i]*mult+off);
+                               dat[3*i+1]=dat[3*i+0];
+                               dat[3*i+2]=dat[3*i+0];
+                           }
+                       }
                    }
                    luaWrap_lua_pushlstring(L,(const char*)dat,dataLength*3);
                    delete[] dat;
@@ -10115,17 +10189,77 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                 if (outFormat==sim_buffer_int8)
                 {
                    char* dat=new char[dataLength];
-                   for (size_t i=0;i<dataLength;i++)
-                       dat[i]=(char)(((float*)data)[i]*mult+off);
+                   if (clamp)
+                   {
+                       if (noScalingNorOffset)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               float v=data[i];
+                               dat[i]=(v<-128.499f)?(-128):((v>127.499f)?(127):((char)v));
+                           }
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               float v=data[i]*mult+off;
+                               dat[i]=(v<-128.499f)?(-128):((v>127.499f)?(127):((char)v));
+                           }
+                       }
+                   }
+                   else
+                   {
+                       if (noScalingNorOffset)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                               dat[i]=(char)data[i];
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                               dat[i]=(char)(data[i]*mult+off);
+                       }
+                   }
                    luaWrap_lua_pushlstring(L,(const char*)dat,dataLength);
                    delete[] dat;
                    LUA_END(1);
                 }
                 if (outFormat==sim_buffer_uint16)
                 {
-                   uint16_t* dat=new uint16_t[dataLength];
-                   for (size_t i=0;i<dataLength;i++)
-                       dat[i]=(uint16_t)(((float*)data)[i]*mult+off);
+                    uint16_t* dat=new uint16_t[dataLength];
+                    if (clamp)
+                    {
+                        if (noScalingNorOffset)
+                        {
+                            for (size_t i=0;i<dataLength;i++)
+                            {
+                                float v=data[i];
+                                dat[i]=(v<0.0f)?(0):((v>65535.499f)?(65535):((uint16_t)v));
+                            }
+                        }
+                        else
+                        {
+                            for (size_t i=0;i<dataLength;i++)
+                            {
+                                float v=data[i]*mult+off;
+                                dat[i]=(v<0.0f)?(0):((v>65535.499f)?(65535):((uint16_t)v));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (noScalingNorOffset)
+                        {
+                            for (size_t i=0;i<dataLength;i++)
+                                dat[i]=(uint16_t)data[i];
+                        }
+                        else
+                        {
+                            for (size_t i=0;i<dataLength;i++)
+                                dat[i]=(uint16_t)(data[i]*mult+off);
+                        }
+                    }
                    luaWrap_lua_pushlstring(L,(const char*)dat,dataLength*sizeof(uint16_t));
                    delete[] dat;
                    LUA_END(1);
@@ -10133,8 +10267,38 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                 if (outFormat==sim_buffer_int16)
                 {
                    int16_t* dat=new int16_t[dataLength];
-                   for (size_t i=0;i<dataLength;i++)
-                       dat[i]=(int16_t)(((float*)data)[i]*mult+off);
+                   if (clamp)
+                   {
+                       if (noScalingNorOffset)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               float v=data[i];
+                               dat[i]=(v<-32768.499f)?(-32768):((v>32767.499f)?(32767):((int16_t)v));
+                           }
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               float v=data[i]*mult+off;
+                               dat[i]=(v<-32768.499f)?(-32768):((v>32767.499f)?(32767):((int16_t)v));
+                           }
+                       }
+                   }
+                   else
+                   {
+                       if (noScalingNorOffset)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                               dat[i]=(int16_t)data[i];
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                               dat[i]=(int16_t)(data[i]*mult+off);
+                       }
+                   }
                    luaWrap_lua_pushlstring(L,(const char*)dat,dataLength*sizeof(int16_t));
                    delete[] dat;
                    LUA_END(1);
@@ -10142,8 +10306,38 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                 if (outFormat==sim_buffer_uint32)
                 {
                    uint32_t* dat=new uint32_t[dataLength];
-                   for (size_t i=0;i<dataLength;i++)
-                       dat[i]=(uint32_t)(((float*)data)[i]*mult+off);
+                   if (clamp)
+                   {
+                       if (noScalingNorOffset)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               float v=data[i];
+                               dat[i]=(v<0.0f)?(0):((v>4294967295.499f)?(4294967295):((uint32_t)v));
+                           }
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               float v=data[i]*mult+off;
+                               dat[i]=(v<0.0f)?(0):((v>4294967295.499f)?(4294967295):((uint32_t)v));
+                           }
+                       }
+                   }
+                   else
+                   {
+                       if (noScalingNorOffset)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                               dat[i]=(uint32_t)data[i];
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                               dat[i]=(uint32_t)(data[i]*mult+off);
+                       }
+                   }
                    luaWrap_lua_pushlstring(L,(const char*)dat,dataLength*sizeof(uint32_t));
                    delete[] dat;
                    LUA_END(1);
@@ -10151,8 +10345,38 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                 if (outFormat==sim_buffer_int32)
                 {
                    int32_t* dat=new int32_t[dataLength];
-                   for (size_t i=0;i<dataLength;i++)
-                       dat[i]=(int32_t)(((float*)data)[i]*mult+off);
+                   if (clamp)
+                   {
+                       if (noScalingNorOffset)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               float v=data[i];
+                               dat[i]=(v<-2147483648.499f)?(-2147483648):((v>2147483647.499f)?(2147483647):((int32_t)v));
+                           }
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               float v=data[i]*mult+off;
+                               dat[i]=(v<-2147483648.499f)?(-2147483648):((v>2147483647.499f)?(2147483647):((int32_t)v));
+                           }
+                       }
+                   }
+                   else
+                   {
+                       if (noScalingNorOffset)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                               dat[i]=(int32_t)data[i];
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                               dat[i]=(int32_t)(data[i]*mult+off);
+                       }
+                   }
                    luaWrap_lua_pushlstring(L,(const char*)dat,dataLength*sizeof(int32_t));
                    delete[] dat;
                    LUA_END(1);
@@ -10160,8 +10384,16 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                 if (outFormat==sim_buffer_float)
                 {
                    float* dat=new float[dataLength];
-                   for (size_t i=0;i<dataLength;i++)
-                       dat[i]=(float)(((float*)data)[i]*mult+off);
+                   if (noScalingNorOffset)
+                   {
+                       for (size_t i=0;i<dataLength;i++)
+                           dat[i]=data[i];
+                   }
+                   else
+                   {
+                       for (size_t i=0;i<dataLength;i++)
+                           dat[i]=data[i]*mult+off;
+                   }
                    luaWrap_lua_pushlstring(L,(const char*)dat,dataLength*sizeof(float));
                    delete[] dat;
                    LUA_END(1);
@@ -10169,8 +10401,16 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                 if (outFormat==sim_buffer_double)
                 {
                    double* dat=new double[dataLength];
-                   for (size_t i=0;i<dataLength;i++)
-                       dat[i]=(double)(((float*)data)[i]*mult+off);
+                   if (noScalingNorOffset)
+                   {
+                       for (size_t i=0;i<dataLength;i++)
+                           dat[i]=(double)data[i];
+                   }
+                   else
+                   {
+                       for (size_t i=0;i<dataLength;i++)
+                           dat[i]=(double)(data[i]*mult+off);
+                   }
                    luaWrap_lua_pushlstring(L,(const char*)dat,dataLength*sizeof(double));
                    delete[] dat;
                    LUA_END(1);
@@ -10182,6 +10422,10 @@ int _simTransformBuffer(luaWrap_lua_State* L)
         }
         if (inFormat==sim_buffer_double)
         {
+            double mult=luaToDouble(L,3);
+            double off=luaToDouble(L,4);
+            bool noScalingNorOffset=( (mult==1.0)&&(off==0.0) );
+            const double* data=(const double*)luaWrap_lua_tolstring(L,1,&dataLength);
             something=true;
             dataLength-=(dataLength % sizeof(double));
             dataLength/=sizeof(double);
@@ -10190,8 +10434,38 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                 if (outFormat==sim_buffer_uint8)
                 {
                    unsigned char* dat=new unsigned char[dataLength];
-                   for (size_t i=0;i<dataLength;i++)
-                       dat[i]=(unsigned char)(((double*)data)[i]*mult+off);
+                   if (clamp)
+                   {
+                       if (noScalingNorOffset)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               double v=data[i];
+                               dat[i]=(v<0.0)?(0):((v>255.499)?(255):((unsigned char)v));
+                           }
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               double v=data[i]*mult+off;
+                               dat[i]=(v<0.0)?(0):((v>255.499)?(255):((unsigned char)v));
+                           }
+                       }
+                   }
+                   else
+                   {
+                       if (noScalingNorOffset)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                               dat[i]=(unsigned char)data[i];
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                               dat[i]=(unsigned char)(data[i]*mult+off);
+                       }
+                   }
                    luaWrap_lua_pushlstring(L,(const char*)dat,dataLength);
                    delete[] dat;
                    LUA_END(1);
@@ -10199,11 +10473,49 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                 if (outFormat==sim_buffer_uint8rgb)
                 {
                    unsigned char* dat=new unsigned char[dataLength*3];
-                   for (size_t i=0;i<dataLength;i++)
+                   if (clamp)
                    {
-                       dat[3*i+0]=(unsigned char)(((double*)data)[i]*mult+off);
-                       dat[3*i+1]=dat[3*i+0];
-                       dat[3*i+2]=dat[3*i+0];
+                       if (noScalingNorOffset)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               double v=data[i];
+                               dat[3*i+0]=(v<0.0)?(0):((v>255.499)?(255):((unsigned char)v));
+                               dat[3*i+1]=dat[3*i+0];
+                               dat[3*i+2]=dat[3*i+0];
+                           }
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               double v=data[i]*mult+off;
+                               dat[3*i+0]=(v<0.0)?(0):((v>255.499)?(255):((unsigned char)v));
+                               dat[3*i+1]=dat[3*i+0];
+                               dat[3*i+2]=dat[3*i+0];
+                           }
+                       }
+                   }
+                   else
+                   {
+                       if (noScalingNorOffset)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               dat[3*i+0]=(unsigned char)data[i];
+                               dat[3*i+1]=dat[3*i+0];
+                               dat[3*i+2]=dat[3*i+0];
+                           }
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               dat[3*i+0]=(unsigned char)(data[i]*mult+off);
+                               dat[3*i+1]=dat[3*i+0];
+                               dat[3*i+2]=dat[3*i+0];
+                           }
+                       }
                    }
                    luaWrap_lua_pushlstring(L,(const char*)dat,dataLength*3);
                    delete[] dat;
@@ -10212,8 +10524,38 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                 if (outFormat==sim_buffer_int8)
                 {
                    char* dat=new char[dataLength];
-                   for (size_t i=0;i<dataLength;i++)
-                       dat[i]=(char)(((double*)data)[i]*mult+off);
+                   if (clamp)
+                   {
+                       if (noScalingNorOffset)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               double v=data[i];
+                               dat[i]=(v<-128.499)?(-128):((v>127.499)?(127):((char)v));
+                           }
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               double v=data[i]*mult+off;
+                               dat[i]=(v<-128.499)?(-128):((v>127.499)?(127):((char)v));
+                           }
+                       }
+                   }
+                   else
+                   {
+                       if (noScalingNorOffset)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                               dat[i]=(char)data[i];
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                               dat[i]=(char)(data[i]*mult+off);
+                       }
+                   }
                    luaWrap_lua_pushlstring(L,(const char*)dat,dataLength);
                    delete[] dat;
                    LUA_END(1);
@@ -10221,8 +10563,38 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                 if (outFormat==sim_buffer_uint16)
                 {
                    uint16_t* dat=new uint16_t[dataLength];
-                   for (size_t i=0;i<dataLength;i++)
-                       dat[i]=(uint16_t)(((double*)data)[i]*mult+off);
+                   if (clamp)
+                   {
+                       if (noScalingNorOffset)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               double v=data[i];
+                               dat[i]=(v<0.0)?(0):((v>65535.499)?(65535):((uint16_t)v));
+                           }
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               double v=data[i]*mult+off;
+                               dat[i]=(v<0.0)?(0):((v>65535.499)?(65535):((uint16_t)v));
+                           }
+                       }
+                   }
+                   else
+                   {
+                       if (noScalingNorOffset)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                               dat[i]=(uint16_t)data[i];
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                               dat[i]=(uint16_t)(data[i]*mult+off);
+                       }
+                   }
                    luaWrap_lua_pushlstring(L,(const char*)dat,dataLength*sizeof(uint16_t));
                    delete[] dat;
                    LUA_END(1);
@@ -10230,8 +10602,38 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                 if (outFormat==sim_buffer_int16)
                 {
                    int16_t* dat=new int16_t[dataLength];
-                   for (size_t i=0;i<dataLength;i++)
-                       dat[i]=(int16_t)(((double*)data)[i]*mult+off);
+                   if (clamp)
+                   {
+                       if (noScalingNorOffset)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               double v=data[i];
+                               dat[i]=(v<-32768.499)?(-32768):((v>32767.499)?(32767):((int16_t)v));
+                           }
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               double v=data[i]*mult+off;
+                               dat[i]=(v<-32768.499)?(-32768):((v>32767.499)?(32767):((int16_t)v));
+                           }
+                       }
+                   }
+                   else
+                   {
+                       if (noScalingNorOffset)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                               dat[i]=(int16_t)data[i];
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                               dat[i]=(int16_t)(data[i]*mult+off);
+                       }
+                   }
                    luaWrap_lua_pushlstring(L,(const char*)dat,dataLength*sizeof(int16_t));
                    delete[] dat;
                    LUA_END(1);
@@ -10239,8 +10641,38 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                 if (outFormat==sim_buffer_uint32)
                 {
                    uint32_t* dat=new uint32_t[dataLength];
-                   for (size_t i=0;i<dataLength;i++)
-                       dat[i]=(uint32_t)(((double*)data)[i]*mult+off);
+                   if (clamp)
+                   {
+                       if (noScalingNorOffset)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               double v=data[i];
+                               dat[i]=(v<0.0)?(0):((v>4294967295.499)?(4294967295):((uint32_t)v));
+                           }
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               double v=data[i]*mult+off;
+                               dat[i]=(v<0.0)?(0):((v>4294967295.499)?(4294967295):((uint32_t)v));
+                           }
+                       }
+                   }
+                   else
+                   {
+                       if (noScalingNorOffset)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                               dat[i]=(uint32_t)data[i];
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                               dat[i]=(uint32_t)(data[i]*mult+off);
+                       }
+                   }
                    luaWrap_lua_pushlstring(L,(const char*)dat,dataLength*sizeof(uint32_t));
                    delete[] dat;
                    LUA_END(1);
@@ -10248,8 +10680,38 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                 if (outFormat==sim_buffer_int32)
                 {
                    int32_t* dat=new int32_t[dataLength];
-                   for (size_t i=0;i<dataLength;i++)
-                       dat[i]=(int32_t)(((double*)data)[i]*mult+off);
+                   if (clamp)
+                   {
+                       if (noScalingNorOffset)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               double v=data[i];
+                               dat[i]=(v<-2147483648.499)?(-2147483648):((v>2147483647.499)?(2147483647):((int32_t)v));
+                           }
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               double v=data[i]*mult+off;
+                               dat[i]=(v<-2147483648.499)?(-2147483648):((v>2147483647.499)?(2147483647):((int32_t)v));
+                           }
+                       }
+                   }
+                   else
+                   {
+                       if (noScalingNorOffset)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                               dat[i]=(int32_t)data[i];
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                               dat[i]=(int32_t)(data[i]*mult+off);
+                       }
+                   }
                    luaWrap_lua_pushlstring(L,(const char*)dat,dataLength*sizeof(int32_t));
                    delete[] dat;
                    LUA_END(1);
@@ -10257,8 +10719,38 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                 if (outFormat==sim_buffer_float)
                 {
                    float* dat=new float[dataLength];
-                   for (size_t i=0;i<dataLength;i++)
-                       dat[i]=(float)(((double*)data)[i]*mult+off);
+                   if (clamp)
+                   {
+                       if (noScalingNorOffset)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               double v=data[i];
+                               dat[i]=(v<-FLT_MAX)?(-FLT_MAX):((v>FLT_MAX)?(FLT_MAX):((float)v));
+                           }
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               double v=data[i]*mult+off;
+                               dat[i]=(v<-FLT_MAX)?(-FLT_MAX):((v>FLT_MAX)?(FLT_MAX):((float)v));
+                           }
+                       }
+                   }
+                   else
+                   {
+                       if (noScalingNorOffset)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                               dat[i]=(float)data[i];
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                               dat[i]=(float)(data[i]*mult+off);
+                       }
+                   }
                    luaWrap_lua_pushlstring(L,(const char*)dat,dataLength*sizeof(float));
                    delete[] dat;
                    LUA_END(1);
@@ -10266,8 +10758,16 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                 if (outFormat==sim_buffer_double)
                 {
                    double* dat=new double[dataLength];
-                   for (size_t i=0;i<dataLength;i++)
-                       dat[i]=(double)(((double*)data)[i]*mult+off);
+                   if (noScalingNorOffset)
+                   {
+                       for (size_t i=0;i<dataLength;i++)
+                           dat[i]=data[i];
+                   }
+                   else
+                   {
+                       for (size_t i=0;i<dataLength;i++)
+                           dat[i]=data[i]*mult+off;
+                   }
                    luaWrap_lua_pushlstring(L,(const char*)dat,dataLength*sizeof(double));
                    delete[] dat;
                    LUA_END(1);
@@ -10279,6 +10779,10 @@ int _simTransformBuffer(luaWrap_lua_State* L)
         }
         if ( (inFormat==sim_buffer_uint8rgb)||(inFormat==sim_buffer_uint8bgr) )
         {
+            float mult=luaToFloat(L,3);
+            float off=luaToFloat(L,4);
+            bool noScalingNorOffset=( (mult==1.0f)&&(off==0.0f) );
+            const unsigned char* data=(const unsigned char*)luaWrap_lua_tolstring(L,1,&dataLength);
             something=true;
             dataLength-=(dataLength % 3);
             dataLength/=3;
@@ -10287,7 +10791,7 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                 if ( ( (inFormat==sim_buffer_uint8rgb)&&(outFormat==sim_buffer_uint8bgr) )||( (inFormat==sim_buffer_uint8bgr)&&(outFormat==sim_buffer_uint8rgb) ) )
                 {
                    unsigned char* dat=new unsigned char[3*dataLength];
-                   if ( (mult==1.0)&&(off==0.0) )
+                   if (noScalingNorOffset)
                    {
                        for (size_t i=0;i<dataLength;i++)
                        {
@@ -10298,11 +10802,66 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                    }
                    else
                    {
+                       if (clamp)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               float v=float(data[3*i+2])*mult+off;
+                               dat[3*i+0]=(v<0.0f)?(0):((v>255.499f)?(255):((unsigned char)v));
+                               v=float(data[3*i+1])*mult+off;
+                               dat[3*i+1]=(v<0.0f)?(0):((v>255.499f)?(255):((unsigned char)v));
+                               v=float(data[3*i+0])*mult+off;
+                               dat[3*i+2]=(v<0.0f)?(0):((v>255.499f)?(255):((unsigned char)v));
+                           }
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                                dat[3*i+0]=(unsigned char)(float(data[3*i+2])*mult+off);
+                                dat[3*i+1]=(unsigned char)(float(data[3*i+1])*mult+off);
+                                dat[3*i+2]=(unsigned char)(float(data[3*i+0])*mult+off);
+                           }
+                       }
+                   }
+                   luaWrap_lua_pushlstring(L,(const char*)dat,3*dataLength);
+                   delete[] dat;
+                   LUA_END(1);
+                }
+                if (inFormat==outFormat)
+                {
+                   unsigned char* dat=new unsigned char[3*dataLength];
+                   if (noScalingNorOffset)
+                   {
                        for (size_t i=0;i<dataLength;i++)
                        {
-                           dat[3*i+0]=(unsigned char)(float(data[3*i+2])*mult+off);
-                           dat[3*i+1]=(unsigned char)(float(data[3*i+1])*mult+off);
-                           dat[3*i+2]=(unsigned char)(float(data[3*i+0])*mult+off);
+                           dat[3*i+0]=data[3*i+0];
+                           dat[3*i+1]=data[3*i+1];
+                           dat[3*i+2]=data[3*i+2];
+                       }
+                   }
+                   else
+                   {
+                       if (clamp)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               float v=float(data[3*i+0])*mult+off;
+                               dat[3*i+0]=(v<0.0f)?(0):((v>255.499f)?(255):((unsigned char)v));
+                               v=float(data[3*i+1])*mult+off;
+                               dat[3*i+1]=(v<0.0f)?(0):((v>255.499f)?(255):((unsigned char)v));
+                               v=float(data[3*i+2])*mult+off;
+                               dat[3*i+2]=(v<0.0f)?(0):((v>255.499f)?(255):((unsigned char)v));
+                           }
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               dat[3*i+0]=(unsigned char)(float(data[3*i+0])*mult+off);
+                               dat[3*i+1]=(unsigned char)(float(data[3*i+1])*mult+off);
+                               dat[3*i+2]=(unsigned char)(float(data[3*i+2])*mult+off);
+                           }
                        }
                    }
                    luaWrap_lua_pushlstring(L,(const char*)dat,3*dataLength);
@@ -10316,6 +10875,10 @@ int _simTransformBuffer(luaWrap_lua_State* L)
         }
         if (inFormat==sim_buffer_uint8rgba)
         {
+            float mult=luaToFloat(L,3);
+            float off=luaToFloat(L,4);
+            bool noScalingNorOffset=( (mult==1.0f)&&(off==0.0f) );
+            const unsigned char* data=(const unsigned char*)luaWrap_lua_tolstring(L,1,&dataLength);
             something=true;
             dataLength-=(dataLength % 4);
             dataLength/=4;
@@ -10324,7 +10887,7 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                 if (outFormat==sim_buffer_uint8rgb)
                 {
                    unsigned char* dat=new unsigned char[3*dataLength];
-                   if ( (mult==1.0)&&(off==0.0) )
+                   if (noScalingNorOffset)
                    {
                        for (size_t i=0;i<dataLength;i++)
                        {
@@ -10335,14 +10898,73 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                    }
                    else
                    {
-                       for (size_t i=0;i<dataLength;i++)
+                       if (clamp)
                        {
-                           dat[3*i+0]=(unsigned char)(float(data[4*i+0])*mult+off);
-                           dat[3*i+1]=(unsigned char)(float(data[4*i+1])*mult+off);
-                           dat[3*i+2]=(unsigned char)(float(data[4*i+2])*mult+off);
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               float v=float(data[4*i+0])*mult+off;
+                               dat[3*i+0]=(v<0.0f)?(0):((v>255.499f)?(255):((unsigned char)v));
+                               v=float(data[4*i+1])*mult+off;
+                               dat[3*i+1]=(v<0.0f)?(0):((v>255.499f)?(255):((unsigned char)v));
+                               v=float(data[4*i+2])*mult+off;
+                               dat[3*i+2]=(v<0.0f)?(0):((v>255.499f)?(255):((unsigned char)v));
+                           }
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               dat[3*i+0]=(unsigned char)(float(data[4*i+0])*mult+off);
+                               dat[3*i+1]=(unsigned char)(float(data[4*i+1])*mult+off);
+                               dat[3*i+2]=(unsigned char)(float(data[4*i+2])*mult+off);
+                           }
                        }
                    }
                    luaWrap_lua_pushlstring(L,(const char*)dat,3*dataLength);
+                   delete[] dat;
+                   LUA_END(1);
+                }
+                if (outFormat==inFormat)
+                {
+                   unsigned char* dat=new unsigned char[4*dataLength];
+                   if (noScalingNorOffset)
+                   {
+                       for (size_t i=0;i<dataLength;i++)
+                       {
+                           dat[4*i+0]=data[4*i+0];
+                           dat[4*i+1]=data[4*i+1];
+                           dat[4*i+2]=data[4*i+2];
+                           dat[4*i+3]=data[4*i+3];
+                       }
+                   }
+                   else
+                   {
+                       if (clamp)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               float v=float(data[4*i+0])*mult+off;
+                               dat[4*i+0]=(v<0.0f)?(0):((v>255.499f)?(255):((unsigned char)v));
+                               v=float(data[4*i+1])*mult+off;
+                               dat[4*i+1]=(v<0.0f)?(0):((v>255.499f)?(255):((unsigned char)v));
+                               v=float(data[4*i+2])*mult+off;
+                               dat[4*i+2]=(v<0.0f)?(0):((v>255.499f)?(255):((unsigned char)v));
+                               v=float(data[4*i+3])*mult+off;
+                               dat[4*i+3]=(v<0.0f)?(0):((v>255.499f)?(255):((unsigned char)v));
+                           }
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               dat[4*i+0]=(unsigned char)(float(data[4*i+0])*mult+off);
+                               dat[4*i+1]=(unsigned char)(float(data[4*i+1])*mult+off);
+                               dat[4*i+2]=(unsigned char)(float(data[4*i+2])*mult+off);
+                               dat[4*i+3]=(unsigned char)(float(data[4*i+3])*mult+off);
+                           }
+                       }
+                   }
+                   luaWrap_lua_pushlstring(L,(const char*)dat,4*dataLength);
                    delete[] dat;
                    LUA_END(1);
                 }
@@ -10353,6 +10975,10 @@ int _simTransformBuffer(luaWrap_lua_State* L)
         }
         if (inFormat==sim_buffer_uint8argb)
         {
+            float mult=luaToFloat(L,3);
+            float off=luaToFloat(L,4);
+            bool noScalingNorOffset=( (mult==1.0f)&&(off==0.0f) );
+            const unsigned char* data=(const unsigned char*)luaWrap_lua_tolstring(L,1,&dataLength);
             something=true;
             dataLength-=(dataLength % 4);
             dataLength/=4;
@@ -10361,7 +10987,7 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                 if (outFormat==sim_buffer_uint8rgb)
                 {
                    unsigned char* dat=new unsigned char[3*dataLength];
-                   if ( (mult==1.0)&&(off==0.0) )
+                   if (noScalingNorOffset)
                    {
                        for (size_t i=0;i<dataLength;i++)
                        {
@@ -10372,14 +10998,73 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                    }
                    else
                    {
-                       for (size_t i=0;i<dataLength;i++)
+                       if (clamp)
                        {
-                           dat[3*i+0]=(unsigned char)(float(data[4*i+1])*mult+off);
-                           dat[3*i+1]=(unsigned char)(float(data[4*i+2])*mult+off);
-                           dat[3*i+2]=(unsigned char)(float(data[4*i+3])*mult+off);
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               float v=float(data[4*i+1])*mult+off;
+                               dat[3*i+0]=(v<0.0f)?(0):((v>255.499f)?(255):((unsigned char)v));
+                               v=float(data[4*i+2])*mult+off;
+                               dat[3*i+1]=(v<0.0f)?(0):((v>255.499f)?(255):((unsigned char)v));
+                               v=float(data[4*i+3])*mult+off;
+                               dat[3*i+2]=(v<0.0f)?(0):((v>255.499f)?(255):((unsigned char)v));
+                           }
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               dat[3*i+0]=(unsigned char)(float(data[4*i+1])*mult+off);
+                               dat[3*i+1]=(unsigned char)(float(data[4*i+2])*mult+off);
+                               dat[3*i+2]=(unsigned char)(float(data[4*i+3])*mult+off);
+                           }
                        }
                    }
                    luaWrap_lua_pushlstring(L,(const char*)dat,3*dataLength);
+                   delete[] dat;
+                   LUA_END(1);
+                }
+                if (outFormat==inFormat)
+                {
+                   unsigned char* dat=new unsigned char[4*dataLength];
+                   if (noScalingNorOffset)
+                   {
+                       for (size_t i=0;i<dataLength;i++)
+                       {
+                           dat[4*i+0]=data[4*i+0];
+                           dat[4*i+1]=data[4*i+1];
+                           dat[4*i+2]=data[4*i+2];
+                           dat[4*i+3]=data[4*i+3];
+                       }
+                   }
+                   else
+                   {
+                       if (clamp)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               float v=float(data[4*i+0])*mult+off;
+                               dat[4*i+0]=(v<0.0f)?(0):((v>255.499f)?(255):((unsigned char)v));
+                               v=float(data[4*i+1])*mult+off;
+                               dat[4*i+1]=(v<0.0f)?(0):((v>255.499f)?(255):((unsigned char)v));
+                               v=float(data[4*i+2])*mult+off;
+                               dat[4*i+2]=(v<0.0f)?(0):((v>255.499f)?(255):((unsigned char)v));
+                               v=float(data[4*i+3])*mult+off;
+                               dat[4*i+3]=(v<0.0f)?(0):((v>255.499f)?(255):((unsigned char)v));
+                           }
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               dat[4*i+0]=(unsigned char)(float(data[4*i+0])*mult+off);
+                               dat[4*i+1]=(unsigned char)(float(data[4*i+1])*mult+off);
+                               dat[4*i+2]=(unsigned char)(float(data[4*i+2])*mult+off);
+                               dat[4*i+3]=(unsigned char)(float(data[4*i+3])*mult+off);
+                           }
+                       }
+                   }
+                   luaWrap_lua_pushlstring(L,(const char*)dat,4*dataLength);
                    delete[] dat;
                    LUA_END(1);
                 }
@@ -10390,6 +11075,10 @@ int _simTransformBuffer(luaWrap_lua_State* L)
         }
         if (inFormat==sim_buffer_uint8)
         {
+            float mult=luaToFloat(L,3);
+            float off=luaToFloat(L,4);
+            bool noScalingNorOffset=( (mult==1.0f)&&(off==0.0f) );
+            const unsigned char* data=(const unsigned char*)luaWrap_lua_tolstring(L,1,&dataLength);
             something=true;
             if (dataLength!=0)
             {
@@ -10424,8 +11113,27 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                 if (outFormat==sim_buffer_uint8)
                 {
                    unsigned char* dat=new unsigned char[dataLength];
-                   for (size_t i=0;i<dataLength;i++)
-                       dat[i]=(unsigned char)(float(data[i])*mult+off);
+                   if (noScalingNorOffset)
+                   {
+                       for (size_t i=0;i<dataLength;i++)
+                           dat[i]=data[i];
+                   }
+                   else
+                   {
+                       if (clamp)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               float v=float(data[i])*mult+off;
+                               dat[i]=(v<0.0f)?(0):((v>255.499f)?(255):((unsigned char)v));
+                           }
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                               dat[i]=(unsigned char)(float(data[i])*mult+off);
+                       }
+                   }
                    luaWrap_lua_pushlstring(L,(const char*)dat,dataLength);
                    delete[] dat;
                    LUA_END(1);
@@ -10433,7 +11141,7 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                 if (outFormat==sim_buffer_uint8rgb)
                 {
                    unsigned char* dat=new unsigned char[3*dataLength];
-                   if ( (mult==1.0)&&(off==0.0) )
+                   if (noScalingNorOffset)
                    {
                        for (size_t i=0;i<dataLength;i++)
                        {
@@ -10444,11 +11152,24 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                    }
                    else
                    {
-                       for (size_t i=0;i<dataLength;i++)
+                       if (clamp)
                        {
-                           dat[3*i+0]=(unsigned char)(float(data[i])*mult+off);
-                           dat[3*i+1]=dat[3*i+0];
-                           dat[3*i+2]=dat[3*i+0];
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               float v=float(data[i])*mult+off;
+                               dat[3*i+0]=(v<0.0f)?(0):((v>255.499f)?(255):((unsigned char)v));
+                               dat[3*i+1]=dat[3*i+0];
+                               dat[3*i+2]=dat[3*i+0];
+                           }
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               dat[3*i+0]=(unsigned char)(float(data[i])*mult+off);
+                               dat[3*i+1]=dat[3*i+0];
+                               dat[3*i+2]=dat[3*i+0];
+                           }
                        }
                    }
                    luaWrap_lua_pushlstring(L,(const char*)dat,3*dataLength);
@@ -10462,6 +11183,10 @@ int _simTransformBuffer(luaWrap_lua_State* L)
         }
         if ( (inFormat==sim_buffer_uint8rgb)||(inFormat==sim_buffer_uint8bgr) )
         {
+            float mult=luaToFloat(L,3);
+            float off=luaToFloat(L,4);
+            bool noScalingNorOffset=( (mult==1.0f)&&(off==0.0f) );
+            const unsigned char* data=(const unsigned char*)luaWrap_lua_tolstring(L,1,&dataLength);
             something=true;
             dataLength-=(dataLength % 3);
             dataLength/=3;
@@ -10470,15 +11195,29 @@ int _simTransformBuffer(luaWrap_lua_State* L)
                 if (outFormat==sim_buffer_uint8)
                 {
                    unsigned char* dat=new unsigned char[dataLength];
-                   if ( (mult==1.0)&&(off==0.0) )
+                   if (noScalingNorOffset)
                    {
                        for (size_t i=0;i<dataLength;i++)
                            dat[i]=(int(data[3*i+0])+int(data[3*i+1])+int(data[3*i+2]))/3;
                    }
                    else
                    {
-                       for (size_t i=0;i<dataLength;i++)
-                           dat[i]=(unsigned char)(((float(data[3*i+0])*mult+off)+(float(data[3*i+1])*mult+off)+(float(data[3*i+2])*mult+off))/3.0);
+                       if (clamp)
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               float v=off+(float(data[3*i+0])+float(data[3*i+1])+float(data[3*i+2]))*mult/3.0f;
+                               dat[i]=(v<0.0f)?(0):((v>255.499f)?(255):((unsigned char)v));
+                           }
+                       }
+                       else
+                       {
+                           for (size_t i=0;i<dataLength;i++)
+                           {
+                               float v=off+(float(data[3*i+0])+float(data[3*i+1])+float(data[3*i+2]))*mult/3.0f;
+                               dat[i]=(unsigned char)v;
+                           }
+                       }
                    }
                    luaWrap_lua_pushlstring(L,(const char*)dat,dataLength);
                    delete[] dat;
@@ -10491,6 +11230,7 @@ int _simTransformBuffer(luaWrap_lua_State* L)
         }
         if (inFormat==sim_buffer_base64)
         {
+            const unsigned char* data=(const unsigned char*)luaWrap_lua_tolstring(L,1,&dataLength);
             something=true;
             if (dataLength!=0)
             {

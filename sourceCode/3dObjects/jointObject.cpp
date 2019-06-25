@@ -1697,7 +1697,6 @@ void CJoint::handleDynJointControl(bool init,int loopCnt,int totalLoops,float cu
                 script->runNonThreadedChildScript(sim_syscb_jointcallback,&inStack,&outStack);
             if ( (cScript!=nullptr)&&(outStack.getStackSize()==0) )
                 cScript->runCustomizationScript(sim_syscb_jointcallback,&inStack,&outStack);
-
             // 3. Collect the return values:
             if (outStack.getStackSize()>0)
             {

@@ -30,8 +30,8 @@ public:
     void removeBuffers();
 
     CDrawingContainer2D drawingContainer;
-
 protected:
+
     // Variables which need to be serialized & copied 
     std::vector<CSimpleFilter*> _allSimpleFilters;
     float* buffer1;

@@ -1,5 +1,4 @@
-
-#include "vrepMainHeader.h" 
+#include "vrepMainHeader.h"
 #include "simpleFilter.h"
 #include "tt.h"
 #include "imageProcess.h"

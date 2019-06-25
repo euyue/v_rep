@@ -109,9 +109,9 @@ public:
     void setDetectableEntityID(int entityID);
     int getDetectableEntityID();
 
-    bool detectVisionSensorEntity_executedViaUiThread(int entityID,bool detectAll,bool dontSwapImageBuffers,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections);
-    bool detectEntity(int entityID,bool detectAll,bool dontSwapImageBuffers,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections);
-    bool detectEntity2(int entityID,bool detectAll,bool dontSwapImageBuffers,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections);
+    void detectVisionSensorEntity_executedViaUiThread(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections);
+    bool detectEntity(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections);
+    void detectEntity2(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections);
     void renderForDetection(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections,const std::vector<int>& activeMirrors);
     void setDefaultBufferValues(const float v[3]);
     void getDefaultBufferValues(float v[3]);
@@ -131,7 +131,6 @@ public:
     bool getUseEnvironmentBackgroundColor();
     float getCalculationTime();
 
-    void swapImageBuffers();
     CComposedFilter* getComposedFilter();
     void setComposedFilter(CComposedFilter* newFilter);
     CVisualParam* getColor(bool colorWhenActive);
@@ -150,13 +149,12 @@ protected:
 
     C3DObject* _getInfoOfWhatNeedsToBeRendered(int entityID,bool detectAll,int rendAttrib,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool overrideRenderableFlagsForNonCollections,std::vector<C3DObject*>& toRender);
 
-    void _extRenderer_prepareView(int extRendererIndex);
+    bool _extRenderer_prepareView(int extRendererIndex);
     void _extRenderer_prepareLights();
     void _extRenderer_prepareMirrors();
     void _extRenderer_retrieveImage();
 
     unsigned char* _rgbBuffer;
-    unsigned char* _previousRgbBuffer;
     float* _depthBuffer;
 
     unsigned int _rayTracingTextureName;

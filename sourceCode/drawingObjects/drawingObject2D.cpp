@@ -15,22 +15,14 @@ CDrawingObject2D::CDrawingObject2D(int theObjectType,float* vertices,float col[3
     _col[1]=col[1];
     _col[2]=col[2];
     int t=_objectType&255;
-    if ((t==sim_drawing2d_plus)||(t==sim_drawing2d_cross)||
-        (t==sim_drawing2d_frame)||(t==sim_drawing2d_square)||
-        (t==sim_drawing2d_arrow)||(t==sim_drawing2d_text)||
-        (t==sim_drawing2d_circle)||(t==sim_drawing2d_disc))
+    if ( (t==sim_drawing2d_square)||(t==sim_drawing2d_text)||(t==sim_drawing2d_circle) )
     {
         for (int i=0;i<2;i++)
             _vertices[i]=vertices[i];
     }
-    if ((t==sim_drawing2d_line)||(t==sim_drawing2d_rectangle))
+    if (t==sim_drawing2d_line)
     {
         for (int i=0;i<4;i++)
-            _vertices[i]=vertices[i];
-    }
-    if (t==sim_drawing2d_triangle)
-    {
-        for (int i=0;i<6;i++)
             _vertices[i]=vertices[i];
     }
     if (t==sim_drawing2d_text)

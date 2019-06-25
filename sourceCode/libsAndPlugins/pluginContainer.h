@@ -299,7 +299,7 @@ public:
     static bool killPlugin(int handle);
     static int getPluginCount();
 
-    static void selectExtRenderer(int index);
+    static bool selectExtRenderer(int index);
     static bool extRenderer(int msg,void* data);
 
     static bool qhull(void* data);

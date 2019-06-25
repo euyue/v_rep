@@ -1,5 +1,4 @@
-
-#include "vrepMainHeader.h" 
+#include "vrepMainHeader.h"
 #include "composedFilter.h"
 #include "visionSensor.h"
 #include "v_repConst.h"

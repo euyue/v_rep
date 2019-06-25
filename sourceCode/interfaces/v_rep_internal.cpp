@@ -3807,8 +3807,6 @@ simInt simSetInt32Parameter_internal(simInt parameter,simInt intState)
         }
         if (parameter==sim_intparam_current_page)
         {
-            if (!canBoolIntOrFloatParameterBeSetOrGet(__func__,2+8+16+32))
-                return(-1);
             if (App::ct->pageContainer==nullptr)
                 return(-1);
 #ifdef SIM_WITH_GUI
@@ -11169,6 +11167,13 @@ simInt simGetObjectInt32Parameter_internal(simInt objectHandle,simInt parameterI
                 parameter[0]=rendSens->getRenderMode();
                 retVal=1;
             }
+            if (parameterID==sim_visionintparam_perspective_operation)
+            {
+                parameter[0]=0;
+                if (rendSens->getPerspectiveOperation())
+                    parameter[0]=1;
+                retVal=1;
+            }
         }
         if (proximitySensor!=nullptr)
         {
@@ -11521,6 +11526,11 @@ simInt simSetObjectInt32Parameter_internal(simInt objectHandle,simInt parameterI
             if (parameterID==sim_visionintparam_render_mode)
             {
                 rendSens->setRenderMode(parameter);
+                retVal=1;
+            }
+            if (parameterID==sim_visionintparam_perspective_operation)
+            {
+                rendSens->setPerspectiveOperation(parameter!=0);
                 retVal=1;
             }
         }

@@ -253,7 +253,6 @@ void CVisionSensor::commonInit()
     CSimpleFilter* it=new CSimpleFilter();
     it->setFilterType(sim_filtercomponent_originalimage);
     _composedFilter->insertSimpleFilter(it);
-
     it=new CSimpleFilter();
     it->setFilterType(sim_filtercomponent_tooutput);
     _composedFilter->insertSimpleFilter(it);
@@ -296,7 +295,6 @@ void CVisionSensor::commonInit()
 #endif
 
     _rgbBuffer=nullptr;
-    _previousRgbBuffer=nullptr;
     _depthBuffer=nullptr;
     _reserveBuffers();
 
@@ -375,7 +373,6 @@ CVisionSensor::~CVisionSensor()
         _rayTracingTextureName=(unsigned int)-1;
     }
 
-    delete[] _previousRgbBuffer;
     delete[] _depthBuffer;
     delete[] _rgbBuffer;
 
@@ -389,10 +386,8 @@ float CVisionSensor::getCalculationTime()
 
 void CVisionSensor::_reserveBuffers()
 {
-    delete[] _previousRgbBuffer;
     delete[] _depthBuffer;
     delete[] _rgbBuffer;
-    _previousRgbBuffer=new unsigned char[3*_resolutionX*_resolutionY];
     _depthBuffer=new float[_resolutionX*_resolutionY];
     _rgbBuffer=new unsigned char[3*_resolutionX*_resolutionY];
     _clearBuffers();
@@ -410,18 +405,12 @@ void CVisionSensor::_clearBuffers()
             _rgbBuffer[3*i+0]=(unsigned char)(App::ct->environment->fogBackgroundColor[0]*255.1f);
             _rgbBuffer[3*i+1]=(unsigned char)(App::ct->environment->fogBackgroundColor[1]*255.1f);
             _rgbBuffer[3*i+2]=(unsigned char)(App::ct->environment->fogBackgroundColor[2]*255.1f);
-            _previousRgbBuffer[3*i+0]=(unsigned char)(App::ct->environment->fogBackgroundColor[0]*255.1f);
-            _previousRgbBuffer[3*i+1]=(unsigned char)(App::ct->environment->fogBackgroundColor[1]*255.1f);
-            _previousRgbBuffer[3*i+2]=(unsigned char)(App::ct->environment->fogBackgroundColor[2]*255.1f);
         }
         else
         {
             _rgbBuffer[3*i+0]=(unsigned char)(_defaultBufferValues[0]*255.1f);
             _rgbBuffer[3*i+1]=(unsigned char)(_defaultBufferValues[1]*255.1f);
             _rgbBuffer[3*i+2]=(unsigned char)(_defaultBufferValues[2]*255.1f);
-            _previousRgbBuffer[3*i+0]=(unsigned char)(_defaultBufferValues[0]*255.1f);
-            _previousRgbBuffer[3*i+1]=(unsigned char)(_defaultBufferValues[1]*255.1f);
-            _previousRgbBuffer[3*i+2]=(unsigned char)(_defaultBufferValues[2]*255.1f);
         }
     }
     for (int i=0;i<_resolutionX*_resolutionY;i++)
@@ -657,7 +646,6 @@ void CVisionSensor::resetSensor()
 
 bool CVisionSensor::setExternalImage(const float* img,bool imgIsGreyScale)
 {
-    swapImageBuffers();
     if (imgIsGreyScale)
     {
         int n=_resolutionX*_resolutionY;
@@ -689,7 +677,6 @@ bool CVisionSensor::setExternalImage(const float* img,bool imgIsGreyScale)
 
 bool CVisionSensor::setExternalCharImage(const unsigned char* img,bool imgIsGreyScale)
 {
-    swapImageBuffers();
     if (imgIsGreyScale)
     {
         int n=_resolutionX*_resolutionY;
@@ -738,7 +725,7 @@ bool CVisionSensor::handleSensor()
     if (_useExternalImage) // those 2 lines added on 2010/12/12
         return(false);
     int stTime=VDateTime::getTimeInMs();
-    detectEntity(_detectableEntityID,_detectableEntityID==-1,false,false,false,false);
+    detectEntity(_detectableEntityID,_detectableEntityID==-1,false,false,false);
 #ifdef SIM_WITH_OPENGL
     if (_contextFboAndTexture!=nullptr)
         _contextFboAndTexture->textureObject->setImage(false,false,true,_rgbBuffer); // Update the texture
@@ -778,7 +765,7 @@ bool CVisionSensor::checkSensor(int entityID,bool overrideRenderableFlagsForNonC
     }
     // 2. Do the detection:
     bool all=(entityID==-1);
-    bool retVal=detectEntity(entityID,all,true,false,false,overrideRenderableFlagsForNonCollections); // We don't swap image buffers!
+    bool retVal=detectEntity(entityID,all,false,false,overrideRenderableFlagsForNonCollections); // We don't swap image buffers!
     // 3. Restore previous state:
     sensorResult.sensorWasTriggered=cop.sensorWasTriggered;
     sensorResult.sensorResultIsValid=cop.sensorResultIsValid;
@@ -837,7 +824,7 @@ float* CVisionSensor::checkSensorEx(int entityID,bool imageBuffer,bool entityIsM
     }
     // 2. Do the detection:
     bool all=(entityID==-1);
-    detectEntity(entityID,all,true,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,hideEdgesIfModel,overrideRenderableFlagsForNonCollections); // we don't swap image buffers!
+    detectEntity(entityID,all,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,hideEdgesIfModel,overrideRenderableFlagsForNonCollections); // we don't swap image buffers!
     // 3. Prepare return buffer:
     float* retBuffer=nullptr;
     int l=_resolutionX*_resolutionY;
@@ -881,10 +868,10 @@ float* CVisionSensor::checkSensorEx(int entityID,bool imageBuffer,bool entityIsM
     return(retBuffer);
 }
 
-bool CVisionSensor::detectEntity(int entityID,bool detectAll,bool dontSwapImageBuffers,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections)
+bool CVisionSensor::detectEntity(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections)
 { // if entityID is -1, all detectable objects are rendered!
     FUNCTION_DEBUG;
-    bool returnValue=false;
+    bool retVal=false;
     App::ct->calcInfo->visionSensorSimulationStart();
 
     // Following strange construction needed so that we can
@@ -916,19 +903,20 @@ bool CVisionSensor::detectEntity(int entityID,bool detectAll,bool dontSwapImageB
     bool offscreen=(App::userSettings->offscreenContextType<1);
 
     if ( ui || ((noAuxThread&&offscreen)&&(!onlyGuiThread)) )
-        returnValue=detectEntity2(entityID,detectAll,dontSwapImageBuffers,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,hideEdgesIfModel,overrideRenderableFlagsForNonCollections);
+        detectEntity2(entityID,detectAll,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,hideEdgesIfModel,overrideRenderableFlagsForNonCollections);
     else
-        returnValue=detectVisionSensorEntity_executedViaUiThread(entityID,detectAll,dontSwapImageBuffers,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,hideEdgesIfModel,overrideRenderableFlagsForNonCollections);
+        detectVisionSensorEntity_executedViaUiThread(entityID,detectAll,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,hideEdgesIfModel,overrideRenderableFlagsForNonCollections);
 
+    retVal=_computeDefaultReturnValuesAndApplyFilters(); // this might overwrite the default return values
+    sensorResult.sensorWasTriggered=retVal;
 
-    App::ct->calcInfo->visionSensorSimulationEnd(returnValue);
-    return(returnValue);
+    App::ct->calcInfo->visionSensorSimulationEnd(retVal);
+    return(retVal);
 }
 
-bool CVisionSensor::detectEntity2(int entityID,bool detectAll,bool dontSwapImageBuffers,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections)
+void CVisionSensor::detectEntity2(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections)
 { // if entityID is -1, all detectable objects are rendered!
     FUNCTION_DEBUG;
-    bool returnValue=false;
 
     std::vector<int> activeMirrors;
 
@@ -954,8 +942,6 @@ bool CVisionSensor::detectEntity2(int entityID,bool detectAll,bool dontSwapImage
     if (getInternalRendering())
     {
 #ifdef SIM_WITH_OPENGL
-        if (!dontSwapImageBuffers)
-            swapImageBuffers();
         if (!_useExternalImage)
         {
             if (!_ignoreRGBInfo)
@@ -992,16 +978,11 @@ bool CVisionSensor::detectEntity2(int entityID,bool detectAll,bool dontSwapImage
     }
     else
         _extRenderer_retrieveImage();
-
-    returnValue=_computeDefaultReturnValuesAndApplyFilters(); // this might overwrite the default return values
-    sensorResult.sensorWasTriggered=returnValue;
-
-    return(returnValue);
 }
 
-void CVisionSensor::_extRenderer_prepareView(int extRendererIndex)
+bool CVisionSensor::_extRenderer_prepareView(int extRendererIndex)
 {   // Set-up the resolution, clear color, camera properties and camera pose:
-    CPluginContainer::selectExtRenderer(extRendererIndex);
+    bool retVal=CPluginContainer::selectExtRenderer(extRendererIndex);
 
     void* data[30];
     if ((_renderMode!=sim_rendermode_extrendererwindowed)&&(_renderMode!=sim_rendermode_opengl3windowed))
@@ -1088,6 +1069,7 @@ void CVisionSensor::_extRenderer_prepareView(int extRendererIndex)
     data[27]=&povBlurSamples;
 
     CPluginContainer::extRenderer(sim_message_eventcallback_extrenderer_start,data);
+    return(retVal);
 }
 
 void CVisionSensor::_extRenderer_prepareLights()
@@ -1307,7 +1289,16 @@ void CVisionSensor::renderForDetection(int entityID,bool detectAll,bool entityIs
     }
     else
     {
-        _extRenderer_prepareView(_renderMode-sim_rendermode_povray);
+        if (!_extRenderer_prepareView(_renderMode-sim_rendermode_povray))
+        {
+            if (_renderMode==sim_rendermode_povray)
+            {
+                static bool alreadyShown=false;
+                if (!alreadyShown)
+                    App::uiThread->messageBox_information(App::mainWindow,"POV-Ray plugin",strTranslate("The POV-Ray plugin was not found, or could not be loaded. You can find the required binary and source code at https://github.com/CoppeliaRobotics/v_repExtPovRay"),VMESSAGEBOX_OKELI);
+                alreadyShown=true;
+            }
+        }
         _extRenderer_prepareLights();
         _extRenderer_prepareMirrors();
     }
@@ -2008,15 +1999,10 @@ void CVisionSensor::simulationEnded()
     simulationEndedMain();
 }
 
-void CVisionSensor::swapImageBuffers()
-{
-    unsigned char* tmp=_rgbBuffer;
-    _rgbBuffer=_previousRgbBuffer;
-    _previousRgbBuffer=tmp;
-}
-
 bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
 {
+    bool trigger=false;
+
     sensorAuxiliaryResult.clear();
     sensorResult.sensorResultIsValid=true;
     sensorResult.sensorWasTriggered=false;
@@ -2111,7 +2097,7 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
     }
     else
     { // We do not want to produce those values
-        for (int i=0;i<2;i++)
+        for (int i=0;i<3;i++)
         {
             sensorResult.sensorDataRed[i]=0;
             sensorResult.sensorDataGreen[i]=0;
@@ -2154,7 +2140,6 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
         if ( (_composedFilter->getSimpleFilterCount()==2)&&(_composedFilter->getSimpleFilter(0)->getFilterType()==sim_filtercomponent_originalimage)&&(_composedFilter->getSimpleFilter(1)->getFilterType()==sim_filtercomponent_tooutput) )
             applyFilter=false; // since this represents the identity filter
     }
-
     if (applyFilter)
     {
         float* outputImage=CImageProcess::createRGBImage(_resolutionX,_resolutionY);
@@ -2165,7 +2150,7 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
         float* imageBuffer=new float[s];
         for (int i=0;i<s;i++)
             imageBuffer[i]=float(_rgbBuffer[i])/255.0f;
-        bool trigg=_composedFilter->processAndTrigger(this,_resolutionX,_resolutionY,imageBuffer,_depthBuffer,outputImage,outputDepthBuffer,sensorAuxiliaryResult);
+        trigger=_composedFilter->processAndTrigger(this,_resolutionX,_resolutionY,imageBuffer,_depthBuffer,outputImage,outputDepthBuffer,sensorAuxiliaryResult);
         delete[] imageBuffer;
         for (int i=0;i<s;i++)
             _rgbBuffer[i]=(unsigned char)(outputImage[i]*255.1f);
@@ -2177,9 +2162,8 @@ bool CVisionSensor::_computeDefaultReturnValuesAndApplyFilters()
             CImageProcess::deleteImage(outputDepthBuffer);
         }
         CImageProcess::deleteImage(outputImage);
-        return(trigg);
     }
-    return(false);
+    return(trigger);
 }
 
 void CVisionSensor::serialize(CSer& ar)
@@ -2422,13 +2406,12 @@ void CVisionSensor::serializeWExtIk(CExtIkSer& ar)
     CDummy::serializeWExtIkStatic(ar);
 }
 
-bool CVisionSensor::detectVisionSensorEntity_executedViaUiThread(int entityID,bool detectAll,bool dontSwapImageBuffers,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections)
+void CVisionSensor::detectVisionSensorEntity_executedViaUiThread(int entityID,bool detectAll,bool entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,bool hideEdgesIfModel,bool overrideRenderableFlagsForNonCollections)
 {
     FUNCTION_DEBUG;
-    bool retVal=false;
     if (VThread::isCurrentThreadTheUiThread())
     { // we are in the UI thread. We execute the command now:
-        retVal=detectEntity2(entityID,detectAll,dontSwapImageBuffers,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,hideEdgesIfModel,overrideRenderableFlagsForNonCollections);
+        detectEntity2(entityID,detectAll,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,hideEdgesIfModel,overrideRenderableFlagsForNonCollections);
     }
     else
     { // We are NOT in the UI thread. We execute the command via the UI thread:
@@ -2438,15 +2421,11 @@ bool CVisionSensor::detectVisionSensorEntity_executedViaUiThread(int entityID,bo
         cmdIn.objectParams.push_back(this);
         cmdIn.intParams.push_back(entityID);
         cmdIn.boolParams.push_back(detectAll);
-        cmdIn.boolParams.push_back(dontSwapImageBuffers);
         cmdIn.boolParams.push_back(entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects);
         cmdIn.boolParams.push_back(hideEdgesIfModel);
         cmdIn.boolParams.push_back(overrideRenderableFlagsForNonCollections);
         App::uiThread->executeCommandViaUiThread(&cmdIn,&cmdOut);
-        if (cmdOut.boolParams.size()>0)
-            retVal=cmdOut.boolParams[0];
     }
-    return(retVal);
 }
 
 void CVisionSensor::display(CViewableBase* renderingObject,int displayAttrib)

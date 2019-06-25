@@ -3,17 +3,10 @@
 
 #include "vrepMainHeader.h"
 
-enum { // Keep values and order!! Is serialized!!! (well, not really, but for compatibility reasons!)
-    sim_drawing2d_plus=0,
-    sim_drawing2d_cross,
-    sim_drawing2d_frame,
-    sim_drawing2d_square,
+enum {
+    sim_drawing2d_square=0,
     sim_drawing2d_circle,
-    sim_drawing2d_disc,
-    sim_drawing2d_arrow,
     sim_drawing2d_line,
-    sim_drawing2d_triangle,
-    sim_drawing2d_rectangle,
     sim_drawing2d_text,
 
     sim_drawing2d_blackbkground =0x00000100,

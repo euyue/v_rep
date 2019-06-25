@@ -490,7 +490,7 @@ void CPluginContainer::sendSpecialEventCallbackMessageToSomePlugins(int msg,int*
     }
 }
 
-void CPluginContainer::selectExtRenderer(int index)
+bool CPluginContainer::selectExtRenderer(int index)
 {
     _activeExtRendererAddress=nullptr;
     if (index==sim_rendermode_povray-sim_rendermode_povray)
@@ -503,6 +503,7 @@ void CPluginContainer::selectExtRenderer(int index)
         _activeExtRendererAddress=_openGl3Address;
     if (index==sim_rendermode_opengl3windowed-sim_rendermode_povray)
         _activeExtRendererAddress=_openGl3WindowedAddress;
+    return(_activeExtRendererAddress!=nullptr);
 }
 
 bool CPluginContainer::extRenderer(int msg,void* data)

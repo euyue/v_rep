@@ -1862,7 +1862,16 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
             { // When using a ray-tracer during video recording, and we want to record not every frame, don't render those frames!!
                 App::mainWindow->openglWidget->doneCurrent();
 
-                _extRenderer_prepareView(rendererIndex,_currentViewSize,isPerspective);
+                if (!_extRenderer_prepareView(rendererIndex,_currentViewSize,isPerspective))
+                {
+                    if (rendererIndex==0)
+                    {
+                        static bool alreadyShown=false;
+                        if (!alreadyShown)
+                            App::uiThread->messageBox_information(App::mainWindow,"POV-Ray plugin",strTranslate("The POV-Ray plugin was not found, or could not be loaded. You can find the required binary and source code at https://github.com/CoppeliaRobotics/v_repExtPovRay"),VMESSAGEBOX_OKELI);
+                        alreadyShown=true;
+                    }
+                }
                 _extRenderer_prepareLights();
                 _extRenderer_prepareMirrors();
 
@@ -2069,10 +2078,10 @@ void CCamera::_handleMirrors(int renderingMode,bool noSelection,int pass,int nav
     setFrustumCullingTemporarilyDisabled(false);
 }
 
-void CCamera::_extRenderer_prepareView(int extRendererIndex,int resolution[2],bool perspective)
+bool CCamera::_extRenderer_prepareView(int extRendererIndex,int resolution[2],bool perspective)
 {   // Set-up the resolution, clear color, camera properties and camera pose:
 
-    CPluginContainer::selectExtRenderer(extRendererIndex);
+    bool retVal=CPluginContainer::selectExtRenderer(extRendererIndex);
 
     void* data[30];
     data[0]=resolution+0;
@@ -2155,6 +2164,7 @@ void CCamera::_extRenderer_prepareView(int extRendererIndex,int resolution[2],bo
     data[27]=&povBlurSamples;
 
     CPluginContainer::extRenderer(sim_message_eventcallback_extrenderer_start,data);
+    return(retVal);
 }
 
 void CCamera::_extRenderer_prepareLights()

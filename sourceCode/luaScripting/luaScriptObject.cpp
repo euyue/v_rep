@@ -266,28 +266,28 @@ std::string CLuaScriptObject::getSystemCallbackString(int calltype,bool callTips
     {
         std::string r("sysCall_beforeCopy");
         if (callTips)
-            r+="=()\nCalled just before objects are copied.";
+            r+="=(inData)\nCalled just before objects are copied.";
         return(r);
     }
     if (calltype==sim_syscb_aftercopy)
     {
         std::string r("sysCall_afterCopy");
         if (callTips)
-            r+="=()\nCalled just after objects were copied.";
+            r+="=(inData)\nCalled just after objects were copied.";
         return(r);
     }
     if (calltype==sim_syscb_beforedelete)
     {
         std::string r("sysCall_beforeDelete");
         if (callTips)
-            r+="=()\nCalled just before objects are deleted.";
+            r+="=(inData)\nCalled just before objects are deleted.";
         return(r);
     }
     if (calltype==sim_syscb_afterdelete)
     {
         std::string r("sysCall_afterDelete");
         if (callTips)
-            r+="=()\nCalled just after objects were deleted.";
+            r+="=(inData)\nCalled just after objects were deleted.";
         return(r);
     }
     if (calltype==sim_syscb_aftercreate)
@@ -318,25 +318,26 @@ std::string CLuaScriptObject::getSystemCallbackString(int calltype,bool callTips
             r+="=()\nCalled just before the add-on script execution resumes.";
         return(r);
     }
+
     if (calltype==sim_syscb_jointcallback)
     {
         std::string r("sysCall_jointCallback");
         if (callTips)
-            r+="=()\nCalled after a dynamic simulation step.";
+            r+="=(inData)\nCalled after a dynamic simulation step.";
         return(r);
     }
     if (calltype==sim_syscb_contactcallback)
     {
         std::string r("sysCall_contactCallback");
         if (callTips)
-            r+="=()\nCalled by the physics engine when two respondable shapes are contacting.";
+            r+="=(inData)\nCalled by the physics engine when two respondable shapes are contacting.";
         return(r);
     }
     if (calltype==sim_syscb_dyncallback)
     {
         std::string r("sysCall_dynCallback");
         if (callTips)
-            r+="=()\nCalled by the physics engine twice per dynamic simulation pass.";
+            r+="=(inData)\nCalled by the physics engine twice per dynamic simulation pass.";
         return(r);
     }
     if ( (calltype>=sim_syscb_customcallback1)&&(calltype<=sim_syscb_customcallback4) )
@@ -662,6 +663,7 @@ bool CLuaScriptObject::getContainsDynCallbackFunction() const
 {
     return(_containsDynCallbackFunction);
 }
+
 
 int CLuaScriptObject::getErrorReportMode() const
 {
@@ -1567,6 +1569,7 @@ void CLuaScriptObject::_launchThreadedChildScriptNow()
         }
         else
         {
+
             int calls[2]={sim_syscb_threadmain,sim_syscb_cleanup};
             bool errOccured=false;
             for (size_t callIndex=0;callIndex<2;callIndex++)

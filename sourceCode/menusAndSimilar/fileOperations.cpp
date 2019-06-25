@@ -1513,6 +1513,7 @@ bool CFileOperations::saveModel(int modelBaseDummyID,const char* pathAndFilename
                 }
                 App::ct->copyBuffer->serializeCurrentSelection(serObj[0],&sel,modelTr,modelBBSize,modelNonDefaultTranslationStepSize);
                 serObj->writeClose();
+                delete serObj;
             }
             else
             { // saving to buffer...

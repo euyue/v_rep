@@ -12,9 +12,7 @@ void displayDrawingObject2D(CDrawingObject2D* obj,const int minViewPos[2],const 
     float hs=(dx+dy)*0.25f*obj->_size;
     if (obj->_objectType&sim_drawing2d_pixelsize)
         hs=obj->_size/2.0f;
-    if ((t==sim_drawing2d_plus)||(t==sim_drawing2d_cross)||(t==sim_drawing2d_frame)||
-        (t==sim_drawing2d_square)||(t==sim_drawing2d_arrow)||
-        (t==sim_drawing2d_circle)||(t==sim_drawing2d_disc))
+    if ( (t==sim_drawing2d_square)||(t==sim_drawing2d_circle) )
     {
         int startI=1;
         if (obj->_objectType&sim_drawing2d_blackbkground)
@@ -31,37 +29,6 @@ void displayDrawingObject2D(CDrawingObject2D* obj,const int minViewPos[2],const 
             }
             else
                 ad=1;
-            if (t==sim_drawing2d_plus)
-            {
-                glBegin(GL_LINES);
-                glVertex3i(minViewPos[0]+int(dx*obj->_vertices[0]-hs)-ad,minViewPos[1]+int(dy*obj->_vertices[1]-0.0f),0);
-                glVertex3i(minViewPos[0]+int(dx*obj->_vertices[0]+hs)+ad,minViewPos[1]+int(dy*obj->_vertices[1]+0.0f),0);
-                glVertex3i(minViewPos[0]+int(dx*obj->_vertices[0]-0.0f),minViewPos[1]+int(dy*obj->_vertices[1]-hs)-ad,0);
-                glVertex3i(minViewPos[0]+int(dx*obj->_vertices[0]+0.0f),minViewPos[1]+int(dy*obj->_vertices[1]+hs)+ad,0);
-                glEnd();
-            }
-            if (t==sim_drawing2d_cross)
-            {
-                glBegin(GL_LINES);
-                glVertex3i(minViewPos[0]+int(dx*obj->_vertices[0]-hs)-ad,minViewPos[1]+int(dy*obj->_vertices[1]-hs)-ad,0);
-                glVertex3i(minViewPos[0]+int(dx*obj->_vertices[0]+hs)+ad,minViewPos[1]+int(dy*obj->_vertices[1]+hs)+ad,0);
-                glVertex3i(minViewPos[0]+int(dx*obj->_vertices[0]-hs)-ad,minViewPos[1]+int(dy*obj->_vertices[1]+hs)+ad,0);
-                glVertex3i(minViewPos[0]+int(dx*obj->_vertices[0]+hs)+ad,minViewPos[1]+int(dy*obj->_vertices[1]-hs)-ad,0);
-                glEnd();
-            }
-            if (t==sim_drawing2d_frame)
-            {
-                glBegin(GL_LINES);
-                glVertex3i(minViewPos[0]+int(dx*obj->_vertices[0]-hs),minViewPos[1]+int(dy*obj->_vertices[1]-hs),0);
-                glVertex3i(minViewPos[0]+int(dx*obj->_vertices[0]+hs),minViewPos[1]+int(dy*obj->_vertices[1]-hs),0);
-                glVertex3i(minViewPos[0]+int(dx*obj->_vertices[0]+hs),minViewPos[1]+int(dy*obj->_vertices[1]-hs),0);
-                glVertex3i(minViewPos[0]+int(dx*obj->_vertices[0]+hs),minViewPos[1]+int(dy*obj->_vertices[1]+hs),0);
-                glVertex3i(minViewPos[0]+int(dx*obj->_vertices[0]+hs),minViewPos[1]+int(dy*obj->_vertices[1]+hs),0);
-                glVertex3i(minViewPos[0]+int(dx*obj->_vertices[0]-hs),minViewPos[1]+int(dy*obj->_vertices[1]+hs),0);
-                glVertex3i(minViewPos[0]+int(dx*obj->_vertices[0]-hs),minViewPos[1]+int(dy*obj->_vertices[1]+hs),0);
-                glVertex3i(minViewPos[0]+int(dx*obj->_vertices[0]-hs),minViewPos[1]+int(dy*obj->_vertices[1]-hs),0);
-                glEnd();
-            }
             if (t==sim_drawing2d_square)
             {
                 glBegin(GL_QUADS);
@@ -69,17 +36,6 @@ void displayDrawingObject2D(CDrawingObject2D* obj,const int minViewPos[2],const 
                 glVertex3i(minViewPos[0]+int(dx*obj->_vertices[0]+hs)+ad,minViewPos[1]+int(dy*obj->_vertices[1]-hs)-ad,0);
                 glVertex3i(minViewPos[0]+int(dx*obj->_vertices[0]+hs)+ad,minViewPos[1]+int(dy*obj->_vertices[1]+hs)+ad,0);
                 glVertex3i(minViewPos[0]+int(dx*obj->_vertices[0]-hs)-ad,minViewPos[1]+int(dy*obj->_vertices[1]+hs)+ad,0);
-                glEnd();
-            }
-            if (t==sim_drawing2d_arrow)
-            {
-                glBegin(GL_LINES);
-                glVertex3i(minViewPos[0]+int(dx*obj->_vertices[0]),minViewPos[1]+int(dy*obj->_vertices[1]),0);
-                glVertex3i(minViewPos[0]+int(dx*obj->_vertices[0]+hs*2.0f*cos(obj->_dir)),minViewPos[1]+int(dy*obj->_vertices[1]+hs*2.0f*sin(obj->_dir)),0);
-                glVertex3i(minViewPos[0]+int(dx*obj->_vertices[0]+hs*2.0f*cos(obj->_dir)),minViewPos[1]+int(dy*obj->_vertices[1]+hs*2.0f*sin(obj->_dir)),0);
-                glVertex3i(minViewPos[0]+int(dx*obj->_vertices[0]+hs*1.5f*cos(obj->_dir+0.3f)),minViewPos[1]+int(dy*obj->_vertices[1]+hs*1.5f*sin(obj->_dir+0.3f)),0);
-                glVertex3i(minViewPos[0]+int(dx*obj->_vertices[0]+hs*2.0f*cos(obj->_dir)),minViewPos[1]+int(dy*obj->_vertices[1]+hs*2.0f*sin(obj->_dir)),0);
-                glVertex3i(minViewPos[0]+int(dx*obj->_vertices[0]+hs*1.5f*cos(obj->_dir-0.3f)),minViewPos[1]+int(dy*obj->_vertices[1]+hs*1.5f*sin(obj->_dir-0.3f)),0);
                 glEnd();
             }
 
@@ -91,15 +47,6 @@ void displayDrawingObject2D(CDrawingObject2D* obj,const int minViewPos[2],const 
                     glVertex3i(minViewPos[0]+int(dx*obj->_vertices[0]+hs*cos(da*float(i))+0.5f),minViewPos[1]+int(dy*obj->_vertices[1]+hs*sin(da*float(i))+0.5f),0);
                 glEnd();
             }
-            if (t==sim_drawing2d_disc)
-            {
-                glBegin(GL_TRIANGLE_FAN);
-                const float da=piValTimes2_f/16.0f;
-                for (int i=0;i<17;i++)
-                    glVertex3i(minViewPos[0]+int(dx*obj->_vertices[0]+(hs+float(ad))*cos(da*float(i))+0.5f),minViewPos[1]+int(dy*obj->_vertices[1]+(hs+float(ad))*sin(da*float(i))+0.5f),0);
-                glEnd();
-            }
-
         }
         glLineWidth(1.0f);
     }
@@ -144,26 +91,6 @@ void displayDrawingObject2D(CDrawingObject2D* obj,const int minViewPos[2],const 
         }
         glLineWidth(1.0f);
     }
-    if (t==sim_drawing2d_triangle)
-    {
-        ogl::setMaterialColor(sim_colorcomponent_emission,obj->_col);
-        glBegin(GL_TRIANGLES);
-        glVertex3i(minViewPos[0]+int(dx*obj->_vertices[0]),minViewPos[1]+int(dy*obj->_vertices[1]),0);
-        glVertex3i(minViewPos[0]+int(dx*obj->_vertices[2]),minViewPos[1]+int(dy*obj->_vertices[3]),0);
-        glVertex3i(minViewPos[0]+int(dx*obj->_vertices[4]),minViewPos[1]+int(dy*obj->_vertices[5]),0);
-        glEnd();
-    }
-    if (t==sim_drawing2d_rectangle)
-    {
-        ogl::setMaterialColor(sim_colorcomponent_emission,obj->_col);
-        glBegin(GL_QUADS);
-        glVertex3i(minViewPos[0]+int(dx*obj->_vertices[0]),minViewPos[1]+int(dy*obj->_vertices[1]),0);
-        glVertex3i(minViewPos[0]+int(dx*obj->_vertices[0]),minViewPos[1]+int(dy*obj->_vertices[3]),0);
-        glVertex3i(minViewPos[0]+int(dx*obj->_vertices[2]),minViewPos[1]+int(dy*obj->_vertices[3]),0);
-        glVertex3i(minViewPos[0]+int(dx*obj->_vertices[2]),minViewPos[1]+int(dy*obj->_vertices[1]),0);
-        glEnd();
-    }
-
 }
 
 #else

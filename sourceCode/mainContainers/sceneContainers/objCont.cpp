@@ -370,6 +370,7 @@ bool CObjCont::loadModelOrScene(CSer& ar,bool selectLoaded,bool isScene,bool jus
         stack.insertDataIntoStackTable();
         App::ct->luaScriptContainer->callChildMainCustomizationAddonSandboxScriptWithData(sim_syscb_aftercreate,&stack);
     }
+
     return(true);
 }
 

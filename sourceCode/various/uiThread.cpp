@@ -142,7 +142,7 @@ void CUiThread::__executeCommandViaUiThread(SUIThreadCommand* cmdIn,SUIThreadCom
 #endif
 
     if (cmdIn->cmdId==DETECT_VISION_SENSOR_ENTITY_UITHREADCMD)
-        cmdOut->boolParams.push_back(((CVisionSensor*)cmdIn->objectParams[0])->detectVisionSensorEntity_executedViaUiThread(cmdIn->intParams[0],cmdIn->boolParams[0],cmdIn->boolParams[1],cmdIn->boolParams[2],cmdIn->boolParams[3],cmdIn->boolParams[4]));
+        ((CVisionSensor*)cmdIn->objectParams[0])->detectVisionSensorEntity_executedViaUiThread(cmdIn->intParams[0],cmdIn->boolParams[0],cmdIn->boolParams[1],cmdIn->boolParams[2],cmdIn->boolParams[3]);
 
 
 #ifdef SIM_WITH_GUI
