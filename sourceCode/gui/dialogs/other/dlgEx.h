@@ -28,7 +28,5 @@ protected:
     void selectLineEdit(QLineEdit* edit);
 
     bool _markedForDestruction;
-    int _transparencyCounter;
-    bool _wasTransparent;
     int _dlgType;
 };

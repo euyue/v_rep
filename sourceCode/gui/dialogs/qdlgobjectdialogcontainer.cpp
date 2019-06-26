@@ -1,4 +1,3 @@
-
 #include "vrepMainHeader.h"
 #include "qdlgobjectdialogcontainer.h"
 #include "ui_qdlgobjectdialogcontainer.h"
@@ -21,7 +20,6 @@
 #include "qdlgshapedyn.h"
 #include "qdlgpaths.h"
 #include "qdlgpathshaping.h"
-
 #include "qdlgcommonproperties.h"
 
 #define TOP_BORDER_WIDTH 30
@@ -52,17 +50,6 @@ CQDlgObjectDialogContainer::CQDlgObjectDialogContainer(QWidget *parent) :
     QSize s(pageDlgs[currentPage]->size());
     s.setHeight(originalHeights[currentPage]+TOP_BORDER_WIDTH);
     setFixedSize(s);
-/*
-#ifndef WIN_VREP
-    // Since Qt5, we have problems on Linux (resizing-->dlg shifts in position) and Mac (resising-->ugly glitch)
-    // In that case we keep constant-size dialogs.
-    if (QT_VERSION>=0x050000)
-    {
-        s.setHeight(531+TOP_BORDER_WIDTH);
-        setFixedSize(s);
-    }
-#endif
-*/
 }
 
 CQDlgObjectDialogContainer::~CQDlgObjectDialogContainer()
@@ -100,34 +87,14 @@ void CQDlgObjectDialogContainer::refresh()
         s.setHeight(originalHeights[currentPage]+TOP_BORDER_WIDTH);
 
 #ifdef MAC_VREP
-        if (QT_VERSION>=0x050000)
-        { // Since Qt5, we have problems on Mac (resising-->ugly glitch)
-            setVisible(false);
-            setFixedSize(s);
-            setVisible(true);
-        }
-        else
-            setFixedSize(s);
+        // Since Qt5, we have problems on Mac (resising-->ugly glitch)
+        setVisible(false);
+        setFixedSize(s);
+        setVisible(true);
 #else
         setFixedSize(s);
 #endif
 
-/*
-#ifdef WIN_VREP
-        // Since Qt5, we have problems on Linux (resizing-->dlg shifts in position) and Mac (resising-->ugly glitch)
-        // In that case we keep constant-size dialogs.
-        QSize s(pageDlgs[currentPage]->size());
-        s.setHeight(originalHeights[currentPage]+TOP_BORDER_WIDTH);
-        setFixedSize(s);
-#else
-        if (QT_VERSION<0x050000)
-        {
-            QSize s(pageDlgs[currentPage]->size());
-            s.setHeight(originalHeights[currentPage]+TOP_BORDER_WIDTH);
-            setFixedSize(s);
-        }
-#endif
-*/
     }
 
     C3DObject* sel=App::ct->objCont->getLastSelection_object();
@@ -228,34 +195,13 @@ void CQDlgObjectDialogContainer::refresh()
             s.setHeight(originalHeights[currentPage]+TOP_BORDER_WIDTH);
 
 #ifdef MAC_VREP
-            if (QT_VERSION>=0x050000)
-            { // Since Qt5, we have problems on Mac (resising-->ugly glitch)
-                setVisible(false);
-                setFixedSize(s);
-                setVisible(true);
-            }
-            else
-                setFixedSize(s);
+            // Since Qt5, we have problems on Mac (resising-->ugly glitch)
+            setVisible(false);
+            setFixedSize(s);
+            setVisible(true);
 #else
             setFixedSize(s);
 #endif
-
-/*
-#ifdef WIN_VREP
-        // Since Qt5, we have problems on Linux (resizing-->dlg shifts in position) and Mac (resising-->ugly glitch)
-        // In that case we keep constant-size dialogs.
-        QSize s(pageDlgs[currentPage]->size());
-        s.setHeight(originalHeights[currentPage]+TOP_BORDER_WIDTH);
-        setFixedSize(s);
-#else
-        if (QT_VERSION<0x050000)
-        {
-            QSize s(pageDlgs[currentPage]->size());
-            s.setHeight(originalHeights[currentPage]+TOP_BORDER_WIDTH);
-            setFixedSize(s);
-        }
-#endif
-*/
         }
     }
 

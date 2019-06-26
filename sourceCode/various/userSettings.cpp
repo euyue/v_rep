@@ -67,8 +67,6 @@
 #define _USR_DEBUG_LUA_API_ACCESS "debugLuaApiAccess"
 #define _USR_DEBUG_TO_FILE "sendDebugInformationToFile"
 #define _USR_FORCE_BUG_FIX_REL_30002 "forceBugFix_rel30002"
-#define _USR_ALLOW_TRANSPARENT_DIALOGS  "allowTransparentDialogs"
-#define _USR_DIALOG_TRANSPARENCY_FACTOR "dialogTransparencyFactor"
 #define _USR_STATUSBAR_INITIALLY_VISIBLE "statusbarInitiallyVisible"
 #define _USR_MODELBROWSER_INITIALLY_VISIBLE "modelBrowserInitiallyVisible"
 #define _USR_SCENEHIERARCHY_INITIALLY_VISIBLE "sceneHierarchyInitiallyVisible"
@@ -235,8 +233,6 @@ CUserSettings::CUserSettings()
     guiFontSize_Win=11;
     guiFontSize_Mac=10;
     guiFontSize_Linux=11; // 10; changed on 19/8/2015
-    allowTransparentDialogs=false;
-    dialogTransparencyFactor=0.4f;
     statusbarInitiallyVisible=CMiscBase::handleVerSpec_statusbarDefaultInitiallyVisible();
     modelBrowserInitiallyVisible=true;
     sceneHierarchyInitiallyVisible=true;
@@ -600,8 +596,6 @@ void CUserSettings::saveUserSettings()
     c.addInteger(_USR_GUI_FONT_SIZE_WIN,guiFontSize_Win,"");
     c.addInteger(_USR_GUI_FONT_SIZE_MAC,guiFontSize_Mac,"");
     c.addInteger(_USR_GUI_FONT_SIZE_LINUX,guiFontSize_Linux,"");
-    c.addBoolean(_USR_ALLOW_TRANSPARENT_DIALOGS,allowTransparentDialogs,"");
-    c.addFloat(_USR_DIALOG_TRANSPARENCY_FACTOR,dialogTransparencyFactor,"");
     c.addBoolean(_USR_STATUSBAR_INITIALLY_VISIBLE,statusbarInitiallyVisible,"");
     c.addBoolean(_USR_MODELBROWSER_INITIALLY_VISIBLE,modelBrowserInitiallyVisible,"");
     c.addBoolean(_USR_SCENEHIERARCHY_INITIALLY_VISIBLE,sceneHierarchyInitiallyVisible,"");
@@ -891,8 +885,6 @@ void CUserSettings::loadUserSettings()
     c.getInteger(_USR_GUI_FONT_SIZE_WIN,guiFontSize_Win);
     c.getInteger(_USR_GUI_FONT_SIZE_MAC,guiFontSize_Mac);
     c.getInteger(_USR_GUI_FONT_SIZE_LINUX,guiFontSize_Linux);
-    c.getBoolean(_USR_ALLOW_TRANSPARENT_DIALOGS,allowTransparentDialogs);
-    c.getFloat(_USR_DIALOG_TRANSPARENCY_FACTOR,dialogTransparencyFactor);
     c.getBoolean(_USR_STATUSBAR_INITIALLY_VISIBLE,statusbarInitiallyVisible);
     c.getBoolean(_USR_MODELBROWSER_INITIALLY_VISIBLE,modelBrowserInitiallyVisible);
 #ifdef SIM_WITH_GUI

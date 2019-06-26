@@ -64,12 +64,10 @@ public:
     int undoRedoMaxBufferSize;
     bool alwaysShowConsole;
     bool forceBugFix_rel30002;
-    bool allowTransparentDialogs;
     bool statusbarInitiallyVisible;
     bool modelBrowserInitiallyVisible;
     bool sceneHierarchyInitiallyVisible;
     bool sceneHierarchyHiddenDuringSimulation;
-    float dialogTransparencyFactor;
     int autoSaveDelay;
     int bulletSerializationBuffer;
     int timeInMsForUndoRedoTooLongWarning;

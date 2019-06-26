@@ -8,51 +8,17 @@ int CDlgEx::doTransparencyCounter=0;
 
 CDlgEx::CDlgEx(QWidget* pParent) : VDialog(pParent)
 {
-    _wasTransparent=false;
     _markedForDestruction=false;
-    doTransparencyCounter++;
-    _transparencyCounter=doTransparencyCounter;
     initializationEvent();
 }
 CDlgEx::CDlgEx(QWidget* pParent,Qt::WindowFlags specialFlags) : VDialog(pParent,specialFlags)
 {
-    _wasTransparent=false;
     _markedForDestruction=false;
-    doTransparencyCounter++;
-    _transparencyCounter=doTransparencyCounter;
     initializationEvent();
 }
 
 bool CDlgEx::event(QEvent* event)
 {
-    if (App::userSettings->allowTransparentDialogs)
-    {
-        if (_transparencyCounter!=doTransparencyCounter)
-        {
-            setWindowOpacity(App::userSettings->dialogTransparencyFactor);
-            _transparencyCounter=doTransparencyCounter;
-            _wasTransparent=true;
-        }
-        else
-        {
-            if (event->type()==QEvent::WindowActivate)//FocusIn)
-            {
-                setWindowOpacity(1.0f);
-                _wasTransparent=false;
-            }
-            if (event->type()==QEvent::WindowDeactivate)//FocusOut)
-            {
-                setWindowOpacity(App::userSettings->dialogTransparencyFactor);
-                _wasTransparent=true;
-            }
-        }
-    }
-    else
-    {
-        if (_wasTransparent)
-            setWindowOpacity(1.0f);
-        _wasTransparent=false;
-    }
     return(QDialog::event(event));
 }
 
@@ -81,9 +47,9 @@ bool CDlgEx::doesInstanceSwitchRequireDestruction()
 
 void CDlgEx::cancelEvent()
 { // We just hide the dialog and destroy it at next rendering pass
-#ifndef LIN_VREP
-    showDialog(false); // on Linux it seems that once a window is hidden, its position becomes (0,0)!!! So we don't hide it on Linux, we just destroy it later!
-#endif
+//#ifndef LIN_VREP
+//    showDialog(false); // on Linux it seems that once a window is hidden, its position becomes (0,0)!!! So we don't hide it on Linux, we just destroy it later!
+//#endif
     _markedForDestruction=true;
     App::setToolbarRefreshFlag();
 }
