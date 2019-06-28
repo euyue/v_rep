@@ -281,21 +281,22 @@ bool CForceSensor::getDynamicTorques(C3Vector& t,bool dynamicStepValue) const
 
 void CForceSensor::_handleSensorBreaking()
 {
-    if ( (!_filteredValuesAreValid)||(!_dynamicSecondPartIsValid) )
-        return;
-    bool trigger=false;
-    if (_forceThresholdEnabled&&(_filteredDynamicForces.getLength()>=_forceThreshold))
-        trigger=true;
-    if (_torqueThresholdEnabled&&(_filteredDynamicTorques.getLength()>=_torqueThreshold))
-        trigger=true;
-    if (trigger)
-        _currentThresholdViolationCount++;
-    else
-        _currentThresholdViolationCount=0;
-    if (_currentThresholdViolationCount>=_consecutiveThresholdViolationsForBreaking)
-    { // we need to break something!
-        setForceSensorIsBroken();
-        _currentThresholdViolationCount=0;
+    if (_filteredValuesAreValid&&_dynamicSecondPartIsValid)
+    {
+        bool trigger=false;
+        if (_forceThresholdEnabled&&(_filteredDynamicForces.getLength()>=_forceThreshold))
+            trigger=true;
+        if (_torqueThresholdEnabled&&(_filteredDynamicTorques.getLength()>=_torqueThreshold))
+            trigger=true;
+        if (trigger)
+            _currentThresholdViolationCount++;
+        else
+            _currentThresholdViolationCount=0;
+        if (_currentThresholdViolationCount>=_consecutiveThresholdViolationsForBreaking)
+        { // we need to break something!
+            setForceSensorIsBroken();
+            _currentThresholdViolationCount=0;
+        }
     }
 }
 

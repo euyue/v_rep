@@ -10507,7 +10507,7 @@ simInt simCreateProximitySensor_internal(simInt sensorType,simInt subType,simInt
         it->setBackFaceDetection((options&16)==0);
         it->setClosestObjectMode((options&32)==0);
         it->setNormalCheck((options&64)!=0);
-        it->setCheckOcclusions((options&128)!=0);
+//        it->setCheckOcclusions((options&128)!=0);
         it->convexVolume->setSmallestDistanceEnabled((options&256)!=0);
         it->setRandomizedDetection((sensorType==sim_proximitysensor_ray_subtype)&&(options&512)!=0);
 

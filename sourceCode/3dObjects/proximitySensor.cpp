@@ -27,7 +27,7 @@ CProxSensor::~CProxSensor()
 {
     delete convexVolume;
 }
-
+/*
 void CProxSensor::setCheckOcclusions(bool c)
 {
     _checkOcclusions=c;
@@ -37,7 +37,7 @@ bool CProxSensor::getCheckOcclusions() const
 {
     return(_checkOcclusions);
 }
-
+*/
 void CProxSensor::setRandomizedDetection(bool enable)
 {
     if ( (sensorType==sim_proximitysensor_ray_subtype)&&(enable!=_randomizedDetection) )
@@ -168,7 +168,7 @@ void CProxSensor::commonInit()
     closestObjectMode=true;
     normalCheck=false;
     allowedNormal=45.0f*degToRad_f;
-    _checkOcclusions=true;
+//    _checkOcclusions=true;
     _initialValuesInitialized=false;
     _hideDetectionRay=false;
 
@@ -275,7 +275,7 @@ C3DObject* CProxSensor::copyYourself()
     newSensor->displayNormals=displayNormals;
     newSensor->_showVolumeWhenNotDetecting=_showVolumeWhenNotDetecting;
     newSensor->_showVolumeWhenDetecting=_showVolumeWhenDetecting;
-    newSensor->_checkOcclusions=_checkOcclusions;
+//    newSensor->_checkOcclusions=_checkOcclusions;
 
     newSensor->_randomizedDetection=_randomizedDetection;
     newSensor->_randomizedDetectionSampleCount=_randomizedDetectionSampleCount;
@@ -450,7 +450,7 @@ void CProxSensor::serialize(CSer& ar)
 
             ar.storeDataName("Pr5");
             nothing=0;
-            SIM_SET_CLEAR_BIT(nothing,0,_checkOcclusions);
+//            SIM_SET_CLEAR_BIT(nothing,0,_checkOcclusions);
             SIM_SET_CLEAR_BIT(nothing,1,_randomizedDetection);
             ar << nothing;
             ar.flush();
@@ -497,7 +497,7 @@ void CProxSensor::serialize(CSer& ar)
         {       // Loading
             int byteQuantity;
             std::string theName="";
-            bool occlusionCheckThingWasLoaded_backwardCompatibility2010_08_09=false;
+//            bool occlusionCheckThingWasLoaded_backwardCompatibility2010_08_09=false;
             while (theName.compare(SER_END_OF_OBJECT)!=0)
             {
                 theName=ar.readDataName();
@@ -563,9 +563,9 @@ void CProxSensor::serialize(CSer& ar)
                         ar >> byteQuantity;
                         unsigned char nothing;
                         ar >> nothing;
-                        _checkOcclusions=SIM_IS_BIT_SET(nothing,0);
+//                        _checkOcclusions=SIM_IS_BIT_SET(nothing,0);
                         _randomizedDetection=SIM_IS_BIT_SET(nothing,1);
-                        occlusionCheckThingWasLoaded_backwardCompatibility2010_08_09=true;
+//                        occlusionCheckThingWasLoaded_backwardCompatibility2010_08_09=true;
                     }
                     if (theName.compare("Rad")==0)
                     {
@@ -601,8 +601,8 @@ void CProxSensor::serialize(CSer& ar)
                         ar.loadUnknownData();
                 }
             }
-            if (!occlusionCheckThingWasLoaded_backwardCompatibility2010_08_09)
-                _checkOcclusions=false;
+//            if (!occlusionCheckThingWasLoaded_backwardCompatibility2010_08_09)
+//                _checkOcclusions=false;
 
             if (ar.getSerializationVersionThatWroteThisFile()<17)
             { // on 29/08/2013 we corrected all default lights. So we need to correct for that change:
@@ -727,7 +727,7 @@ bool CProxSensor::handleSensor(bool exceptExplicitHandling,int& detectedObjectHa
 
     _randomizedVectors.clear();
     _randomizedVectorDetectionStates.clear();
-    _detectedPointValid=CProxSensorRoutine::detectEntity(_objectHandle,_sensableObject,closestObjectMode,normalCheck,allowedNormal,_detectedPoint,treshhold,frontFaceDetection,backFaceDetection,detectedObjectHandle,minThreshold,detectedNormalVector,false,_checkOcclusions&&normalCheck);
+    _detectedPointValid=CProxSensorRoutine::detectEntity(_objectHandle,_sensableObject,closestObjectMode,normalCheck,allowedNormal,_detectedPoint,treshhold,frontFaceDetection,backFaceDetection,detectedObjectHandle,minThreshold,detectedNormalVector,false,false);
     _detectedObjectHandle=detectedObjectHandle;
     _detectedNormalVector=detectedNormalVector;
     _calcTimeInMs=VDateTime::getTimeDiffInMs(stTime);

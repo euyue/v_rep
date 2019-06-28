@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>380</width>
-    <height>227</height>
+    <height>203</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>90</y>
+     <y>70</y>
      <width>271</width>
      <height>18</height>
     </rect>
@@ -62,22 +62,6 @@
    </property>
    <property name="text">
     <string>Back face detection</string>
-   </property>
-  </widget>
-  <widget class="QCheckBox" name="qqOcclusionCheck">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>70</y>
-     <width>141</width>
-     <height>18</height>
-    </rect>
-   </property>
-   <property name="focusPolicy">
-    <enum>Qt::StrongFocus</enum>
-   </property>
-   <property name="text">
-    <string>Occlusion check</string>
    </property>
   </widget>
   <widget class="QCheckBox" name="qqFrontFace">
@@ -126,7 +110,7 @@
    <property name="geometry">
     <rect>
      <x>280</x>
-     <y>90</y>
+     <y>70</y>
      <width>56</width>
      <height>18</height>
     </rect>
@@ -136,7 +120,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>115</y>
+     <y>100</y>
      <width>361</width>
      <height>71</height>
     </rect>
@@ -201,7 +185,7 @@
    <property name="geometry">
     <rect>
      <x>15</x>
-     <y>190</y>
+     <y>170</y>
      <width>351</width>
      <height>32</height>
     </rect>

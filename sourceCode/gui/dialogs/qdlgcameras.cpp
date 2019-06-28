@@ -101,17 +101,41 @@ void CQDlgCameras::refresh()
             }
         }
 
-        ui->qqRenderModeCombo->addItem(strTranslate(IDS_VISIBLE_COMPONENTS),QVariant(0));
-        ui->qqRenderModeCombo->addItem(strTranslate(IDS_RAY_TRACING_DURING_SIMULATION_AND_RECORDING),QVariant(1));
-        ui->qqRenderModeCombo->addItem(strTranslate(IDS_RAY_TRACING_DURING_SIMULATION),QVariant(2));
-        ui->qqRenderModeCombo->addItem(strTranslate(IDS_RAY_TRACING2_DURING_SIMULATION_AND_RECORDING),QVariant(3));
-        ui->qqRenderModeCombo->addItem(strTranslate(IDS_RAY_TRACING2_DURING_SIMULATION),QVariant(4));
-        ui->qqRenderModeCombo->addItem(strTranslate(IDS_EXTERNAL_RENDERER),QVariant(5));
+        ui->qqRenderModeCombo->addItem(IDS_VISIBLE_COMPONENTS,QVariant(0));
+        ui->qqRenderModeCombo->addItem(IDS_EXTERNAL_RENDERER,QVariant(1));
+        ui->qqRenderModeCombo->addItem(IDS_EXT_RENDERER_DURING_SIMULATION,QVariant(2));
+        ui->qqRenderModeCombo->addItem(IDS_EXT_RENDERER_DURING_SIMULATION_AND_RECORDING,QVariant(3));
+        ui->qqRenderModeCombo->addItem(IDS_OPENGL3,QVariant(4));
+        ui->qqRenderModeCombo->addItem(IDS_OPENGL3_DURING_SIMULATION,QVariant(5));
+        ui->qqRenderModeCombo->addItem(IDS_OPENGL3_DURING_SIMULATION_AND_RECORDING,QVariant(6));
+        ui->qqRenderModeCombo->addItem(IDS_RAY_TRACING_DURING_SIMULATION,QVariant(7));
+        ui->qqRenderModeCombo->addItem(IDS_RAY_TRACING_DURING_SIMULATION_AND_RECORDING,QVariant(8));
 
         // Select current item:
+        bool duringSim,duringRec;
+        int renderMode=it->getRenderMode(&duringSim,&duringRec);
         for (int i=0;i<ui->qqRenderModeCombo->count();i++)
         {
-            if (ui->qqRenderModeCombo->itemData(i).toInt()==it->getRenderMode())
+            bool ok=false;
+            if (renderMode==sim_rendermode_opengl)
+                ok=(ui->qqRenderModeCombo->itemData(i).toInt()==0);
+            if ( (renderMode==sim_rendermode_extrenderer)&&(!duringSim)&&(!duringRec) )
+                ok=(ui->qqRenderModeCombo->itemData(i).toInt()==1);
+            if ( (renderMode==sim_rendermode_extrenderer)&&duringSim&&(!duringRec) )
+                ok=(ui->qqRenderModeCombo->itemData(i).toInt()==2);
+            if ( (renderMode==sim_rendermode_extrenderer)&&duringSim&&duringRec )
+                ok=(ui->qqRenderModeCombo->itemData(i).toInt()==3);
+            if ( (renderMode==sim_rendermode_opengl3)&&(!duringSim)&&(!duringRec) )
+                ok=(ui->qqRenderModeCombo->itemData(i).toInt()==4);
+            if ( (renderMode==sim_rendermode_opengl3)&&duringSim&&(!duringRec) )
+                ok=(ui->qqRenderModeCombo->itemData(i).toInt()==5);
+            if ( (renderMode==sim_rendermode_opengl3)&&duringSim&&duringRec )
+                ok=(ui->qqRenderModeCombo->itemData(i).toInt()==6);
+            if ( (renderMode==sim_rendermode_povray)&&duringSim&&(!duringRec) )
+                ok=(ui->qqRenderModeCombo->itemData(i).toInt()==7);
+            if ( (renderMode==sim_rendermode_povray)&&duringSim&&duringRec )
+                ok=(ui->qqRenderModeCombo->itemData(i).toInt()==8);
+            if (ok)
             {
                 ui->qqRenderModeCombo->setCurrentIndex(i);
                 break;
@@ -365,8 +389,36 @@ void CQDlgCameras::on_qqRenderModeCombo_currentIndexChanged(int index)
     {
         IF_UI_EVENT_CAN_WRITE_DATA
         {
-            int renderMode=ui->qqRenderModeCombo->itemData(ui->qqRenderModeCombo->currentIndex()).toInt();
-            App::appendSimulationThreadCommand(SET_RENDERMODE_CAMERAGUITRIGGEREDCMD,App::ct->objCont->getLastSelectionID(),renderMode);
+            int index=ui->qqRenderModeCombo->itemData(ui->qqRenderModeCombo->currentIndex()).toInt();
+
+            bool duringSim=false;
+            bool duringRec=false;
+            int renderMode=sim_rendermode_opengl;
+            if ( (index>=1)&&(index<=3) )
+            {
+                renderMode=sim_rendermode_extrenderer;
+                duringSim=(index>=2);
+                duringRec=(index>=3);
+            }
+            if ( (index>=4)&&(index<=6) )
+            {
+                renderMode=sim_rendermode_opengl3;
+                duringSim=(index>=5);
+                duringRec=(index>=6);
+            }
+            if ( (index>=7)&&(index<=8) )
+            {
+                renderMode=sim_rendermode_povray;
+                duringSim=(index>=7);
+                duringRec=(index>=8);
+            }
+            SSimulationThreadCommand cmd;
+            cmd.cmdId=SET_RENDERMODE_CAMERAGUITRIGGEREDCMD;
+            cmd.intParams.push_back(App::ct->objCont->getLastSelectionID());
+            cmd.intParams.push_back(renderMode);
+            cmd.boolParams.push_back(duringSim);
+            cmd.boolParams.push_back(duringRec);
+            App::appendSimulationThreadCommand(cmd);
             App::appendSimulationThreadCommand(POST_SCENE_CHANGED_ANNOUNCEMENT_GUITRIGGEREDCMD);
             App::appendSimulationThreadCommand(FULLREFRESH_ALL_DIALOGS_GUITRIGGEREDCMD);
         }

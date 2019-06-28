@@ -91,8 +91,8 @@ public:
     void setShowVolumeWhenDetecting(bool s);
     bool getShowVolumeWhenDetecting() const;
 
-    void setCheckOcclusions(bool c);
-    bool getCheckOcclusions() const;
+//    void setCheckOcclusions(bool c);
+//    bool getCheckOcclusions() const;
 
     void setHideDetectionRay(bool hide);
     bool getHideDetectionRay() const;
@@ -128,7 +128,7 @@ protected:
     float allowedNormal;
     float size;
     bool normalCheck;
-    bool _checkOcclusions;
+//    bool _checkOcclusions;
     bool closestObjectMode;
     bool frontFaceDetection;
     bool backFaceDetection;

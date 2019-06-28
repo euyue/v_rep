@@ -37,8 +37,8 @@ void CQDlgProxSensDetectionParam::refresh()
     ui->qqLimitedAngle->setChecked(limitedAngle);
     ui->qqAngle->setEnabled(limitedAngle);
     ui->qqAngle->setText(tt::getAngleFString(false,angle,2).c_str());
-    ui->qqOcclusionCheck->setEnabled(limitedAngle);
-    ui->qqOcclusionCheck->setChecked(limitedAngle&&occlusionCheck);
+//    ui->qqOcclusionCheck->setEnabled(limitedAngle);
+//    ui->qqOcclusionCheck->setChecked(limitedAngle&&occlusionCheck);
     ui->qqMinDistEnabled->setChecked(distanceContraint);
     ui->qqMinDist->setEnabled(distanceContraint);
     ui->qqMinDist->setText(tt::getFString(false,minimumDistance,3).c_str());
@@ -95,13 +95,13 @@ void CQDlgProxSensDetectionParam::on_qqAngle_editingFinished()
     }
     refresh();
 }
-
+/*
 void CQDlgProxSensDetectionParam::on_qqOcclusionCheck_clicked()
 {
     occlusionCheck=!occlusionCheck;
     refresh();
 }
-
+*/
 void CQDlgProxSensDetectionParam::on_qqMinDistEnabled_clicked()
 {
     distanceContraint=!distanceContraint;

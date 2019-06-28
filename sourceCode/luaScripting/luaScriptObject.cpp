@@ -1450,7 +1450,7 @@ int CLuaScriptObject::_runMainScriptNow(int callType,const CInterfaceStack* inSt
         functionPresent[0]=true; // we only return false if we know for sure the function is not there (if the script contains an error, we can't know for sure)
     std::string errorMsg;
     App::ct->luaScriptContainer->setInMainScriptNow(true,VDateTime::getTimeInMs());
-    int retVal=_runScriptOrCallScriptFunction(callType,inStack,outStack,&errorMsg,nullptr,nullptr,nullptr);
+    int retVal=_runScriptOrCallScriptFunction(callType,inStack,outStack,&errorMsg);
     if ( (retVal==0)&&(functionPresent!=nullptr) )
         functionPresent[0]=false;
     App::ct->luaScriptContainer->setInMainScriptNow(false,0);
@@ -1489,7 +1489,7 @@ int CLuaScriptObject::runNonThreadedChildScript(int callType,const CInterfaceSta
 int CLuaScriptObject::_runNonThreadedChildScriptNow(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack)
 { // retval: -2: compil error, -1: runtimeError, 0: function not there, 1: ok
     std::string errorMsg;
-    int retVal=_runScriptOrCallScriptFunction(callType,inStack,outStack,&errorMsg,&_containsJointCallbackFunction,&_containsContactCallbackFunction,&_containsDynCallbackFunction);
+    int retVal=_runScriptOrCallScriptFunction(callType,inStack,outStack,&errorMsg);
     if (errorMsg.size()>0)
         _displayScriptError(errorMsg.c_str(),retVal+2); // 0=compilError, 1=runtimeError
     if (retVal<0)
@@ -1675,7 +1675,7 @@ int CLuaScriptObject::runCustomizationScript(int callType,const CInterfaceStack*
 int CLuaScriptObject::_runCustomizationScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack)
 { // retval: -2: compil error, -1: runtimeError, 0: function not there or script not executed, 1: ok
     std::string errorMsg;
-    int retVal=_runScriptOrCallScriptFunction(callType,inStack,outStack,&errorMsg,&_containsJointCallbackFunction,&_containsContactCallbackFunction,&_containsDynCallbackFunction);
+    int retVal=_runScriptOrCallScriptFunction(callType,inStack,outStack,&errorMsg);
     if (errorMsg.size()>0)
     {
         errorMsg+=errorWithCustomizationScript(); // might temporarily disable the custom. script
@@ -1694,7 +1694,7 @@ void CLuaScriptObject::_handleSimpleSysExCalls(int callType)
     }
 }
 
-int CLuaScriptObject::_runScriptOrCallScriptFunction(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack,std::string* errorMsg,bool* hasJointCallbackFunc,bool* hasContactCallbackFunc,bool* hasDynCallbackFunc)
+int CLuaScriptObject::_runScriptOrCallScriptFunction(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack,std::string* errorMsg)
 { // retval: -2: compil error, -1: runtimeError, 0: function not there, 1: ok
     int retVal;
     if (errorMsg!=nullptr)
@@ -1798,14 +1798,11 @@ int CLuaScriptObject::_runScriptOrCallScriptFunction(int callType,const CInterfa
         if (callType==sim_syscb_init)
         { // do this only once
             luaWrap_lua_getglobal(L,getSystemCallbackString(sim_syscb_jointcallback,false).c_str());
-            if (hasJointCallbackFunc!=nullptr)
-                hasJointCallbackFunc[0]=luaWrap_lua_isfunction(L,-1);
+            _containsJointCallbackFunction=luaWrap_lua_isfunction(L,-1);
             luaWrap_lua_getglobal(L,getSystemCallbackString(sim_syscb_contactcallback,false).c_str());
-            if (hasContactCallbackFunc!=nullptr)
-                hasContactCallbackFunc[0]=luaWrap_lua_isfunction(L,-1);
+            _containsContactCallbackFunction=luaWrap_lua_isfunction(L,-1);
             luaWrap_lua_getglobal(L,getSystemCallbackString(sim_syscb_dyncallback,false).c_str());
-            if (hasDynCallbackFunc!=nullptr)
-                hasDynCallbackFunc[0]=luaWrap_lua_isfunction(L,-1);
+            _containsDynCallbackFunction=luaWrap_lua_isfunction(L,-1);
             luaWrap_lua_pop(L,3);
         }
         // Push the function name onto the stack (will be automatically popped from stack after _luaPCall):
@@ -1867,7 +1864,7 @@ int CLuaScriptObject::runSandboxScript(int callType,const CInterfaceStack* inSta
     if (L!=nullptr)
     {
         std::string errorMsg;
-        int retVal=_runScriptOrCallScriptFunction(callType,inStack,outStack,&errorMsg,nullptr,nullptr,nullptr);
+        int retVal=_runScriptOrCallScriptFunction(callType,inStack,outStack,&errorMsg);
         if (errorMsg.size()>0)
             _displayScriptError(errorMsg.c_str(),retVal+2); // 0=compilError, 1=runtimeError
     }
@@ -1944,10 +1941,10 @@ int CLuaScriptObject::_runAddOn(int callType,const CInterfaceStack* inStack,CInt
     { // for backward compatibility
         CInterfaceStack inStackLocal;
         inStackLocal.pushNumberOntoStack(double(callType));
-        retVal=_runScriptOrCallScriptFunction(callType,&inStackLocal,outStackProxy,&errorMsg,nullptr,nullptr,nullptr);
+        retVal=_runScriptOrCallScriptFunction(callType,&inStackLocal,outStackProxy,&errorMsg);
     }
     else
-        retVal=_runScriptOrCallScriptFunction(callType,inStack,outStackProxy,&errorMsg,nullptr,nullptr,nullptr);
+        retVal=_runScriptOrCallScriptFunction(callType,inStack,outStackProxy,&errorMsg);
     if (retVal>-2)
     {
         if ( (callType==sim_syscb_init)||(callType==sim_syscb_cleanup)||(callType==sim_syscb_aos_run)||(callType==sim_syscb_aos_suspend)||(callType==sim_syscb_aos_resume) )

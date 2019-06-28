@@ -192,7 +192,7 @@ protected:
     void _launchThreadedChildScriptNow();
     int _runCustomizationScript(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
     int _runAddOn(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack);
-    int _runScriptOrCallScriptFunction(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack,std::string* errorMsg,bool* hasJointCallbackFunc,bool* hasContactCallbackFunc,bool* hasDynCallbackFunc);
+    int _runScriptOrCallScriptFunction(int callType,const CInterfaceStack* inStack,CInterfaceStack* outStack,std::string* errorMsg);
     void _handleSimpleSysExCalls(int callType);
 
     bool _prepareLuaStateAndCallScriptInitSectionIfNeeded();

@@ -298,7 +298,7 @@ void CQDlgProximitySensors::on_qqAdjustDetectionParams_clicked()
             theDialog.fast=!it->getClosestObjectMode();
             theDialog.limitedAngle=it->getNormalCheck();
             theDialog.angle=it->getAllowedNormal();
-            theDialog.occlusionCheck=it->getCheckOcclusions();
+//            theDialog.occlusionCheck=it->getCheckOcclusions();
             theDialog.distanceContraint=it->convexVolume->getSmallestDistanceEnabled();
             theDialog.minimumDistance=it->convexVolume->getSmallestDistanceAllowed();
             theDialog.randomizedDetection=it->getRandomizedDetection();
@@ -316,7 +316,7 @@ void CQDlgProximitySensors::on_qqAdjustDetectionParams_clicked()
                 cmd.boolParams.push_back(!theDialog.fast);
                 cmd.boolParams.push_back(theDialog.limitedAngle);
                 cmd.floatParams.push_back(theDialog.angle);
-                cmd.boolParams.push_back(theDialog.occlusionCheck);
+//                cmd.boolParams.push_back(theDialog.occlusionCheck);
                 cmd.boolParams.push_back(theDialog.distanceContraint);
                 cmd.floatParams.push_back(theDialog.minimumDistance);
                 cmd.intParams.push_back(theDialog.rayCount);

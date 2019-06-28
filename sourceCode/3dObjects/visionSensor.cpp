@@ -1315,14 +1315,14 @@ void CVisionSensor::renderForDetection(int entityID,bool detectAll,bool entityIs
         _currentViewSize[1]=_extWindowedViewSize[1];
     }
 
-    if (_renderMode==sim_rendermode_povray)
-        setFrustumCullingTemporarilyDisabled(true); // important with ray-tracers
+    if ((_renderMode==sim_rendermode_povray)||(_renderMode==sim_rendermode_opengl3)||(_renderMode==sim_rendermode_opengl3windowed))
+        setFrustumCullingTemporarilyDisabled(true); // important with ray-tracers and similar
 
     // Draw objects:
     _drawObjects(entityID,detectAll,entityIsModelAndRenderAllVisibleModelAlsoNonRenderableObjects,hideEdgesIfModel,overrideRenderableFlagsForNonCollections);
 
-    if (_renderMode==sim_rendermode_povray)
-        setFrustumCullingTemporarilyDisabled(false); // important with ray-tracers
+    if ((_renderMode==sim_rendermode_povray)||(_renderMode==sim_rendermode_opengl3)||(_renderMode==sim_rendermode_opengl3windowed))
+        setFrustumCullingTemporarilyDisabled(false); // important with ray-tracers and similar
 
 #ifdef SIM_WITH_OPENGL
     if (getInternalRendering())

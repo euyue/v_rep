@@ -746,7 +746,10 @@ void CCamera::commonInit()
     _nearClippingPlane=0.05f;
     _farClippingPlane=30.0f;
     cameraSize=0.05f;
-    _renderMode=0; // regular openGl
+    _renderMode=sim_rendermode_opengl;
+    _renderModeDuringSimulation=false;
+    _renderModeDuringRecording=false;
+
     _viewAngle=60.0f*degToRad_f;
     _orthoViewSize=2.0f;
     _showFogIfAvailable=true;
@@ -986,6 +989,8 @@ C3DObject* CCamera::copyYourself()
     // Various
     newCamera->cameraSize=cameraSize;
     newCamera->_renderMode=_renderMode;
+    newCamera->_renderModeDuringSimulation=_renderModeDuringSimulation;
+    newCamera->_renderModeDuringRecording=_renderModeDuringRecording;
     newCamera->_viewAngle=_viewAngle;
     newCamera->_orthoViewSize=_orthoViewSize;
     newCamera->_nearClippingPlane=_nearClippingPlane;
@@ -1243,6 +1248,10 @@ void CCamera::serialize(CSer& ar)
             ar.flush();
 
             ar.storeDataName("Rmd");
+            ar << int(sim_rendermode_opengl); // for backward compatibility 28/06/2019
+            ar.flush();
+
+            ar.storeDataName("Rm2");
             ar << _renderMode;
             ar.flush();
 
@@ -1253,6 +1262,8 @@ void CCamera::serialize(CSer& ar)
             SIM_SET_CLEAR_BIT(nothing,2,_useLocalLights);
             SIM_SET_CLEAR_BIT(nothing,3,!_allowPicking);
             // RESERVED SIM_SET_CLEAR_BIT(nothing,4,_povFocalBlurEnabled);
+            SIM_SET_CLEAR_BIT(nothing,5,_renderModeDuringSimulation);
+            SIM_SET_CLEAR_BIT(nothing,6,_renderModeDuringRecording);
             ar << nothing;
             ar.flush();
 
@@ -1328,12 +1339,39 @@ void CCamera::serialize(CSer& ar)
                         _useLocalLights=SIM_IS_BIT_SET(nothing,2);
                         _allowPicking=!SIM_IS_BIT_SET(nothing,3);
                         povFocalBlurEnabled_backwardCompatibility_3_2_2016=SIM_IS_BIT_SET(nothing,4);
+                        _renderModeDuringSimulation=SIM_IS_BIT_SET(nothing,5);
+                        _renderModeDuringRecording=SIM_IS_BIT_SET(nothing,6);
                     }
-                    if (theName.compare("Rmd")==0)
+                    if (theName.compare("Rm2")==0)
                     {
                         noHit=false;
                         ar >> byteQuantity;
                         ar >> _renderMode;
+                    }
+                    if (theName.compare("Rmd")==0)
+                    { // keep for backward compatibility 28/06/2019
+                        noHit=false;
+                        ar >> byteQuantity;
+                        ar >> _renderMode;
+                        if (_renderMode!=0)
+                        {
+                            if (_renderMode==1)
+                            {
+                                _renderMode=sim_rendermode_povray;
+                                _renderModeDuringSimulation=true;
+                                _renderModeDuringRecording=true;
+                            }
+                            else if (_renderMode==2)
+                            {
+                                _renderMode=sim_rendermode_povray;
+                                _renderModeDuringSimulation=true;
+                                _renderModeDuringRecording=false;
+                            }
+                            else if (_renderMode==5)
+                                _renderMode=sim_rendermode_extrenderer;
+                            else
+                                _renderMode=sim_rendermode_opengl;
+                        }
                     }
                     if (theName.compare("Pv1")==0)
                     { // Keep for backward compatibility (3/2/2016)
@@ -1848,11 +1886,7 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
         bool applyNewImage=false;
         if (!getInternalRendering())
         {
-            int rendererIndex=0;
-            if ((_renderMode==3)||(_renderMode==4))
-                rendererIndex=1;
-            if (_renderMode==5)
-                rendererIndex=2;
+            int rendererIndex=_renderMode-sim_rendermode_povray;
 
             bool renderView=true;
             if (App::mainWindow->simulationRecorder->getIsRecording()&&(rendererIndex<2))
@@ -1877,14 +1911,14 @@ void CCamera::lookIn(int windowSize[2],CSView* subView,bool drawText,bool passiv
                 _extRenderer_prepareLights();
                 _extRenderer_prepareMirrors();
 
-                if ((_renderMode>0)&&(_renderMode<5))
-                    setFrustumCullingTemporarilyDisabled(true); // important with ray-tracers
+                if ((_renderMode==sim_rendermode_povray)||(_renderMode==sim_rendermode_opengl3))
+                    setFrustumCullingTemporarilyDisabled(true); // important with ray-tracers and similar
 
                 // Draw objects:
                 _drawObjects(RENDERING_MODE_SOLID,RENDERPASS,currentWinSize,subView,false);
 
-                if ((_renderMode>0)&&(_renderMode<5))
-                    setFrustumCullingTemporarilyDisabled(false); // important with ray-tracers
+                if ((_renderMode==sim_rendermode_povray)||(_renderMode==sim_rendermode_opengl3))
+                    setFrustumCullingTemporarilyDisabled(false); // important with ray-tracers and similar
 
                 _extRenderer_retrieveImage(buff);
 
@@ -3075,26 +3109,35 @@ int CCamera::getAttributesForRendering() const
     return(_attributesForRendering);
 }
 
-void CCamera::setRenderMode(int mode)
+void CCamera::setRenderMode(int mode,bool duringSimulation,bool duringRecording)
 {
     _renderMode=mode;
+    _renderModeDuringSimulation=duringSimulation;
+    _renderModeDuringRecording=duringRecording;
 }
 
-int CCamera::getRenderMode() const
+int CCamera::getRenderMode(bool* duringSimulation,bool* duringRecording) const
 {
+    if (duringSimulation!=nullptr)
+        duringSimulation[0]=_renderModeDuringSimulation;
+    if (duringRecording!=nullptr)
+        duringRecording[0]=_renderModeDuringRecording;
     return(_renderMode);
 }
 
 bool CCamera::getInternalRendering() const
 {
-    if (_renderMode==0)
-        return(true);
-    if (App::getEditModeType()!=NO_EDIT_MODE)
-        return(true);
-    if ((_renderMode==1)||(_renderMode==3))
-        return((!App::ct->simulation->isSimulationRunning())||(!App::mainWindow->simulationRecorder->getIsRecording()));
-    if ((_renderMode==2)||(_renderMode==4))
-        return(!App::ct->simulation->isSimulationRunning());
-    return(false);
+    if (_renderMode!=sim_rendermode_opengl)
+    {
+        if (App::getEditModeType()==NO_EDIT_MODE)
+        {
+            if ( (_renderMode==sim_rendermode_povray)||(_renderMode==sim_rendermode_extrenderer)||(_renderMode==sim_rendermode_opengl3) )
+            {
+                if ( App::ct->simulation->isSimulationRunning()||(!_renderModeDuringSimulation) )
+                    return(App::mainWindow->simulationRecorder->getIsRecording()!=_renderModeDuringRecording);
+            }
+        }
+    }
+    return(true);
 }
 #endif

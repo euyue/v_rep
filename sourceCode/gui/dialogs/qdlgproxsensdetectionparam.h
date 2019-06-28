@@ -26,7 +26,7 @@ public:
     bool fast;
     bool limitedAngle;
     float angle;
-    bool occlusionCheck;
+//    bool occlusionCheck;
     bool distanceContraint;
     float minimumDistance;
     bool randomizedDetection;
@@ -44,7 +44,7 @@ private slots:
 
     void on_qqAngle_editingFinished();
 
-    void on_qqOcclusionCheck_clicked();
+//    void on_qqOcclusionCheck_clicked();
 
     void on_qqMinDistEnabled_clicked();
 

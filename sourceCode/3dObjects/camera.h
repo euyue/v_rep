@@ -86,9 +86,11 @@ public:
 protected:
     // Variables which need to be serialized & copied (don't forget the vars from the CViewableBase class!)
     float cameraSize;
-    int _renderMode; // 0=openGl, 1=RayTracing during simulation and video recording, 2=rayTracing during simulation
+    int _renderMode;
     bool _useParentObjectAsManipulationProxy;
     bool _allowPicking;
+    bool _renderModeDuringSimulation;
+    bool _renderModeDuringRecording;
     int _cameraManipulationModePermissions;
     CVisualParam colorPart1; // Part1 color
     CVisualParam colorPart2; // Part2 color
@@ -108,8 +110,8 @@ public:
     void lookIn(int windowSize[2],CSView* subView,bool drawText=false,bool passiveSubView=true);
     void setAttributesForRendering(int attr);
     int getAttributesForRendering() const;
-    void setRenderMode(int mode);
-    int getRenderMode() const;
+    void setRenderMode(int mode,bool duringSimulation,bool duringRecording);
+    int getRenderMode(bool* duringSimulation,bool* duringRecording) const;
     bool getInternalRendering() const;
 
 protected:

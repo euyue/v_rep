@@ -606,7 +606,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
         {
             CCamera* cam=App::ct->objCont->getCamera(cmd.intParams[0]);
             if (cam!=nullptr)
-                cam->setRenderMode(cmd.intParams[1]);
+                cam->setRenderMode(cmd.intParams[1],cmd.boolParams[0],cmd.boolParams[1]);
         }
         if (cmd.cmdId==NEW_COLLECTION_COLLECTIONGUITRIGGEREDCMD)
         {
@@ -1405,7 +1405,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                         it->setClosestObjectMode(last->getClosestObjectMode());
                         it->setNormalCheck(last->getNormalCheck());
                         it->setAllowedNormal(last->getAllowedNormal());
-                        it->setCheckOcclusions(last->getCheckOcclusions());
+//                        it->setCheckOcclusions(last->getCheckOcclusions());
                         it->convexVolume->setSmallestDistanceEnabled(last->convexVolume->getSmallestDistanceEnabled());
                         it->convexVolume->setSmallestDistanceAllowed(last->convexVolume->getSmallestDistanceAllowed());
                         it->setSensableObject(last->getSensableObject());
@@ -1453,7 +1453,7 @@ void CSimThread::_executeSimulationThreadCommand(SSimulationThreadCommand cmd)
                 it->setClosestObjectMode(cmd.boolParams[2]);
                 it->setNormalCheck(cmd.boolParams[3]);
                 it->setAllowedNormal(cmd.floatParams[0]);
-                it->setCheckOcclusions(cmd.boolParams[4]);
+//                it->setCheckOcclusions(cmd.boolParams[4]);
                 it->convexVolume->setSmallestDistanceEnabled(cmd.boolParams[5]);
                 it->convexVolume->setSmallestDistanceAllowed(cmd.floatParams[1]);
                 if (it->getRandomizedDetection())
